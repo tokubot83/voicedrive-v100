@@ -112,3 +112,6 @@ body {
 
 /* ワークフロー関連のスタイルをインポート */
 @import './styles/workflow.css';
+
+/* 分析・ダッシュボード関連のスタイルをインポート */
+@import './styles/analytics.css';
