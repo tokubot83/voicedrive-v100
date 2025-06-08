@@ -26,14 +26,16 @@ export const useProjectScoring = () => {
     const engagements: EngagementData[] = [];
     const voteTypes = ['strongly-oppose', 'oppose', 'neutral', 'support', 'strongly-support'] as const;
     
+    let userIndex = 0;
     voteTypes.forEach(voteType => {
       const count = votes[voteType] || 0;
       for (let i = 0; i < count; i++) {
         engagements.push({
-          userId: `user_${Math.floor(Math.random() * 100)}`,
+          userId: `user_${userIndex % 100}`, // 0-99の範囲で循環
           level: voteType,
           timestamp: new Date()
         });
+        userIndex++;
       }
     });
     

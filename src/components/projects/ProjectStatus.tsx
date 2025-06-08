@@ -24,6 +24,9 @@ const ProjectStatus: React.FC<ProjectStatusProps> = ({
   const score = calculateScore(engagements, postId);
   const status = getStatusConfig(score, postType);
   
+  // デバッグ情報を表示
+  console.log(`Post ${postId} - Score: ${score}, Stage: ${status.displayStage}, Progress: ${status.progressPercentage}%`);
+  
   // 段階1: スコア50点未満の場合は表示しない
   if (status.displayStage === 1) {
     return null;
