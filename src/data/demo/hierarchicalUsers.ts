@@ -1,6 +1,5 @@
-import { DemoUser } from './users';
+import { DemoUser, BUDGET_APPROVAL_LIMITS } from './types';
 import { AccountType, StakeholderCategory } from '../../types';
-import { BUDGET_APPROVAL_LIMITS } from './users';
 
 // Helper function to get budget limit
 const getBudgetLimit = (accountType: AccountType): number | undefined => {
