@@ -127,6 +127,103 @@
     box-shadow: 0 2px 8px rgba(0, 186, 124, 0.3);
 }
 
+/* 段階別スタイル */
+
+/* 段階2: 部署内プロジェクト向け（50-199点） */
+.project-status-stage2 {
+    background: linear-gradient(135deg, rgba(255, 122, 0, 0.08), rgba(245, 158, 11, 0.04));
+    border: 1px solid rgba(255, 122, 0, 0.25);
+}
+
+.project-status-stage2::before {
+    background: linear-gradient(90deg, transparent, rgba(255, 122, 0, 0.08), transparent);
+}
+
+.project-status-stage2 .progress-fill {
+    background: linear-gradient(90deg, #ff7a00, #f59e0b);
+    opacity: 0.8;
+}
+
+/* 段階3: 施設内プロジェクト向け（200-399点） */
+.project-status-stage3 {
+    background: linear-gradient(135deg, rgba(255, 122, 0, 0.12), rgba(245, 158, 11, 0.08));
+    border: 1px solid rgba(255, 122, 0, 0.4);
+}
+
+.project-status-stage3::before {
+    background: linear-gradient(90deg, transparent, rgba(255, 122, 0, 0.12), transparent);
+}
+
+.project-status-stage3 .progress-fill {
+    background: linear-gradient(90deg, #ff7a00, #f59e0b);
+}
+
+/* 段階4: 90%以上 - あとわずか! */
+.project-status-stage4 {
+    background: linear-gradient(135deg, rgba(255, 122, 0, 0.15), rgba(245, 158, 11, 0.1));
+    border: 1px solid rgba(255, 122, 0, 0.5);
+    animation: pulse-orange 2s infinite;
+}
+
+@keyframes pulse-orange {
+    0%, 100% { 
+        box-shadow: 0 4px 15px rgba(255, 122, 0, 0.2);
+        border-color: rgba(255, 122, 0, 0.5);
+    }
+    50% { 
+        box-shadow: 0 4px 25px rgba(255, 122, 0, 0.4);
+        border-color: rgba(255, 122, 0, 0.7);
+    }
+}
+
+.project-status-stage4::before {
+    background: linear-gradient(90deg, transparent, rgba(255, 122, 0, 0.15), transparent);
+}
+
+.project-status-stage4 .progress-fill {
+    background: linear-gradient(90deg, #ff7a00, #ff6b00);
+}
+
+/* 90%以上の時のプログレスバー特別エフェクト */
+.progress-fill-near-complete {
+    position: relative;
+}
+
+.progress-fill-near-complete::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    background: rgba(255, 122, 0, 0.3);
+    animation: pulse-bar 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes pulse-bar {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+/* あとわずか！テキストのアニメーション */
+.pulse-text {
+    font-weight: bold;
+    color: #ff6b00;
+    animation: pulse-text 1s infinite;
+}
+
+@keyframes pulse-text {
+    0%, 100% { 
+        transform: scale(1);
+        text-shadow: 0 0 5px rgba(255, 122, 0, 0.5);
+    }
+    50% { 
+        transform: scale(1.05);
+        text-shadow: 0 0 10px rgba(255, 122, 0, 0.8);
+    }
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
     .project-status {

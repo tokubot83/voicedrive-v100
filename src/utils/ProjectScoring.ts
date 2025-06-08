@@ -20,6 +20,8 @@ export interface ProjectStatus {
   nextThreshold?: number;
   remainingPoints?: number;
   progressPercentage?: number;
+  displayStage?: 1 | 2 | 3 | 4 | 5; // 段階表示用
+  isNearComplete?: boolean; // 90%以上フラグ
 }
 
 export class ProjectScoringEngine {
@@ -88,21 +90,24 @@ export class ProjectScoringEngine {
         level: 'ORGANIZATION', 
         achieved: true, 
         currentScore: score,
-        threshold: adjustedThresholds.ORGANIZATION 
+        threshold: adjustedThresholds.ORGANIZATION,
+        displayStage: 5 
       };
     } else if (score >= adjustedThresholds.FACILITY) {
       return { 
         level: 'FACILITY', 
         achieved: true, 
         currentScore: score,
-        threshold: adjustedThresholds.FACILITY 
+        threshold: adjustedThresholds.FACILITY,
+        displayStage: 5 
       };
     } else if (score >= adjustedThresholds.DEPARTMENT) {
       return { 
         level: 'DEPARTMENT', 
         achieved: true, 
         currentScore: score,
-        threshold: adjustedThresholds.DEPARTMENT 
+        threshold: adjustedThresholds.DEPARTMENT,
+        displayStage: 5 
       };
     }
     
@@ -116,13 +121,30 @@ export class ProjectScoringEngine {
     const remainingPoints = Math.round((nextThreshold - score) * 10) / 10;
     const progressPercentage = Math.round((score / nextThreshold) * 1000) / 10;
     
+    // 段階を判定
+    let displayStage: 1 | 2 | 3 | 4 = 1;
+    let isNearComplete = false;
+    
+    if (score < 50) {
+      displayStage = 1; // スコア50点未満
+    } else if (progressPercentage >= 90) {
+      displayStage = 4; // 90%以上
+      isNearComplete = true;
+    } else if (score >= 200) {
+      displayStage = 3; // 200-399点（施設内プロジェクト向け）
+    } else {
+      displayStage = 2; // 50-199点（部署内プロジェクト向け）
+    }
+    
     return { 
       level: 'PENDING', 
       achieved: false, 
       currentScore: score,
       nextThreshold,
       remainingPoints,
-      progressPercentage
+      progressPercentage,
+      displayStage,
+      isNearComplete
     };
   }
   

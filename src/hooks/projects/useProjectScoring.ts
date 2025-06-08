@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ProjectScoringEngine, EngagementData, UserWeight } from '../../utils/ProjectScoring';
+import { ProjectScoringEngine, EngagementData, UserWeight } from '../../utils/projectScoring';
 
 export const useProjectScoring = () => {
   const scoringEngine = useMemo(() => new ProjectScoringEngine(), []);
