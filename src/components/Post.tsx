@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import VotingSystem from './VotingSystem';
+import ProjectStatus from './projects/ProjectStatus';
 import { Post as PostType, VoteOption } from '../types';
 
 interface PostProps {
@@ -87,12 +88,22 @@ const Post = ({ post, onVote, onComment }: PostProps) => {
           </div>
           
           {post.type === 'improvement' && (
-            <VotingSystem
-              postId={post.id}
-              votes={post.votes}
-              selectedVote={selectedVote}
-              onVote={handleVote}
-            />
+            <>
+              <ProjectStatus 
+                postId={post.id}
+                postType={post.type}
+                votes={post.votes}
+                projectId={post.projectId}
+                approver={post.approver}
+              />
+              
+              <VotingSystem
+                postId={post.id}
+                votes={post.votes}
+                selectedVote={selectedVote}
+                onVote={handleVote}
+              />
+            </>
           )}
           
           <div className="mt-5">

@@ -22,6 +22,8 @@ export interface Post {
   timestamp: Date;
   votes: Record<VoteOption, number>;
   comments: Comment[];
+  projectId?: string;
+  approver?: string;
 }
 
 export interface Comment {
