@@ -9,7 +9,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole = 'employee' }: SidebarProps) => {
-  const allNavItems = [
+  const allNavItems: any[] = [
     { id: 'home', icon: '🏠', label: 'ホーム', section: 'main' },
     { id: 'profile', icon: '👤', label: 'プロフィール', section: 'main' },
     { id: 'improvement', icon: '💡', label: '改善提案', section: 'main' },
@@ -44,7 +44,7 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
       }
       if (item.id === 'divider2') {
         const hasAdminItems = allNavItems.some(
-          navItem => navItem.section === 'admin' && hasAccess(navItem.minRole)
+          (navItem: any) => navItem.section === 'admin' && hasAccess(navItem.minRole)
         );
         return hasAdminItems;
       }
