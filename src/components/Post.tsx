@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import VotingSystem from './VotingSystem';
+import EnhancedVotingSystem from './EnhancedVotingSystem';
 import ProjectStatus from './projects/ProjectStatus';
 import ProjectWorkflowStatus from './workflow/ProjectWorkflowStatus';
 import { Post as PostType, VoteOption } from '../types';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
+import { generateSampleVotesByStakeholder } from '../utils/votingCalculations';
+import { proposalTypeConfigs } from '../config/proposalTypes';
 
 interface PostProps {
   post: PostType;
@@ -96,6 +99,12 @@ const Post = ({ post, onVote, onComment }: PostProps) => {
                '🚨 公益通報'}
             </span>
             
+            {post.type === 'improvement' && post.proposalType && (
+              <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${proposalTypeConfigs[post.proposalType].borderColor.replace('border-', 'bg-').replace('500', '500/20')} ${proposalTypeConfigs[post.proposalType].borderColor.replace('border-', 'text-')}`}>
+                {proposalTypeConfigs[post.proposalType].icon} {proposalTypeConfigs[post.proposalType].label}
+              </span>
+            )}
+            
             {post.priority && (
               <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${getPriorityStyle()}`}>
                 {post.priority === 'urgent' ? '緊急' : 
@@ -134,12 +143,23 @@ const Post = ({ post, onVote, onComment }: PostProps) => {
                 <ProjectWorkflowStatus projectId={post.projectId} />
               )}
               
-              <VotingSystem
-                postId={post.id}
-                votes={post.votes}
-                selectedVote={selectedVote}
-                onVote={handleVote}
-              />
+              {post.proposalType ? (
+                <EnhancedVotingSystem
+                  postId={post.id}
+                  votes={post.votes}
+                  votesByStakeholder={post.votesByStakeholder || generateSampleVotesByStakeholder(post.votes)}
+                  proposalType={post.proposalType}
+                  selectedVote={selectedVote}
+                  onVote={handleVote}
+                />
+              ) : (
+                <VotingSystem
+                  postId={post.id}
+                  votes={post.votes}
+                  selectedVote={selectedVote}
+                  onVote={handleVote}
+                />
+              )}
             </>
           )}
           

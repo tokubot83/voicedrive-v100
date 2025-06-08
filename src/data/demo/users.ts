@@ -1,4 +1,4 @@
-import { User } from '../../types';
+import { User, StakeholderCategory } from '../../types';
 
 export interface DemoUser extends User {
   permissionLevel: number;
@@ -6,6 +6,7 @@ export interface DemoUser extends User {
   position: string;
   joinDate: Date;
   directReports?: number;
+  stakeholderCategory: StakeholderCategory;
 }
 
 // Permission levels:
@@ -29,6 +30,7 @@ export const demoUsers: DemoUser[] = [
     permissionLevel: 1,
     email: 'tanaka.taro@voicedrive.jp',
     joinDate: new Date('2023-04-01'),
+    stakeholderCategory: 'zGen' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=tanaka'
   },
   {
@@ -40,6 +42,7 @@ export const demoUsers: DemoUser[] = [
     permissionLevel: 1,
     email: 'sato.hanako@voicedrive.jp',
     joinDate: new Date('2023-06-15'),
+    stakeholderCategory: 'zGen' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sato'
   },
   
@@ -53,6 +56,7 @@ export const demoUsers: DemoUser[] = [
     permissionLevel: 2,
     email: 'yamada.ichiro@voicedrive.jp',
     joinDate: new Date('2021-09-01'),
+    stakeholderCategory: 'frontline' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=yamada'
   },
   {
@@ -64,6 +68,7 @@ export const demoUsers: DemoUser[] = [
     permissionLevel: 2,
     email: 'suzuki.misaki@voicedrive.jp',
     joinDate: new Date('2022-03-20'),
+    stakeholderCategory: 'frontline' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=suzuki'
   },
   
@@ -78,6 +83,7 @@ export const demoUsers: DemoUser[] = [
     email: 'takahashi.kenta@voicedrive.jp',
     joinDate: new Date('2020-11-01'),
     directReports: 8,
+    stakeholderCategory: 'frontline' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=takahashi'
   },
   {
@@ -90,6 +96,7 @@ export const demoUsers: DemoUser[] = [
     email: 'ito.sakura@voicedrive.jp',
     joinDate: new Date('2021-02-15'),
     directReports: 6,
+    stakeholderCategory: 'frontline' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ito'
   },
   
@@ -104,6 +111,7 @@ export const demoUsers: DemoUser[] = [
     email: 'watanabe.daisuke@voicedrive.jp',
     joinDate: new Date('2019-07-01'),
     directReports: 12,
+    stakeholderCategory: 'veteran' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=watanabe'
   },
   
@@ -118,6 +126,7 @@ export const demoUsers: DemoUser[] = [
     email: 'nakamura.keiko@voicedrive.jp',
     joinDate: new Date('2018-04-10'),
     directReports: 15,
+    stakeholderCategory: 'management' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=nakamura'
   },
   {
@@ -130,6 +139,7 @@ export const demoUsers: DemoUser[] = [
     email: 'kobayashi.yuki@voicedrive.jp',
     joinDate: new Date('2017-09-01'),
     directReports: 20,
+    stakeholderCategory: 'management' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=kobayashi'
   },
   
@@ -144,6 +154,7 @@ export const demoUsers: DemoUser[] = [
     email: 'kato.mari@voicedrive.jp',
     joinDate: new Date('2016-05-01'),
     directReports: 25,
+    stakeholderCategory: 'veteran' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=kato'
   },
   {
@@ -156,6 +167,7 @@ export const demoUsers: DemoUser[] = [
     email: 'saito.takashi@voicedrive.jp',
     joinDate: new Date('2015-10-15'),
     directReports: 18,
+    stakeholderCategory: 'veteran' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=saito'
   },
   
@@ -170,6 +182,7 @@ export const demoUsers: DemoUser[] = [
     email: 'fujita.yohei@voicedrive.jp',
     joinDate: new Date('2014-04-01'),
     directReports: 45,
+    stakeholderCategory: 'management' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fujita'
   },
   {
@@ -182,6 +195,7 @@ export const demoUsers: DemoUser[] = [
     email: 'matsumoto.yumi@voicedrive.jp',
     joinDate: new Date('2013-07-01'),
     directReports: 60,
+    stakeholderCategory: 'management' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=matsumoto'
   },
   
@@ -196,6 +210,7 @@ export const demoUsers: DemoUser[] = [
     email: 'morita.makoto@voicedrive.jp',
     joinDate: new Date('2010-01-01'),
     directReports: 8,
+    stakeholderCategory: 'management' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=morita'
   },
   {
@@ -208,6 +223,7 @@ export const demoUsers: DemoUser[] = [
     email: 'hashimoto.akemi@voicedrive.jp',
     joinDate: new Date('2011-04-01'),
     directReports: 6,
+    stakeholderCategory: 'management' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hashimoto'
   }
 ];

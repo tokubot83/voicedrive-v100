@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { PostType, AnonymityLevel, Priority } from '../types';
+import { PostType, AnonymityLevel, Priority, ProposalType } from '../types';
 import { useSeasonalCapacity } from '../hooks/useSeasonalCapacity';
 import SeasonalCapacityIndicator from './SeasonalCapacityIndicator';
 import ProposalEchoCard from './ProposalEchoCard';
+import { proposalTypes } from '../config/proposalTypes';
 
 interface ComposeFormProps {
   selectedType: PostType;
@@ -12,6 +13,7 @@ interface ComposeFormProps {
 const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   const [step, setStep] = useState(1);
   const [content, setContent] = useState('');
+  const [proposalType, setProposalType] = useState<ProposalType>('operational');
   const [priority, setPriority] = useState<Priority>('medium');
   const [anonymity, setAnonymity] = useState<AnonymityLevel>('real');
   const [currentProposalCount] = useState(7); // TODO: Get from actual data
@@ -72,7 +74,14 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       return;
     }
     
-    console.log('Submitting:', { content, priority, anonymity, type: selectedType, season: currentSeason });
+    console.log('Submitting:', { 
+      content, 
+      priority, 
+      anonymity, 
+      type: selectedType, 
+      proposalType: selectedType === 'improvement' ? proposalType : undefined,
+      season: currentSeason 
+    });
     alert('投稿が完了しました！');
     onCancel();
   };
@@ -100,27 +109,113 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       <div className="bg-gradient-to-br from-white/6 to-white/2 border border-gray-800/30 rounded-3xl p-8 mt-5">
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center gap-8">
-            {[1, 2, 3].map((num) => (
-              <div key={num} className="flex flex-col items-center gap-2">
-                <div className={`
-                  w-10 h-10 rounded-full flex items-center justify-center font-bold
-                  transition-all duration-300
-                  ${step >= num 
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-[0_4px_15px_rgba(29,155,240,0.4)]' 
-                    : 'bg-gray-700/30 text-gray-500'
-                  }
-                `}>
-                  {num}
+            {selectedType === 'improvement' ? (
+              // 4 steps for improvement posts
+              [1, 2, 3, 4].map((num) => (
+                <div key={num} className="flex flex-col items-center gap-2">
+                  <div className={`
+                    w-10 h-10 rounded-full flex items-center justify-center font-bold
+                    transition-all duration-300
+                    ${step >= num 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-[0_4px_15px_rgba(29,155,240,0.4)]' 
+                      : 'bg-gray-700/30 text-gray-500'
+                    }
+                  `}>
+                    {num}
+                  </div>
+                  <span className={`text-xs font-medium ${step >= num ? 'text-blue-400' : 'text-gray-500'}`}>
+                    {num === 1 ? '提案タイプ' : num === 2 ? '内容入力' : num === 3 ? '詳細設定' : '確認'}
+                  </span>
                 </div>
-                <span className={`text-xs font-medium ${step >= num ? 'text-blue-400' : 'text-gray-500'}`}>
-                  {num === 1 ? '内容入力' : num === 2 ? '詳細設定' : '確認'}
-                </span>
-              </div>
-            ))}
+              ))
+            ) : (
+              // 3 steps for other post types
+              [1, 2, 3].map((num) => (
+                <div key={num} className="flex flex-col items-center gap-2">
+                  <div className={`
+                    w-10 h-10 rounded-full flex items-center justify-center font-bold
+                    transition-all duration-300
+                    ${step >= num 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-[0_4px_15px_rgba(29,155,240,0.4)]' 
+                      : 'bg-gray-700/30 text-gray-500'
+                    }
+                  `}>
+                    {num}
+                  </div>
+                  <span className={`text-xs font-medium ${step >= num ? 'text-blue-400' : 'text-gray-500'}`}>
+                    {num === 1 ? '内容入力' : num === 2 ? '詳細設定' : '確認'}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
-      {step === 1 && (
+      {step === 1 && selectedType === 'improvement' && (
+        <div>
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-100 mb-2">💡 提案タイプを選択してください</h3>
+            <p className="text-gray-400">あなたの改善提案に最も適したカテゴリを選んでください</p>
+          </div>
+          
+          <div className="space-y-4">
+            {proposalTypes.map((type) => (
+              <button
+                key={type.type}
+                onClick={() => setProposalType(type.type)}
+                className={`
+                  w-full p-4 rounded-2xl border-2 transition-all duration-300
+                  ${proposalType === type.type 
+                    ? `${type.borderColor} bg-gradient-to-r from-white/10 to-white/5 transform scale-105` 
+                    : 'border-gray-800/50 hover:border-gray-600 hover:bg-white/5'
+                  }
+                `}
+              >
+                <div className="flex items-start gap-4">
+                  <span className="text-3xl">{type.icon}</span>
+                  <div className="flex-1 text-left">
+                    <h4 className="text-lg font-bold text-gray-100 mb-1">{type.label}</h4>
+                    <p className="text-sm text-gray-400 mb-3">{type.description}</p>
+                    
+                    <div className="bg-black/30 rounded-xl p-3">
+                      <p className="text-xs text-gray-500 mb-2">重視される意見:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {type.weights.slice(0, 2).map((weight) => (
+                          <span key={weight.category} className="inline-flex items-center gap-1">
+                            <span className="px-2 py-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full text-xs text-blue-400">
+                              {weight.label} {Math.round(weight.weight * 100)}%
+                            </span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  {proposalType === type.type && (
+                    <span className="text-blue-500 text-2xl">✓</span>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+          
+          <div className="flex justify-between gap-4 mt-8">
+            <button
+              onClick={onCancel}
+              className="px-6 py-3 bg-white/10 border border-gray-800/50 text-gray-400 rounded-3xl hover:bg-white/15 hover:text-gray-200 transition-all duration-300"
+            >
+              キャンセル
+            </button>
+            <button
+              onClick={() => setStep(2)}
+              className="flex-1 max-w-xs px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-3xl font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(29,155,240,0.4)]"
+            >
+              次へ
+            </button>
+          </div>
+        </div>
+      )}
+
+      {((step === 1 && selectedType !== 'improvement') || (step === 2 && selectedType === 'improvement')) && (
         <div>
           <div className="text-center mb-6">
             <h3 className="text-2xl font-bold text-gray-100 mb-2">{config.title}</h3>
@@ -170,7 +265,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
               キャンセル
             </button>
             <button
-              onClick={() => setStep(2)}
+              onClick={() => setStep(selectedType === 'improvement' ? 3 : 2)}
               disabled={content.length < 10}
               className="flex-1 max-w-xs px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-3xl font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(29,155,240,0.4)] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
@@ -180,7 +275,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
         </div>
       )}
 
-      {step === 2 && (
+      {((step === 2 && selectedType !== 'improvement') || (step === 3 && selectedType === 'improvement')) && (
         <div>
           {selectedType !== 'community' && (
             <div className="mb-8">
@@ -272,13 +367,13 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
 
           <div className="flex justify-between gap-4 mt-8">
             <button
-              onClick={() => setStep(1)}
+              onClick={() => setStep(selectedType === 'improvement' ? 2 : 1)}
               className="px-6 py-3 bg-white/10 border border-gray-800/50 text-gray-400 rounded-3xl hover:bg-white/15 hover:text-gray-200 transition-all duration-300"
             >
               戻る
             </button>
             <button
-              onClick={() => setStep(3)}
+              onClick={() => setStep(selectedType === 'improvement' ? 4 : 3)}
               className="flex-1 max-w-xs px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-3xl font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(29,155,240,0.4)]"
             >
               確認へ
@@ -287,7 +382,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
         </div>
       )}
 
-      {step === 3 && (
+      {((step === 3 && selectedType !== 'improvement') || (step === 4 && selectedType === 'improvement')) && (
         <div>
           <div className="text-center mb-6">
             <h3 className="text-2xl font-bold text-gray-100 mb-2">投稿内容の確認</h3>
@@ -299,6 +394,11 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
               <span className="px-3 py-1 rounded-xl text-xs font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white">
                 {selectedType === 'improvement' ? '💡 改善提案' : selectedType === 'community' ? '👥 コミュニティ' : '🚨 公益通報'}
               </span>
+              {selectedType === 'improvement' && (
+                <span className={`px-2 py-1 rounded-lg text-xs font-bold ${proposalTypes.find(t => t.type === proposalType)?.borderColor.replace('border-', 'bg-').replace('500', '500/20')} ${proposalTypes.find(t => t.type === proposalType)?.borderColor.replace('border-', 'text-')}`}>
+                  {proposalTypes.find(t => t.type === proposalType)?.icon} {proposalTypes.find(t => t.type === proposalType)?.label}
+                </span>
+              )}
               {selectedType !== 'community' && (
                 <span className={`px-2 py-1 rounded-lg text-xs font-bold ${
                   priority === 'urgent' ? 'bg-red-500/20 text-red-400' :
@@ -328,7 +428,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
 
           <div className="flex justify-between gap-4">
             <button
-              onClick={() => setStep(2)}
+              onClick={() => setStep(selectedType === 'improvement' ? 3 : 2)}
               className="px-6 py-3 bg-white/10 border border-gray-800/50 text-gray-400 rounded-3xl hover:bg-white/15 hover:text-gray-200 transition-all duration-300"
             >
               戻る

@@ -1,5 +1,6 @@
-import { Post, PostType, AnonymityLevel, Priority, VoteOption } from '../../types';
+import { Post, PostType, AnonymityLevel, Priority, VoteOption, ProposalType, StakeholderCategory } from '../../types';
 import { demoUsers } from './users';
+import { generateSampleVotesByStakeholder } from '../../utils/votingCalculations';
 
 // Helper function to generate random votes
 const generateVotes = (): Record<VoteOption, number> => {
@@ -19,6 +20,7 @@ export const demoPosts: Post[] = [
   {
     id: 'post-1',
     type: 'improvement',
+    proposalType: 'operational' as ProposalType,
     content: '新入社員の研修プログラムについて、もっと実践的な内容を増やしてはどうでしょうか。座学だけでなく、先輩社員とのペアプログラミングやOJTの時間を増やすことで、より早く戦力になれると思います。',
     author: demoUsers[2], // Senior employee
     anonymityLevel: 'real',
@@ -31,6 +33,13 @@ export const demoPosts: Post[] = [
       'support': 15,
       'strongly-support': 8,
     },
+    votesByStakeholder: generateSampleVotesByStakeholder({
+      'strongly-oppose': 1,
+      'oppose': 2,
+      'neutral': 5,
+      'support': 15,
+      'strongly-support': 8,
+    }),
     comments: [],
     projectId: 'proj-001',
     approver: demoUsers[10],
@@ -56,6 +65,7 @@ export const demoPosts: Post[] = [
   {
     id: 'post-3',
     type: 'improvement',
+    proposalType: 'operational' as ProposalType,
     content: 'オフィスの空調設定について提案があります。現在28度設定ですが、午後の西日が強い部屋では暑すぎます。エリアごとに温度設定を調整できるようにしていただけないでしょうか。',
     author: demoUsers[1], // Entry-level employee
     anonymityLevel: 'department',
@@ -68,6 +78,13 @@ export const demoPosts: Post[] = [
       'support': 12,
       'strongly-support': 6,
     },
+    votesByStakeholder: generateSampleVotesByStakeholder({
+      'strongly-oppose': 0,
+      'oppose': 1,
+      'neutral': 3,
+      'support': 12,
+      'strongly-support': 6,
+    }),
     comments: [],
     projectStatus: {
       stage: 'approaching',
@@ -90,6 +107,7 @@ export const demoPosts: Post[] = [
   {
     id: 'post-5',
     type: 'improvement',
+    proposalType: 'strategic' as ProposalType,
     content: '夏季のリモートワーク推奨日を増やすのはどうでしょうか。通勤時の熱中症リスク軽減と、オフィスの電力消費削減の両方に効果があると思います。',
     author: demoUsers[3], // Senior employee
     anonymityLevel: 'anonymous',
@@ -103,6 +121,7 @@ export const demoPosts: Post[] = [
   {
     id: 'post-6',
     type: 'improvement',
+    proposalType: 'communication' as ProposalType,
     content: '半期評価のフィードバック方法について、1on1の時間をもっと増やしてほしいです。現在15分では短すぎて、具体的な改善点について深く話し合えません。',
     author: demoUsers[0], // Entry-level employee
     anonymityLevel: 'anonymous',
@@ -137,6 +156,7 @@ export const demoPosts: Post[] = [
   {
     id: 'post-9',
     type: 'improvement',
+    proposalType: 'strategic' as ProposalType,
     content: '年末年始の休暇取得について、もっと柔軟な制度にできないでしょうか。12月29日から1月3日の一律休業ではなく、個人の事情に合わせて休暇を取得できるようにしてほしいです。',
     author: demoUsers[7], // Manager
     anonymityLevel: 'real',
@@ -160,6 +180,7 @@ export const demoPosts: Post[] = [
   {
     id: 'post-11',
     type: 'improvement',
+    proposalType: 'innovation' as ProposalType,
     content: '社内のナレッジ共有システムの改善提案です。現在のWikiは検索機能が弱く、必要な情報を見つけるのに時間がかかります。AIを活用した検索機能の導入を検討してください。',
     author: demoUsers[9], // Manager
     anonymityLevel: 'real',
@@ -183,6 +204,7 @@ export const demoPosts: Post[] = [
   {
     id: 'post-13',
     type: 'improvement',
+    proposalType: 'operational' as ProposalType,
     content: '会議室の予約システムが使いにくいです。空き状況の確認と予約を同じ画面でできるようにし、定期予約の機能も追加してもらえないでしょうか。',
     author: demoUsers[1], // Entry-level employee
     anonymityLevel: 'department',
@@ -205,6 +227,7 @@ export const demoPosts: Post[] = [
   {
     id: 'post-15',
     type: 'improvement',
+    proposalType: 'communication' as ProposalType,
     content: '社員食堂のメニューについて、ベジタリアン・ビーガン対応のオプションを増やしてほしいです。健康志向や多様性への配慮として重要だと思います。',
     author: demoUsers[3], // Senior employee
     anonymityLevel: 'anonymous',
@@ -226,6 +249,7 @@ export const demoPosts: Post[] = [
   {
     id: 'post-17',
     type: 'improvement',
+    proposalType: 'strategic' as ProposalType,
     content: '育児支援制度の拡充について提案があります。時短勤務の期間を小学校3年生まで延長し、在宅勤務との併用も可能にしてはどうでしょうか。',
     author: demoUsers[5], // Team lead
     anonymityLevel: 'real',
@@ -248,6 +272,7 @@ export const demoPosts: Post[] = [
   {
     id: 'post-19',
     type: 'improvement',
+    proposalType: 'riskManagement' as ProposalType,
     content: '駐車場の利用ルールについて、エコカー優先スペースを設けてはどうでしょうか。環境への取り組みをアピールできますし、社員のエコカー購入を促進できると思います。',
     author: demoUsers[6], // Supervisor
     anonymityLevel: 'department',
