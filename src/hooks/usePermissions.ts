@@ -1,65 +1,82 @@
 // 権限管理カスタムフック
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useDemoMode } from '../components/demo/DemoModeController';
+import { AccountHierarchyService } from '../services/AccountHierarchyService';
+import { DemoUser } from '../data/demo/users';
+import { AccountType } from '../types';
 
 interface UsePermissionsReturn {
-  hasPermission: (permission: string) => boolean;
-  userLevel: string;
+  hasPermission: (permission: string | number) => boolean;
+  canViewUser: (targetUserId: string) => boolean;
+  canApproveBudget: (amount: number) => boolean;
+  getNextApprover: (amount: number) => DemoUser | null;
+  userLevel: number;
   userRole: string;
+  accountType: AccountType;
   isLoading: boolean;
+  currentUser: DemoUser | null;
 }
 
 // 権限レベルの階層
 const PERMISSION_LEVELS = {
-  LEVEL_1: 1, // 一般職員
-  LEVEL_2: 2, // 主任・係長
+  LEVEL_1: 1, // スタッフ
+  LEVEL_2: 2, // スーパーバイザー
   LEVEL_3: 3, // 部門長
-  LEVEL_4: 4, // 施設管理者
-  LEVEL_5: 5, // 役員
-  LEVEL_6: 6  // 理事長
+  LEVEL_4: 4, // 施設長
+  LEVEL_5: 5, // 人事部門長
+  LEVEL_6: 6, // 人事部長
+  LEVEL_7: 7, // 役員秘書
+  LEVEL_8: 8  // 理事長
 };
 
 export const usePermissions = (): UsePermissionsReturn => {
-  const [userLevel, setUserLevel] = useState('LEVEL_1');
-  const [userRole, setUserRole] = useState('employee');
-  const [isLoading, setIsLoading] = useState(true);
+  const { currentUser: demoUser } = useDemoMode();
+  const [isLoading, setIsLoading] = useState(false);
   
-  useEffect(() => {
-    // 実際の実装では、APIから現在のユーザー情報を取得
-    // デモ用に仮のデータを設定
-    const fetchUserPermissions = async () => {
-      try {
-        // 仮のユーザー情報
-        const currentUser = {
-          level: 'LEVEL_3', // 部門長レベル
-          role: 'department_head'
-        };
-        
-        setUserLevel(currentUser.level);
-        setUserRole(currentUser.role);
-      } catch (error) {
-        console.error('Failed to fetch user permissions:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const hasPermission = useCallback((requiredPermission: string | number): boolean => {
+    if (!demoUser || isLoading) return false;
     
-    fetchUserPermissions();
-  }, []);
-  
-  const hasPermission = (requiredPermission: string): boolean => {
-    if (!requiredPermission || isLoading) return false;
+    // If permission is a number, compare directly
+    if (typeof requiredPermission === 'number') {
+      return demoUser.permissionLevel >= requiredPermission;
+    }
     
-    const userLevelValue = PERMISSION_LEVELS[userLevel as keyof typeof PERMISSION_LEVELS] || 1;
-    const requiredLevelValue = PERMISSION_LEVELS[requiredPermission as keyof typeof PERMISSION_LEVELS] || 1;
+    // If permission is a string (LEVEL_X format)
+    const requiredLevelValue = PERMISSION_LEVELS[requiredPermission as keyof typeof PERMISSION_LEVELS];
+    if (!requiredLevelValue) return false;
     
-    // ユーザーのレベルが要求レベル以上であれば権限あり
-    return userLevelValue >= requiredLevelValue;
-  };
+    return demoUser.permissionLevel >= requiredLevelValue;
+  }, [demoUser, isLoading]);
+
+  const canViewUser = useCallback((targetUserId: string): boolean => {
+    if (!demoUser) return false;
+    
+    const { getDemoUserById } = require('../data/demo/users');
+    const targetUser = getDemoUserById(targetUserId);
+    if (!targetUser) return false;
+    
+    return AccountHierarchyService.canViewUser(demoUser, targetUser);
+  }, [demoUser]);
+
+  const canApproveBudget = useCallback((amount: number): boolean => {
+    if (!demoUser) return false;
+    return AccountHierarchyService.canApproveBudget(demoUser, amount);
+  }, [demoUser]);
+
+  const getNextApprover = useCallback((amount: number): DemoUser | null => {
+    if (!demoUser) return null;
+    return AccountHierarchyService.getNextApprover(demoUser, amount);
+  }, [demoUser]);
   
   return {
     hasPermission,
-    userLevel,
-    userRole,
-    isLoading
+    canViewUser,
+    canApproveBudget,
+    getNextApprover,
+    userLevel: demoUser?.permissionLevel || 1,
+    userRole: demoUser?.role || 'employee',
+    accountType: demoUser?.accountType || 'STAFF',
+    isLoading,
+    currentUser: demoUser || null
   };
 };

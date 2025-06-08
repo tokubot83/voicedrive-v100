@@ -7,12 +7,16 @@ import {
   BarChart3, 
   Activity,
   Award,
-  Clock
+  Clock,
+  Building2,
+  Shield
 } from 'lucide-react';
-import { demoUsers } from '../../data/demo/users';
+import { demoUsers, ACCOUNT_TYPE_MAPPING } from '../../data/demo/users';
 import { demoPosts } from '../../data/demo/posts';
 import { demoProjects } from '../../data/demo/projects';
 import { demoROICalculations } from '../../data/demo/roi';
+import { AccountHierarchyService } from '../../services/AccountHierarchyService';
+import { FACILITIES } from '../../data/medical/facilities';
 
 export const DemoSystemStats: React.FC = () => {
   // Calculate statistics
@@ -37,6 +41,24 @@ export const DemoSystemStats: React.FC = () => {
     acc[user.permissionLevel] = (acc[user.permissionLevel] || 0) + 1;
     return acc;
   }, {} as Record<number, number>);
+  
+  // Calculate hierarchical statistics
+  const usersByAccountType = demoUsers.reduce((acc, user) => {
+    acc[user.accountType] = (acc[user.accountType] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  
+  const usersByFacility = demoUsers.reduce((acc, user) => {
+    if (user.facility_id) {
+      acc[user.facility_id] = (acc[user.facility_id] || 0) + 1;
+    }
+    return acc;
+  }, {} as Record<string, number>);
+  
+  const usersWithDirectReports = demoUsers.filter(u => u.children_ids && u.children_ids.length > 0).length;
+  const averageDirectReports = demoUsers
+    .filter(u => u.directReports)
+    .reduce((sum, u) => sum + (u.directReports || 0), 0) / usersWithDirectReports;
 
   const stats = [
     {
@@ -194,8 +216,70 @@ export const DemoSystemStats: React.FC = () => {
               <div key={level} className="text-center p-2 bg-gray-50 rounded">
                 <div className="text-xl font-bold text-gray-900">{count}</div>
                 <div className="text-xs text-gray-500">Level {level}</div>
+                <div className="text-xs text-gray-400">{ACCOUNT_TYPE_MAPPING[parseInt(level)]}</div>
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Hierarchical Statistics */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Organizational Hierarchy</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Account Types */}
+          <div className="bg-white rounded-lg p-4 border border-gray-200">
+            <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              Account Types
+            </h4>
+            <div className="space-y-2">
+              {Object.entries(usersByAccountType).map(([type, count]) => (
+                <div key={type} className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">{AccountHierarchyService.getAccountTypeLabel(type as any)}</span>
+                  <span className="text-sm font-medium text-gray-900">{count} 名</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Facilities */}
+          <div className="bg-white rounded-lg p-4 border border-gray-200">
+            <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+              <Building2 className="w-4 h-4" />
+              Facility Distribution
+            </h4>
+            <div className="space-y-2">
+              {Object.entries(usersByFacility).map(([facilityId, count]) => {
+                const facility = FACILITIES[facilityId as keyof typeof FACILITIES];
+                return (
+                  <div key={facilityId} className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">{facility?.name || facilityId}</span>
+                    <span className="text-sm font-medium text-gray-900">{count} 名</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        
+        {/* Hierarchy Metrics */}
+        <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-gray-50 rounded-lg p-3">
+            <div className="text-sm text-gray-600">管理職</div>
+            <div className="text-xl font-bold text-gray-900">{usersWithDirectReports}</div>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <div className="text-sm text-gray-600">平均部下数</div>
+            <div className="text-xl font-bold text-gray-900">{averageDirectReports.toFixed(1)}</div>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <div className="text-sm text-gray-600">施設数</div>
+            <div className="text-xl font-bold text-gray-900">{Object.keys(usersByFacility).length}</div>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <div className="text-sm text-gray-600">階層深度</div>
+            <div className="text-xl font-bold text-gray-900">4</div>
           </div>
         </div>
       </div>

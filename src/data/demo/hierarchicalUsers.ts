@@ -1,0 +1,301 @@
+import { DemoUser } from './users';
+import { AccountType, StakeholderCategory } from '../../types';
+import { BUDGET_APPROVAL_LIMITS } from './users';
+
+// Helper function to get budget limit
+const getBudgetLimit = (accountType: AccountType): number | undefined => {
+  const limit = BUDGET_APPROVAL_LIMITS[accountType];
+  return limit === null ? undefined : limit;
+};
+
+// Extended hierarchical demo users
+export const hierarchicalDemoUsers: DemoUser[] = [
+  // Level 1: STAFF - Entry-level employees
+  {
+    id: 'user-1',
+    name: '田中太郎',
+    department: '営業部',
+    role: 'employee',
+    position: '営業担当',
+    accountType: 'STAFF',
+    permissionLevel: 1,
+    email: 'tanaka.taro@voicedrive.jp',
+    joinDate: new Date('2023-04-01'),
+    stakeholderCategory: 'zGen' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=tanaka',
+    facility_id: 'kohara_hospital',
+    department_id: 'outpatient',
+    parent_id: 'user-5',
+    budgetApprovalLimit: getBudgetLimit('STAFF'),
+    organizationPath: ['user-14', 'user-12', 'user-5', 'user-1']
+  },
+  {
+    id: 'user-2',
+    name: '佐藤花子',
+    department: '人事部',
+    role: 'employee',
+    position: '人事担当',
+    accountType: 'STAFF',
+    permissionLevel: 1,
+    email: 'sato.hanako@voicedrive.jp',
+    joinDate: new Date('2023-06-15'),
+    stakeholderCategory: 'zGen' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sato',
+    facility_id: 'kohara_hospital',
+    department_id: 'other_kohara',
+    parent_id: 'user-8',
+    budgetApprovalLimit: getBudgetLimit('STAFF'),
+    organizationPath: ['user-14', 'user-13', 'user-8', 'user-2']
+  },
+  
+  // Level 2: SUPERVISOR - Senior employees
+  {
+    id: 'user-3',
+    name: '山田一郎',
+    department: '技術部',
+    role: 'employee',
+    position: 'シニアエンジニア',
+    accountType: 'SUPERVISOR',
+    permissionLevel: 2,
+    email: 'yamada.ichiro@voicedrive.jp',
+    joinDate: new Date('2021-09-01'),
+    stakeholderCategory: 'frontline' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=yamada',
+    facility_id: 'kohara_hospital',
+    department_id: 'other_kohara',
+    parent_id: 'user-9',
+    budgetApprovalLimit: getBudgetLimit('SUPERVISOR'),
+    organizationPath: ['user-14', 'user-13', 'user-9', 'user-3']
+  },
+  {
+    id: 'user-4',
+    name: '鈴木美咲',
+    department: 'マーケティング部',
+    role: 'employee',
+    position: 'シニアマーケター',
+    accountType: 'SUPERVISOR',
+    permissionLevel: 2,
+    email: 'suzuki.misaki@voicedrive.jp',
+    joinDate: new Date('2022-03-20'),
+    stakeholderCategory: 'frontline' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=suzuki',
+    facility_id: 'kohara_hospital',
+    department_id: 'other_kohara',
+    parent_id: 'user-10',
+    budgetApprovalLimit: getBudgetLimit('SUPERVISOR'),
+    organizationPath: ['user-14', 'user-10', 'user-4']
+  },
+  
+  // Level 3: DEPARTMENT_HEAD - Department heads
+  {
+    id: 'user-5',
+    name: '高橋健太',
+    department: '製造部',
+    role: 'chief',
+    position: 'チームリーダー',
+    accountType: 'DEPARTMENT_HEAD',
+    permissionLevel: 3,
+    email: 'takahashi.kenta@voicedrive.jp',
+    joinDate: new Date('2020-11-01'),
+    directReports: 8,
+    stakeholderCategory: 'frontline' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=takahashi',
+    facility_id: 'kohara_hospital',
+    department_id: 'regional_comprehensive_care_ward',
+    parent_id: 'user-12',
+    children_ids: ['user-1'],
+    budgetApprovalLimit: getBudgetLimit('DEPARTMENT_HEAD'),
+    organizationPath: ['user-14', 'user-12', 'user-5']
+  },
+  {
+    id: 'user-6',
+    name: '伊藤さくら',
+    department: 'カスタマーサポート部',
+    role: 'chief',
+    position: 'チームリーダー',
+    accountType: 'DEPARTMENT_HEAD',
+    permissionLevel: 3,
+    email: 'ito.sakura@voicedrive.jp',
+    joinDate: new Date('2021-02-15'),
+    directReports: 6,
+    stakeholderCategory: 'frontline' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ito',
+    facility_id: 'tategami_hospital',
+    department_id: 'medical_therapy_ward',
+    parent_id: 'user-7',
+    budgetApprovalLimit: getBudgetLimit('DEPARTMENT_HEAD'),
+    organizationPath: ['user-14', 'user-12', 'user-7', 'user-6']
+  },
+  
+  // Level 4: FACILITY_HEAD - Facility heads
+  {
+    id: 'user-7',
+    name: '渡辺大輔',
+    department: '品質管理部',
+    role: 'chief',
+    position: 'スーパーバイザー',
+    accountType: 'FACILITY_HEAD',
+    permissionLevel: 4,
+    email: 'watanabe.daisuke@voicedrive.jp',
+    joinDate: new Date('2019-07-01'),
+    directReports: 12,
+    stakeholderCategory: 'veteran' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=watanabe',
+    facility_id: 'tategami_hospital',
+    parent_id: 'user-12',
+    children_ids: ['user-6'],
+    budgetApprovalLimit: getBudgetLimit('FACILITY_HEAD'),
+    organizationPath: ['user-14', 'user-12', 'user-7']
+  },
+  
+  // Level 5: HR_DEPARTMENT_HEAD - HR department heads
+  {
+    id: 'user-8',
+    name: '中村恵子',
+    department: '財務部',
+    role: 'manager',
+    position: 'マネージャー',
+    accountType: 'HR_DEPARTMENT_HEAD',
+    permissionLevel: 5,
+    email: 'nakamura.keiko@voicedrive.jp',
+    joinDate: new Date('2018-04-10'),
+    directReports: 15,
+    stakeholderCategory: 'management' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=nakamura',
+    facility_id: 'kohara_hospital',
+    parent_id: 'user-13',
+    children_ids: ['user-2'],
+    budgetApprovalLimit: getBudgetLimit('HR_DEPARTMENT_HEAD'),
+    organizationPath: ['user-14', 'user-13', 'user-8']
+  },
+  {
+    id: 'user-9',
+    name: '小林勇気',
+    department: 'IT部',
+    role: 'manager',
+    position: 'ITマネージャー',
+    accountType: 'HR_DEPARTMENT_HEAD',
+    permissionLevel: 5,
+    email: 'kobayashi.yuki@voicedrive.jp',
+    joinDate: new Date('2017-09-01'),
+    directReports: 20,
+    stakeholderCategory: 'management' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=kobayashi',
+    facility_id: 'kohara_hospital',
+    parent_id: 'user-13',
+    children_ids: ['user-3'],
+    budgetApprovalLimit: getBudgetLimit('HR_DEPARTMENT_HEAD'),
+    organizationPath: ['user-14', 'user-13', 'user-9']
+  },
+  
+  // Level 6: HR_DIRECTOR - HR directors
+  {
+    id: 'user-10',
+    name: '加藤真理',
+    department: '事業開発部',
+    role: 'manager',
+    position: 'シニアマネージャー',
+    accountType: 'HR_DIRECTOR',
+    permissionLevel: 6,
+    email: 'kato.mari@voicedrive.jp',
+    joinDate: new Date('2016-05-01'),
+    directReports: 25,
+    stakeholderCategory: 'veteran' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=kato',
+    parent_id: 'user-14',
+    children_ids: ['user-4'],
+    budgetApprovalLimit: getBudgetLimit('HR_DIRECTOR'),
+    organizationPath: ['user-14', 'user-10']
+  },
+  {
+    id: 'user-11',
+    name: '斎藤孝',
+    department: '戦略企画部',
+    role: 'manager',
+    position: 'シニアマネージャー',
+    accountType: 'HR_DIRECTOR',
+    permissionLevel: 6,
+    email: 'saito.takashi@voicedrive.jp',
+    joinDate: new Date('2015-10-15'),
+    directReports: 18,
+    stakeholderCategory: 'veteran' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=saito',
+    parent_id: 'user-14',
+    budgetApprovalLimit: getBudgetLimit('HR_DIRECTOR'),
+    organizationPath: ['user-14', 'user-11']
+  },
+  
+  // Level 7: EXECUTIVE_SECRETARY - Executive secretaries
+  {
+    id: 'user-12',
+    name: '藤田洋平',
+    department: '営業本部',
+    role: 'executive',
+    position: '営業本部長',
+    accountType: 'EXECUTIVE_SECRETARY',
+    permissionLevel: 7,
+    email: 'fujita.yohei@voicedrive.jp',
+    joinDate: new Date('2014-04-01'),
+    directReports: 45,
+    stakeholderCategory: 'management' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fujita',
+    parent_id: 'user-14',
+    children_ids: ['user-5', 'user-7'],
+    budgetApprovalLimit: getBudgetLimit('EXECUTIVE_SECRETARY'),
+    organizationPath: ['user-14', 'user-12']
+  },
+  {
+    id: 'user-13',
+    name: '松本由美',
+    department: '技術本部',
+    role: 'executive',
+    position: '技術本部長',
+    accountType: 'EXECUTIVE_SECRETARY',
+    permissionLevel: 7,
+    email: 'matsumoto.yumi@voicedrive.jp',
+    joinDate: new Date('2013-07-01'),
+    directReports: 60,
+    stakeholderCategory: 'management' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=matsumoto',
+    parent_id: 'user-14',
+    children_ids: ['user-8', 'user-9'],
+    budgetApprovalLimit: getBudgetLimit('EXECUTIVE_SECRETARY'),
+    organizationPath: ['user-14', 'user-13']
+  },
+  
+  // Level 8: CHAIRMAN - Chairman/Executives
+  {
+    id: 'user-14',
+    name: '森田誠',
+    department: '経営企画室',
+    role: 'executive',
+    position: '代表取締役社長',
+    accountType: 'CHAIRMAN',
+    permissionLevel: 8,
+    email: 'morita.makoto@voicedrive.jp',
+    joinDate: new Date('2010-01-01'),
+    directReports: 8,
+    stakeholderCategory: 'management' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=morita',
+    children_ids: ['user-10', 'user-11', 'user-12', 'user-13', 'user-15'],
+    budgetApprovalLimit: getBudgetLimit('CHAIRMAN'),
+    organizationPath: ['user-14']
+  },
+  {
+    id: 'user-15',
+    name: '橋本明美',
+    department: '経営企画室',
+    role: 'executive',
+    position: '取締役副社長',
+    accountType: 'CHAIRMAN',
+    permissionLevel: 8,
+    email: 'hashimoto.akemi@voicedrive.jp',
+    joinDate: new Date('2011-04-01'),
+    directReports: 6,
+    stakeholderCategory: 'management' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hashimoto',
+    parent_id: 'user-14',
+    budgetApprovalLimit: getBudgetLimit('CHAIRMAN'),
+    organizationPath: ['user-14', 'user-15']
+  }
+];

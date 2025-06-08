@@ -37,6 +37,29 @@ export interface User {
   stakeholderCategory?: StakeholderCategory;
 }
 
+// Account types mapping to permission levels
+export type AccountType = 
+  | 'CHAIRMAN'           // Level 8
+  | 'EXECUTIVE_SECRETARY' // Level 7
+  | 'HR_DIRECTOR'        // Level 6
+  | 'HR_DEPARTMENT_HEAD' // Level 5
+  | 'FACILITY_HEAD'      // Level 4
+  | 'DEPARTMENT_HEAD'    // Level 3
+  | 'SUPERVISOR'         // Level 2
+  | 'STAFF';             // Level 1
+
+// Hierarchical user interface extending base User
+export interface HierarchicalUser extends User {
+  accountType: AccountType;
+  permissionLevel: number;
+  facility_id?: string;
+  department_id?: string;
+  parent_id?: string; // ID of direct supervisor
+  children_ids?: string[]; // IDs of direct reports
+  budgetApprovalLimit?: number; // In JPY, null for unlimited
+  organizationPath?: string[]; // Path from root to this user
+}
+
 export interface Post {
   id: string;
   type: PostType;

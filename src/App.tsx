@@ -5,6 +5,7 @@ import RightSidebar from './components/RightSidebar';
 import MobileOverlay from './components/MobileOverlay';
 import MedicalProfileDemo from './components/profile/MedicalProfileDemo';
 import TimeAxisDemo from './components/TimeAxisDemo';
+import { HierarchyDemo } from './components/demo/HierarchyDemo';
 import useSwipe from './hooks/useSwipe';
 import { PostType, UserRole } from './types';
 import { DemoModeProvider, DemoModeController, useDemoMode } from './components/demo/DemoModeController';
@@ -68,6 +69,16 @@ function AppContent() {
   // Time Axis Demo Mode
   if (currentPage === 'time-axis') {
     return <TimeAxisDemo />;
+  }
+  
+  // Hierarchy Demo Mode
+  if (currentPage === 'hierarchy-demo') {
+    return (
+      <>
+        <DemoModeController />
+        <HierarchyDemo />
+      </>
+    );
   }
 
   return (

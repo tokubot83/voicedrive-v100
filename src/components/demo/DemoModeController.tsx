@@ -82,6 +82,13 @@ export const DemoModeController: React.FC = () => {
             </div>
             
             <DemoUserSwitcher currentUser={currentUser} onUserChange={setCurrentUser} />
+            
+            {/* Current user info */}
+            <div className="flex items-center gap-2 px-3 py-1 bg-white/10 rounded-lg">
+              <span className="text-xs">
+                {currentUser.accountType} | Level {currentUser.permissionLevel}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -167,13 +174,63 @@ export const DemoModeController: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Permission Levels</h3>
+                  <h3 className="font-semibold text-lg mb-2">Account Types & Permission Levels</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="bg-gray-50 p-2 rounded">Level 1-2: Employees</div>
-                    <div className="bg-gray-50 p-2 rounded">Level 3-4: Team Leads</div>
-                    <div className="bg-gray-50 p-2 rounded">Level 5-6: Managers</div>
-                    <div className="bg-gray-50 p-2 rounded">Level 7-8: Executives</div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="font-medium text-gray-700">Level 1: STAFF</div>
+                      <div className="text-xs text-gray-500">一般職員 • 承認権限なし</div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="font-medium text-gray-700">Level 2: SUPERVISOR</div>
+                      <div className="text-xs text-gray-500">スーパーバイザー • ¥100,000まで</div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="font-medium text-gray-700">Level 3: DEPARTMENT_HEAD</div>
+                      <div className="text-xs text-gray-500">部門長 • ¥500,000まで</div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="font-medium text-gray-700">Level 4: FACILITY_HEAD</div>
+                      <div className="text-xs text-gray-500">施設長 • ¥1,000,000まで</div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="font-medium text-gray-700">Level 5: HR_DEPARTMENT_HEAD</div>
+                      <div className="text-xs text-gray-500">人事部門長 • ¥2,000,000まで</div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="font-medium text-gray-700">Level 6: HR_DIRECTOR</div>
+                      <div className="text-xs text-gray-500">人事部長 • ¥5,000,000まで</div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="font-medium text-gray-700">Level 7: EXECUTIVE_SECRETARY</div>
+                      <div className="text-xs text-gray-500">役員秘書 • ¥10,000,000まで</div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="font-medium text-gray-700">Level 8: CHAIRMAN</div>
+                      <div className="text-xs text-gray-500">理事長 • 無制限</div>
+                    </div>
                   </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Hierarchical Features</h3>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600">•</span>
+                      <span><strong>Parent-Child Relationships:</strong> Each user has a direct supervisor and may have direct reports</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600">•</span>
+                      <span><strong>Budget Approval Limits:</strong> Each level has specific financial approval authority</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600">•</span>
+                      <span><strong>Facility Assignment:</strong> Users are assigned to specific medical facilities</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600">•</span>
+                      <span><strong>Organization Path:</strong> Complete hierarchy path from Chairman to each user</span>
+                    </li>
+                  </ul>
                 </div>
 
                 <div className="pt-4 border-t">

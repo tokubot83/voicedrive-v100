@@ -66,6 +66,7 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
     // デモ機能
     { id: 'medical-profile', icon: '🏥', label: '医療プロフィール', section: 'demo' },
     { id: 'time-axis', icon: '⏰', label: '時間軸管理', section: 'demo' },
+    { id: 'hierarchy-demo', icon: '🏢', label: '階層デモ', section: 'demo' },
   ];
 
   // アクセス可能なメニュー項目をフィルタリング
