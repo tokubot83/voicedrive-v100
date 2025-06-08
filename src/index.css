@@ -1,3 +1,18 @@
+/* プロジェクト化状況表示のスタイルをインポート */
+@import './styles/project-status.css';
+
+/* ワークフロー関連のスタイルをインポート */
+@import './styles/workflow.css';
+
+/* 分析・ダッシュボード関連のスタイルをインポート */
+@import './styles/analytics.css';
+
+/* 医療プロフィール関連のスタイルをインポート */
+@import './styles/medical-profile.css';
+
+/* 季節管理システム関連のスタイルをインポート */
+@import './styles/seasonal.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -132,18 +147,3 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Chrome, Safari and Opera */
 }
-
-/* プロジェクト化状況表示のスタイルをインポート */
-@import './styles/project-status.css';
-
-/* ワークフロー関連のスタイルをインポート */
-@import './styles/workflow.css';
-
-/* 分析・ダッシュボード関連のスタイルをインポート */
-@import './styles/analytics.css';
-
-/* 医療プロフィール関連のスタイルをインポート */
-@import './styles/medical-profile.css';
-
-/* 季節管理システム関連のスタイルをインポート */
-@import './styles/seasonal.css';

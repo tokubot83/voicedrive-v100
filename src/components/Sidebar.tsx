@@ -95,15 +95,7 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
   };
 
   return (
-    <aside 
-      className={`
-        w-[275px] p-5 border-r border-gray-800/50 sticky top-0 h-screen
-        bg-black/30 backdrop-blur-xl
-        md:translate-x-0 transition-transform duration-300 ease-in-out
-        fixed md:relative z-[1000]
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}
-    >
+    <div className="w-full h-full p-5 overflow-y-auto bg-black/30 backdrop-blur-xl">
       <div className="flex items-center text-2xl font-bold mb-5 text-white animate-pulse">
         <span className="mr-3 text-3xl drop-shadow-[0_0_10px_rgba(29,155,240,0.8)] animate-float">
           🚀
@@ -176,7 +168,7 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
           </div>
         )}
       </div>
-    </aside>
+    </div>
   );
 };
 

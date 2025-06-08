@@ -20,7 +20,7 @@ const RightSidebar = () => {
   ];
 
   return (
-    <aside className="hidden lg:block w-[350px] p-5">
+    <div className="w-full h-full p-5 overflow-y-auto">
       {/* 統計ウィジェット */}
       <div className="bg-gradient-to-br from-white/5 to-white/2 border border-white/10 rounded-3xl mb-5 overflow-hidden backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
         <div className="p-5 text-xl font-bold border-b border-white/10 bg-gradient-to-r from-blue-500/10 to-purple-500/10">
@@ -71,7 +71,7 @@ const RightSidebar = () => {
           ))}
         </div>
       </div>
-    </aside>
+    </div>
   );
 };
 

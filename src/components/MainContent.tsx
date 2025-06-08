@@ -29,7 +29,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
   };
 
   return (
-    <main className="flex-1 border-r border-gray-800/50 max-w-[600px] bg-black/20 backdrop-blur-lg">
+    <div className="w-full h-full bg-black/20 backdrop-blur-lg">
       <Header 
         currentTab={currentTab}
         setCurrentTab={handleTabChange}
@@ -111,7 +111,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 };
 
