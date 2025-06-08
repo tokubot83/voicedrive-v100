@@ -29,16 +29,16 @@ const ProjectStatus: React.FC<ProjectStatusProps> = ({
     return null;
   }
   
-  // プロジェクト化完了の場合
-  if (status.achieved) {
-    return <ProjectStatusCompleted 
-      score={score} 
-      status={status}
-      thresholdName={getThresholdName(status.threshold!)}
-      projectId={projectId}
-      approver={approver}
-    />;
-  }
+  // 常にプログレスバー表示（完了表示は使用しない）
+  // if (status.achieved) {
+  //   return <ProjectStatusCompleted 
+  //     score={score} 
+  //     status={status}
+  //     thresholdName={getThresholdName(status.threshold!)}
+  //     projectId={projectId}
+  //     approver={approver}
+  //   />;
+  // }
   
   // プロジェクト化進行中の場合
   return <ProjectStatusPending 
