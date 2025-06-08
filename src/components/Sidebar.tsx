@@ -1,6 +1,7 @@
 import { UserRole } from '../types';
 import { usePermissions } from '../permissions/hooks/usePermissions';
 import { PermissionLevel, PERMISSION_METADATA } from '../permissions/types/PermissionTypes';
+import { useDemoMode } from './demo/DemoModeController';
 
 interface SidebarProps {
   currentPage: string;
@@ -12,7 +13,9 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole = 'employee', userId }: SidebarProps) => {
-  const { accessibleMenuItems, metadata } = usePermissions(userId);
+  const { isDemoMode, currentUser } = useDemoMode();
+  const demoUserId = isDemoMode ? currentUser.id : userId;
+  const { accessibleMenuItems, metadata } = usePermissions(demoUserId);
   const allNavItems: any[] = [
     // 基本機能（全レベルでアクセス可能）
     { id: 'home', icon: '🏠', label: 'ホーム', section: 'main', menuKey: 'home' },
@@ -144,10 +147,34 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
         })}
       </nav>
       
-      <div className="absolute bottom-4 left-4 right-4 text-center">
-        <div className="text-xs text-gray-500">
-          {metadata.displayName}
-        </div>
+      <div className="absolute bottom-4 left-4 right-4">
+        {isDemoMode ? (
+          <div className="bg-gray-800/50 rounded-lg p-3 backdrop-blur">
+            <div className="flex items-center gap-2 mb-1">
+              <img 
+                src={currentUser.avatar} 
+                alt={currentUser.name}
+                className="w-8 h-8 rounded-full"
+              />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-white">{currentUser.name}</div>
+                <div className="text-xs text-gray-400">{currentUser.position}</div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-gray-500">{currentUser.department}</span>
+              <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full">
+                Lv.{currentUser.permissionLevel}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center">
+            <div className="text-xs text-gray-500">
+              {metadata.displayName}
+            </div>
+          </div>
+        )}
       </div>
     </aside>
   );

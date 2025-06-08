@@ -7,12 +7,16 @@ import MedicalProfileDemo from './components/profile/MedicalProfileDemo';
 import TimeAxisDemo from './components/TimeAxisDemo';
 import useSwipe from './hooks/useSwipe';
 import { PostType, UserRole } from './types';
+import { DemoModeProvider, DemoModeController, useDemoMode } from './components/demo/DemoModeController';
 
-function App() {
+function AppContent() {
   const [currentPage, setCurrentPage] = useState('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedPostType, setSelectedPostType] = useState<PostType>('improvement');
-  const [userRole, setUserRole] = useState<UserRole>('manager');
+  const { currentUser } = useDemoMode();
+  
+  // Map demo user role to UserRole type
+  const userRole = currentUser.role as UserRole;
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -67,29 +71,40 @@ function App() {
   }
 
   return (
-    <div className="flex max-w-[1200px] mx-auto min-h-screen">
-      <Sidebar 
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        isOpen={isSidebarOpen}
-        closeSidebar={closeSidebar}
-        userRole={userRole}
-      />
-      
-      <MainContent 
-        currentPage={currentPage}
-        selectedPostType={selectedPostType}
-        setSelectedPostType={setSelectedPostType}
-        toggleSidebar={toggleSidebar}
-      />
-      
-      <RightSidebar />
-      
-      <MobileOverlay 
-        isOpen={isSidebarOpen}
-        closeSidebar={closeSidebar}
-      />
-    </div>
+    <>
+      <DemoModeController />
+      <div className="flex max-w-[1200px] mx-auto min-h-screen pt-12">
+        <Sidebar 
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          isOpen={isSidebarOpen}
+          closeSidebar={closeSidebar}
+          userRole={userRole}
+        />
+        
+        <MainContent 
+          currentPage={currentPage}
+          selectedPostType={selectedPostType}
+          setSelectedPostType={setSelectedPostType}
+          toggleSidebar={toggleSidebar}
+        />
+        
+        <RightSidebar />
+        
+        <MobileOverlay 
+          isOpen={isSidebarOpen}
+          closeSidebar={closeSidebar}
+        />
+      </div>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <DemoModeProvider>
+      <AppContent />
+    </DemoModeProvider>
   );
 }
 
