@@ -29,6 +29,15 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
 
   useEffect(() => {
     setSeasonalAdvice(getSeasonalAdvice(selectedType));
+    
+    // Set default anonymity level based on post type
+    if (selectedType === 'improvement') {
+      setAnonymity('real');
+    } else if (selectedType === 'community') {
+      setAnonymity('department');
+    } else if (selectedType === 'report') {
+      setAnonymity('anonymous');
+    }
   }, [selectedType, getSeasonalAdvice]);
 
   const handleCapacityWarning = (status: any) => {

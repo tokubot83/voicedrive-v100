@@ -24,6 +24,17 @@ const EnhancedPost = ({ post, onVote, onComment }: EnhancedPostProps) => {
     }
   };
 
+  const getAvatarInitial = () => {
+    switch (post.anonymityLevel) {
+      case 'real':
+        return post.author.name.charAt(0);
+      case 'department':
+        return post.author.department.charAt(0);
+      case 'anonymous':
+        return '?';
+    }
+  };
+
   const getTypeStyle = () => {
     switch (post.type) {
       case 'improvement':
@@ -69,7 +80,7 @@ const EnhancedPost = ({ post, onVote, onComment }: EnhancedPostProps) => {
     <div className="border-b border-gray-800/30 p-5 transition-all duration-300 hover:bg-white/2 hover:shadow-[inset_0_0_20px_rgba(29,155,240,0.1)]">
       <div className="flex gap-3">
         <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold flex-shrink-0">
-          {post.author.name.charAt(0)}
+          {getAvatarInitial()}
         </div>
         
         <div className="flex-1">
@@ -90,7 +101,9 @@ const EnhancedPost = ({ post, onVote, onComment }: EnhancedPostProps) => {
             )}
             
             <span className="font-bold text-gray-100">{getAuthorDisplay()}</span>
-            <span className="text-blue-400 text-sm font-medium">@{post.author.role}</span>
+            {post.anonymityLevel === 'real' && (
+              <span className="text-blue-400 text-sm font-medium">@{post.author.role}</span>
+            )}
             <span className="text-gray-500 text-sm">・5分前</span>
           </div>
           
