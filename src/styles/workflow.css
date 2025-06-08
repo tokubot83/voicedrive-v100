@@ -1,0 +1,408 @@
+/* ワークフロー関連のスタイル - Phase 2 */
+
+/* ワークフローステータス全体 */
+.project-workflow-status {
+  background: linear-gradient(135deg, rgba(29, 155, 240, 0.08), rgba(120, 86, 255, 0.05));
+  border: 1px solid rgba(29, 155, 240, 0.3);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px 0;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+/* ワークフローヘッダー */
+.workflow-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(47, 51, 54, 0.3);
+}
+
+.workflow-icon {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 0 10px currentColor);
+  animation: float 3s ease-in-out infinite;
+}
+
+.workflow-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #e7e9ea;
+  flex: 1;
+}
+
+.workflow-badge {
+  background: rgba(29, 155, 240, 0.2);
+  color: #1d9bf0;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* ワークフロータイムライン */
+.workflow-timeline {
+  position: relative;
+  padding-left: 40px;
+}
+
+.workflow-step {
+  position: relative;
+  margin-bottom: 32px;
+  padding-left: 20px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.workflow-step:last-child {
+  margin-bottom: 0;
+}
+
+/* ステップ間のコネクター */
+.workflow-step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  width: 2px;
+  height: calc(100% + 16px);
+  background: rgba(71, 118, 123, 0.3);
+}
+
+.workflow-step.completed:not(:last-child)::before {
+  background: linear-gradient(180deg, #00ba7c, rgba(0, 186, 124, 0.3));
+}
+
+.workflow-step.active:not(:last-child)::before {
+  background: linear-gradient(180deg, #ff7a00, rgba(255, 122, 0, 0.3));
+  animation: pulse 2s infinite;
+}
+
+/* ステップアイコン */
+.step-icon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid rgba(71, 118, 123, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  z-index: 1;
+}
+
+.workflow-step.completed .step-icon {
+  background: linear-gradient(135deg, #00ba7c, #10b981);
+  border-color: #00ba7c;
+  box-shadow: 0 4px 15px rgba(0, 186, 124, 0.4);
+}
+
+.workflow-step.active .step-icon {
+  background: linear-gradient(135deg, #ff7a00, #f59e0b);
+  border-color: #ff7a00;
+  box-shadow: 0 4px 15px rgba(255, 122, 0, 0.4);
+  animation: rotate 4s linear infinite;
+}
+
+.workflow-step.rejected .step-icon {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  border-color: #dc2626;
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+}
+
+.workflow-step.escalated .step-icon {
+  background: linear-gradient(135deg, #dc2626, #f59e0b);
+  border-color: #dc2626;
+  animation: pulse-red 1s infinite;
+}
+
+/* ステップコンテンツ */
+.step-content {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(47, 51, 54, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin-left: 20px;
+  transition: all 0.3s ease;
+}
+
+.workflow-step.active .step-content {
+  border-color: rgba(255, 122, 0, 0.3);
+  background: rgba(255, 122, 0, 0.05);
+}
+
+.workflow-step.completed .step-content {
+  border-color: rgba(0, 186, 124, 0.3);
+  background: rgba(0, 186, 124, 0.05);
+}
+
+.step-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #e7e9ea;
+  margin-bottom: 8px;
+}
+
+.step-assignee {
+  color: #71767b;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.step-time, .step-due {
+  font-size: 0.85rem;
+  color: #71767b;
+  margin-bottom: 4px;
+}
+
+.overdue-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: rgba(220, 38, 38, 0.2);
+  color: #dc2626;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.step-comments {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #e7e9ea;
+  line-height: 1.5;
+}
+
+/* ステップアクション */
+.btn-show-actions {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: linear-gradient(45deg, #1d9bf0, #7856ff);
+  border: none;
+  color: white;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-show-actions:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(29, 155, 240, 0.3);
+}
+
+.step-actions {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(47, 51, 54, 0.3);
+  border-radius: 12px;
+}
+
+.action-comment {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(47, 51, 54, 0.5);
+  border-radius: 8px;
+  color: #e7e9ea;
+  font-size: 0.95rem;
+  padding: 12px;
+  margin-bottom: 12px;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.action-comment:focus {
+  border-color: #1d9bf0;
+  box-shadow: 0 0 10px rgba(29, 155, 240, 0.3);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-approve, .btn-reject, .btn-cancel {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 100px;
+}
+
+.btn-approve {
+  background: linear-gradient(45deg, #00ba7c, #10b981);
+  color: white;
+}
+
+.btn-approve:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 186, 124, 0.3);
+}
+
+.btn-reject {
+  background: linear-gradient(45deg, #dc2626, #ef4444);
+  color: white;
+}
+
+.btn-reject:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+}
+
+.btn-cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: #71767b;
+  border: 1px solid rgba(47, 51, 54, 0.5);
+}
+
+.btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #e7e9ea;
+}
+
+/* ワークフローアクション */
+.workflow-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(47, 51, 54, 0.3);
+  flex-wrap: wrap;
+}
+
+.btn-action {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(47, 51, 54, 0.5);
+  border-radius: 20px;
+  color: #e7e9ea;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
+}
+
+.btn-escalate {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #dc2626;
+}
+
+.btn-escalate:hover {
+  background: rgba(220, 38, 38, 0.2);
+  box-shadow: 0 2px 10px rgba(220, 38, 38, 0.3);
+}
+
+/* 実装フェーズアクション */
+.implementation-actions {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+}
+
+/* ローディング状態 */
+.workflow-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px;
+  color: #71767b;
+}
+
+.loading-spinner {
+  font-size: 2rem;
+  animation: rotate 1s linear infinite;
+}
+
+/* エラー状態 */
+.workflow-error {
+  padding: 20px;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 12px;
+  color: #dc2626;
+  text-align: center;
+}
+
+/* アニメーション */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes pulse-red {
+  0%, 100% { 
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+  }
+  50% { 
+    box-shadow: 0 4px 25px rgba(220, 38, 38, 0.8);
+  }
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .project-workflow-status {
+    padding: 16px;
+  }
+  
+  .workflow-timeline {
+    padding-left: 30px;
+  }
+  
+  .step-content {
+    margin-left: 10px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .action-buttons button {
+    width: 100%;
+  }
+}

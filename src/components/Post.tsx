@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import VotingSystem from './VotingSystem';
 import ProjectStatus from './projects/ProjectStatus';
+import ProjectWorkflowStatus from './workflow/ProjectWorkflowStatus';
 import { Post as PostType, VoteOption } from '../types';
+import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 
 interface PostProps {
   post: PostType;
@@ -11,6 +13,20 @@ interface PostProps {
 
 const Post = ({ post, onVote, onComment }: PostProps) => {
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(null);
+  const [showWorkflow, setShowWorkflow] = useState(false);
+  const { calculateScore, getStatusConfig, convertVotesToEngagements } = useProjectScoring();
+  
+  // プロジェクトスコアを計算してワークフロー表示を判定
+  useEffect(() => {
+    if (post.type === 'improvement') {
+      const engagements = convertVotesToEngagements(post.votes);
+      const score = calculateScore(engagements, post.id);
+      const status = getStatusConfig(score, post.type);
+      
+      // 閾値を達成していればワークフローを表示
+      setShowWorkflow(status.achieved && !!post.projectId);
+    }
+  }, [post, calculateScore, getStatusConfig, convertVotesToEngagements]);
 
   const getAuthorDisplay = () => {
     switch (post.anonymityLevel) {
@@ -89,13 +105,21 @@ const Post = ({ post, onVote, onComment }: PostProps) => {
           
           {post.type === 'improvement' && (
             <>
-              <ProjectStatus 
-                postId={post.id}
-                postType={post.type}
-                votes={post.votes}
-                projectId={post.projectId}
-                approver={post.approver}
-              />
+              {/* Phase 1: プロジェクト化状況（閾値達成前） */}
+              {!showWorkflow && (
+                <ProjectStatus 
+                  postId={post.id}
+                  postType={post.type}
+                  votes={post.votes}
+                  projectId={post.projectId}
+                  approver={post.approver}
+                />
+              )}
+              
+              {/* Phase 2: ワークフロー状況（閾値達成後） */}
+              {showWorkflow && post.projectId && (
+                <ProjectWorkflowStatus projectId={post.projectId} />
+              )}
               
               <VotingSystem
                 postId={post.id}
