@@ -99,7 +99,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     accessibleFeatures: ['create_post', 'vote', 'view_department_posts', 'approve_team_projects', 'moderate_department'],
     approvalLimit: 500000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT],
-    menuItems: ['home', 'voice', 'my_posts', 'team_management', 'department_dashboard'],
+    menuItems: ['home', 'voice', 'my_posts', 'team_management', 'department_dashboard', 'authority_management'],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval']
   },
@@ -112,7 +112,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     accessibleFeatures: ['create_post', 'vote', 'view_all_department_posts', 'approve_department_projects', 'budget_management'],
     approvalLimit: 2000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT],
-    menuItems: ['home', 'voice', 'my_posts', 'team_management', 'department_dashboard', 'budget_control'],
+    menuItems: ['home', 'voice', 'my_posts', 'team_management', 'department_dashboard', 'budget_control', 'authority_management'],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'budget_review']
   },
@@ -130,7 +130,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: [
       'home', 'voice', 'my_posts', 'team_management', 'department_dashboard', 
-      'hr_dashboard', 'policy_management', 'talent_analytics'
+      'hr_dashboard', 'policy_management', 'talent_analytics', 'authority_management'
     ],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'hr_review', 'facility_coordination']
@@ -149,7 +149,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: [
       'home', 'voice', 'my_posts', 'team_management', 'department_dashboard',
-      'hr_dashboard', 'strategic_planning', 'org_development', 'performance_analytics'
+      'hr_dashboard', 'strategic_planning', 'org_development', 'performance_analytics', 'authority_management'
     ],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'hr_review', 'strategic_review']
@@ -168,7 +168,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY, ProjectScope.ORGANIZATION],
     menuItems: [
       'home', 'voice', 'my_posts', 'facility_management', 'strategic_dashboard',
-      'budget_planning', 'analytics', 'executive_reports'
+      'budget_planning', 'analytics', 'executive_reports', 'authority_management'
     ],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'facility_approval', 'strategic_review']
@@ -187,7 +187,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY, ProjectScope.ORGANIZATION, ProjectScope.STRATEGIC],
     menuItems: [
       'home', 'voice', 'executive_dashboard', 'strategic_initiatives',
-      'organization_analytics', 'board_reports', 'governance'
+      'organization_analytics', 'board_reports', 'governance', 'authority_management'
     ],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'facility_approval', 'executive_approval', 'board_review']

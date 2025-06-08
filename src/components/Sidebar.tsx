@@ -31,6 +31,9 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
     // 予算管理（レベル4以上）
     { id: 'budget_control', icon: '💰', label: '予算管理', section: 'management', menuKey: 'budget_control' },
     
+    // 権限管理（レベル3以上）
+    { id: 'authority', icon: '🛡️', label: '権限管理', section: 'management', menuKey: 'authority_management' },
+    
     // HR関連機能（レベル5以上）
     { id: 'hr_dashboard', icon: '👨‍💼', label: '人事ダッシュボード', section: 'hr', menuKey: 'hr_dashboard' },
     { id: 'policy_management', icon: '📑', label: 'ポリシー管理', section: 'hr', menuKey: 'policy_management' },

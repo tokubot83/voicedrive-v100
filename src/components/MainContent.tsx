@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Header from './Header';
 import ComposeSection from './ComposeSection';
 import Timeline from './Timeline';
+import AuthorityDashboard from './authority/AuthorityDashboard';
 import { PostType } from '../types';
 
 interface MainContentProps {
@@ -94,6 +95,12 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
           <div className="p-6 text-center">
             <h2 className="text-2xl font-bold mb-4">分析</h2>
             <p className="text-gray-400">統計と分析データがここに表示されます</p>
+          </div>
+        )}
+        
+        {currentPage === 'authority' && (
+          <div className="p-6">
+            <AuthorityDashboard />
           </div>
         )}
         
