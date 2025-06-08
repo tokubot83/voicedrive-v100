@@ -1,21 +1,57 @@
+import { UserRole } from '../types';
+
 interface SidebarProps {
   currentPage: string;
   setCurrentPage: (page: string) => void;
   isOpen: boolean;
   closeSidebar: () => void;
+  userRole?: UserRole;
 }
 
-const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar }: SidebarProps) => {
-  const navItems = [
-    { id: 'home', icon: '🏠', label: 'ホーム' },
-    { id: 'improvement', icon: '💡', label: '改善提案' },
-    { id: 'community', icon: '👥', label: 'コミュニティ' },
-    { id: 'report', icon: '🚨', label: '公益通報' },
-    { id: 'projects', icon: '🚀', label: 'プロジェクト' },
-    { id: 'analytics', icon: '📊', label: '分析' },
-    { id: 'notifications', icon: '🔔', label: '通知' },
-    { id: 'profile', icon: '👤', label: 'プロフィール' },
+const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole = 'employee' }: SidebarProps) => {
+  const allNavItems = [
+    { id: 'home', icon: '🏠', label: 'ホーム', section: 'main' },
+    { id: 'profile', icon: '👤', label: 'プロフィール', section: 'main' },
+    { id: 'improvement', icon: '💡', label: '改善提案', section: 'main' },
+    { id: 'projects', icon: '🏗️', label: 'プロジェクト', section: 'main' },
+    { id: 'community', icon: '👥', label: 'コミュニティ', section: 'main' },
+    { id: 'report', icon: '🚨', label: '公益通報', section: 'main' },
+    { id: 'divider1', isDivider: true },
+    { id: 'analytics', icon: '📊', label: '分析・統計', section: 'admin', minRole: 'chief' },
+    { id: 'management', icon: '👑', label: '管理機能', section: 'admin', minRole: 'manager' },
+    { id: 'strategy', icon: '🎯', label: '戦略企画', section: 'admin', minRole: 'executive' },
+    { id: 'divider2', isDivider: true },
+    { id: 'notifications', icon: '🔔', label: '通知', section: 'settings' },
+    { id: 'settings', icon: '⚙️', label: '設定', section: 'settings' },
   ];
+
+  const roleHierarchy = {
+    employee: 0,
+    chief: 1,
+    manager: 2,
+    executive: 3
+  };
+
+  const hasAccess = (minRole: UserRole | undefined) => {
+    if (!minRole) return true;
+    return roleHierarchy[userRole] >= roleHierarchy[minRole];
+  };
+
+  const filteredNavItems = allNavItems.filter(item => {
+    if (item.isDivider) {
+      if (item.id === 'divider1') {
+        return roleHierarchy[userRole] >= roleHierarchy.chief;
+      }
+      if (item.id === 'divider2') {
+        const hasAdminItems = allNavItems.some(
+          navItem => navItem.section === 'admin' && hasAccess(navItem.minRole)
+        );
+        return hasAdminItems;
+      }
+      return false;
+    }
+    return hasAccess(item.minRole);
+  });
 
   const handleNavClick = (pageId: string) => {
     setCurrentPage(pageId);
@@ -46,26 +82,35 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar }: SidebarP
       </div>
       
       <nav>
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => handleNavClick(item.id)}
-            className={`
-              flex items-center w-full p-3 mb-1 rounded-full text-gray-200
-              transition-all duration-300 relative overflow-hidden
-              hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10
-              hover:translate-x-1 hover:shadow-[0_4px_15px_rgba(29,155,240,0.2)]
-              ${currentPage === item.id ? 
-                'font-bold bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30' : 
-                ''}
-            `}
-          >
-            <span className="mr-4 text-xl drop-shadow-[0_0_5px_rgba(29,155,240,0.5)]">
-              {item.icon}
-            </span>
-            <span>{item.label}</span>
-          </button>
-        ))}
+        {filteredNavItems.map((item) => {
+          if (item.isDivider) {
+            return (
+              <div key={item.id} className="my-4 border-t border-gray-800/50" />
+            );
+          }
+          
+          return (
+            <button
+              key={item.id}
+              onClick={() => handleNavClick(item.id)}
+              className={`
+                flex items-center w-full p-3 mb-1 rounded-full text-gray-200
+                transition-all duration-300 relative overflow-hidden
+                hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10
+                hover:translate-x-1 hover:shadow-[0_4px_15px_rgba(29,155,240,0.2)]
+                ${currentPage === item.id ? 
+                  'font-bold bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30' : 
+                  ''}
+                ${item.section === 'admin' ? 'text-gray-300/80' : ''}
+              `}
+            >
+              <span className="mr-4 text-xl drop-shadow-[0_0_5px_rgba(29,155,240,0.5)]">
+                {item.icon}
+              </span>
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
       </nav>
     </aside>
   );

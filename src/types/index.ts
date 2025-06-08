@@ -2,6 +2,7 @@ export type PostType = 'improvement' | 'community' | 'report';
 export type AnonymityLevel = 'real' | 'department' | 'anonymous';
 export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 export type VoteOption = 'strongly-oppose' | 'oppose' | 'neutral' | 'support' | 'strongly-support';
+export type UserRole = 'employee' | 'chief' | 'manager' | 'executive';
 
 export interface User {
   id: string;

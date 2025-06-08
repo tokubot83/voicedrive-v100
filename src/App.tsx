@@ -4,12 +4,13 @@ import MainContent from './components/MainContent';
 import RightSidebar from './components/RightSidebar';
 import MobileOverlay from './components/MobileOverlay';
 import useSwipe from './hooks/useSwipe';
-import { PostType } from './types';
+import { PostType, UserRole } from './types';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedPostType, setSelectedPostType] = useState<PostType>('improvement');
+  const [userRole, setUserRole] = useState<UserRole>('manager');
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -60,6 +61,7 @@ function App() {
         setCurrentPage={setCurrentPage}
         isOpen={isSidebarOpen}
         closeSidebar={closeSidebar}
+        userRole={userRole}
       />
       
       <MainContent 
