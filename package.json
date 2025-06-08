@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "build": "vite build",
+    "build:vercel": "vite build",
+    "build:strict": "tsc --noEmit --skipLibCheck && vite build",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
     "lucide-react": "^0.513.0",

@@ -10,7 +10,7 @@ export interface EscalationTarget {
 }
 
 export class EscalationService {
-  private static escalationTimers: Map<string, NodeJS.Timeout> = new Map();
+  private static escalationTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
   
   static async initializeEscalationMonitoring(workflow: ProjectWorkflow): Promise<void> {
     workflow.stages.forEach((stage, index) => {

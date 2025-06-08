@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Testing
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Development
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+docs/
+
+# Build artifacts during development
+dist/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment files
+.env.local
+.env.development
+.env.test
+
+# OS files
+.DS_Store
+Thumbs.db

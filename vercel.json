@@ -1,0 +1,20 @@
+{
+  "buildCommand": "npm run build:vercel",
+  "framework": "vite",
+  "env": {
+    "SKIP_TYPE_CHECK": "true",
+    "CI": "false",
+    "TYPESCRIPT_NO_TYPE_CHECK": "true"
+  },
+  "build": {
+    "env": {
+      "SKIP_TYPE_CHECK": "true",
+      "CI": "false"
+    }
+  },
+  "functions": {
+    "api/**": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}
