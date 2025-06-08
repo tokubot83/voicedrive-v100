@@ -24,6 +24,32 @@ export interface Post {
   comments: Comment[];
   projectId?: string;
   approver?: string;
+  projectStatus?: {
+    stage: 'approaching' | 'ready' | 'active' | 'completed';
+    score: number;
+    threshold: number;
+    progress: number;
+  };
+  projectDetails?: {
+    manager?: string;
+    team?: string[];
+    milestones?: ProjectMilestone[];
+    roi?: {
+      investment: number;
+      expectedSavings: number;
+    };
+    completedDate?: string;
+    outcomes?: string;
+  };
+}
+
+export interface ProjectMilestone {
+  id: string;
+  name: string;
+  completed: boolean;
+  current?: boolean;
+  targetDate?: string;
+  completedDate?: string;
 }
 
 export interface Comment {

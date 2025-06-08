@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Header from './Header';
 import ComposeSection from './ComposeSection';
 import Timeline from './Timeline';
+import EnhancedTimeline from './EnhancedTimeline';
 import { PostType } from '../types';
 
 interface MainContentProps {
@@ -14,19 +15,33 @@ interface MainContentProps {
 const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggleSidebar }: MainContentProps) => {
   const [currentTab, setCurrentTab] = useState('home');
   const [currentFilter, setCurrentFilter] = useState('latest');
+  
+  // Update default filter when tab changes
+  const handleTabChange = (tab: string) => {
+    setCurrentTab(tab);
+    // Set appropriate default filter for each tab
+    if (tab === 'improvement') {
+      setCurrentFilter('proposals');
+    } else if (tab === 'home') {
+      setCurrentFilter('latest');
+    } else {
+      setCurrentFilter('all');
+    }
+  };
 
   return (
     <main className="flex-1 border-r border-gray-800/50 max-w-[600px] bg-black/20 backdrop-blur-lg">
       <Header 
         currentTab={currentTab}
-        setCurrentTab={setCurrentTab}
+        setCurrentTab={handleTabChange}
         currentFilter={currentFilter}
         setCurrentFilter={setCurrentFilter}
         toggleSidebar={toggleSidebar}
       />
       
       <div className="overflow-y-auto">
-        {currentPage === 'home' && (
+        {/* Home tab content */}
+        {currentTab === 'home' && (
           <>
             <ComposeSection 
               selectedPostType={selectedPostType}
@@ -36,25 +51,37 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
           </>
         )}
         
-        {currentPage === 'improvement' && (
-          <div className="p-6 text-center">
-            <h2 className="text-2xl font-bold mb-4">改善提案</h2>
-            <p className="text-gray-400">改善提案の一覧がここに表示されます</p>
-          </div>
+        {/* Improvement tab content with sub-filters */}
+        {currentTab === 'improvement' && (
+          <>
+            <ComposeSection 
+              selectedPostType="improvement"
+              setSelectedPostType={setSelectedPostType}
+            />
+            <EnhancedTimeline filter={currentFilter} />
+          </>
         )}
         
-        {currentPage === 'community' && (
-          <div className="p-6 text-center">
-            <h2 className="text-2xl font-bold mb-4">コミュニティ</h2>
-            <p className="text-gray-400">コミュニティ投稿がここに表示されます</p>
-          </div>
+        {/* Community tab content */}
+        {currentTab === 'community' && (
+          <>
+            <ComposeSection 
+              selectedPostType="community"
+              setSelectedPostType={setSelectedPostType}
+            />
+            <Timeline />
+          </>
         )}
         
-        {currentPage === 'report' && (
-          <div className="p-6 text-center">
-            <h2 className="text-2xl font-bold mb-4">公益通報</h2>
-            <p className="text-gray-400">公益通報の一覧がここに表示されます</p>
-          </div>
+        {/* Report tab content */}
+        {currentTab === 'report' && (
+          <>
+            <ComposeSection 
+              selectedPostType="report"
+              setSelectedPostType={setSelectedPostType}
+            />
+            <Timeline />
+          </>
         )}
         
         {currentPage === 'projects' && (

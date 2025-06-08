@@ -21,9 +21,10 @@ const Header = ({ currentTab, setCurrentTab, currentFilter, setCurrentFilter, to
       { id: 'consensus', label: '✅ 合意形成中' },
     ],
     improvement: [
-      { id: 'new', label: '新着' },
-      { id: 'voting', label: '投票中' },
-      { id: 'project', label: 'プロジェクト化' },
+      { id: 'proposals', label: '📝 提案中', count: 12 },
+      { id: 'progress', label: '📈 プロジェクト化進行中', count: 3 },
+      { id: 'active', label: '🚀 アクティブプロジェクト', count: 2 },
+      { id: 'completed', label: '✅ 完了プロジェクト', count: 5 },
     ],
     community: [
       { id: 'all', label: 'すべて' },
@@ -77,7 +78,7 @@ const Header = ({ currentTab, setCurrentTab, currentFilter, setCurrentFilter, to
               onClick={() => setCurrentFilter(filter.id)}
               className={`
                 px-3 py-1.5 rounded-2xl text-xs font-medium
-                transition-all duration-300
+                transition-all duration-300 flex items-center gap-1
                 ${currentFilter === filter.id
                   ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-[0_2px_8px_rgba(29,155,240,0.3)]'
                   : 'bg-white/5 border border-gray-800/50 text-gray-400 hover:bg-white/10 hover:text-gray-200'
@@ -85,6 +86,13 @@ const Header = ({ currentTab, setCurrentTab, currentFilter, setCurrentFilter, to
               `}
             >
               {filter.label}
+              {(filter as any).count !== undefined && (
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  currentFilter === filter.id ? 'bg-white/20' : 'bg-gray-700'
+                }`}>
+                  {(filter as any).count}
+                </span>
+              )}
             </button>
           ))}
         </div>
