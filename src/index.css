@@ -115,3 +115,6 @@ body {
 
 /* 分析・ダッシュボード関連のスタイルをインポート */
 @import './styles/analytics.css';
+
+/* 医療プロフィール関連のスタイルをインポート */
+@import './styles/medical-profile.css';

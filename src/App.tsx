@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import MainContent from './components/MainContent';
 import RightSidebar from './components/RightSidebar';
 import MobileOverlay from './components/MobileOverlay';
+import MedicalProfileDemo from './components/profile/MedicalProfileDemo';
 import useSwipe from './hooks/useSwipe';
 import { PostType, UserRole } from './types';
 
@@ -53,6 +54,11 @@ function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [isSidebarOpen]);
+
+  // Medical Profile Demo Mode
+  if (currentPage === 'medical-profile') {
+    return <MedicalProfileDemo />;
+  }
 
   return (
     <div className="flex max-w-[1200px] mx-auto min-h-screen">

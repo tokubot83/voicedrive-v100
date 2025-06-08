@@ -57,6 +57,11 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
     // 設定機能（全レベルでアクセス可能）
     { id: 'notifications', icon: '🔔', label: '通知', section: 'settings' },
     { id: 'settings', icon: '⚙️', label: '設定', section: 'settings' },
+    
+    { id: 'divider2', isDivider: true },
+    
+    // デモ機能
+    { id: 'medical-profile', icon: '🏥', label: '医療プロフィール', section: 'demo' },
   ];
 
   // アクセス可能なメニュー項目をフィルタリング
