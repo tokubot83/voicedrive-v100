@@ -1,5 +1,6 @@
-// 承認ワークフローエンジン - Phase 2 実装
+// 承認ワークフローエンジン - Phase 2 実装 (8段階権限システム対応)
 import { PostType } from '../types';
+import { PermissionLevel, ProjectScope } from '../permissions/types/PermissionTypes';
 
 export interface WorkflowStage {
   id: string;
@@ -7,7 +8,7 @@ export interface WorkflowStage {
   assignee: string;
   assignedTo?: AssigneeInfo;
   autoComplete: boolean;
-  requiredLevel?: string;
+  requiredLevel?: PermissionLevel;
   status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED' | 'ESCALATED';
   createdAt: Date;
   completedAt?: Date;
@@ -51,32 +52,54 @@ export interface WorkflowEscalation {
 
 export class ApprovalWorkflowEngine {
   private workflowTemplates = {
+    // チームレベルプロジェクト
+    TEAM: [
+      { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
+      { stage: 'TEAM_LEAD_APPROVAL', assignee: 'TEAM_LEAD', requiredLevel: PermissionLevel.LEVEL_2 },
+      { stage: 'MANAGER_APPROVAL', assignee: 'MANAGER', requiredLevel: PermissionLevel.LEVEL_3 },
+      { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
+    ],
+    // 部門レベルプロジェクト
     DEPARTMENT: [
       { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
-      { stage: 'DEPT_HEAD_APPROVAL', assignee: 'DEPARTMENT_HEAD', requiredLevel: 'LEVEL_3' },
+      { stage: 'MANAGER_APPROVAL', assignee: 'MANAGER', requiredLevel: PermissionLevel.LEVEL_3 },
+      { stage: 'SECTION_CHIEF_APPROVAL', assignee: 'SECTION_CHIEF', requiredLevel: PermissionLevel.LEVEL_4 },
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
     ],
+    // 施設レベルプロジェクト
     FACILITY: [
       { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
-      { stage: 'DEPT_HEAD_APPROVAL', assignee: 'DEPARTMENT_HEAD', requiredLevel: 'LEVEL_3' },
-      { stage: 'FACILITY_APPROVAL', assignee: 'FACILITY_DIRECTOR', requiredLevel: 'LEVEL_4' },
-      { stage: 'BUDGET_APPROVAL', assignee: 'FINANCE_HEAD', requiredLevel: 'LEVEL_4' },
+      { stage: 'SECTION_CHIEF_APPROVAL', assignee: 'SECTION_CHIEF', requiredLevel: PermissionLevel.LEVEL_4 },
+      { stage: 'HR_DEPT_HEAD_APPROVAL', assignee: 'HR_DEPT_HEAD', requiredLevel: PermissionLevel.LEVEL_5 },
+      { stage: 'HR_GENERAL_MANAGER_APPROVAL', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_6 },
+      { stage: 'BUDGET_APPROVAL', assignee: 'FINANCE_HEAD', requiredLevel: PermissionLevel.LEVEL_6 },
+      { stage: 'DIRECTOR_APPROVAL', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_7 },
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
     ],
+    // 組織全体レベルプロジェクト
     ORGANIZATION: [
       { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
-      { stage: 'DEPT_HEAD_APPROVAL', assignee: 'DEPARTMENT_HEAD', requiredLevel: 'LEVEL_3' },
-      { stage: 'FACILITY_APPROVAL', assignee: 'FACILITY_DIRECTOR', requiredLevel: 'LEVEL_4' },
-      { stage: 'EXECUTIVE_APPROVAL', assignee: 'EXECUTIVE', requiredLevel: 'LEVEL_5' },
-      { stage: 'BOARD_APPROVAL', assignee: 'BOARD', requiredLevel: 'LEVEL_6' },
-      { stage: 'BUDGET_ALLOCATION', assignee: 'CFO', requiredLevel: 'LEVEL_5' },
+      { stage: 'HR_DEPT_HEAD_REVIEW', assignee: 'HR_DEPT_HEAD', requiredLevel: PermissionLevel.LEVEL_5 },
+      { stage: 'HR_GENERAL_MANAGER_REVIEW', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_6 },
+      { stage: 'DIRECTOR_APPROVAL', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_7 },
+      { stage: 'EXECUTIVE_APPROVAL', assignee: 'EXECUTIVE', requiredLevel: PermissionLevel.LEVEL_8 },
+      { stage: 'BUDGET_ALLOCATION', assignee: 'CFO', requiredLevel: PermissionLevel.LEVEL_7 },
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
+    ],
+    // 戦略的プロジェクト
+    STRATEGIC: [
+      { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
+      { stage: 'DIRECTOR_REVIEW', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_7 },
+      { stage: 'EXECUTIVE_APPROVAL', assignee: 'EXECUTIVE', requiredLevel: PermissionLevel.LEVEL_8 },
+      { stage: 'BOARD_APPROVAL', assignee: 'BOARD', requiredLevel: PermissionLevel.LEVEL_8 },
+      { stage: 'STRATEGIC_ALLOCATION', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_8 },
+      { stage: 'IMPLEMENTATION', assignee: 'STRATEGIC_TEAM', autoComplete: false }
     ]
   };
 
   async initializeWorkflow(projectData: {
     id: string;
-    level: 'DEPARTMENT' | 'FACILITY' | 'ORGANIZATION';
+    level: ProjectScope;
     department: string;
     facility?: string;
     organization?: string;
@@ -122,13 +145,19 @@ export class ApprovalWorkflowEngine {
         name: 'システム', 
         type: 'AUTOMATED' 
       }),
-      DEPARTMENT_HEAD: async () => this.findDepartmentHead(projectData.department),
-      FACILITY_DIRECTOR: async () => this.findFacilityDirector(projectData.facility),
+      TEAM_LEAD: async () => this.findTeamLead(projectData.department),
+      MANAGER: async () => this.findManager(projectData.department),
+      SECTION_CHIEF: async () => this.findSectionChief(projectData.department),
+      HR_DEPT_HEAD: async () => this.findHRDepartmentHead(projectData.organization),
+      HR_GENERAL_MANAGER: async () => this.findHRGeneralManager(projectData.organization),
+      DIRECTOR: async () => this.findDirector(projectData.facility),
       EXECUTIVE: async () => this.findExecutive(projectData.organization),
       BOARD: async () => this.findBoardMembers(projectData.organization),
       FINANCE_HEAD: async () => this.findFinanceHead(projectData.organization),
       CFO: async () => this.findCFO(projectData.organization),
-      PROJECT_TEAM: async () => this.assembleProjectTeam(projectData)
+      CEO: async () => this.findCEO(projectData.organization),
+      PROJECT_TEAM: async () => this.assembleProjectTeam(projectData),
+      STRATEGIC_TEAM: async () => this.assembleStrategicTeam(projectData)
     };
     
     const resolver = assigneeResolvers[assigneeType];
@@ -138,12 +167,20 @@ export class ApprovalWorkflowEngine {
   private calculateDueDate(stage: any, projectData: any): Date {
     const durations: Record<string, number> = {
       AUTO_PROJECT: 0, // 即座に完了
-      DEPT_HEAD_APPROVAL: 3, // 3日
-      FACILITY_APPROVAL: 5, // 5日
+      TEAM_LEAD_APPROVAL: 2, // 2日
+      MANAGER_APPROVAL: 3, // 3日
+      SECTION_CHIEF_APPROVAL: 3, // 3日
+      HR_DEPT_HEAD_APPROVAL: 4, // 4日
+      HR_DEPT_HEAD_REVIEW: 3, // 3日
+      HR_GENERAL_MANAGER_APPROVAL: 5, // 5日
+      HR_GENERAL_MANAGER_REVIEW: 4, // 4日
+      DIRECTOR_APPROVAL: 5, // 5日
+      DIRECTOR_REVIEW: 3, // 3日
       EXECUTIVE_APPROVAL: 7, // 7日
       BOARD_APPROVAL: 14, // 14日
       BUDGET_APPROVAL: 5, // 5日
       BUDGET_ALLOCATION: 7, // 7日
+      STRATEGIC_ALLOCATION: 10, // 10日
       IMPLEMENTATION: 30 // 30日
     };
     
@@ -208,19 +245,53 @@ export class ApprovalWorkflowEngine {
   }
   
   // ダミー実装 - 実際のアプリケーションでは適切な実装が必要
-  private async findDepartmentHead(department: string): Promise<AssigneeInfo> {
+  private async findTeamLead(department: string): Promise<AssigneeInfo> {
     return {
-      id: `dept_head_${department}`,
-      name: `${department}部長`,
+      id: `team_lead_${department}`,
+      name: `${department}チームリーダー`,
       type: 'USER',
       department: department
     };
   }
   
-  private async findFacilityDirector(facility?: string): Promise<AssigneeInfo> {
+  private async findManager(department: string): Promise<AssigneeInfo> {
     return {
-      id: 'facility_director',
-      name: '施設管理者',
+      id: `manager_${department}`,
+      name: `${department}マネージャー`,
+      type: 'USER',
+      department: department
+    };
+  }
+  
+  private async findSectionChief(department: string): Promise<AssigneeInfo> {
+    return {
+      id: `section_chief_${department}`,
+      name: `${department}課長`,
+      type: 'USER',
+      department: department
+    };
+  }
+  
+  private async findHRDepartmentHead(organization?: string): Promise<AssigneeInfo> {
+    return {
+      id: 'hr_dept_head',
+      name: '人財統括本部部門長',
+      type: 'USER'
+    };
+  }
+  
+  private async findHRGeneralManager(organization?: string): Promise<AssigneeInfo> {
+    return {
+      id: 'hr_general_manager',
+      name: '人財統括本部統括管理部門長',
+      type: 'USER'
+    };
+  }
+  
+  private async findDirector(facility?: string): Promise<AssigneeInfo> {
+    return {
+      id: 'director',
+      name: '本部長',
       type: 'USER'
     };
   }
@@ -257,6 +328,14 @@ export class ApprovalWorkflowEngine {
     };
   }
   
+  private async findCEO(organization?: string): Promise<AssigneeInfo> {
+    return {
+      id: 'ceo',
+      name: 'CEO',
+      type: 'USER'
+    };
+  }
+  
   private async assembleProjectTeam(projectData: any): Promise<AssigneeInfo> {
     return {
       id: 'project_team',
@@ -265,15 +344,31 @@ export class ApprovalWorkflowEngine {
     };
   }
   
+  private async assembleStrategicTeam(projectData: any): Promise<AssigneeInfo> {
+    return {
+      id: 'strategic_team',
+      name: '戦略プロジェクトチーム',
+      type: 'GROUP'
+    };
+  }
+  
   getStageDisplayName(stage: string): string {
     const displayNames: Record<string, string> = {
       AUTO_PROJECT: '自動プロジェクト化',
-      DEPT_HEAD_APPROVAL: '部門長承認',
-      FACILITY_APPROVAL: '施設管理者承認',
+      TEAM_LEAD_APPROVAL: 'チームリーダー承認',
+      MANAGER_APPROVAL: 'マネージャー承認',
+      SECTION_CHIEF_APPROVAL: '課長承認',
+      HR_DEPT_HEAD_APPROVAL: '人財統括本部部門長承認',
+      HR_DEPT_HEAD_REVIEW: '人財統括本部部門長レビュー',
+      HR_GENERAL_MANAGER_APPROVAL: '人財統括本部統括管理部門長承認',
+      HR_GENERAL_MANAGER_REVIEW: '人財統括本部統括管理部門長レビュー',
+      DIRECTOR_APPROVAL: '本部長承認',
+      DIRECTOR_REVIEW: '本部長レビュー',
       EXECUTIVE_APPROVAL: '役員承認',
       BOARD_APPROVAL: '理事会承認',
       BUDGET_APPROVAL: '予算承認',
       BUDGET_ALLOCATION: '予算配分',
+      STRATEGIC_ALLOCATION: '戦略的リソース配分',
       IMPLEMENTATION: 'プロジェクト実行'
     };
     

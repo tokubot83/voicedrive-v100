@@ -1,4 +1,6 @@
 import { UserRole } from '../types';
+import { usePermissions } from '../permissions/hooks/usePermissions';
+import { PermissionLevel, PERMISSION_METADATA } from '../permissions/types/PermissionTypes';
 
 interface SidebarProps {
   currentPage: string;
@@ -6,51 +8,74 @@ interface SidebarProps {
   isOpen: boolean;
   closeSidebar: () => void;
   userRole?: UserRole;
+  userId?: string;
 }
 
-const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole = 'employee' }: SidebarProps) => {
+const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole = 'employee', userId }: SidebarProps) => {
+  const { accessibleMenuItems, metadata } = usePermissions(userId);
   const allNavItems: any[] = [
-    { id: 'home', icon: '🏠', label: 'ホーム', section: 'main' },
-    { id: 'profile', icon: '👤', label: 'プロフィール', section: 'main' },
-    { id: 'improvement', icon: '💡', label: '改善提案', section: 'main' },
-    { id: 'projects', icon: '🏗️', label: 'プロジェクト', section: 'main' },
-    { id: 'community', icon: '👥', label: 'コミュニティ', section: 'main' },
-    { id: 'report', icon: '🚨', label: '公益通報', section: 'main' },
+    // 基本機能（全レベルでアクセス可能）
+    { id: 'home', icon: '🏠', label: 'ホーム', section: 'main', menuKey: 'home' },
+    { id: 'voice', icon: '📣', label: 'ボイス', section: 'main', menuKey: 'voice' },
+    { id: 'my_posts', icon: '📝', label: 'マイ投稿', section: 'main', menuKey: 'my_posts' },
+    
+    // チーム管理機能（レベル2以上）
+    { id: 'team_management', icon: '👥', label: 'チーム管理', section: 'team', menuKey: 'team_management' },
+    
+    // 部門管理機能（レベル3以上）
+    { id: 'department_dashboard', icon: '📊', label: '部門ダッシュボード', section: 'department', menuKey: 'department_dashboard' },
+    
+    // 予算管理（レベル4以上）
+    { id: 'budget_control', icon: '💰', label: '予算管理', section: 'management', menuKey: 'budget_control' },
+    
+    // HR関連機能（レベル5以上）
+    { id: 'hr_dashboard', icon: '👨‍💼', label: '人事ダッシュボード', section: 'hr', menuKey: 'hr_dashboard' },
+    { id: 'policy_management', icon: '📑', label: 'ポリシー管理', section: 'hr', menuKey: 'policy_management' },
+    { id: 'talent_analytics', icon: '🔍', label: 'タレント分析', section: 'hr', menuKey: 'talent_analytics' },
+    
+    // HR戦略機能（レベル6以上）
+    { id: 'strategic_planning', icon: '🎯', label: '戦略的人事計画', section: 'hr_strategic', menuKey: 'strategic_planning' },
+    { id: 'org_development', icon: '🏗️', label: '組織開発', section: 'hr_strategic', menuKey: 'org_development' },
+    { id: 'performance_analytics', icon: '📈', label: 'パフォーマンス分析', section: 'hr_strategic', menuKey: 'performance_analytics' },
+    
+    // 施設管理機能（レベル7以上）
+    { id: 'facility_management', icon: '🏭', label: '施設管理', section: 'facility', menuKey: 'facility_management' },
+    { id: 'strategic_dashboard', icon: '🏛️', label: '戦略ダッシュボード', section: 'facility', menuKey: 'strategic_dashboard' },
+    { id: 'budget_planning', icon: '💸', label: '予算計画', section: 'facility', menuKey: 'budget_planning' },
+    { id: 'analytics', icon: '📊', label: '分析', section: 'facility', menuKey: 'analytics' },
+    { id: 'executive_reports', icon: '📄', label: 'エグゼクティブレポート', section: 'facility', menuKey: 'executive_reports' },
+    
+    // 経営層機能（レベル8）
+    { id: 'executive_dashboard', icon: '👑', label: '経営ダッシュボード', section: 'executive', menuKey: 'executive_dashboard' },
+    { id: 'strategic_initiatives', icon: '🚀', label: '戦略イニシアチブ', section: 'executive', menuKey: 'strategic_initiatives' },
+    { id: 'organization_analytics', icon: '🌐', label: '組織分析', section: 'executive', menuKey: 'organization_analytics' },
+    { id: 'board_reports', icon: '📊', label: '理事会レポート', section: 'executive', menuKey: 'board_reports' },
+    { id: 'governance', icon: '⚖️', label: 'ガバナンス', section: 'executive', menuKey: 'governance' },
+    
     { id: 'divider1', isDivider: true },
-    { id: 'analytics', icon: '📊', label: '分析・統計', section: 'admin', minRole: 'chief' },
-    { id: 'management', icon: '👑', label: '管理機能', section: 'admin', minRole: 'manager' },
-    { id: 'strategy', icon: '🎯', label: '戦略企画', section: 'admin', minRole: 'executive' },
-    { id: 'divider2', isDivider: true },
+    
+    // 設定機能（全レベルでアクセス可能）
     { id: 'notifications', icon: '🔔', label: '通知', section: 'settings' },
     { id: 'settings', icon: '⚙️', label: '設定', section: 'settings' },
   ];
 
-  const roleHierarchy = {
-    employee: 0,
-    chief: 1,
-    manager: 2,
-    executive: 3
-  };
-
-  const hasAccess = (minRole: UserRole | undefined) => {
-    if (!minRole) return true;
-    return roleHierarchy[userRole] >= roleHierarchy[minRole];
-  };
-
+  // アクセス可能なメニュー項目をフィルタリング
   const filteredNavItems = allNavItems.filter(item => {
     if (item.isDivider) {
+      // 設定セクションの区切り線は常に表示
       if (item.id === 'divider1') {
-        return roleHierarchy[userRole] >= roleHierarchy.chief;
-      }
-      if (item.id === 'divider2') {
-        const hasAdminItems = allNavItems.some(
-          (navItem: any) => navItem.section === 'admin' && hasAccess(navItem.minRole)
-        );
-        return hasAdminItems;
+        return true;
       }
       return false;
     }
-    return hasAccess(item.minRole);
+    
+    // menuKeyが指定されている場合は、アクセス可能なメニューかチェック
+    if (item.menuKey) {
+      return accessibleMenuItems.includes(item.menuKey);
+    }
+    
+    // menuKeyがない項目（設定等）は全員アクセス可能
+    return true;
   });
 
   const handleNavClick = (pageId: string) => {
@@ -101,7 +126,7 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
                 ${currentPage === item.id ? 
                   'font-bold bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30' : 
                   ''}
-                ${item.section === 'admin' ? 'text-gray-300/80' : ''}
+                ${['team', 'department', 'management', 'hr', 'hr_strategic', 'facility', 'executive'].includes(item.section) ? 'text-gray-300/80' : ''}
               `}
             >
               <span className="mr-4 text-xl drop-shadow-[0_0_5px_rgba(29,155,240,0.5)]">
@@ -112,6 +137,12 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
           );
         })}
       </nav>
+      
+      <div className="absolute bottom-4 left-4 right-4 text-center">
+        <div className="text-xs text-gray-500">
+          {metadata.displayName}
+        </div>
+      </div>
     </aside>
   );
 };

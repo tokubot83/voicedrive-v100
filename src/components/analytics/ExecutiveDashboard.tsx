@@ -1,7 +1,8 @@
 // 経営ダッシュボードコンポーネント - Phase 3 実装
 import React, { useState } from 'react';
 import { useAnalytics } from '../../hooks/analytics/useAnalytics';
-import { usePermissions } from '../../hooks/usePermissions';
+import { usePermissions } from '../../permissions/hooks/usePermissions';
+import { PermissionLevel } from '../../permissions/types/PermissionTypes';
 import ROIAnalyticsCard from './ROIAnalyticsCard';
 import ImpactMeasurementCard from './ImpactMeasurementCard';
 import StrategicInsightsCard from './StrategicInsightsCard';
@@ -27,14 +28,17 @@ const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
     error 
   } = useAnalytics(timeframe);
   
-  const { hasPermission } = usePermissions();
+  const { checkFeatureAccess } = usePermissions();
   
-  if (!hasPermission('LEVEL_4')) {
+  // エグゼクティブ分析機能へのアクセス権限をチェック
+  const analyticsAccess = checkFeatureAccess('VIEW_EXECUTIVE_ANALYTICS');
+  
+  if (!analyticsAccess.hasPermission) {
     return (
       <div className="permission-gate">
         <div className="permission-icon">🔒</div>
         <h3>アクセス権限が必要です</h3>
-        <p>この機能を利用するには、管理者権限（レベル4以上）が必要です。</p>
+        <p>{analyticsAccess.reason}</p>
         <button className="btn-primary">権限申請</button>
       </div>
     );
