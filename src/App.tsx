@@ -4,6 +4,7 @@ import MainContent from './components/MainContent';
 import RightSidebar from './components/RightSidebar';
 import MobileOverlay from './components/MobileOverlay';
 import MedicalProfileDemo from './components/profile/MedicalProfileDemo';
+import TimeAxisDemo from './components/TimeAxisDemo';
 import useSwipe from './hooks/useSwipe';
 import { PostType, UserRole } from './types';
 
@@ -58,6 +59,11 @@ function App() {
   // Medical Profile Demo Mode
   if (currentPage === 'medical-profile') {
     return <MedicalProfileDemo />;
+  }
+  
+  // Time Axis Demo Mode
+  if (currentPage === 'time-axis') {
+    return <TimeAxisDemo />;
   }
 
   return (

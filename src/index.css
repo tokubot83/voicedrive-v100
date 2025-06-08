@@ -118,3 +118,6 @@ body {
 
 /* 医療プロフィール関連のスタイルをインポート */
 @import './styles/medical-profile.css';
+
+/* 季節管理システム関連のスタイルをインポート */
+@import './styles/seasonal.css';

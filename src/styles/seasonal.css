@@ -1,0 +1,175 @@
+/* 季節管理システムのスタイル */
+
+/* 季節容量インジケーター */
+.seasonal-capacity-indicator {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+/* 季節別のカラーテーマ */
+.season-spring {
+  --season-primary: #ec4899;
+  --season-secondary: #f472b6;
+  --season-accent: #fbbf24;
+}
+
+.season-summer {
+  --season-primary: #10b981;
+  --season-secondary: #34d399;
+  --season-accent: #3b82f6;
+}
+
+.season-autumn {
+  --season-primary: #f97316;
+  --season-secondary: #fb923c;
+  --season-accent: #dc2626;
+}
+
+.season-winter {
+  --season-primary: #3b82f6;
+  --season-secondary: #60a5fa;
+  --season-accent: #8b5cf6;
+}
+
+/* 容量ステータスバー */
+.capacity-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.capacity-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: capacity-shine 2s infinite;
+}
+
+@keyframes capacity-shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* エコー提案カード */
+.echo-proposal-card {
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  transition: all 0.3s ease;
+}
+
+.echo-proposal-card:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.2);
+}
+
+/* 復活ボタン */
+.revive-button {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  position: relative;
+  overflow: hidden;
+}
+
+.revive-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.revive-button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* 季節の推奨テーマバッジ */
+.seasonal-theme-badge {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: #93bbfc;
+  transition: all 0.2s ease;
+}
+
+.seasonal-theme-badge:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+/* アニメーション */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* 警告・満杯状態のアニメーション */
+.capacity-warning {
+  animation: pulse-warning 2s infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    border-color: rgba(251, 146, 60, 0.5);
+    box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.4);
+  }
+  50% {
+    border-color: rgba(251, 146, 60, 0.8);
+    box-shadow: 0 0 0 10px rgba(251, 146, 60, 0);
+  }
+}
+
+.capacity-full {
+  animation: pulse-danger 2s infinite;
+}
+
+@keyframes pulse-danger {
+  0%, 100% {
+    border-color: rgba(239, 68, 68, 0.5);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    border-color: rgba(239, 68, 68, 0.8);
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .seasonal-capacity-indicator {
+    padding: 1rem;
+  }
+  
+  .echo-proposal-card {
+    padding: 0.75rem;
+  }
+  
+  .seasonal-theme-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}

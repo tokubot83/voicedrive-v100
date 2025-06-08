@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PostType, AnonymityLevel, Priority } from '../types';
+import { useSeasonalCapacity } from '../hooks/useSeasonalCapacity';
+import SeasonalCapacityIndicator from './SeasonalCapacityIndicator';
+import ProposalEchoCard from './ProposalEchoCard';
 
 interface ComposeFormProps {
   selectedType: PostType;
@@ -11,6 +14,28 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   const [content, setContent] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
   const [anonymity, setAnonymity] = useState<AnonymityLevel>('real');
+  const [currentProposalCount] = useState(7); // TODO: Get from actual data
+  
+  const { 
+    currentSeason, 
+    capacityInfo, 
+    capacityStatus, 
+    checkCanSubmit, 
+    getSeasonalAdvice 
+  } = useSeasonalCapacity(currentProposalCount);
+  
+  const [seasonalAdvice, setSeasonalAdvice] = useState(getSeasonalAdvice(selectedType));
+  const [showCapacityWarning, setShowCapacityWarning] = useState(false);
+
+  useEffect(() => {
+    setSeasonalAdvice(getSeasonalAdvice(selectedType));
+  }, [selectedType, getSeasonalAdvice]);
+
+  const handleCapacityWarning = (status: any) => {
+    if (status.status === 'warning' || status.status === 'full') {
+      setShowCapacityWarning(true);
+    }
+  };
 
   const typeConfigs = {
     improvement: {
@@ -33,34 +58,58 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   const config = typeConfigs[selectedType];
 
   const handleSubmit = () => {
-    console.log('Submitting:', { content, priority, anonymity, type: selectedType });
+    if (!checkCanSubmit(currentProposalCount + 1)) {
+      alert(`${capacityInfo.label}期の提案受付上限に達しています。次の季節をお待ちください。`);
+      return;
+    }
+    
+    console.log('Submitting:', { content, priority, anonymity, type: selectedType, season: currentSeason });
     alert('投稿が完了しました！');
     onCancel();
   };
 
+  const handleReviveProposal = (revivedProposal: any) => {
+    setContent(revivedProposal.content);
+    console.log('Revived proposal:', revivedProposal);
+  };
+
   return (
-    <div className="bg-gradient-to-br from-white/6 to-white/2 border border-gray-800/30 rounded-3xl p-8 mt-5">
-      <div className="flex items-center justify-center mb-8">
-        <div className="flex items-center gap-8">
-          {[1, 2, 3].map((num) => (
-            <div key={num} className="flex flex-col items-center gap-2">
-              <div className={`
-                w-10 h-10 rounded-full flex items-center justify-center font-bold
-                transition-all duration-300
-                ${step >= num 
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-[0_4px_15px_rgba(29,155,240,0.4)]' 
-                  : 'bg-gray-700/30 text-gray-500'
-                }
-              `}>
-                {num}
+    <div>
+      <SeasonalCapacityIndicator 
+        currentProposalCount={currentProposalCount}
+        onCapacityWarning={handleCapacityWarning}
+      />
+      
+      {selectedType !== 'report' && selectedType !== 'community' && (
+        <ProposalEchoCard 
+          season={currentSeason}
+          proposalType={selectedType}
+          onReviveProposal={handleReviveProposal}
+        />
+      )}
+      
+      <div className="bg-gradient-to-br from-white/6 to-white/2 border border-gray-800/30 rounded-3xl p-8 mt-5">
+        <div className="flex items-center justify-center mb-8">
+          <div className="flex items-center gap-8">
+            {[1, 2, 3].map((num) => (
+              <div key={num} className="flex flex-col items-center gap-2">
+                <div className={`
+                  w-10 h-10 rounded-full flex items-center justify-center font-bold
+                  transition-all duration-300
+                  ${step >= num 
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-[0_4px_15px_rgba(29,155,240,0.4)]' 
+                    : 'bg-gray-700/30 text-gray-500'
+                  }
+                `}>
+                  {num}
+                </div>
+                <span className={`text-xs font-medium ${step >= num ? 'text-blue-400' : 'text-gray-500'}`}>
+                  {num === 1 ? '内容入力' : num === 2 ? '詳細設定' : '確認'}
+                </span>
               </div>
-              <span className={`text-xs font-medium ${step >= num ? 'text-blue-400' : 'text-gray-500'}`}>
-                {num === 1 ? '内容入力' : num === 2 ? '詳細設定' : '確認'}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
       {step === 1 && (
         <div>
@@ -68,6 +117,24 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
             <h3 className="text-2xl font-bold text-gray-100 mb-2">{config.title}</h3>
             <p className="text-gray-400">{config.description}</p>
           </div>
+          
+          {seasonalAdvice && seasonalAdvice.seasonal.length > 0 && (
+            <div className="mb-4 p-3 bg-gray-800/50 rounded-lg">
+              <p className="text-xs text-gray-400 mb-2">
+                🌟 {capacityInfo.label}期の推奨テーマ:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {seasonalAdvice.seasonal.map((theme, index) => (
+                  <span 
+                    key={index}
+                    className="px-2 py-1 bg-gray-700 rounded-full text-xs text-gray-300"
+                  >
+                    {theme}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
           
           <div className="flex gap-4 mb-5">
             <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl shadow-[0_4px_15px_rgba(29,155,240,0.4)]">
@@ -267,6 +334,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
