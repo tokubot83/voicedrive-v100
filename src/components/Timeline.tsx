@@ -4,7 +4,7 @@ import { Post as PostType, VoteOption } from '../types';
 
 const Timeline = () => {
   const [posts] = useState<PostType[]>([
-    // 段階1: スコア50点未満（プロジェクト化表示なし）
+    // Post 4: スコア30点（プロジェクト化表示なし）
     {
       id: '1',
       type: 'improvement',
@@ -20,14 +20,14 @@ const Timeline = () => {
       timestamp: new Date(),
       votes: {
         'strongly-oppose': 0,
-        'oppose': 1,
-        'neutral': 3,
-        'support': 2,
+        'oppose': 2,
+        'neutral': 5,
+        'support': 3,
         'strongly-support': 0,
       },
       comments: [],
     },
-    // 段階2: 50-199点（部署内プロジェクト向け）
+    // Post 2: スコア150点（部署内プロジェクト向け - 75%）
     {
       id: '2',
       type: 'improvement',
@@ -42,15 +42,15 @@ const Timeline = () => {
       priority: 'high',
       timestamp: new Date(),
       votes: {
-        'strongly-oppose': 2,
+        'strongly-oppose': 1,
         'oppose': 3,
-        'neutral': 8,
-        'support': 12,
-        'strongly-support': 5,
+        'neutral': 15,
+        'support': 18,
+        'strongly-support': 8,
       },
       comments: [],
     },
-    // 段階3: 200-399点（施設内プロジェクト向け）
+    // Post 3: スコア320点（施設内プロジェクト向け - 80%）
     {
       id: '3',
       type: 'improvement',
@@ -65,15 +65,15 @@ const Timeline = () => {
       priority: 'urgent',
       timestamp: new Date(),
       votes: {
-        'strongly-oppose': 1,
-        'oppose': 2,
-        'neutral': 10,
-        'support': 25,
-        'strongly-support': 15,
+        'strongly-oppose': 2,
+        'oppose': 5,
+        'neutral': 25,
+        'support': 35,
+        'strongly-support': 18,
       },
       comments: [],
     },
-    // 参照HTMLと完全に同じ表示（387.5点、プロジェクト化状況）
+    // Post 1: スコア387.5点（施設内プロジェクト向け - 96.9% あとわずか！）
     {
       id: '4',
       type: 'improvement',
@@ -88,11 +88,11 @@ const Timeline = () => {
       priority: 'high',
       timestamp: new Date(),
       votes: {
-        'strongly-oppose': 3,
-        'oppose': 7,
-        'neutral': 12,
-        'support': 28,
-        'strongly-support': 15,
+        'strongly-oppose': 2,
+        'oppose': 8,
+        'neutral': 30,
+        'support': 45,
+        'strongly-support': 20,
       },
       comments: [],
     },
