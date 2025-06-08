@@ -34,6 +34,19 @@ export const useWorkflow = (projectId: string): UseWorkflowReturn => {
         facility: '第一病院'
       });
       
+      // デモ用: 最初のステージを完了状態にする
+      if (demoWorkflow.stages.length > 0) {
+        demoWorkflow.stages[0].status = 'COMPLETED';
+        demoWorkflow.stages[0].completedAt = new Date('2025-06-08T19:43:00');
+        demoWorkflow.stages[0].comments = 'プロジェクト化基準を達成しました';
+        
+        // 2番目のステージを進行中にする
+        if (demoWorkflow.stages.length > 1) {
+          demoWorkflow.stages[1].status = 'IN_PROGRESS';
+          demoWorkflow.currentStage = 1;
+        }
+      }
+      
       setWorkflow(demoWorkflow);
       
       // エスカレーション監視を開始

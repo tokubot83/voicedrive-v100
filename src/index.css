@@ -123,6 +123,16 @@ body {
   50% { box-shadow: 0 4px 25px rgba(0, 186, 124, 0.6); }
 }
 
+/* Hide scrollbar for specific elements */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
 /* プロジェクト化状況表示のスタイルをインポート */
 @import './styles/project-status.css';
 

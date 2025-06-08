@@ -2,7 +2,7 @@
 import React from 'react';
 import { useWorkflow } from '../../hooks/workflow/useWorkflow';
 import { usePermissions } from '../../hooks/usePermissions';
-import WorkflowTimeline from './WorkflowTimeline';
+import EnhancedWorkflowTimeline from './EnhancedWorkflowTimeline';
 import WorkflowActions from './WorkflowActions';
 import { ApprovalWorkflowEngine } from '../../services/ApprovalWorkflowEngine';
 
@@ -38,22 +38,12 @@ const ProjectWorkflowStatus: React.FC<ProjectWorkflowStatusProps> = ({
   
   return (
     <div className={`project-workflow-status ${className}`}>
-      <WorkflowHeader 
-        workflow={workflow} 
-        currentStage={currentStage}
-        workflowEngine={workflowEngine}
-      />
-      <WorkflowTimeline 
+      <EnhancedWorkflowTimeline 
         stages={workflow.stages}
         currentStage={currentStage}
         onStageAction={updateStage}
         userPermissions={{ hasPermission, userLevel }}
         workflowEngine={workflowEngine}
-      />
-      <WorkflowActions 
-        workflow={workflow}
-        currentStage={currentStage}
-        userPermissions={{ hasPermission, userLevel }}
       />
     </div>
   );
