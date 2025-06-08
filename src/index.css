@@ -112,6 +112,17 @@ body {
   }
 }
 
+/* Additional animations for enhanced voting system */
+@keyframes progress-shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 4px 15px rgba(0, 186, 124, 0.3); }
+  50% { box-shadow: 0 4px 25px rgba(0, 186, 124, 0.6); }
+}
+
 /* プロジェクト化状況表示のスタイルをインポート */
 @import './styles/project-status.css';
 

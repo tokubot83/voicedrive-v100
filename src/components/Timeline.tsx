@@ -1,10 +1,14 @@
 import { useState, useMemo } from 'react';
-import Post from './Post';
+import EnhancedPost from './EnhancedPost';
 import { Post as PostType, VoteOption } from '../types';
 import { demoPosts } from '../data/demo/posts';
 import { useDemoMode } from './demo/DemoModeController';
 
-const Timeline = () => {
+interface TimelineProps {
+  activeTab?: string;
+}
+
+const Timeline = ({ activeTab = 'all' }: TimelineProps) => {
   const { isDemoMode, currentUser } = useDemoMode();
   
   // Use demo posts in demo mode, otherwise use the original posts
@@ -144,10 +148,32 @@ const Timeline = () => {
     console.log(`Opening comment modal for post ${postId}`);
   };
 
+  // Filter posts based on activeTab
+  const filteredPosts = useMemo(() => {
+    if (activeTab === 'all') {
+      return posts;
+    }
+    
+    return posts.filter(post => {
+      switch (activeTab) {
+        case 'improvement':
+          return post.type === 'improvement';
+        case 'community':
+          return post.type === 'community';
+        case 'report':
+          return post.type === 'report';
+        case 'urgent':
+          return post.priority === 'urgent' || post.priority === 'high';
+        default:
+          return true;
+      }
+    });
+  }, [posts, activeTab]);
+
   return (
     <div className="overflow-y-auto">
-      {posts.map((post) => (
-        <Post
+      {filteredPosts.map((post) => (
+        <EnhancedPost
           key={post.id}
           post={post}
           onVote={handleVote}

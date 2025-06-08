@@ -24,10 +24,22 @@ export const demoPosts: Post[] = [
     anonymityLevel: 'real',
     priority: 'high',
     timestamp: new Date('2024-04-15T09:30:00'),
-    votes: generateVotes(),
+    votes: {
+      'strongly-oppose': 1,
+      'oppose': 2,
+      'neutral': 5,
+      'support': 15,
+      'strongly-support': 8,
+    },
     comments: [],
     projectId: 'proj-001',
-    approver: 'user-10'
+    approver: demoUsers[10],
+    projectStatus: {
+      stage: 'active',
+      score: 420,
+      threshold: 400,
+      progress: 105
+    }
   },
   {
     id: 'post-2',
@@ -49,9 +61,20 @@ export const demoPosts: Post[] = [
     anonymityLevel: 'department',
     priority: 'medium',
     timestamp: new Date('2024-06-20T11:45:00'),
-    votes: generateVotes(),
+    votes: {
+      'strongly-oppose': 0,
+      'oppose': 1,
+      'neutral': 3,
+      'support': 12,
+      'strongly-support': 6,
+    },
     comments: [],
-    projectId: 'proj-002'
+    projectStatus: {
+      stage: 'approaching',
+      score: 185,
+      threshold: 200,
+      progress: 92.5
+    }
   },
   {
     id: 'post-4',

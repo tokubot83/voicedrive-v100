@@ -2,7 +2,6 @@ import { useState } from 'react';
 import Header from './Header';
 import ComposeSection from './ComposeSection';
 import Timeline from './Timeline';
-import EnhancedTimeline from './EnhancedTimeline';
 import { PostType } from '../types';
 
 interface MainContentProps {
@@ -47,7 +46,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
               selectedPostType={selectedPostType}
               setSelectedPostType={setSelectedPostType}
             />
-            <Timeline />
+            <Timeline activeTab="all" />
           </>
         )}
         
@@ -58,7 +57,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
               selectedPostType="improvement"
               setSelectedPostType={setSelectedPostType}
             />
-            <EnhancedTimeline filter={currentFilter} />
+            <Timeline activeTab="improvement" />
           </>
         )}
         
@@ -69,7 +68,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
               selectedPostType="community"
               setSelectedPostType={setSelectedPostType}
             />
-            <Timeline />
+            <Timeline activeTab="community" />
           </>
         )}
         
@@ -80,7 +79,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
               selectedPostType="report"
               setSelectedPostType={setSelectedPostType}
             />
-            <Timeline />
+            <Timeline activeTab="report" />
           </>
         )}
         

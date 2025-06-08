@@ -1,150 +1,147 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import EnhancedPost from './EnhancedPost';
-import { Post as PostType, VoteOption } from '../types';
-import { demoPosts } from '../data/demo/posts';
-import { useDemoMode } from './demo/DemoModeController';
+import ActiveProjectCard from './ActiveProjectCard';
+import CompletedProjectCard from './CompletedProjectCard';
+import { Post, VoteOption } from '../types';
 
 interface EnhancedTimelineProps {
-  filter?: string;
+  posts: Post[];
+  activeTab: string;
+  onVote: (postId: string, option: VoteOption) => void;
+  onComment: (postId: string) => void;
 }
 
-const EnhancedTimeline: React.FC<EnhancedTimelineProps> = ({ filter = 'proposals' }) => {
-  const { isDemoMode, currentUser } = useDemoMode();
-  
-  // Enhanced demo posts with project status
-  const enhancedDemoPosts = useMemo(() => {
-    if (!isDemoMode) return [];
-    
-    return demoPosts.map(post => {
-      // Calculate total votes and positive percentage
-      const totalVotes = Object.values(post.votes).reduce((sum, count) => sum + count, 0);
-      const positiveVotes = (post.votes.support || 0) + (post.votes['strongly-support'] || 0);
-      const positivePercentage = totalVotes > 0 ? (positiveVotes / totalVotes) : 0;
-      
-      // Assign project status based on votes and content
-      let projectStatus = undefined;
-      let projectDetails = undefined;
-      
-      // High-engagement posts get project status
-      if (totalVotes >= 20 && positivePercentage >= 0.6) {
-        const baseScore = totalVotes * 5 + positiveVotes * 3;
-        projectStatus = {
-          stage: 'approaching' as const,
-          score: Math.min(baseScore, 380),
-          threshold: 400,
-          progress: Math.min((baseScore / 400) * 100, 95)
-        };
-      }
-      
-      // Some posts are active projects
-      if (post.content.includes('AI在庫管理') || post.content.includes('電子カルテ')) {
-        projectStatus = {
-          stage: 'active' as const,
-          score: 420,
-          threshold: 400,
-          progress: 100
-        };
-        projectDetails = {
-          manager: '佐藤薬剤師',
-          team: ['田中SE', '山田看護師', '鈴木事務'],
-          milestones: [
-            { id: '1', name: '要件定義', completed: true },
-            { id: '2', name: 'システム選定', completed: true },
-            { id: '3', name: '導入準備', completed: false, current: true },
-            { id: '4', name: '本稼働', completed: false }
-          ],
-          roi: {
-            investment: 2500000,
-            expectedSavings: 8500000
-          }
-        };
-      }
-      
-      // Some posts are completed projects
-      if (post.content.includes('休憩室') && totalVotes > 30) {
-        projectStatus = {
-          stage: 'completed' as const,
-          score: 450,
-          threshold: 400,
-          progress: 100
-        };
-        projectDetails = {
-          manager: '山田総務部長',
-          team: ['総務部チーム'],
-          completedDate: '2024-03-15',
-          outcomes: '職員満足度が15%向上、休憩時間の効率的な活用が実現',
-          roi: {
-            investment: 500000,
-            expectedSavings: 1200000
-          }
-        };
-      }
-      
-      return {
-        ...post,
-        projectStatus,
-        projectDetails
-      };
-    });
-  }, [isDemoMode, demoPosts]);
-  
-  // Filter posts based on selected filter
-  const filteredPosts = useMemo(() => {
-    const posts = isDemoMode ? enhancedDemoPosts : [];
-    
-    switch (filter) {
-      case 'proposals':
-        return posts.filter(post => 
-          !post.projectStatus || 
-          (post.projectStatus.stage !== 'active' && post.projectStatus.stage !== 'completed')
-        );
-      case 'progress':
-        return posts.filter(post => 
-          post.projectStatus && 
-          (post.projectStatus.stage === 'approaching' || post.projectStatus.stage === 'ready')
-        );
-      case 'active':
-        return posts.filter(post => 
-          post.projectStatus?.stage === 'active'
-        );
-      case 'completed':
-        return posts.filter(post => 
-          post.projectStatus?.stage === 'completed'
-        );
-      default:
-        return posts;
+const EnhancedTimeline = ({ posts, activeTab, onVote, onComment }: EnhancedTimelineProps) => {
+  const [improvementSubTab, setImprovementSubTab] = useState<'proposals' | 'progress' | 'active' | 'completed'>('proposals');
+
+  // 改善提案タブのサブタブ
+  const improvementSubTabs = [
+    { id: 'proposals' as const, label: '📝 提案中', count: 12 },
+    { id: 'progress' as const, label: '📈 プロジェクト化進行中', count: 3 },
+    { id: 'active' as const, label: '🚀 アクティブプロジェクト', count: 2 },
+    { id: 'completed' as const, label: '✅ 完了プロジェクト', count: 5 }
+  ];
+
+  // タブごとの投稿フィルタリング
+  const getFilteredPosts = () => {
+    if (activeTab === 'all') {
+      return posts;
     }
-  }, [isDemoMode, enhancedDemoPosts, filter]);
-
-  const handleVote = (postId: string, option: VoteOption) => {
-    console.log(`Voted ${option} for post ${postId}`);
+    
+    if (activeTab === 'improvement') {
+      // 改善提案タブの場合、サブタブに応じてフィルタリング
+      const improvementPosts = posts.filter(post => post.type === 'improvement');
+      
+      switch (improvementSubTab) {
+        case 'proposals':
+          // プロジェクト化されていない提案のみ
+          return improvementPosts.filter(post => !post.projectId);
+        case 'progress':
+          // プロジェクト化進行中（スコアが閾値の70%以上）
+          return improvementPosts.filter(post => {
+            // TODO: 実際のスコア計算ロジックを実装
+            const totalVotes = Object.values(post.votes).reduce((sum, count) => sum + count, 0);
+            const positiveVotes = post.votes.support + post.votes['strongly-support'];
+            const positiveRatio = totalVotes > 0 ? positiveVotes / totalVotes : 0;
+            return totalVotes >= 5 && positiveRatio >= 0.6 && !post.projectId;
+          });
+        case 'active':
+          // アクティブなプロジェクト
+          return improvementPosts.filter(post => post.projectId && !(typeof post.projectStatus === 'string' ? post.projectStatus === 'completed' : post.projectStatus?.stage === 'completed'));
+        case 'completed':
+          // 完了したプロジェクト
+          return improvementPosts.filter(post => post.projectId && (typeof post.projectStatus === 'string' ? post.projectStatus === 'completed' : post.projectStatus?.stage === 'completed'));
+        default:
+          return improvementPosts;
+      }
+    }
+    
+    // その他のタブ
+    return posts.filter(post => {
+      switch (activeTab) {
+        case 'community':
+          return post.type === 'community';
+        case 'report':
+          return post.type === 'report';
+        case 'urgent':
+          return post.priority === 'urgent' || post.priority === 'high';
+        default:
+          return true;
+      }
+    });
   };
 
-  const handleComment = (postId: string) => {
-    console.log(`Opening comment modal for post ${postId}`);
-  };
-
-  if (filteredPosts.length === 0) {
-    return (
-      <div className="p-8 text-center">
-        <div className="text-gray-500 text-lg mb-2">
-          {filter === 'progress' && '📈 現在プロジェクト化進行中の提案はありません'}
-          {filter === 'active' && '🚀 現在アクティブなプロジェクトはありません'}
-          {filter === 'completed' && '✅ 完了したプロジェクトはまだありません'}
-          {filter === 'proposals' && '📝 新しい提案を投稿してみましょう！'}
-        </div>
-      </div>
-    );
-  }
+  const filteredPosts = getFilteredPosts();
 
   return (
-    <div className="overflow-y-auto">
-      {filteredPosts.map((post) => (
-        <EnhancedPost
-          key={post.id}
-          post={post}
-        />
-      ))}
+    <div>
+      {/* 改善提案タブの場合のみサブタブを表示 */}
+      {activeTab === 'improvement' && (
+        <div className="border-b border-gray-800/30 px-5 py-3 bg-gradient-to-b from-gray-900/50 to-transparent">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+            {improvementSubTabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setImprovementSubTab(tab.id)}
+                className={`
+                  px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
+                  ${improvementSubTab === tab.id 
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-[0_4px_15px_rgba(29,155,240,0.3)]' 
+                    : 'bg-gray-800/50 text-gray-400 hover:bg-gray-800/70 hover:text-gray-200'
+                  }
+                `}
+              >
+                {tab.label}
+                <span className="ml-2 px-2 py-0.5 rounded-full bg-black/20 text-xs">
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* コンテンツ表示 */}
+      <div>
+        {filteredPosts.length === 0 ? (
+          <div className="p-10 text-center text-gray-400">
+            <div className="text-4xl mb-4">🔍</div>
+            <p>該当する投稿がありません</p>
+          </div>
+        ) : (
+          <>
+            {/* 通常の投稿表示 */}
+            {(improvementSubTab === 'proposals' || improvementSubTab === 'progress' || activeTab !== 'improvement') && 
+              filteredPosts.map((post) => (
+                <EnhancedPost
+                  key={post.id}
+                  post={post}
+                  onVote={onVote}
+                  onComment={onComment}
+                />
+              ))
+            }
+
+            {/* アクティブプロジェクト表示 */}
+            {activeTab === 'improvement' && improvementSubTab === 'active' && (
+              <div className="p-5 space-y-4">
+                {filteredPosts.map((post) => (
+                  <ActiveProjectCard key={post.id} project={post} />
+                ))}
+              </div>
+            )}
+
+            {/* 完了プロジェクト表示 */}
+            {activeTab === 'improvement' && improvementSubTab === 'completed' && (
+              <div className="p-5 space-y-4">
+                {filteredPosts.map((post) => (
+                  <CompletedProjectCard key={post.id} project={post} />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

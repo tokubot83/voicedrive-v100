@@ -23,8 +23,8 @@ export interface Post {
   votes: Record<VoteOption, number>;
   comments: Comment[];
   projectId?: string;
-  approver?: string;
-  projectStatus?: {
+  approver?: User;
+  projectStatus?: string | {
     stage: 'approaching' | 'ready' | 'active' | 'completed';
     score: number;
     threshold: number;
