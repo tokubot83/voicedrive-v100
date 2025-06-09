@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import VotingSection from './VotingSection';
-import ProjectStatusIndicator from './ProjectStatusIndicator';
 import ProjectWorkflowStatus from './workflow/ProjectWorkflowStatus';
 import { Post as PostType, VoteOption } from '../types';
 
@@ -66,15 +65,6 @@ const EnhancedPost = ({ post, onVote, onComment }: EnhancedPostProps) => {
     onVote(post.id, option);
   };
 
-  // プロジェクト化ステータス表示条件の判定
-  const shouldShowProjectStatus = () => {
-    const totalVotes = Object.values(post.votes).reduce((sum, count) => sum + count, 0);
-    const positiveVotes = post.votes.support + post.votes['strongly-support'];
-    const positiveRatio = totalVotes > 0 ? positiveVotes / totalVotes : 0;
-    
-    // 表示条件: 投票が5票以上 AND 賛成票が60%以上
-    return post.type === 'improvement' && totalVotes >= 5 && positiveRatio >= 0.6;
-  };
 
   return (
     <div className="border-b border-gray-800/30 p-5 transition-all duration-300 hover:bg-white/2 hover:shadow-[inset_0_0_20px_rgba(29,155,240,0.1)]">
@@ -113,9 +103,6 @@ const EnhancedPost = ({ post, onVote, onComment }: EnhancedPostProps) => {
           
           {post.type === 'improvement' && (
             <>
-              {/* プロジェクト化ステータス（条件付き表示） */}
-              {shouldShowProjectStatus() && <ProjectStatusIndicator post={post} />}
-              
               {/* ワークフロー状況（プロジェクト化達成後） */}
               {post.projectId && (
                 <ProjectWorkflowStatus projectId={post.projectId} />

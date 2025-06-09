@@ -1,6 +1,3 @@
-/* プロジェクト化状況表示のスタイルをインポート */
-@import './styles/project-status.css';
-
 /* ワークフロー関連のスタイルをインポート */
 @import './styles/workflow.css';
 

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import VotingSystem from './VotingSystem';
 import EnhancedVotingSystem from './EnhancedVotingSystem';
-import ProjectStatus from './projects/ProjectStatus';
 import ProjectWorkflowStatus from './workflow/ProjectWorkflowStatus';
 import { Post as PostType, VoteOption } from '../types';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
@@ -127,16 +126,6 @@ const Post = ({ post, onVote, onComment }: PostProps) => {
           
           {post.type === 'improvement' && (
             <>
-              {/* Phase 1: プロジェクト化状況（閾値達成前） */}
-              {!showWorkflow && (
-                <ProjectStatus 
-                  postId={post.id}
-                  postType={post.type}
-                  votes={post.votes}
-                  projectId={post.projectId}
-                  approver={post.approver?.id}
-                />
-              )}
               
               {/* Phase 2: ワークフロー状況（閾値達成後） */}
               {showWorkflow && post.projectId && (
