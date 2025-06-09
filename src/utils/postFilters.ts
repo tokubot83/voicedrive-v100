@@ -87,6 +87,9 @@ export const filterPostsByTab = (posts: Post[], tabState: TabState): Post[] => {
       case 'urgent':
         return isUrgent(post);
         
+      case 'projects':
+        return !!post.enhancedProjectStatus;
+        
       default:
         return true;
     }
@@ -97,22 +100,40 @@ export const filterPostsByTab = (posts: Post[], tabState: TabState): Post[] => {
     filtered = filtered.filter(post => {
       switch (activeSubFilter) {
         case 'new':
-          return isRecent(post.createdAt, 7);
+          return isRecent(post.timestamp, 7);
           
         case 'trending':
           // 合計投票数が10以上を注目とする
-          const totalVotes = post.votes?.total || 0;
+          const totalVotes = Object.values(post.votes || {}).reduce((sum, val) => sum + val, 0);
           return totalVotes > 10;
           
         case 'near-project':
           // 合意レベルが80%以上をプロジェクト化間近とする
-          const agreementLevel = post.consensus?.agreementLevel || 0;
+          const agreementLevel = post.votingData?.consensus || 0;
           return agreementLevel > 80;
           
         case 'urgent-improvement':
         case 'urgent-community':
         case 'urgent-whistleblowing':
           return isUrgent(post);
+          
+        // プロジェクトフィルター
+        case 'active':
+          return post.enhancedProjectStatus?.stage === 'DEPARTMENT_PROJECT' || 
+                 post.enhancedProjectStatus?.stage === 'FACILITY_PROJECT' || 
+                 post.enhancedProjectStatus?.stage === 'CORPORATE_PROJECT';
+                 
+        case 'department':
+          return post.enhancedProjectStatus?.level === 'DEPARTMENT';
+          
+        case 'facility':
+          return post.enhancedProjectStatus?.level === 'FACILITY';
+          
+        case 'corporate':
+          return post.enhancedProjectStatus?.level === 'CORPORATE';
+          
+        case 'completed':
+          return post.enhancedProjectStatus?.milestones?.every(m => m.status === 'completed');
           
         default:
           return true;
@@ -122,8 +143,8 @@ export const filterPostsByTab = (posts: Post[], tabState: TabState): Post[] => {
 
   // 日付でソート（新しい順）
   return filtered.sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime();
-    const dateB = new Date(b.createdAt).getTime();
+    const dateA = new Date(a.timestamp).getTime();
+    const dateB = new Date(b.timestamp).getTime();
     return dateB - dateA;
   });
 };
@@ -137,6 +158,7 @@ export const getPostCountsByTab = (posts: Post[]) => {
     improvement: posts.filter(p => getPostType(p) === 'improvement').length,
     community: posts.filter(p => getPostType(p) === 'community').length,
     whistleblowing: posts.filter(p => getPostType(p) === 'whistleblowing').length,
-    urgent: posts.filter(p => isUrgent(p)).length
+    urgent: posts.filter(p => isUrgent(p)).length,
+    projects: posts.filter(p => !!p.enhancedProjectStatus).length
   };
 };

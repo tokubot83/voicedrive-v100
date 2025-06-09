@@ -23,7 +23,14 @@ export const subFilters: SubFilter[] = [
   // 公益通報サブフィルター
   { id: 'new', label: '新着', parentTab: 'whistleblowing' },
   { id: 'trending', label: '注目', parentTab: 'whistleblowing' },
-  { id: 'urgent-whistleblowing', label: '緊急', parentTab: 'whistleblowing' }
+  { id: 'urgent-whistleblowing', label: '緊急', parentTab: 'whistleblowing' },
+  
+  // プロジェクトサブフィルター
+  { id: 'active', label: '進行中', parentTab: 'projects' },
+  { id: 'department', label: '部署内', parentTab: 'projects' },
+  { id: 'facility', label: '施設内', parentTab: 'projects' },
+  { id: 'corporate', label: '法人', parentTab: 'projects' },
+  { id: 'completed', label: '完了', parentTab: 'projects' }
 ];
 
 export const SubFilters: React.FC<SubFiltersProps> = ({ 

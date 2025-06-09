@@ -152,34 +152,29 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
           </div>
         )}
         
-        {/* Improvement tab content */}
-        {currentTab === 'improvement' && (
-          <div className="p-6 text-center">
-            <h2 className="text-2xl font-bold mb-4">改善提案</h2>
-            <p className="text-gray-400">改善提案がここに表示されます</p>
-          </div>
-        )}
+        {/* Projects tab content */}
         
-        {/* Community tab content */}
-        {currentTab === 'community' && (
-          <div className="p-6 text-center">
-            <h2 className="text-2xl font-bold mb-4">コミュニティ</h2>
-            <p className="text-gray-400">コミュニティ投稿がここに表示されます</p>
-          </div>
-        )}
-        
-        {/* Report tab content */}
-        {currentTab === 'report' && (
-          <div className="p-6 text-center">
-            <h2 className="text-2xl font-bold mb-4">公益通報</h2>
-            <p className="text-gray-400">公益通報がここに表示されます</p>
-          </div>
-        )}
-        
-        {currentPage === 'projects' && (
-          <div className="p-6 text-center">
-            <h2 className="text-2xl font-bold mb-4">プロジェクト</h2>
-            <p className="text-gray-400">進行中のプロジェクトがここに表示されます</p>
+        {activeMainTab === 'projects' && (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold text-white mb-6">プロジェクト</h2>
+            <div className="space-y-4">
+              {filteredPosts
+                .filter(post => post.enhancedProjectStatus)
+                .map((post) => (
+                  <div key={post.id} className="bg-black/20 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                    <VotingSection
+                      post={post}
+                      onVote={handleVote}
+                      onComment={handleComment}
+                    />
+                  </div>
+                ))}
+              {filteredPosts.filter(post => post.enhancedProjectStatus).length === 0 && (
+                <div className="text-center py-12 text-gray-400">
+                  プロジェクト化された投稿はまだありません
+                </div>
+              )}
+            </div>
           </div>
         )}
         
