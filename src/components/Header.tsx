@@ -1,45 +1,25 @@
+import React from 'react';
+import { MainTabs } from './tabs/MainTabs';
+import { SubFilters } from './tabs/SubFilters';
+import { useTabContext } from './tabs/TabContext';
+import { mainTabs } from './tabs/MainTabs';
+
 interface HeaderProps {
-  currentTab: string;
-  setCurrentTab: (tab: string) => void;
-  currentFilter: string;
-  setCurrentFilter: (filter: string) => void;
   toggleSidebar: () => void;
 }
 
-const Header = ({ currentTab, setCurrentTab, currentFilter, setCurrentFilter, toggleSidebar }: HeaderProps) => {
-  const tabs = [
-    { id: 'home', label: '🏠 ホーム' },
-    { id: 'improvement', label: '💡 改善提案' },
-    { id: 'community', label: '👥 コミュニティ' },
-    { id: 'report', label: '🚨 公益通報' },
-  ];
-
-  const filters = {
-    home: [
-      { id: 'latest', label: '最新' },
-      { id: 'hot', label: '🔥 話題' },
-      { id: 'consensus', label: '✅ 合意形成中' },
-    ],
-    improvement: [
-      { id: 'proposals', label: '📝 提案中', count: 12 },
-      { id: 'progress', label: '📈 プロジェクト化進行中', count: 3 },
-      { id: 'active', label: '🚀 アクティブプロジェクト', count: 2 },
-      { id: 'completed', label: '✅ 完了プロジェクト', count: 5 },
-    ],
-    community: [
-      { id: 'all', label: 'すべて' },
-      { id: 'questions', label: '質問' },
-      { id: 'info', label: '情報共有' },
-    ],
-    report: [
-      { id: 'active', label: '対応中' },
-      { id: 'resolved', label: '解決済み' },
-    ],
-  };
+const Header = ({ toggleSidebar }: HeaderProps) => {
+  const { tabState, setActiveMainTab, setActiveSubFilter } = useTabContext();
+  const { activeMainTab, activeSubFilter } = tabState;
+  
+  // 現在のタブがサブフィルターを持つかチェック
+  const currentTab = mainTabs.find(tab => tab.id === activeMainTab);
+  const hasSubFilters = currentTab?.hasSubFilters || false;
 
   return (
-    <header className="sticky top-0 bg-black/80 backdrop-blur-xl border-b border-gray-800/50 p-4 z-10 shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
-      <div className="flex items-center mb-4 md:hidden">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur border-b border-gray-800">
+      {/* モバイルメニューボタン */}
+      <div className="flex items-center p-4 md:hidden">
         <button
           onClick={toggleSidebar}
           className="p-2 rounded-lg hover:bg-gray-800/50 transition-colors"
@@ -51,51 +31,16 @@ const Header = ({ currentTab, setCurrentTab, currentFilter, setCurrentFilter, to
         <span className="ml-4 text-xl font-bold gradient-text">VoiceDrive</span>
       </div>
       
-      <div className="flex gap-4 mb-4 overflow-x-auto scrollbar-hide">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setCurrentTab(tab.id)}
-            className={`
-              px-4 py-3 rounded-2xl text-sm font-semibold whitespace-nowrap
-              transition-all duration-300
-              ${currentTab === tab.id
-                ? 'text-blue-500 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
-              }
-            `}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {/* メインタブ */}
+      <MainTabs activeTab={activeMainTab} onTabChange={setActiveMainTab} />
       
-      {filters[currentTab as keyof typeof filters] && (
-        <div className="flex gap-2 pt-3 border-t border-gray-800/30">
-          {filters[currentTab as keyof typeof filters].map((filter) => (
-            <button
-              key={filter.id}
-              onClick={() => setCurrentFilter(filter.id)}
-              className={`
-                px-3 py-1.5 rounded-2xl text-xs font-medium
-                transition-all duration-300 flex items-center gap-1
-                ${currentFilter === filter.id
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-[0_2px_8px_rgba(29,155,240,0.3)]'
-                  : 'bg-white/5 border border-gray-800/50 text-gray-400 hover:bg-white/10 hover:text-gray-200'
-                }
-              `}
-            >
-              {filter.label}
-              {(filter as any).count !== undefined && (
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                  currentFilter === filter.id ? 'bg-white/20' : 'bg-gray-700'
-                }`}>
-                  {(filter as any).count}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+      {/* 動的サブフィルター */}
+      {hasSubFilters && (
+        <SubFilters 
+          parentTab={activeMainTab} 
+          activeFilter={activeSubFilter} 
+          onFilterChange={setActiveSubFilter} 
+        />
       )}
     </header>
   );

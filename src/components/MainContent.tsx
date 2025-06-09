@@ -12,6 +12,7 @@ import StrategicDashboard from './dashboards/StrategicDashboard';
 import CorporateDashboard from './dashboards/CorporateDashboard';
 import ExecutiveLevelDashboard from './dashboards/ExecutiveLevelDashboard';
 import { PostType } from '../types';
+import { useTabContext } from './tabs/TabContext';
 
 interface MainContentProps {
   currentPage: string;
@@ -21,8 +22,8 @@ interface MainContentProps {
 }
 
 const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggleSidebar }: MainContentProps) => {
-  const [currentTab, setCurrentTab] = useState('home');
-  const [currentFilter, setCurrentFilter] = useState('latest');
+  const { tabState, getFilteredPosts } = useTabContext();
+  const { activeMainTab } = tabState;
 
   // Sample post data for unified status display
   const samplePost: Post = {
@@ -57,32 +58,16 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
     console.log(`Comment on post ${postId}`);
   };
   
-  // Update default filter when tab changes
-  const handleTabChange = (tab: string) => {
-    setCurrentTab(tab);
-    // Set appropriate default filter for each tab
-    if (tab === 'improvement') {
-      setCurrentFilter('proposals');
-    } else if (tab === 'home') {
-      setCurrentFilter('latest');
-    } else {
-      setCurrentFilter('all');
-    }
-  };
+  // フィルタリングされた投稿を取得
+  const filteredPosts = getFilteredPosts();
 
   return (
     <div className="w-full h-full bg-black/20 backdrop-blur-lg">
-      <Header 
-        currentTab={currentTab}
-        setCurrentTab={handleTabChange}
-        currentFilter={currentFilter}
-        setCurrentFilter={setCurrentFilter}
-        toggleSidebar={toggleSidebar}
-      />
+      <Header toggleSidebar={toggleSidebar} />
       
-      <div className="overflow-y-auto">
+      <div className="overflow-y-auto mt-24">
         {/* Home tab content - Unified Status Display */}
-        {currentTab === 'home' && (
+        {activeMainTab === 'home' && (
           <div className="min-h-screen p-6">
             <div className="max-w-6xl mx-auto">
               <h1 className="text-4xl font-bold text-white mb-8 text-center">
@@ -198,6 +183,91 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
           </div>
         )}
         
+        {/* 他のタブ内容 */}
+        {activeMainTab === 'improvement' && (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold text-white mb-4">改善提案</h2>
+            <div className="space-y-4">
+              {filteredPosts.map((post) => (
+                <VotingSection
+                  key={post.id}
+                  post={post}
+                  onVote={handleVote}
+                  onComment={handleComment}
+                />
+              ))}
+              {filteredPosts.length === 0 && (
+                <div className="text-center py-12 text-gray-400">
+                  該当する投稿がありません
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {activeMainTab === 'community' && (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold text-white mb-4">コミュニティ</h2>
+            <div className="space-y-4">
+              {filteredPosts.map((post) => (
+                <VotingSection
+                  key={post.id}
+                  post={post}
+                  onVote={handleVote}
+                  onComment={handleComment}
+                />
+              ))}
+              {filteredPosts.length === 0 && (
+                <div className="text-center py-12 text-gray-400">
+                  該当する投稿がありません
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {activeMainTab === 'whistleblowing' && (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold text-white mb-4">公益通報</h2>
+            <div className="space-y-4">
+              {filteredPosts.map((post) => (
+                <VotingSection
+                  key={post.id}
+                  post={post}
+                  onVote={handleVote}
+                  onComment={handleComment}
+                />
+              ))}
+              {filteredPosts.length === 0 && (
+                <div className="text-center py-12 text-gray-400">
+                  該当する投稿がありません
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {activeMainTab === 'urgent' && (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold text-white mb-4">緊急</h2>
+            <div className="space-y-4">
+              {filteredPosts.map((post) => (
+                <VotingSection
+                  key={post.id}
+                  post={post}
+                  onVote={handleVote}
+                  onComment={handleComment}
+                />
+              ))}
+              {filteredPosts.length === 0 && (
+                <div className="text-center py-12 text-gray-400">
+                  緊急の投稿はありません
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {currentPage === 'analytics' && (
           <div className="p-6 text-center">
             <h2 className="text-2xl font-bold mb-4">分析</h2>
