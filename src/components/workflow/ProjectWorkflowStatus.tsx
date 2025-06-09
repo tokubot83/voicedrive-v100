@@ -42,7 +42,7 @@ const ProjectWorkflowStatus: React.FC<ProjectWorkflowStatusProps> = ({
         stages={workflow.stages}
         currentStage={currentStage}
         onStageAction={updateStage}
-        userPermissions={{ hasPermission, userLevel }}
+        userPermissions={{ hasPermission, userLevel: String(userLevel) }}
         workflowEngine={workflowEngine}
       />
     </div>

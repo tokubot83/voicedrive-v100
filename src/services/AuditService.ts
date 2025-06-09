@@ -294,7 +294,7 @@ export class AuditService {
   }
 
   // Get audit logs with advanced filtering
-  getAuditLogs(filters?: {
+  async getAuditLogs(filters?: {
     actorId?: string;
     actionType?: AuthorityType;
     resourceType?: string;
@@ -302,7 +302,7 @@ export class AuditService {
     endDate?: Date;
     verified?: boolean;
     limit?: number;
-  }): AuditLogEntry[] {
+  }): Promise<AuditLogEntry[]> {
     let logs = Array.from(this.auditLogs.values());
 
     if (filters) {
@@ -322,7 +322,10 @@ export class AuditService {
         logs = logs.filter(log => log.timestamp <= filters.endDate!);
       }
       if (filters.verified !== undefined) {
-        logs = logs.filter(log => this.verifyAuditIntegrity(log.id) === filters.verified);
+        logs = await Promise.all(logs.map(async log => {
+          const isVerified = await this.verifyAuditIntegrity(log.id);
+          return isVerified === filters.verified ? log : null;
+        })).then(results => results.filter(log => log !== null) as AuditLogEntry[]);
       }
     }
 
@@ -559,22 +562,22 @@ export class AuditService {
   }
 
   // Generate audit report
-  generateAuditReport(startDate: Date, endDate: Date): {
+  async generateAuditReport(startDate: Date, endDate: Date): Promise<{
     totalActions: number;
     actionsByType: Record<AuthorityType, number>;
     topActors: { actorId: string; count: number }[];
     grievances: { total: number; resolved: number; pending: number };
     alerts: { total: number; bySeverity: Record<string, number> };
     integrityIssues: number;
-  } {
-    const logs = this.getAuditLogs({ startDate, endDate });
+  }> {
+    const logs = await this.getAuditLogs({ startDate, endDate });
     
     // Count actions by type
     const actionsByType: Record<AuthorityType, number> = {} as any;
     const actorCounts: Record<string, number> = {};
     let integrityIssues = 0;
 
-    logs.forEach(log => {
+    for (const log of logs) {
       // Count by type
       actionsByType[log.actionType] = (actionsByType[log.actionType] || 0) + 1;
       
@@ -582,10 +585,10 @@ export class AuditService {
       actorCounts[log.actorId] = (actorCounts[log.actorId] || 0) + 1;
       
       // Check integrity
-      if (!this.verifyAuditIntegrity(log.id)) {
+      if (!(await this.verifyAuditIntegrity(log.id))) {
         integrityIssues++;
       }
-    });
+    }
 
     // Top actors
     const topActors = Object.entries(actorCounts)

@@ -1,4 +1,4 @@
-import { DemoUser, getDemoUserById, getDirectReports, getUserManager } from '../data/demo/users';
+import { DemoUser, getDemoUserById, getDirectReports, getUserManager, demoUsers } from '../data/demo/users';
 import { AccountType, HierarchicalUser } from '../types';
 
 /**
@@ -122,8 +122,6 @@ export class AccountHierarchyService {
    * Get users by facility and optional department filter
    */
   static getUsersByFacility(facilityId: string, departmentId?: string): DemoUser[] {
-    const { demoUsers } = require('../data/demo/users');
-    
     return demoUsers.filter((user: DemoUser) => {
       const matchesFacility = user.facility_id === facilityId;
       const matchesDepartment = !departmentId || user.department_id === departmentId;

@@ -50,13 +50,13 @@ const AuthorityDashboard: React.FC = () => {
     }
   }, [currentUser]);
 
-  const loadMetrics = () => {
+  const loadMetrics = async () => {
     if (!currentUser) return;
 
     const pendingApprovals = approvalService.getPendingApprovals(currentUser.id).length;
     const activeEmergencies = emergencyService.getEmergencyActions({ pendingReports: true }).length;
     const pendingReviews = weightService.getPendingReviews(currentUser.id).length;
-    const recentAudits = auditService.getAuditLogs({ limit: 100 }).length;
+    const recentAudits = (await auditService.getAuditLogs({ limit: 100 })).length;
     const pendingGrievances = auditService.getGrievances({ status: 'under_review' }).length;
 
     setMetrics({

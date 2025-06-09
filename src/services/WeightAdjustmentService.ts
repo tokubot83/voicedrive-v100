@@ -32,12 +32,9 @@ export class WeightAdjustmentService {
   private currentWeights: Map<string, number> = new Map();
 
   private auditService: AuditService;
-  private notificationService: NotificationService;
-
   private constructor() {
     this.authorityService = AuthorityManagementService.getInstance();
     this.auditService = AuditService.getInstance();
-    this.notificationService = NotificationService.getInstance();
     this.initializeDefaultWeights();
   }
 

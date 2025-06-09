@@ -23,7 +23,7 @@ const EnhancedWorkflowTimeline: React.FC<EnhancedWorkflowTimelineProps> = ({
   const canUserApprove = (stage: WorkflowStage): boolean => {
     if (stage.status !== 'IN_PROGRESS') return false;
     if (!stage.requiredLevel) return false;
-    return userPermissions.hasPermission(stage.requiredLevel);
+    return userPermissions.hasPermission(String(stage.requiredLevel));
   };
 
   // 全体の進捗率を計算
@@ -222,7 +222,7 @@ const EnhancedWorkflowStep: React.FC<EnhancedWorkflowStepProps> = ({
         
         {stage.assignedTo && (
           <div className="text-xs text-gray-400 mb-1">
-            承認者: {stage.assignedTo.name} ({stage.assignedTo.role})
+            承認者: {stage.assignedTo.name} {stage.assignedTo.department && `(${stage.assignedTo.department})`}
           </div>
         )}
         

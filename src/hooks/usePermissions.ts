@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { AccountHierarchyService } from '../services/AccountHierarchyService';
-import { DemoUser } from '../data/demo/users';
+import { DemoUser, getDemoUserById } from '../data/demo/users';
 import { AccountType } from '../types';
 
 interface UsePermissionsReturn {
@@ -51,7 +51,7 @@ export const usePermissions = (): UsePermissionsReturn => {
   const canViewUser = useCallback((targetUserId: string): boolean => {
     if (!demoUser) return false;
     
-    const { getDemoUserById } = require('../data/demo/users');
+    // Import getDemoUserById at the top of the file to avoid require
     const targetUser = getDemoUserById(targetUserId);
     if (!targetUser) return false;
     

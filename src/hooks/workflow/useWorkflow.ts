@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { ProjectWorkflow, ApprovalWorkflowEngine } from '../../services/ApprovalWorkflowEngine';
 import NotificationService from '../../services/NotificationService';
 import EscalationService from '../../services/EscalationService';
+import { ProjectScope } from '../../permissions/types/PermissionTypes';
 
 interface UseWorkflowReturn {
   workflow: ProjectWorkflow | null;
@@ -29,7 +30,7 @@ export const useWorkflow = (projectId: string): UseWorkflowReturn => {
       // ここではデモ用にダミーデータを作成
       const demoWorkflow = await workflowEngine.initializeWorkflow({
         id: projectId,
-        level: 'FACILITY',
+        level: ProjectScope.FACILITY,
         department: '看護部',
         facility: '第一病院'
       });

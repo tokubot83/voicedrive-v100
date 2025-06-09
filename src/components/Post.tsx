@@ -134,7 +134,7 @@ const Post = ({ post, onVote, onComment }: PostProps) => {
                   postType={post.type}
                   votes={post.votes}
                   projectId={post.projectId}
-                  approver={post.approver}
+                  approver={post.approver?.id}
                 />
               )}
               

@@ -151,6 +151,9 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
                 src={currentUser.avatar} 
                 alt={currentUser.name}
                 className="w-8 h-8 rounded-full"
+                onError={(e) => {
+                  e.currentTarget.src = '/default-avatar.svg';
+                }}
               />
               <div className="flex-1">
                 <div className="text-sm font-medium text-white">{currentUser.name}</div>

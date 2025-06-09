@@ -24,7 +24,7 @@ const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
   const canUserApprove = (stage: WorkflowStage): boolean => {
     if (stage.status !== 'IN_PROGRESS') return false;
     if (!stage.requiredLevel) return false;
-    return userPermissions.hasPermission(stage.requiredLevel);
+    return userPermissions.hasPermission(String(stage.requiredLevel));
   };
   
   return (

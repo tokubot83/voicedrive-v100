@@ -140,7 +140,7 @@ const EmergencyAuthorityPanel: React.FC = () => {
                 <span className="text-sm text-gray-400">{level}</span>
                 <Shield className={`w-4 h-4 ${getEmergencyLevelColor(level as EmergencyLevel)}`} />
               </div>
-              <div className="text-2xl font-bold">{count}</div>
+              <div className="text-2xl font-bold">{String(count)}</div>
             </div>
           ))}
           

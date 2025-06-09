@@ -34,9 +34,9 @@ const AuditLogPanel: React.FC = () => {
     applyFilters();
   }, [logs, filters]);
 
-  const loadData = () => {
+  const loadData = async () => {
     // Load audit logs
-    const auditLogs = auditService.getAuditLogs({ limit: 1000 });
+    const auditLogs = await auditService.getAuditLogs({ limit: 1000 });
     setLogs(auditLogs);
 
     // Load alerts
@@ -46,7 +46,7 @@ const AuditLogPanel: React.FC = () => {
     // Generate report for last 30 days
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 30);
-    const auditReport = auditService.generateAuditReport(startDate, new Date());
+    const auditReport = await auditService.generateAuditReport(startDate, new Date());
     setReport(auditReport);
   };
 

@@ -189,7 +189,7 @@ export const demoPosts: Post[] = [
     votes: generateVotes(),
     comments: [],
     projectId: 'proj-004',
-    approver: 'user-12'
+    approver: demoUsers[11]
   },
   {
     id: 'post-12',

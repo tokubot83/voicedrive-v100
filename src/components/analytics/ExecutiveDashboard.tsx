@@ -72,7 +72,12 @@ const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
       <div className="analytics-grid">
         <ROIAnalyticsCard data={roiAnalytics} />
         <ImpactMeasurementCard data={performanceMetrics} />
-        <StrategicInsightsCard data={strategicInsights} />
+        <StrategicInsightsCard data={{
+          opportunityValue: strategicInsights.executiveSummary || '戦略的機会を分析中',
+          recommendations: strategicInsights.strategicRecommendations || [],
+          keyFindings: strategicInsights.actionableInsights?.map(ai => ai.insight) || [],
+          actionItems: strategicInsights.actionableInsights?.length || 0
+        }} />
         <ProjectPipelineCard data={projectPipeline} />
       </div>
       
@@ -84,12 +89,17 @@ const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         
         <div className="analytics-section">
           <h3 className="section-title">🎯 ベンチマーク比較</h3>
-          <BenchmarkComparison data={strategicInsights.benchmarks} />
+          <BenchmarkComparison data={strategicInsights.benchmarkComparison || []} />
         </div>
         
         <div className="analytics-section">
           <h3 className="section-title">⚠️ リスク評価マトリックス</h3>
-          <RiskAssessmentMatrix data={strategicInsights.riskAssessment} />
+          <RiskAssessmentMatrix risks={[
+            ...(strategicInsights.riskAssessment?.riskBreakdown?.implementationRisks || []),
+            ...(strategicInsights.riskAssessment?.riskBreakdown?.financialRisks || []),
+            ...(strategicInsights.riskAssessment?.riskBreakdown?.operationalRisks || []),
+            ...(strategicInsights.riskAssessment?.riskBreakdown?.strategicRisks || [])
+          ]} />
         </div>
       </div>
       
@@ -144,7 +154,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 };
 
 const QuickActions: React.FC = () => {
-  const { hasPermission } = usePermissions();
+  const { userLevel } = usePermissions();
   
   return (
     <div className="quick-actions">
@@ -158,7 +168,7 @@ const QuickActions: React.FC = () => {
           <span className="btn-icon">📧</span>
           インサイト共有
         </button>
-        {hasPermission('LEVEL_5') && (
+        {userLevel >= PermissionLevel.LEVEL_5 && (
           <button className="action-btn">
             <span className="btn-icon">⚙️</span>
             分析設定

@@ -228,12 +228,12 @@ export class ROIAnalysisEngine {
   }
   
   private calculateEfficiencyBenefits(project: ProjectData, timeframe: number) {
-    const metrics = project.metrics?.efficiency || {};
+    const efficiency = project.metrics?.efficiency;
     
     const timeSavings = {
-      hoursPerMonth: metrics.timeSavingHours || 0,
-      hourlyRate: metrics.averageHourlyRate || 3000,
-      monthlyBenefit: (metrics.timeSavingHours || 0) * (metrics.averageHourlyRate || 3000)
+      hoursPerMonth: efficiency?.timeSavingHours || 0,
+      hourlyRate: efficiency?.averageHourlyRate || 3000,
+      monthlyBenefit: (efficiency?.timeSavingHours || 0) * (efficiency?.averageHourlyRate || 3000)
     };
     
     return {
@@ -243,14 +243,14 @@ export class ROIAnalysisEngine {
   }
   
   private calculateQualityBenefits(project: ProjectData, timeframe: number) {
-    const metrics = project.metrics?.efficiency || {};
+    const efficiency = project.metrics?.efficiency;
     
     const qualityImprovements = {
-      errorReduction: metrics.errorReductionPercent || 0,
-      errorCostPerIncident: metrics.errorCost || 50000,
-      monthlyBenefit: ((metrics.errorReductionPercent || 0) / 100) * 
-                     (metrics.monthlyErrors || 10) * 
-                     (metrics.errorCost || 50000)
+      errorReduction: efficiency?.errorReductionPercent || 0,
+      errorCostPerIncident: efficiency?.errorCost || 50000,
+      monthlyBenefit: ((efficiency?.errorReductionPercent || 0) / 100) * 
+                     (efficiency?.monthlyErrors || 10) * 
+                     (efficiency?.errorCost || 50000)
     };
     
     return {
@@ -260,12 +260,12 @@ export class ROIAnalysisEngine {
   }
   
   private calculateCostReductions(project: ProjectData, timeframe: number) {
-    const metrics = project.metrics?.cost || {};
+    const cost = project.metrics?.cost;
     
     const breakdown = {
-      materials: metrics.materialsSaving || 0,
-      operations: metrics.operationsSaving || 0,
-      monthlyBenefit: (metrics.materialsSaving || 0) + (metrics.operationsSaving || 0)
+      materials: cost?.materialsSaving || 0,
+      operations: cost?.operationsSaving || 0,
+      monthlyBenefit: (cost?.materialsSaving || 0) + (cost?.operationsSaving || 0)
     };
     
     return {

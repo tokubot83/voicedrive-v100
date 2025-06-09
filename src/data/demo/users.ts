@@ -2,7 +2,8 @@ import { AccountType } from '../../types';
 import { DemoUser, ACCOUNT_TYPE_MAPPING, BUDGET_APPROVAL_LIMITS } from './types';
 
 // Re-export shared types and constants for backward compatibility
-export { DemoUser, ACCOUNT_TYPE_MAPPING, BUDGET_APPROVAL_LIMITS } from './types';
+export type { DemoUser } from './types';
+export { ACCOUNT_TYPE_MAPPING, BUDGET_APPROVAL_LIMITS } from './types';
 
 // Import hierarchical users
 import { hierarchicalDemoUsers } from './hierarchicalUsers';
