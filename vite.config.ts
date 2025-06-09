@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: '/',
+  publicDir: 'public',
   build: {
     sourcemap: false,
     minify: 'terser',
@@ -24,9 +26,19 @@ export default defineConfig({
         manualChunks: {
           react: ['react', 'react-dom'],
           vendor: ['lucide-react']
+        },
+        assetFileNames: (assetInfo) => {
+          if (!assetInfo.name) return 'assets/[name]-[hash][extname]';
+          const info = assetInfo.name.split('.');
+          const ext = info[info.length - 1];
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+            return `assets/images/[name]-[hash][extname]`;
+          }
+          return `assets/[name]-[hash][extname]`;
         }
       }
     },
+    assetsInlineLimit: 4096,
     chunkSizeWarningLimit: 1000
   },
   esbuild: {
@@ -41,6 +53,8 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5173
+    port: 5173,
+    strictPort: true,
+    host: true
   }
 })
