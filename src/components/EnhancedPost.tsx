@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import EnhancedVotingSystem from './EnhancedVotingSystem';
+import VotingSection from './VotingSection';
 import ProjectStatusIndicator from './ProjectStatusIndicator';
 import ProjectWorkflowStatus from './workflow/ProjectWorkflowStatus';
 import { Post as PostType, VoteOption } from '../types';
@@ -121,12 +121,12 @@ const EnhancedPost = ({ post, onVote, onComment }: EnhancedPostProps) => {
                 <ProjectWorkflowStatus projectId={post.projectId} />
               )}
               
-              {/* 拡張投票システム（参照HTMLから移植） */}
-              <EnhancedVotingSystem
-                postId={post.id}
-                votes={post.votes}
-                selectedVote={selectedVote}
-                onVote={handleVote}
+              {/* 統一ステータス表示と最適化された投票UI */}
+              <VotingSection
+                post={post}
+                onVote={onVote}
+                onComment={onComment}
+                userVote={selectedVote}
               />
             </>
           )}

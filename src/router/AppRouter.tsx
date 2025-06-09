@@ -47,6 +47,7 @@ import SettingsPage from '../pages/SettingsPage';
 // Demo pages
 import TimeAxisDemo from '../components/TimeAxisDemo';
 import { HierarchyDemo } from '../components/demo/HierarchyDemo';
+import UnifiedStatusDemo from '../components/demo/UnifiedStatusDemo';
 
 // Analytics
 import ExecutiveDashboard from '../components/analytics/ExecutiveDashboard';
@@ -256,6 +257,7 @@ const AppRouter: React.FC = () => {
         <Route path="demo">
           <Route path="time-axis" element={<TimeAxisDemo />} />
           <Route path="hierarchy" element={<HierarchyDemo />} />
+          <Route path="unified-status" element={<UnifiedStatusDemo />} />
         </Route>
         
         {/* Error pages */}

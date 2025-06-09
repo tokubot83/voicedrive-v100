@@ -42,6 +42,7 @@ const pathNameMap: Record<string, string> = {
   '/settings': '設定',
   '/demo/time-axis': '時間管理',
   '/demo/hierarchy': '階層デモ',
+  '/demo/unified-status': '統一ステータス',
 };
 
 const Breadcrumb = () => {
