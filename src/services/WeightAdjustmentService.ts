@@ -17,6 +17,8 @@ import {
 } from '../types';
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 import { AuthorityManagementService } from './AuthorityManagementService';
+import { AuditService } from './AuditService';
+import { NotificationService } from './NotificationService';
 import { v4 as uuidv4 } from 'uuid';
 
 export class WeightAdjustmentService {
@@ -29,8 +31,13 @@ export class WeightAdjustmentService {
   // Current weight configurations (would be in database in production)
   private currentWeights: Map<string, number> = new Map();
 
+  private auditService: AuditService;
+  private notificationService: NotificationService;
+
   private constructor() {
     this.authorityService = AuthorityManagementService.getInstance();
+    this.auditService = AuditService.getInstance();
+    this.notificationService = NotificationService.getInstance();
     this.initializeDefaultWeights();
   }
 

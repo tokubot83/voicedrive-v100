@@ -10,7 +10,6 @@ import {
 import { HierarchicalUser } from '../types';
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 import { v4 as uuidv4 } from 'uuid';
-import { createHash } from 'crypto';
 
 // Audit alert structure
 interface AuditAlert {
@@ -80,7 +79,7 @@ export class AuditService {
     };
 
     // Generate checksum for tamper protection
-    entry.checksum = this.generateChecksum(entry);
+    entry.checksum = await this.generateChecksum(entry);
     
     this.auditLogs.set(entry.id, entry);
 
@@ -95,7 +94,7 @@ export class AuditService {
     const entry = this.auditLogs.get(logId);
     if (!entry) return false;
 
-    const expectedChecksum = this.generateChecksum(entry);
+    const expectedChecksum = await this.generateChecksum(entry);
     return entry.checksum === expectedChecksum;
   }
 
@@ -423,7 +422,7 @@ export class AuditService {
   }
 
   // Private methods
-  private generateChecksum(entry: AuditLogEntry): string {
+  private async generateChecksum(entry: AuditLogEntry): Promise<string> {
     const content = JSON.stringify({
       id: entry.id,
       timestamp: entry.timestamp,
@@ -436,7 +435,12 @@ export class AuditService {
       reason: entry.reason
     });
     
-    return createHash('sha256').update(content).digest('hex');
+    // Use Web Crypto API for browser compatibility
+    const encoder = new TextEncoder();
+    const dataBuffer = encoder.encode(content);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
   private async checkSuspiciousActivity(

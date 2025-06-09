@@ -12,7 +12,6 @@ import {
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 import { HierarchicalUser } from '../types';
 import { v4 as uuidv4 } from 'uuid';
-import { createHash } from 'crypto';
 
 export class AuthorityManagementService {
   private static instance: AuthorityManagementService;
