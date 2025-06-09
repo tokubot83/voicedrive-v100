@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import VotingSection from './VotingSection';
-import ProjectWorkflowStatus from './workflow/ProjectWorkflowStatus';
 import { Post as PostType, VoteOption } from '../types';
 
 interface EnhancedPostProps {
@@ -103,11 +102,6 @@ const EnhancedPost = ({ post, onVote, onComment }: EnhancedPostProps) => {
           
           {post.type === 'improvement' && (
             <>
-              {/* ワークフロー状況（プロジェクト化達成後） */}
-              {post.projectId && (
-                <ProjectWorkflowStatus projectId={post.projectId} />
-              )}
-              
               {/* 統一ステータス表示と最適化された投票UI */}
               <VotingSection
                 post={post}

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import VotingSystem from './VotingSystem';
 import EnhancedVotingSystem from './EnhancedVotingSystem';
-import ProjectWorkflowStatus from './workflow/ProjectWorkflowStatus';
 import { Post as PostType, VoteOption } from '../types';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 import { generateSampleVotesByStakeholder } from '../utils/votingCalculations';
@@ -126,12 +125,6 @@ const Post = ({ post, onVote, onComment }: PostProps) => {
           
           {post.type === 'improvement' && (
             <>
-              
-              {/* Phase 2: ワークフロー状況（閾値達成後） */}
-              {showWorkflow && post.projectId && (
-                <ProjectWorkflowStatus projectId={post.projectId} />
-              )}
-              
               {post.proposalType ? (
                 <EnhancedVotingSystem
                   postId={post.id}

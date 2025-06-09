@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Users, CheckCircle, Briefcase, TrendingUp, Clock, AlertCircle } from 'lucide-react';
 import CircularProgress from './CircularProgress';
 import ConsensusDetails from './details/ConsensusDetails';
-import ApprovalDetails from './details/ApprovalDetails';
 import ProjectDetails from './details/ProjectDetails';
 
 interface ProgressDetail {
@@ -151,7 +150,11 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
               {detailsData ? (
                 <>
                   {type === 'consensus' && <ConsensusDetails data={detailsData} />}
-                  {type === 'approval' && <ApprovalDetails data={detailsData} />}
+                  {type === 'approval' && (
+                    <div className="text-center p-4">
+                      <p className="text-gray-400">承認詳細は統一ステータス表示に統合されました</p>
+                    </div>
+                  )}
                   {type === 'project' && <ProjectDetails data={detailsData} />}
                 </>
               ) : (
