@@ -64,8 +64,8 @@ const VotingSection: React.FC<VotingSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 統一ステータス表示 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* 統一ステータス表示（縦積みレイアウト） */}
+      <div className="space-y-4">
         {/* 合意形成（常に表示） */}
         <UnifiedProgressBar
           type="consensus"
@@ -74,6 +74,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
           status="active"
           quickInsights={insights}
           details={details}
+          detailsData={consensusData}
           description={`${consensusData.level} (${consensusData.percentage}%)`}
         />
         
@@ -95,6 +96,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               { label: '承認者', value: approvalData.approvers.join(', ') },
               { label: '期限', value: approvalData.deadline.toLocaleDateString('ja-JP') }
             ]}
+            detailsData={approvalData}
             description="高優先度案件のため承認が必要です"
           />
         )}
@@ -117,6 +119,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               { label: '経過期間', value: `${projectData.timeline.current}/${projectData.timeline.total}ヶ月` },
               { label: '次の節目', value: projectData.nextMilestone }
             ]}
+            detailsData={projectData}
             description="順調に進行中"
           />
         )}
@@ -129,14 +132,14 @@ const VotingSection: React.FC<VotingSectionProps> = ({
         </h3>
         
         {/* 感情的でわかりやすい投票ボタン */}
-        <div className="grid grid-cols-5 gap-2 mb-4">
+        <div className="grid grid-cols-5 gap-1 sm:gap-2 mb-4">
           {voteOptions.map(vote => (
             <button
               key={vote.type}
               onClick={() => setSelectedVote(vote.type)}
               disabled={userVote !== undefined}
               className={`
-                flex flex-col items-center p-3 rounded-lg border-2 transition-all
+                flex flex-col items-center p-2 sm:p-3 rounded-lg border-2 transition-all
                 ${selectedVote === vote.type 
                   ? vote.color === 'red' ? 'border-red-500 bg-red-500/20' :
                     vote.color === 'orange' ? 'border-orange-500 bg-orange-500/20' :
@@ -148,8 +151,8 @@ const VotingSection: React.FC<VotingSectionProps> = ({
                 ${userVote !== undefined ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
               `}
             >
-              <span className="text-2xl mb-1">{vote.emoji}</span>
-              <span className="text-xs text-gray-300">{vote.label}</span>
+              <span className="text-xl sm:text-2xl mb-1">{vote.emoji}</span>
+              <span className="text-xs text-gray-300 text-center leading-tight">{vote.label}</span>
               {userVote === vote.type && (
                 <span className="text-xs text-blue-400 mt-1">投票済み</span>
               )}
@@ -190,7 +193,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
         </div>
         
         {/* アクションボタン */}
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={handleVote}
             disabled={!selectedVote || userVote !== undefined || isVoting}
@@ -200,7 +203,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
           </button>
           <button 
             onClick={() => onComment(post.id)}
-            className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
+            className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
           >
             <MessageCircle className="w-4 h-4" />
             コメント

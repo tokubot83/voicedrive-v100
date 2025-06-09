@@ -73,7 +73,7 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
 
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-gray-600 transition-all">
+    <div className="w-full bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-all">
       {/* Header Section */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -101,8 +101,8 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
         {/* Circular Progress Indicator */}
         <CircularProgress
           value={percentage}
-          size={96}
-          strokeWidth={6}
+          size={80}
+          strokeWidth={5}
           color={type === 'consensus' ? 'blue' : type === 'approval' ? 'green' : 'purple'}
           showPercentage={true}
           className="flex-shrink-0"
@@ -127,7 +127,7 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
       </div>
 
       {/* Expandable Details Section */}
-      {details.length > 0 && (
+      {(details.length > 0 || detailsData) && (
         <>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -136,12 +136,12 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
             {isExpanded ? (
               <>
                 <ChevronUp className="w-4 h-4" />
-                Hide Details
+                詳細を隠す
               </>
             ) : (
               <>
                 <ChevronDown className="w-4 h-4" />
-                View Details
+                詳細を見る
               </>
             )}
           </button>

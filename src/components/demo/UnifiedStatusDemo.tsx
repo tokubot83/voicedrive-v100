@@ -74,7 +74,7 @@ const UnifiedStatusDemo: React.FC = () => {
         </div>
 
         {/* Feature Highlights */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="mt-8 space-y-6 md:grid md:grid-cols-3 md:gap-6 md:space-y-0">
           <div className="bg-black/20 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
             <h3 className="text-xl font-semibold text-white mb-3">🔄 合意形成状況</h3>
             <p className="text-gray-400">
