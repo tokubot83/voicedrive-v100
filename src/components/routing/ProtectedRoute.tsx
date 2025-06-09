@@ -1,0 +1,53 @@
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { usePermissions } from '../../hooks/usePermissions';
+import { PermissionLevel } from '../../permissions/types/PermissionTypes';
+
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiredLevel?: PermissionLevel;
+  exactLevel?: boolean;
+  fallbackPath?: string;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requiredLevel,
+  exactLevel = false,
+  fallbackPath = '/'
+}) => {
+  const { userLevel, hasPermission } = usePermissions();
+  const location = useLocation();
+  
+  // Check if user has required permission level
+  if (requiredLevel) {
+    if (exactLevel) {
+      // Exact level match required
+      if (userLevel !== requiredLevel) {
+        // Store the attempted path for redirect after login
+        return (
+          <Navigate 
+            to={fallbackPath} 
+            state={{ from: location.pathname }} 
+            replace 
+          />
+        );
+      }
+    } else {
+      // Minimum level required
+      if (!hasPermission(requiredLevel)) {
+        return (
+          <Navigate 
+            to={fallbackPath} 
+            state={{ from: location.pathname }} 
+            replace 
+          />
+        );
+      }
+    }
+  }
+  
+  return <>{children}</>;
+};
+
+export default ProtectedRoute;

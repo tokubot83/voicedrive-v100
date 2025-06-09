@@ -15,10 +15,12 @@
     "type-check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
+    "@types/react-router-dom": "^5.3.3",
     "@types/uuid": "^10.0.0",
     "lucide-react": "^0.513.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^7.6.2",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

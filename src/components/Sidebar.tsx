@@ -2,86 +2,100 @@ import { UserRole } from '../types';
 import { usePermissions } from '../permissions/hooks/usePermissions';
 import { PermissionLevel, PERMISSION_METADATA } from '../permissions/types/PermissionTypes';
 import { useDemoMode } from './demo/DemoModeController';
+import { Link, useLocation } from 'react-router-dom';
 
 interface SidebarProps {
-  currentPage: string;
-  setCurrentPage: (page: string) => void;
+  currentPath?: string;
   isOpen: boolean;
   closeSidebar: () => void;
   userRole?: UserRole;
   userId?: string;
 }
 
-const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole = 'employee', userId }: SidebarProps) => {
+interface NavItem {
+  id: string;
+  path?: string;
+  icon: string;
+  label: string;
+  section: string;
+  menuKey?: string;
+  requiredLevel?: number;
+  exactLevel?: boolean;
+  isDivider?: boolean;
+}
+
+const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: SidebarProps) => {
   const { isDemoMode, currentUser } = useDemoMode();
   const demoUserId = isDemoMode ? currentUser.id : userId;
   const { accessibleMenuItems, metadata } = usePermissions(demoUserId);
-  const allNavItems: any[] = [
+  const location = useLocation();
+  
+  const allNavItems: NavItem[] = [
     // 基本機能（全レベルでアクセス可能）
-    { id: 'home', icon: '🏠', label: 'ホーム', section: 'main', menuKey: 'home' },
-    { id: 'voice', icon: '📣', label: 'ボイス', section: 'main', menuKey: 'voice' },
-    { id: 'my_posts', icon: '📝', label: 'マイ投稿', section: 'main', menuKey: 'my_posts' },
+    { id: 'home', path: '/', icon: '🏠', label: 'ホーム', section: 'main', menuKey: 'home' },
+    { id: 'voice', path: '/voice', icon: '📣', label: 'ボイス', section: 'main', menuKey: 'voice' },
+    { id: 'my_posts', path: '/my-posts', icon: '📝', label: 'マイ投稿', section: 'main', menuKey: 'my_posts' },
     
     { id: 'divider0', isDivider: true },
     
     // 役職別ダッシュボード（権限レベルに応じて1つのみ表示）
-    { id: 'dashboard-personal', icon: '💫', label: 'マイダッシュボード', section: 'dashboard', requiredLevel: 1, exactLevel: true },
-    { id: 'dashboard-team-leader', icon: '⭐', label: '現場リーダーダッシュボード', section: 'dashboard', requiredLevel: 2, exactLevel: true },
-    { id: 'dashboard-department', icon: '📈', label: '部門管理ダッシュボード', section: 'dashboard', requiredLevel: 3, exactLevel: true },
-    { id: 'dashboard-facility', icon: '🏥', label: '施設管理ダッシュボード', section: 'dashboard', requiredLevel: 4, exactLevel: true },
-    { id: 'dashboard-hr-management', icon: '👥', label: '人事統括ダッシュボード', section: 'dashboard', requiredLevel: 5, exactLevel: true },
-    { id: 'dashboard-strategic', icon: '📊', label: '戦略企画ダッシュボード', section: 'dashboard', requiredLevel: 6, exactLevel: true },
-    { id: 'dashboard-corporate', icon: '🏢', label: '法人統括ダッシュボード', section: 'dashboard', requiredLevel: 7, exactLevel: true },
-    { id: 'dashboard-executive', icon: '🏛️', label: '経営ダッシュボード', section: 'dashboard', requiredLevel: 8, exactLevel: true },
+    { id: 'dashboard-personal', path: '/dashboard/personal', icon: '💫', label: 'マイダッシュボード', section: 'dashboard', requiredLevel: 1, exactLevel: true },
+    { id: 'dashboard-team-leader', path: '/dashboard/team-leader', icon: '⭐', label: '現場リーダーダッシュボード', section: 'dashboard', requiredLevel: 2, exactLevel: true },
+    { id: 'dashboard-department', path: '/dashboard/department', icon: '📈', label: '部門管理ダッシュボード', section: 'dashboard', requiredLevel: 3, exactLevel: true },
+    { id: 'dashboard-facility', path: '/dashboard/facility', icon: '🏥', label: '施設管理ダッシュボード', section: 'dashboard', requiredLevel: 4, exactLevel: true },
+    { id: 'dashboard-hr-management', path: '/dashboard/hr-management', icon: '👥', label: '人事統括ダッシュボード', section: 'dashboard', requiredLevel: 5, exactLevel: true },
+    { id: 'dashboard-strategic', path: '/dashboard/strategic', icon: '📊', label: '戦略企画ダッシュボード', section: 'dashboard', requiredLevel: 6, exactLevel: true },
+    { id: 'dashboard-corporate', path: '/dashboard/corporate', icon: '🏢', label: '法人統括ダッシュボード', section: 'dashboard', requiredLevel: 7, exactLevel: true },
+    { id: 'dashboard-executive', path: '/dashboard/executive', icon: '🏛️', label: '経営ダッシュボード', section: 'dashboard', requiredLevel: 8, exactLevel: true },
     
     // チーム管理機能（レベル2以上）
-    { id: 'team_management', icon: '👥', label: 'チーム管理', section: 'team', menuKey: 'team_management' },
+    { id: 'team_management', path: '/team-management', icon: '👥', label: 'チーム管理', section: 'team', menuKey: 'team_management' },
     
     // 部門管理機能（レベル3以上）
-    { id: 'department_dashboard', icon: '📊', label: '部門ダッシュボード', section: 'department', menuKey: 'department_dashboard' },
+    { id: 'department_overview', path: '/department-overview', icon: '📊', label: '部門概要', section: 'department', menuKey: 'department_dashboard' },
     
     // 予算管理（レベル4以上）
-    { id: 'budget_control', icon: '💰', label: '予算管理', section: 'management', menuKey: 'budget_control' },
+    { id: 'budget_control', path: '/budget', icon: '💰', label: '予算管理', section: 'management', menuKey: 'budget_control' },
     
     // 権限管理（レベル3以上）
-    { id: 'authority', icon: '🛡️', label: '権限管理', section: 'management', menuKey: 'authority_management' },
+    { id: 'authority', path: '/authority', icon: '🛡️', label: '権限管理', section: 'management', menuKey: 'authority_management' },
     
     // HR関連機能（レベル5以上）
-    { id: 'hr_dashboard', icon: '👨‍💼', label: '人事ダッシュボード', section: 'hr', menuKey: 'hr_dashboard' },
-    { id: 'policy_management', icon: '📑', label: 'ポリシー管理', section: 'hr', menuKey: 'policy_management' },
-    { id: 'talent_analytics', icon: '🔍', label: 'タレント分析', section: 'hr', menuKey: 'talent_analytics' },
+    { id: 'hr_dashboard', path: '/hr-dashboard', icon: '👨‍💼', label: '人事ダッシュボード', section: 'hr', menuKey: 'hr_dashboard' },
+    { id: 'policy_management', path: '/policy', icon: '📑', label: 'ポリシー管理', section: 'hr', menuKey: 'policy_management' },
+    { id: 'talent_analytics', path: '/talent', icon: '🔍', label: 'タレント分析', section: 'hr', menuKey: 'talent_analytics' },
     
     // HR戦略機能（レベル6以上）
-    { id: 'strategic_planning', icon: '🎯', label: '戦略的人事計画', section: 'hr_strategic', menuKey: 'strategic_planning' },
-    { id: 'org_development', icon: '🏗️', label: '組織開発', section: 'hr_strategic', menuKey: 'org_development' },
-    { id: 'performance_analytics', icon: '📈', label: 'パフォーマンス分析', section: 'hr_strategic', menuKey: 'performance_analytics' },
+    { id: 'strategic_planning', path: '/strategic-planning', icon: '🎯', label: '戦略的人事計画', section: 'hr_strategic', menuKey: 'strategic_planning' },
+    { id: 'org_development', path: '/org-development', icon: '🏗️', label: '組織開発', section: 'hr_strategic', menuKey: 'org_development' },
+    { id: 'performance_analytics', path: '/performance', icon: '📈', label: 'パフォーマンス分析', section: 'hr_strategic', menuKey: 'performance_analytics' },
     
     // 施設管理機能（レベル7以上）
-    { id: 'facility_management', icon: '🏭', label: '施設管理', section: 'facility', menuKey: 'facility_management' },
-    { id: 'strategic_dashboard', icon: '🏛️', label: '戦略ダッシュボード', section: 'facility', menuKey: 'strategic_dashboard' },
-    { id: 'budget_planning', icon: '💸', label: '予算計画', section: 'facility', menuKey: 'budget_planning' },
-    { id: 'analytics', icon: '📊', label: '分析', section: 'facility', menuKey: 'analytics' },
-    { id: 'executive_reports', icon: '📄', label: 'エグゼクティブレポート', section: 'facility', menuKey: 'executive_reports' },
+    { id: 'facility_management', path: '/facility-management', icon: '🏭', label: '施設管理', section: 'facility', menuKey: 'facility_management' },
+    { id: 'strategic_overview', path: '/strategic-overview', icon: '🏛️', label: '戦略概要', section: 'facility', menuKey: 'strategic_dashboard' },
+    { id: 'budget_planning', path: '/budget-planning', icon: '💸', label: '予算計画', section: 'facility', menuKey: 'budget_planning' },
+    { id: 'analytics', path: '/analytics', icon: '📊', label: '分析', section: 'facility', menuKey: 'analytics' },
+    { id: 'executive_reports', path: '/executive-reports', icon: '📄', label: 'エグゼクティブレポート', section: 'facility', menuKey: 'executive_reports' },
     
     // 経営層機能（レベル8）
-    { id: 'executive_dashboard', icon: '👑', label: '経営ダッシュボード', section: 'executive', menuKey: 'executive_dashboard' },
-    { id: 'strategic_initiatives', icon: '🚀', label: '戦略イニシアチブ', section: 'executive', menuKey: 'strategic_initiatives' },
-    { id: 'organization_analytics', icon: '🌐', label: '組織分析', section: 'executive', menuKey: 'organization_analytics' },
-    { id: 'board_reports', icon: '📊', label: '理事会レポート', section: 'executive', menuKey: 'board_reports' },
-    { id: 'governance', icon: '⚖️', label: 'ガバナンス', section: 'executive', menuKey: 'governance' },
+    { id: 'executive_overview', path: '/executive-overview', icon: '👑', label: '経営概要', section: 'executive', menuKey: 'executive_dashboard' },
+    { id: 'strategic_initiatives', path: '/strategic-initiatives', icon: '🚀', label: '戦略イニシアチブ', section: 'executive', menuKey: 'strategic_initiatives' },
+    { id: 'organization_analytics', path: '/organization-analytics', icon: '🌐', label: '組織分析', section: 'executive', menuKey: 'organization_analytics' },
+    { id: 'board_reports', path: '/board-reports', icon: '📊', label: '理事会レポート', section: 'executive', menuKey: 'board_reports' },
+    { id: 'governance', path: '/governance', icon: '⚖️', label: 'ガバナンス', section: 'executive', menuKey: 'governance' },
     
     { id: 'divider1', isDivider: true },
     
     // 設定機能（全レベルでアクセス可能）
-    { id: 'notifications', icon: '🔔', label: '通知', section: 'settings' },
-    { id: 'settings', icon: '⚙️', label: '設定', section: 'settings' },
+    { id: 'notifications', path: '/notifications', icon: '🔔', label: '通知', section: 'settings' },
+    { id: 'settings', path: '/settings', icon: '⚙️', label: '設定', section: 'settings' },
     
     { id: 'divider2', isDivider: true },
     
     // デモ機能
-    { id: 'medical-profile', icon: '🏥', label: '医療プロフィール', section: 'demo' },
-    { id: 'time-axis', icon: '⏰', label: '時間軸管理', section: 'demo' },
-    { id: 'hierarchy-demo', icon: '🏢', label: '階層デモ', section: 'demo' },
+    { id: 'medical-profile', path: '/demo/medical-profile', icon: '🏥', label: '医療プロフィール', section: 'demo' },
+    { id: 'time-axis', path: '/demo/time-axis', icon: '⏰', label: '時間軸管理', section: 'demo' },
+    { id: 'hierarchy-demo', path: '/demo/hierarchy', icon: '🏢', label: '階層デモ', section: 'demo' },
   ];
 
   // アクセス可能なメニュー項目をフィルタリング
@@ -118,8 +132,7 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
     return true;
   });
 
-  const handleNavClick = (pageId: string) => {
-    setCurrentPage(pageId);
+  const handleNavClick = () => {
     if (window.innerWidth <= 768) {
       closeSidebar();
     }
@@ -146,16 +159,19 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
             );
           }
           
+          const isActive = item.path === location.pathname;
+          
           return (
-            <button
+            <Link
               key={item.id}
-              onClick={() => handleNavClick(item.id)}
+              to={item.path || '#'}
+              onClick={handleNavClick}
               className={`
                 flex items-center w-full p-3 mb-1 rounded-full text-gray-200
                 transition-all duration-300 relative overflow-hidden
                 hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10
                 hover:translate-x-1 hover:shadow-[0_4px_15px_rgba(29,155,240,0.2)]
-                ${currentPage === item.id ? 
+                ${isActive ? 
                   'font-bold bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30' : 
                   ''}
                 ${['team', 'department', 'management', 'hr', 'hr_strategic', 'facility', 'executive'].includes(item.section) ? 'text-gray-300/80' : ''}
@@ -165,7 +181,7 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
                 {item.icon}
               </span>
               <span>{item.label}</span>
-            </button>
+            </Link>
           );
         })}
       </nav>
