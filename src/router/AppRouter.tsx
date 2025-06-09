@@ -8,8 +8,8 @@ import Layout from '../components/layout/Layout';
 
 // Main pages
 import HomePage from '../pages/HomePage';
-import VoicePage from '../pages/VoicePage';
-import MyPostsPage from '../pages/MyPostsPage';
+import ProfilePage from '../pages/ProfilePage';
+import ProjectListPage from '../pages/ProjectListPage';
 import TeamManagementPage from '../pages/TeamManagementPage';
 import DepartmentOverviewPage from '../pages/DepartmentOverviewPage';
 import BudgetPage from '../pages/BudgetPage';
@@ -45,7 +45,6 @@ import NotificationsPage from '../pages/NotificationsPage';
 import SettingsPage from '../pages/SettingsPage';
 
 // Demo pages
-import MedicalProfileDemo from '../components/profile/MedicalProfileDemo';
 import TimeAxisDemo from '../components/TimeAxisDemo';
 import { HierarchyDemo } from '../components/demo/HierarchyDemo';
 
@@ -62,8 +61,8 @@ const AppRouter: React.FC = () => {
       <Route path="/" element={<Layout />}>
         {/* Main navigation routes */}
         <Route index element={<HomePage />} />
-        <Route path="voice" element={<VoicePage />} />
-        <Route path="my-posts" element={<MyPostsPage />} />
+        <Route path="profile" element={<ProfilePage />} />
+        <Route path="projects" element={<ProjectListPage />} />
         
         {/* Role-based dashboard routes with exact level protection */}
         <Route path="dashboard">
@@ -255,7 +254,6 @@ const AppRouter: React.FC = () => {
         
         {/* Demo pages */}
         <Route path="demo">
-          <Route path="medical-profile" element={<MedicalProfileDemo />} />
           <Route path="time-axis" element={<TimeAxisDemo />} />
           <Route path="hierarchy" element={<HierarchyDemo />} />
         </Route>

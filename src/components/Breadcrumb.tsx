@@ -8,8 +8,8 @@ interface BreadcrumbItem {
 
 const pathNameMap: Record<string, string> = {
   '/': 'ホーム',
-  '/voice': 'ボイス',
-  '/my-posts': 'マイ投稿',
+  '/profile': 'プロフィール',
+  '/projects': 'プロジェクト一覧',
   '/dashboard/personal': 'マイダッシュボード',
   '/dashboard/team-leader': '現場リーダーダッシュボード',
   '/dashboard/department': '部門管理ダッシュボード',
@@ -40,8 +40,7 @@ const pathNameMap: Record<string, string> = {
   '/governance': 'ガバナンス',
   '/notifications': '通知',
   '/settings': '設定',
-  '/demo/medical-profile': '医療プロフィール',
-  '/demo/time-axis': '時間軸管理',
+  '/demo/time-axis': '時間管理',
   '/demo/hierarchy': '階層デモ',
 };
 

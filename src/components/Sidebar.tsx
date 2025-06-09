@@ -32,9 +32,9 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
   
   const allNavItems: NavItem[] = [
     // 基本機能（全レベルでアクセス可能）
-    { id: 'home', path: '/', icon: '🏠', label: 'ホーム', section: 'main', menuKey: 'home' },
-    { id: 'voice', path: '/voice', icon: '📣', label: 'ボイス', section: 'main', menuKey: 'voice' },
-    { id: 'my_posts', path: '/my-posts', icon: '📝', label: 'マイ投稿', section: 'main', menuKey: 'my_posts' },
+    { id: 'home', path: '/', icon: '🏠', label: 'ホーム', section: 'main' },
+    { id: 'profile', path: '/profile', icon: '👤', label: 'プロフィール', section: 'main' },
+    { id: 'projects', path: '/projects', icon: '📁', label: 'プロジェクト一覧', section: 'main' },
     
     { id: 'divider0', isDivider: true },
     
@@ -86,23 +86,26 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
     
     { id: 'divider1', isDivider: true },
     
-    // 設定機能（全レベルでアクセス可能）
-    { id: 'notifications', path: '/notifications', icon: '🔔', label: '通知', section: 'settings' },
-    { id: 'settings', path: '/settings', icon: '⚙️', label: '設定', section: 'settings' },
+    // ツール機能（全レベルでアクセス可能）
+    { id: 'time-axis', path: '/demo/time-axis', icon: '⏰', label: '時間管理', section: 'tools' },
+    { id: 'hierarchy-demo', path: '/demo/hierarchy', icon: '🏢', label: '階層デモ', section: 'tools' },
     
     { id: 'divider2', isDivider: true },
     
-    // デモ機能
-    { id: 'medical-profile', path: '/demo/medical-profile', icon: '🏥', label: '医療プロフィール', section: 'demo' },
-    { id: 'time-axis', path: '/demo/time-axis', icon: '⏰', label: '時間軸管理', section: 'demo' },
-    { id: 'hierarchy-demo', path: '/demo/hierarchy', icon: '🏢', label: '階層デモ', section: 'demo' },
+    // システム機能（全レベルでアクセス可能）
+    { id: 'notifications', path: '/notifications', icon: '🔔', label: '通知', section: 'system' },
+    { id: 'settings', path: '/settings', icon: '⚙️', label: '設定', section: 'system' },
   ];
 
   // アクセス可能なメニュー項目をフィルタリング
   const filteredNavItems = allNavItems.filter((item, index, array) => {
     if (item.isDivider) {
-      // 設定セクションの区切り線は常に表示
+      // ツールセクションの区切り線は常に表示
       if (item.id === 'divider1') {
+        return true;
+      }
+      // システムセクションの区切り線は常に表示
+      if (item.id === 'divider2') {
         return true;
       }
       // ダッシュボードの区切り線は、ダッシュボードが表示される場合のみ表示

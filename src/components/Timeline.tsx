@@ -6,9 +6,10 @@ import { useDemoMode } from './demo/DemoModeController';
 
 interface TimelineProps {
   activeTab?: string;
+  filterByUser?: string;
 }
 
-const Timeline = ({ activeTab = 'all' }: TimelineProps) => {
+const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
   const { isDemoMode, currentUser } = useDemoMode();
   
   // Use demo posts in demo mode, otherwise use the original posts
@@ -148,27 +149,35 @@ const Timeline = ({ activeTab = 'all' }: TimelineProps) => {
     console.log(`Opening comment modal for post ${postId}`);
   };
 
-  // Filter posts based on activeTab
+  // Filter posts based on activeTab and user
   const filteredPosts = useMemo(() => {
-    if (activeTab === 'all') {
-      return posts;
+    let filtered = posts;
+    
+    // Filter by user if specified
+    if (filterByUser) {
+      filtered = filtered.filter(post => post.author.id === filterByUser);
     }
     
-    return posts.filter(post => {
-      switch (activeTab) {
-        case 'improvement':
-          return post.type === 'improvement';
-        case 'community':
-          return post.type === 'community';
-        case 'report':
-          return post.type === 'report';
-        case 'urgent':
-          return post.priority === 'urgent' || post.priority === 'high';
-        default:
-          return true;
-      }
-    });
-  }, [posts, activeTab]);
+    // Filter by tab
+    if (activeTab !== 'all') {
+      filtered = filtered.filter(post => {
+        switch (activeTab) {
+          case 'improvement':
+            return post.type === 'improvement';
+          case 'community':
+            return post.type === 'community';
+          case 'report':
+            return post.type === 'report';
+          case 'urgent':
+            return post.priority === 'urgent' || post.priority === 'high';
+          default:
+            return true;
+        }
+      });
+    }
+    
+    return filtered;
+  }, [posts, activeTab, filterByUser]);
 
   return (
     <div className="overflow-y-auto">
