@@ -13,6 +13,9 @@
 /* 季節管理システム関連のスタイルをインポート */
 @import './styles/seasonal.css';
 
+/* 役職別ダッシュボード関連のスタイルをインポート */
+@import './styles/dashboards.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

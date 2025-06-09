@@ -22,6 +22,18 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
     { id: 'voice', icon: '📣', label: 'ボイス', section: 'main', menuKey: 'voice' },
     { id: 'my_posts', icon: '📝', label: 'マイ投稿', section: 'main', menuKey: 'my_posts' },
     
+    { id: 'divider0', isDivider: true },
+    
+    // 役職別ダッシュボード（権限レベルに応じて1つのみ表示）
+    { id: 'dashboard-personal', icon: '💫', label: 'マイダッシュボード', section: 'dashboard', requiredLevel: 1, exactLevel: true },
+    { id: 'dashboard-team-leader', icon: '⭐', label: '現場リーダーダッシュボード', section: 'dashboard', requiredLevel: 2, exactLevel: true },
+    { id: 'dashboard-department', icon: '📈', label: '部門管理ダッシュボード', section: 'dashboard', requiredLevel: 3, exactLevel: true },
+    { id: 'dashboard-facility', icon: '🏥', label: '施設管理ダッシュボード', section: 'dashboard', requiredLevel: 4, exactLevel: true },
+    { id: 'dashboard-hr-management', icon: '👥', label: '人事統括ダッシュボード', section: 'dashboard', requiredLevel: 5, exactLevel: true },
+    { id: 'dashboard-strategic', icon: '📊', label: '戦略企画ダッシュボード', section: 'dashboard', requiredLevel: 6, exactLevel: true },
+    { id: 'dashboard-corporate', icon: '🏢', label: '法人統括ダッシュボード', section: 'dashboard', requiredLevel: 7, exactLevel: true },
+    { id: 'dashboard-executive', icon: '🏛️', label: '経営ダッシュボード', section: 'dashboard', requiredLevel: 8, exactLevel: true },
+    
     // チーム管理機能（レベル2以上）
     { id: 'team_management', icon: '👥', label: 'チーム管理', section: 'team', menuKey: 'team_management' },
     
@@ -73,13 +85,28 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, closeSidebar, userRole =
   ];
 
   // アクセス可能なメニュー項目をフィルタリング
-  const filteredNavItems = allNavItems.filter(item => {
+  const filteredNavItems = allNavItems.filter((item, index, array) => {
     if (item.isDivider) {
       // 設定セクションの区切り線は常に表示
       if (item.id === 'divider1') {
         return true;
       }
+      // ダッシュボードの区切り線は、ダッシュボードが表示される場合のみ表示
+      if (item.id === 'divider0') {
+        // 次の項目がダッシュボードで、表示される場合のみ区切り線を表示
+        const nextItems = array.slice(index + 1, index + 9); // 次の8項目（ダッシュボード）をチェック
+        return nextItems.some(nextItem => 
+          nextItem.section === 'dashboard' && 
+          nextItem.requiredLevel === (currentUser?.permissionLevel || 1)
+        );
+      }
       return false;
+    }
+    
+    // 役職別ダッシュボードの場合（exactLevelがtrueの項目）
+    if (item.exactLevel && item.requiredLevel) {
+      const userLevel = currentUser?.permissionLevel || 1;
+      return userLevel === item.requiredLevel;
     }
     
     // menuKeyが指定されている場合は、アクセス可能なメニューかチェック

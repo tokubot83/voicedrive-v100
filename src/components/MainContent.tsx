@@ -3,6 +3,14 @@ import Header from './Header';
 import ComposeSection from './ComposeSection';
 import Timeline from './Timeline';
 import AuthorityDashboard from './authority/AuthorityDashboard';
+import PersonalDashboard from './dashboards/PersonalDashboard';
+import TeamLeaderDashboard from './dashboards/TeamLeaderDashboard';
+import DepartmentDashboard from './dashboards/DepartmentDashboard';
+import FacilityDashboard from './dashboards/FacilityDashboard';
+import HRManagementDashboard from './dashboards/HRManagementDashboard';
+import StrategicDashboard from './dashboards/StrategicDashboard';
+import CorporateDashboard from './dashboards/CorporateDashboard';
+import ExecutiveLevelDashboard from './dashboards/ExecutiveLevelDashboard';
 import { PostType } from '../types';
 
 interface MainContentProps {
@@ -103,6 +111,16 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
             <AuthorityDashboard />
           </div>
         )}
+        
+        {/* 役職別ダッシュボード */}
+        {currentPage === 'dashboard-personal' && <PersonalDashboard />}
+        {currentPage === 'dashboard-team-leader' && <TeamLeaderDashboard />}
+        {currentPage === 'dashboard-department' && <DepartmentDashboard />}
+        {currentPage === 'dashboard-facility' && <FacilityDashboard />}
+        {currentPage === 'dashboard-hr-management' && <HRManagementDashboard />}
+        {currentPage === 'dashboard-strategic' && <StrategicDashboard />}
+        {currentPage === 'dashboard-corporate' && <CorporateDashboard />}
+        {currentPage === 'dashboard-executive' && <ExecutiveLevelDashboard />}
         
         {currentPage === 'notifications' && (
           <div className="p-6 text-center">
