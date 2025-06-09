@@ -79,48 +79,82 @@ const VotingSection: React.FC<VotingSectionProps> = ({
         />
         
         {/* 承認プロセス（条件付き） */}
-        {post.priority === 'high' && (
+        {(post.priority === 'high' || post.approvalFlow) && (
           <UnifiedProgressBar
             type="approval"
             title="承認プロセス"
-            percentage={30}
-            status="pending"
-            quickInsights={[
+            percentage={post.approvalFlow ? 
+              (post.approvalFlow.history.filter(h => h.status === 'approved').length / post.approvalFlow.history.length) * 100 :
+              30
+            }
+            status={post.approvalFlow?.status === 'approved' ? 'completed' : 
+                   post.approvalFlow?.status === 'in_progress' ? 'pending' : 
+                   'pending'
+            }
+            quickInsights={post.approvalFlow ? [
+              post.approvalFlow.status === 'approved' ? '✅ 承認完了' : '📋 承認進行中',
+              `${post.approvalFlow.currentLevel} レベル`,
+              post.approvalFlow.status === 'approved' ? '全ての承認を取得' : '承認待ち'
+            ] : [
               '📋 施設長確認中',
               `⏰ 残り${Math.floor((approvalData.deadline.getTime() - Date.now()) / (1000 * 60 * 60))}時間`,
               'LEVEL_4承認待ち'
             ]}
-            details={[
+            details={post.approvalFlow ? [
+              { label: '現在レベル', value: post.approvalFlow.currentLevel },
+              { label: 'ステータス', value: post.approvalFlow.status === 'approved' ? '承認済み' : '進行中' },
+              { label: '承認履歴', value: `${post.approvalFlow.history.filter(h => h.status === 'approved').length}/${post.approvalFlow.history.length}` }
+            ] : [
               { label: '現在レベル', value: `LEVEL_${approvalData.currentLevel}` },
               { label: '必要レベル', value: `LEVEL_${approvalData.requiredLevel}` },
               { label: '承認者', value: approvalData.approvers.join(', ') },
               { label: '期限', value: approvalData.deadline.toLocaleDateString('ja-JP') }
             ]}
-            detailsData={approvalData}
-            description="高優先度案件のため承認が必要です"
+            detailsData={post.approvalFlow || approvalData}
+            description={post.approvalFlow ? 
+              (post.approvalFlow.status === 'approved' ? '承認プロセス完了' : '承認プロセス進行中') :
+              "高優先度案件のため承認が必要です"
+            }
           />
         )}
         
         {/* プロジェクト進捗（条件付き） */}
-        {post.projectStatus === 'active' && (
+        {(post.projectStatus === 'active' || post.enhancedProjectStatus) && (
           <UnifiedProgressBar
             type="project"
             title="プロジェクト進捗"
-            percentage={projectData.progress}
+            percentage={post.enhancedProjectStatus ? post.enhancedProjectStatus.resources.completion : projectData.progress}
             status="active"
-            quickInsights={[
+            quickInsights={post.enhancedProjectStatus ? [
+              `🏢 ${post.enhancedProjectStatus.level === 'DEPARTMENT' ? '部署内' : post.enhancedProjectStatus.level === 'FACILITY' ? '施設内' : '法人'}プロジェクト`,
+              `💰 予算${Math.round((post.enhancedProjectStatus.resources.budget_used / post.enhancedProjectStatus.resources.budget_total) * 100)}%使用`,
+              `👥 ${post.enhancedProjectStatus.resources.team_size}名参加`,
+              `⏱️ ${post.enhancedProjectStatus.timeline}`
+            ] : [
               '📅 予定通り',
               `💰 予算${Math.round((projectData.budget.used / projectData.budget.total) * 100)}%使用`,
               `👥 ${projectData.team}名参加`
             ]}
-            details={[
+            details={post.enhancedProjectStatus ? [
+              { label: '進捗率', value: `${post.enhancedProjectStatus.resources.completion}%`, trend: 'up' },
+              { label: '予算執行', value: `${(post.enhancedProjectStatus.resources.budget_used / 10000).toFixed(0)}万円`, trend: 'stable' },
+              { label: 'チーム規模', value: `${post.enhancedProjectStatus.resources.team_size}名` },
+              { label: '期間', value: post.enhancedProjectStatus.timeline }
+            ] : [
               { label: '進捗率', value: `${projectData.progress}%`, trend: 'up' },
               { label: '予算執行', value: `¥${projectData.budget.used.toLocaleString()}`, trend: 'stable' },
               { label: '経過期間', value: `${projectData.timeline.current}/${projectData.timeline.total}ヶ月` },
               { label: '次の節目', value: projectData.nextMilestone }
             ]}
-            detailsData={projectData}
-            description="順調に進行中"
+            detailsData={post.enhancedProjectStatus ? {
+              projectStatus: post.enhancedProjectStatus,
+              approvalFlow: post.approvalFlow,
+              tags: post.tags
+            } : projectData}
+            description={post.enhancedProjectStatus ? 
+              `${post.enhancedProjectStatus.level === 'DEPARTMENT' ? '部署内' : post.enhancedProjectStatus.level === 'FACILITY' ? '施設内' : '法人'}プロジェクトとして進行中` : 
+              "順調に進行中"
+            }
           />
         )}
       </div>

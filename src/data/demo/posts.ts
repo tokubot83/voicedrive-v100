@@ -1,6 +1,7 @@
 import { Post, PostType, AnonymityLevel, Priority, VoteOption, ProposalType, StakeholderCategory } from '../../types';
 import { demoUsers } from './users';
 import { generateSampleVotesByStakeholder } from '../../utils/votingCalculations';
+import { projectDemoPosts } from './projectDemoData';
 
 // Helper function to generate random votes
 const generateVotes = (): Record<VoteOption, number> => {
@@ -290,7 +291,10 @@ export const demoPosts: Post[] = [
     timestamp: new Date('2025-01-01T09:00:00'),
     votes: generateVotes(),
     comments: []
-  }
+  },
+  
+  // Add project-level demo posts
+  ...projectDemoPosts
 ];
 
 // Helper functions

@@ -10,6 +10,13 @@ export type StakeholderCategory = 'frontline' | 'management' | 'veteran' | 'zGen
 // Proposal types for improvement posts
 export type ProposalType = 'operational' | 'strategic' | 'innovation' | 'riskManagement' | 'communication';
 
+// Project levels for organization hierarchy
+export type ProjectLevel = 'DEPARTMENT' | 'FACILITY' | 'CORPORATE';
+export type ProjectStage = 'DEPARTMENT_PROJECT' | 'FACILITY_PROJECT' | 'CORPORATE_PROJECT';
+export type ApprovalLevel = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3' | 'LEVEL_4' | 'LEVEL_5';
+export type MilestoneStatus = 'completed' | 'in_progress' | 'pending';
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected' | 'in_progress';
+
 // Stakeholder weight configuration
 export interface StakeholderWeight {
   category: StakeholderCategory;
@@ -35,6 +42,8 @@ export interface User {
   role: string;
   avatar?: string;
   stakeholderCategory?: StakeholderCategory;
+  position?: string;
+  expertise?: number;
 }
 
 // Account types mapping to permission levels
@@ -91,15 +100,63 @@ export interface Post {
     completedDate?: string;
     outcomes?: string;
   };
+  // Enhanced project data for project-level posts
+  votingData?: VotingData;
+  enhancedProjectStatus?: EnhancedProjectStatus;
+  approvalFlow?: ApprovalFlow;
+  tags?: string[];
+  relatedProjects?: string[];
 }
 
 export interface ProjectMilestone {
   id: string;
   name: string;
   completed: boolean;
-  current?: boolean;
-  targetDate?: string;
-  completedDate?: string;
+}
+
+// Enhanced project status for project-level posts
+export interface EnhancedProjectStatus {
+  stage: ProjectStage;
+  level: ProjectLevel;
+  approvalLevel: ApprovalLevel;
+  budget: number;
+  timeline: string;
+  milestones: ProjectMilestoneExtended[];
+  resources: ProjectResources;
+}
+
+export interface ProjectMilestoneExtended {
+  name: string;
+  status: MilestoneStatus;
+  progress?: number;
+  date: string;
+}
+
+export interface ProjectResources {
+  budget_used: number;
+  budget_total: number;
+  team_size: number;
+  completion: number;
+}
+
+export interface ApprovalFlowHistory {
+  level: ApprovalLevel;
+  approver: string;
+  status: ApprovalStatus;
+  date: string | null;
+}
+
+export interface ApprovalFlow {
+  currentLevel: ApprovalLevel;
+  status: ApprovalStatus;
+  history: ApprovalFlowHistory[];
+}
+
+export interface VotingData {
+  totalVotes: number;
+  votes: Record<VoteOption, number>;
+  consensus: number;
+  participation: number;
 }
 
 export interface Comment {
