@@ -20,6 +20,7 @@ interface UnifiedProgressBarProps {
   detailsData?: any;
   lastUpdated?: Date;
   description?: string;
+  onDetailClick?: () => void;
 }
 
 const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
@@ -31,7 +32,8 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
   details = [],
   detailsData,
   lastUpdated,
-  description
+  description,
+  onDetailClick
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -129,7 +131,13 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
       {(details.length > 0 || detailsData) && (
         <>
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={() => {
+              if (type === 'approval' && onDetailClick) {
+                onDetailClick();
+              } else {
+                setIsExpanded(!isExpanded);
+              }
+            }}
             className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm font-medium"
           >
             {isExpanded ? (
