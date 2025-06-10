@@ -223,6 +223,23 @@ export const hierarchicalDemoUsers: DemoUser[] = [
     budgetApprovalLimit: getBudgetLimit('HR_DIRECTOR'),
     organizationPath: ['user-14', 'user-11']
   },
+  {
+    id: 'user-16',
+    name: '田村智恵',
+    department: '人財統括本部',
+    role: 'manager',
+    position: '人財統括本部統括管理部門長',
+    accountType: 'HR_DIRECTOR',
+    permissionLevel: 6,
+    email: 'tamura.chie@voicedrive.jp',
+    joinDate: new Date('2016-03-01'),
+    directReports: 30,
+    stakeholderCategory: 'management' as StakeholderCategory,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=tamura',
+    parent_id: 'user-14',
+    budgetApprovalLimit: getBudgetLimit('HR_DIRECTOR'),
+    organizationPath: ['user-14', 'user-16']
+  },
   
   // Level 7: EXECUTIVE_SECRETARY - Executive secretaries
   {
@@ -276,7 +293,7 @@ export const hierarchicalDemoUsers: DemoUser[] = [
     directReports: 8,
     stakeholderCategory: 'management' as StakeholderCategory,
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=morita',
-    children_ids: ['user-10', 'user-11', 'user-12', 'user-13', 'user-15'],
+    children_ids: ['user-10', 'user-11', 'user-12', 'user-13', 'user-15', 'user-16'],
     budgetApprovalLimit: getBudgetLimit('CHAIRMAN'),
     organizationPath: ['user-14']
   },

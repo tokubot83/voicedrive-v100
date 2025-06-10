@@ -3,6 +3,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { ROIAnalysisEngine, ProjectROI } from '../../analytics/engines/ROIAnalysisEngine';
 import { StrategicInsightsEngine, ExecutiveInsights } from '../../analytics/engines/StrategicInsightsEngine';
 import { PredictiveAnalytics, OrganizationalTrends } from '../../analytics/engines/PredictiveAnalytics';
+import { usePermissions } from '../../permissions/hooks/usePermissions';
+import { PermissionLevel } from '../../permissions/types/PermissionTypes';
+import { 
+  strategicInsightsDemoData, 
+  roiAnalyticsDemoData, 
+  benchmarkComparisonDemoData, 
+  riskAssessmentDemoData,
+  projectPipelineDemoData 
+} from '../../data/demo/strategicDemoData';
 
 interface AnalyticsData {
   roiAnalytics: {
@@ -63,6 +72,7 @@ export const useAnalytics = (
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { userLevel } = usePermissions();
   
   const roiEngine = new ROIAnalysisEngine();
   const insightsEngine = new StrategicInsightsEngine();
@@ -73,45 +83,115 @@ export const useAnalytics = (
       setLoading(true);
       setError(null);
       
-      // 並列でデータを取得
-      const [
-        executiveInsights,
-        organizationalTrends,
-        projectsData
-      ] = await Promise.all([
-        insightsEngine.generateExecutiveInsights(timeframe),
-        predictiveEngine.generateOrganizationalTrends(),
-        fetchProjectsData(timeframe)
-      ]);
-      
-      // ROI分析の実行
-      const roiResults = await Promise.all(
-        projectsData.map(project => roiEngine.calculateProjectROI(project))
-      );
-      
-      // データの集計と整形
-      const analyticsData: AnalyticsData = {
-        roiAnalytics: {
-          averageROI: calculateAverageROI(roiResults),
-          totalProjects: projectsData.length,
-          trend: determineTrend(roiResults),
-          projects: formatProjects(projectsData, roiResults),
-          historical: generateHistoricalData(timeframe)
-        },
-        strategicInsights: executiveInsights,
-        performanceMetrics: calculatePerformanceMetrics(projectsData, roiResults),
-        projectPipeline: generatePipelineData(projectsData),
-        organizationalTrends
-      };
-      
-      setData(analyticsData);
+      // レベル6以上の場合はリアルデータ、それ以外はデモデータ
+      if (userLevel >= PermissionLevel.LEVEL_6) {
+        // 並列でデータを取得
+        const [
+          executiveInsights,
+          organizationalTrends,
+          projectsData
+        ] = await Promise.all([
+          insightsEngine.generateExecutiveInsights(timeframe),
+          predictiveEngine.generateOrganizationalTrends(),
+          fetchProjectsData(timeframe)
+        ]);
+        
+        // ROI分析の実行
+        const roiResults = await Promise.all(
+          projectsData.map(project => roiEngine.calculateProjectROI(project))
+        );
+        
+        // データの集計と整形
+        const analyticsData: AnalyticsData = {
+          roiAnalytics: {
+            averageROI: calculateAverageROI(roiResults),
+            totalProjects: projectsData.length,
+            trend: determineTrend(roiResults),
+            projects: formatProjects(projectsData, roiResults),
+            historical: generateHistoricalData(timeframe)
+          },
+          strategicInsights: executiveInsights,
+          performanceMetrics: calculatePerformanceMetrics(projectsData, roiResults),
+          projectPipeline: generatePipelineData(projectsData),
+          organizationalTrends
+        };
+        
+        setData(analyticsData);
+      } else {
+        // レベル6未満の場合はデモデータを使用
+        const analyticsData: AnalyticsData = {
+          roiAnalytics: {
+            ...roiAnalyticsDemoData,
+            historical: generateHistoricalData(timeframe)
+          },
+          strategicInsights: {
+            executiveSummary: '戦略的機会を分析中',
+            strategicRecommendations: strategicInsightsDemoData.recommendations,
+            riskAssessment: {
+              overallRiskScore: 2.8,
+              riskBreakdown: {
+                implementationRisks: riskAssessmentDemoData.filter(r => r.category === 'セキュリティ'),
+                financialRisks: riskAssessmentDemoData.filter(r => r.category === '財務'),
+                operationalRisks: riskAssessmentDemoData.filter(r => r.category === '技術'),
+                strategicRisks: riskAssessmentDemoData.filter(r => r.category === '事業')
+              },
+              mitigationStrategies: [],
+              monitoringMetrics: []
+            },
+            futureProjections: [],
+            benchmarkComparison: benchmarkComparisonDemoData,
+            actionableInsights: strategicInsightsDemoData.keyFindings.map((finding, index) => ({
+              id: `insight-${index}`,
+              insight: finding,
+              priority: 'HIGH',
+              category: 'STRATEGIC',
+              confidence: 0.85 + Math.random() * 0.1
+            }))
+          },
+          performanceMetrics: {
+            efficiencyGain: 28.5,
+            successRate: 89.2,
+            annualSavings: 850000000,
+            qualityImprovement: 35.8,
+            timeToValue: 6.2,
+            employeeSatisfaction: 78.4
+          },
+          projectPipeline: {
+            total: projectPipelineDemoData.projectCount,
+            byStage: {
+              proposal: projectPipelineDemoData.stages.planning.count,
+              approval: projectPipelineDemoData.stages.execution.count,
+              implementation: projectPipelineDemoData.stages.monitoring.count,
+              completed: projectPipelineDemoData.stages.completed.count
+            },
+            upcoming: [
+              {
+                id: 'upcoming-1',
+                name: 'デジタル変革プログラム',
+                stage: 'planning',
+                expectedROI: 245,
+                daysUntilStart: 14
+              },
+              {
+                id: 'upcoming-2', 
+                name: 'AIアナリティクス導入',
+                stage: 'approval',
+                expectedROI: 192,
+                daysUntilStart: 7
+              }
+            ]
+          }
+        };
+        
+        setData(analyticsData);
+      }
       
     } catch (err) {
       setError(err instanceof Error ? err.message : '分析データの取得に失敗しました');
     } finally {
       setLoading(false);
     }
-  }, [timeframe, roiEngine, insightsEngine, predictiveEngine]);
+  }, [timeframe, userLevel, roiEngine, insightsEngine, predictiveEngine]);
   
   useEffect(() => {
     fetchAnalyticsData();
