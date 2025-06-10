@@ -1,6 +1,9 @@
 /* ワークフロー関連のスタイルをインポート */
 @import './styles/workflow.css';
 
+/* 権限ゲート関連のスタイルをインポート */
+@import './styles/permission-gates.css';
+
 /* 分析・ダッシュボード関連のスタイルをインポート */
 @import './styles/analytics.css';
 

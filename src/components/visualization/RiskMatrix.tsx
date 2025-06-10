@@ -1,10 +1,30 @@
 import React from 'react';
+import { usePermissions } from '../../permissions/hooks/usePermissions';
+import { PermissionLevel } from '../../permissions/types/PermissionTypes';
 
 interface RiskAssessmentMatrixProps {
   risks?: any[];
 }
 
 const RiskAssessmentMatrix: React.FC<RiskAssessmentMatrixProps> = ({ risks = [] }) => {
+  const { userLevel } = usePermissions();
+  
+  // レベル6以上のアカウントのみアクセス可能
+  if (userLevel < PermissionLevel.LEVEL_6) {
+    return (
+      <div className="bg-gray-800 rounded-lg p-4">
+        <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+          <span>🔒</span>
+          リスク評価マトリックス
+        </h3>
+        <div className="permission-notice">
+          <p className="text-gray-400">この機能はレベル6以上のアカウントでご利用いただけます</p>
+          <p className="text-gray-500 text-sm">人財統括本部統括管理部門長以上の権限が必要です</p>
+        </div>
+      </div>
+    );
+  }
+  
   const defaultRisks = [
     { name: '予算超過', impact: 3, probability: 2, color: 'bg-yellow-500' },
     { name: '期限遅延', impact: 2, probability: 3, color: 'bg-orange-500' },

@@ -1,5 +1,7 @@
 // ROI分析カードコンポーネント - Phase 3 実装
 import React, { useState } from 'react';
+import { usePermissions } from '../../permissions/hooks/usePermissions';
+import { PermissionLevel } from '../../permissions/types/PermissionTypes';
 
 interface ROIAnalyticsCardProps {
   data: {
@@ -19,6 +21,25 @@ interface ROIAnalyticsCardProps {
 
 const ROIAnalyticsCard: React.FC<ROIAnalyticsCardProps> = ({ data }) => {
   const [showDetails, setShowDetails] = useState(false);
+  const { userLevel } = usePermissions();
+  
+  // レベル6以上のアカウントのみアクセス可能
+  if (userLevel < PermissionLevel.LEVEL_6) {
+    return (
+      <div className="analytics-card roi-analysis">
+        <div className="card-header">
+          <span className="card-icon">🔒</span>
+          <span className="card-title">ROI分析</span>
+        </div>
+        <div className="card-content">
+          <div className="permission-notice">
+            <p className="notice-text">この機能はレベル6以上のアカウントでご利用いただけます</p>
+            <p className="notice-subtext">人財統括本部統括管理部門長以上の権限が必要です</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   const topPerformers = data.projects
     .sort((a, b) => b.roi - a.roi)

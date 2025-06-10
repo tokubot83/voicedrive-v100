@@ -1,0 +1,63 @@
+/* Permission Gate Styles */
+
+.permission-notice {
+  @apply text-center py-8 px-4;
+}
+
+.permission-notice .notice-text {
+  @apply text-gray-300 text-lg font-medium mb-2;
+}
+
+.permission-notice .notice-subtext {
+  @apply text-gray-500 text-sm;
+}
+
+.permission-gate {
+  @apply bg-gray-800/50 rounded-xl p-8 backdrop-blur border border-gray-700/50 text-center;
+}
+
+.permission-gate .permission-icon {
+  @apply text-6xl mb-4;
+}
+
+.permission-gate h3 {
+  @apply text-xl font-bold text-white mb-2;
+}
+
+.permission-gate p {
+  @apply text-gray-400 mb-4;
+}
+
+.permission-gate .btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors;
+}
+
+/* Dashboard-specific permission styling */
+.analytics-card .permission-notice {
+  @apply py-6;
+}
+
+.analytics-card .card-header .card-icon {
+  @apply opacity-50;
+}
+
+.analytics-card.locked {
+  @apply opacity-75;
+}
+
+/* Level indicator badges */
+.level-badge {
+  @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.level-badge.level-6 {
+  @apply bg-purple-900/50 text-purple-300 border border-purple-700/50;
+}
+
+.level-badge.level-7 {
+  @apply bg-indigo-900/50 text-indigo-300 border border-indigo-700/50;
+}
+
+.level-badge.level-8 {
+  @apply bg-violet-900/50 text-violet-300 border border-violet-700/50;
+}
