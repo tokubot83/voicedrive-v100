@@ -39,6 +39,11 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
   ];
 
   const handleCardClick = (type: PostType) => {
+    if (type === 'report') {
+      // 公益通報の場合は専用ページに遷移
+      window.location.href = '/whistleblowing';
+      return;
+    }
     setSelectedPostType(type);
     setShowForm(true);
   };

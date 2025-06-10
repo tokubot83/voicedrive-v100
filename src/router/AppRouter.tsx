@@ -51,6 +51,9 @@ import { HierarchyDemo } from '../components/demo/HierarchyDemo';
 // Analytics
 import ExecutiveDashboard from '../components/analytics/ExecutiveDashboard';
 
+// Whistleblowing
+import WhistleblowingPage from '../pages/WhistleblowingPage';
+
 // Error pages
 import NotFoundPage from '../pages/NotFoundPage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
@@ -247,6 +250,9 @@ const AppRouter: React.FC = () => {
             <ExecutiveDashboard />
           </ProtectedRoute>
         } />
+        
+        {/* Whistleblowing System - All users can access (internal permission handling) */}
+        <Route path="whistleblowing" element={<WhistleblowingPage />} />
         
         {/* Common pages */}
         <Route path="notifications" element={<NotificationsPage />} />
