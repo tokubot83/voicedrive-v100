@@ -3,7 +3,6 @@ import { Post, VoteOption } from '../types';
 import UnifiedProgressBar from './UnifiedProgressBar';
 import { ConsensusInsightGenerator } from '../utils/consensusInsights';
 import { MessageCircle } from 'lucide-react';
-import ApprovalProcessModal from './approval/ApprovalProcessModal';
 
 interface VotingSectionProps {
   post: Post;
@@ -20,7 +19,6 @@ const VotingSection: React.FC<VotingSectionProps> = ({
 }) => {
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(userVote || null);
   const [isVoting, setIsVoting] = useState(false);
-  const [showApprovalDetails, setShowApprovalDetails] = useState(false);
 
   // 合意形成データの計算
   const consensusData = ConsensusInsightGenerator.calculateSimpleConsensus(post.votes);
@@ -112,12 +110,11 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               { label: '承認者', value: approvalData.approvers.join(', ') },
               { label: '期限', value: approvalData.deadline.toLocaleDateString('ja-JP') }
             ]}
-            detailsData={post.approvalFlow || approvalData}
+            detailsData={{ post, ...(post.approvalFlow || approvalData) }}
             description={post.approvalFlow ? 
               (post.approvalFlow.status === 'approved' ? '承認プロセス完了' : '承認プロセス進行中') :
               "高優先度案件のため承認が必要です"
             }
-            onDetailClick={() => setShowApprovalDetails(true)}
           />
         )}
         
@@ -247,13 +244,6 @@ const VotingSection: React.FC<VotingSectionProps> = ({
           </button>
         </div>
       </div>
-
-      {/* 承認プロセス詳細モーダル */}
-      <ApprovalProcessModal
-        post={post}
-        isOpen={showApprovalDetails}
-        onClose={() => setShowApprovalDetails(false)}
-      />
     </div>
   );
 };

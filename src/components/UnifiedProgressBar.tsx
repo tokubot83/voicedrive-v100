@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, Users, CheckCircle, Briefcase, TrendingUp, Cloc
 import CircularProgress from './CircularProgress';
 import ConsensusDetails from './details/ConsensusDetails';
 import ProjectDetails from './details/ProjectDetails';
+import ApprovalProcessInlineDetails from './approval/ApprovalProcessInlineDetails';
 
 interface ProgressDetail {
   label: string;
@@ -131,13 +132,7 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
       {(details.length > 0 || detailsData) && (
         <>
           <button
-            onClick={() => {
-              if (type === 'approval' && onDetailClick) {
-                onDetailClick();
-              } else {
-                setIsExpanded(!isExpanded);
-              }
-            }}
+            onClick={() => setIsExpanded(!isExpanded)}
             className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm font-medium"
           >
             {isExpanded ? (
@@ -153,16 +148,14 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
             )}
           </button>
 
-          {isExpanded && (
+          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+          }`}>
             <div className="mt-4 pt-4 border-t border-gray-700">
               {detailsData ? (
                 <>
                   {type === 'consensus' && <ConsensusDetails data={detailsData} />}
-                  {type === 'approval' && (
-                    <div className="text-center p-4">
-                      <p className="text-gray-400">承認詳細は統一ステータス表示に統合されました</p>
-                    </div>
-                  )}
+                  {type === 'approval' && <ApprovalProcessInlineDetails post={detailsData.post || detailsData} />}
                   {type === 'project' && <ProjectDetails data={detailsData} />}
                 </>
               ) : (
@@ -191,7 +184,7 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
                 </div>
               )}
             </div>
-          )}
+          </div>
         </>
       )}
 
