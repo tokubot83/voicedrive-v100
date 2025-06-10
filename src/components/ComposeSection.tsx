@@ -24,8 +24,8 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
     },
     {
       type: 'community' as PostType,
-      icon: '👥',
-      title: 'コミュニティ',
+      icon: '💬',
+      title: 'フリースペース',
       description: '情報共有・相談・雑談で チームの絆を深める',
       features: ['カジュアル', '双方向性', 'リアルタイム'],
       color: 'from-blue-500 to-blue-600',

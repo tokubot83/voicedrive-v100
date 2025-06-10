@@ -55,7 +55,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       placeholder: '例: 夜勤シフトの負担軽減のため、3交代制から2交代制への移行を提案します。',
     },
     community: {
-      title: '👥 コミュニティ投稿を入力してください',
+      title: '💬 フリースペース投稿を入力してください',
       description: '情報共有・質問・相談など、自由に投稿してください',
       placeholder: '例: 新しい医療機器の使用方法について、皆さんの経験を教えてください。',
     },
@@ -392,7 +392,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
           <div className="bg-white/5 border border-gray-800/30 rounded-2xl p-5 mb-6">
             <div className="flex items-center gap-3 mb-4">
               <span className="px-3 py-1 rounded-xl text-xs font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white">
-                {selectedType === 'improvement' ? '💡 改善提案' : selectedType === 'community' ? '👥 コミュニティ' : '🚨 公益通報'}
+                {selectedType === 'improvement' ? '💡 改善提案' : selectedType === 'community' ? '💬 フリースペース' : '🚨 公益通報'}
               </span>
               {selectedType === 'improvement' && (
                 <span className={`px-2 py-1 rounded-lg text-xs font-bold ${proposalTypes.find(t => t.type === proposalType)?.borderColor.replace('border-', 'bg-').replace('500', '500/20')} ${proposalTypes.find(t => t.type === proposalType)?.borderColor.replace('border-', 'text-')}`}>

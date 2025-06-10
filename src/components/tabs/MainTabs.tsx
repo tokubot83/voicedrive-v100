@@ -11,7 +11,7 @@ interface MainTabsProps {
 export const mainTabs: MainTab[] = [
   { id: 'home', label: 'ホーム', icon: '🏠', hasSubFilters: false },
   { id: 'improvement', label: '改善提案', icon: '💡', hasSubFilters: true },
-  { id: 'community', label: 'コミュニティ', icon: '👥', hasSubFilters: true },
+  { id: 'community', label: 'フリースペース', icon: '💬', hasSubFilters: true },
   { id: 'whistleblowing', label: '公益通報', icon: '🚨', hasSubFilters: true },
   { id: 'urgent', label: '緊急', icon: '🔥', hasSubFilters: false },
   { id: 'projects', label: 'プロジェクト', icon: '🚀', hasSubFilters: true }
