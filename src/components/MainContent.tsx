@@ -3,7 +3,7 @@ import Header from './Header';
 import VotingSection from './VotingSection';
 import AuthorityDashboard from './authority/AuthorityDashboard';
 import PersonalDashboard from './dashboards/PersonalDashboard';
-import { Post, VoteOption } from '../types';
+import { Post, VoteOption, User } from '../types';
 import TeamLeaderDashboard from './dashboards/TeamLeaderDashboard';
 import DepartmentDashboard from './dashboards/DepartmentDashboard';
 import FacilityDashboard from './dashboards/FacilityDashboard';
@@ -13,6 +13,7 @@ import CorporateDashboard from './dashboards/CorporateDashboard';
 import ExecutiveLevelDashboard from './dashboards/ExecutiveLevelDashboard';
 import { PostType } from '../types';
 import { useTabContext } from './tabs/TabContext';
+import { useDemoMode } from './demo/DemoModeController';
 
 interface MainContentProps {
   currentPage: string;
@@ -24,6 +25,7 @@ interface MainContentProps {
 const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggleSidebar }: MainContentProps) => {
   const { tabState, getFilteredPosts } = useTabContext();
   const { activeMainTab } = tabState;
+  const { currentUser } = useDemoMode();
 
   // Sample post data for unified status display
   const samplePost: Post = {
@@ -99,6 +101,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
                 {/* Voting Section */}
                 <VotingSection
                   post={samplePost}
+                  currentUser={currentUser}
                   onVote={handleVote}
                   onComment={handleComment}
                 />
@@ -164,6 +167,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
                   <div key={post.id} className="bg-black/20 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
                     <VotingSection
                       post={post}
+                      currentUser={currentUser}
                       onVote={handleVote}
                       onComment={handleComment}
                     />
@@ -187,6 +191,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
                 <VotingSection
                   key={post.id}
                   post={post}
+                  currentUser={currentUser}
                   onVote={handleVote}
                   onComment={handleComment}
                 />
@@ -208,6 +213,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
                 <VotingSection
                   key={post.id}
                   post={post}
+                  currentUser={currentUser}
                   onVote={handleVote}
                   onComment={handleComment}
                 />
@@ -229,6 +235,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
                 <VotingSection
                   key={post.id}
                   post={post}
+                  currentUser={currentUser}
                   onVote={handleVote}
                   onComment={handleComment}
                 />
@@ -250,6 +257,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
                 <VotingSection
                   key={post.id}
                   post={post}
+                  currentUser={currentUser}
                   onVote={handleVote}
                   onComment={handleComment}
                 />

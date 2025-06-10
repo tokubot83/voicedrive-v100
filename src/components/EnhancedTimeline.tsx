@@ -2,16 +2,17 @@ import { useState } from 'react';
 import EnhancedPost from './EnhancedPost';
 import ActiveProjectCard from './ActiveProjectCard';
 import CompletedProjectCard from './CompletedProjectCard';
-import { Post, VoteOption } from '../types';
+import { Post, VoteOption, User } from '../types';
 
 interface EnhancedTimelineProps {
   posts: Post[];
   activeTab: string;
+  currentUser: User;
   onVote: (postId: string, option: VoteOption) => void;
   onComment: (postId: string) => void;
 }
 
-const EnhancedTimeline = ({ posts, activeTab, onVote, onComment }: EnhancedTimelineProps) => {
+const EnhancedTimeline = ({ posts, activeTab, currentUser, onVote, onComment }: EnhancedTimelineProps) => {
   const [improvementSubTab, setImprovementSubTab] = useState<'proposals' | 'progress' | 'active' | 'completed'>('proposals');
 
   // 改善提案タブのサブタブ
@@ -116,6 +117,7 @@ const EnhancedTimeline = ({ posts, activeTab, onVote, onComment }: EnhancedTimel
                 <EnhancedPost
                   key={post.id}
                   post={post}
+                  currentUser={currentUser}
                   onVote={onVote}
                   onComment={onComment}
                 />

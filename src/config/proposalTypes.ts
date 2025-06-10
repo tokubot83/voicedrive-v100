@@ -1,4 +1,4 @@
-import { ProposalTypeConfig, ProposalType } from '../types';
+import { ProposalTypeConfig, ProposalType, CommentPrivacyLevel } from '../types';
 
 export const proposalTypeConfigs: Record<ProposalType, ProposalTypeConfig> = {
   operational: {
@@ -73,3 +73,16 @@ export const getProposalTypeConfig = (type: ProposalType): ProposalTypeConfig =>
 };
 
 export const proposalTypes = Object.values(proposalTypeConfigs);
+
+// Comment privacy level configuration for each proposal type
+export const commentPrivacyConfig: Record<ProposalType, CommentPrivacyLevel> = {
+  operational: 'partial',      // 部分匿名（所属施設・職種・経験年数）
+  strategic: 'selective',      // 段階的実名（管理職は実名、その他は部分匿名）
+  innovation: 'partial',       // 選択式（デフォルトは部分匿名）
+  riskManagement: 'full',      // 実名制
+  communication: 'anonymous'   // 完全匿名
+};
+
+export const getCommentPrivacyLevel = (proposalType: ProposalType): CommentPrivacyLevel => {
+  return commentPrivacyConfig[proposalType];
+};

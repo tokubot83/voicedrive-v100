@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Post, VoteOption } from '../types';
+import { Post, VoteOption, User } from '../types';
 import UnifiedProgressBar from './UnifiedProgressBar';
 import { ConsensusInsightGenerator } from '../utils/consensusInsights';
 import { MessageCircle } from 'lucide-react';
 
 interface VotingSectionProps {
   post: Post;
+  currentUser?: User;
   onVote: (postId: string, option: VoteOption) => void;
   onComment: (postId: string) => void;
   userVote?: VoteOption;
@@ -13,6 +14,7 @@ interface VotingSectionProps {
 
 const VotingSection: React.FC<VotingSectionProps> = ({ 
   post, 
+  currentUser,
   onVote, 
   onComment,
   userVote 

@@ -185,6 +185,7 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
         <EnhancedPost
           key={post.id}
           post={post}
+          currentUser={currentUser}
           onVote={handleVote}
           onComment={handleComment}
         />

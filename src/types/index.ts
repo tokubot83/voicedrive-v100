@@ -159,13 +159,23 @@ export interface VotingData {
   participation: number;
 }
 
+// Comment privacy levels based on proposal category
+export type CommentPrivacyLevel = 'anonymous' | 'partial' | 'selective' | 'full';
+
 export interface Comment {
   id: string;
   postId: string;
   content: string;
   author: User;
   anonymityLevel: AnonymityLevel;
+  privacyLevel: CommentPrivacyLevel;
   timestamp: Date;
+  visibleInfo?: {
+    facility?: string;
+    position?: string;
+    experienceYears?: number;
+    isManagement?: boolean;
+  };
 }
 
 export interface ComposeFormData {

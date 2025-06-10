@@ -1,4 +1,4 @@
-import { Post, PostType, AnonymityLevel, Priority, VoteOption, ProposalType, StakeholderCategory } from '../../types';
+import { Post, PostType, AnonymityLevel, Priority, VoteOption, ProposalType, StakeholderCategory, Comment, CommentPrivacyLevel } from '../../types';
 import { demoUsers } from './users';
 import { generateSampleVotesByStakeholder } from '../../utils/votingCalculations';
 import { projectDemoPosts } from './projectDemoData';
@@ -13,6 +13,88 @@ const generateVotes = (): Record<VoteOption, number> => {
     'support': Math.floor(Math.random() * baseVotes * 0.3),
     'strongly-support': Math.floor(Math.random() * baseVotes * 0.15),
   };
+};
+
+// Helper function to generate sample comments
+const generateSampleComments = (postId: string, count: number = 2): Comment[] => {
+  const sampleComments = [
+    {
+      content: '素晴らしい提案だと思います。特に新入社員の早期戦力化は重要な課題です。実施時期はいつ頃を想定されていますか？',
+      author: demoUsers[5], // HR staff
+      privacyLevel: 'partial' as CommentPrivacyLevel,
+      anonymityLevel: 'department' as AnonymityLevel,
+    },
+    {
+      content: 'ペアプログラミングは確かに効果的ですが、先輩社員の負担も考慮する必要があります。専用の研修担当者の配置も検討してはどうでしょうか。',
+      author: demoUsers[3], // Team leader
+      privacyLevel: 'full' as CommentPrivacyLevel,
+      anonymityLevel: 'real' as AnonymityLevel,
+    },
+    {
+      content: '予算的な観点から見ると、OJTの時間を増やすことで業務効率が一時的に下がる可能性があります。ROIの試算はありますか？',
+      author: demoUsers[6], // Manager
+      privacyLevel: 'selective' as CommentPrivacyLevel,
+      anonymityLevel: 'real' as AnonymityLevel,
+    },
+    {
+      content: '現場の声として、新入社員のスキルアップは確実に必要です。座学よりも実践的な研修を支持します。',
+      author: demoUsers[1], // Staff
+      privacyLevel: 'anonymous' as CommentPrivacyLevel,
+      anonymityLevel: 'anonymous' as AnonymityLevel,
+    },
+    {
+      content: '他社での同様の取り組み事例も参考にしてはいかがでしょうか。ベンチマーキングを行うことで、より効果的な研修プログラムが作れると思います。',
+      author: demoUsers[8], // Senior staff
+      privacyLevel: 'partial' as CommentPrivacyLevel,
+      anonymityLevel: 'department' as AnonymityLevel,
+    },
+    {
+      content: '参加します！新しいメンバーとの交流を楽しみにしています。',
+      author: demoUsers[2], // Staff
+      privacyLevel: 'full' as CommentPrivacyLevel,
+      anonymityLevel: 'real' as AnonymityLevel,
+    },
+    {
+      content: '私も同じ問題を感じていました。特に午後3時以降が暑すぎて集中できません。ぜひ改善していただきたいです。',
+      author: demoUsers[4], // Staff
+      privacyLevel: 'partial' as CommentPrivacyLevel,
+      anonymityLevel: 'department' as AnonymityLevel,
+    },
+    {
+      content: '技術的な観点から、ゾーン制御は可能ですが初期費用がかかります。段階的な実施も検討してはいかがでしょうか。',
+      author: demoUsers[7], // Technical staff
+      privacyLevel: 'full' as CommentPrivacyLevel,
+      anonymityLevel: 'real' as AnonymityLevel,
+    },
+    {
+      content: '環境改善は生産性向上に直結します。コスト面での詳細な検討資料があれば判断しやすくなります。',
+      author: demoUsers[9], // Manager
+      privacyLevel: 'selective' as CommentPrivacyLevel,
+      anonymityLevel: 'real' as AnonymityLevel,
+    },
+    {
+      content: 'データを収集して効果を測定することも重要だと思います。温度ログと生産性指標の相関を調べてみてはどうでしょうか。',
+      author: demoUsers[11], // Analyst
+      privacyLevel: 'partial' as CommentPrivacyLevel,
+      anonymityLevel: 'department' as AnonymityLevel,
+    },
+  ];
+
+  return sampleComments.slice(0, count).map((comment, index) => ({
+    id: `comment-${postId}-${index + 1}`,
+    postId: postId,
+    content: comment.content,
+    author: comment.author,
+    anonymityLevel: comment.anonymityLevel,
+    privacyLevel: comment.privacyLevel,
+    timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Random time within last week
+    visibleInfo: comment.privacyLevel !== 'anonymous' ? {
+      facility: comment.author.department,
+      position: comment.author.role,
+      experienceYears: comment.author.expertise || Math.floor(Math.random() * 15) + 1,
+      isManagement: comment.author.role.includes('管理') || comment.author.role.includes('主任') || comment.author.role.includes('長')
+    } : undefined,
+  }));
 };
 
 // Seasonal posts based on Japanese fiscal year and seasons
@@ -41,7 +123,7 @@ export const demoPosts: Post[] = [
       'support': 15,
       'strongly-support': 8,
     }),
-    comments: [],
+    comments: generateSampleComments('post-1', 3),
     projectId: 'proj-001',
     approver: demoUsers[10],
     projectStatus: {
@@ -59,7 +141,7 @@ export const demoPosts: Post[] = [
     anonymityLevel: 'real',
     timestamp: new Date('2024-04-10T14:20:00'),
     votes: generateVotes(),
-    comments: []
+    comments: generateSampleComments('post-2', 2)
   },
   
   // Summer (June-August) - Heat measures, productivity
@@ -86,7 +168,7 @@ export const demoPosts: Post[] = [
       'support': 12,
       'strongly-support': 6,
     }),
-    comments: [],
+    comments: generateSampleComments('post-3', 2),
     projectStatus: {
       stage: 'approaching',
       score: 185,
@@ -103,7 +185,7 @@ export const demoPosts: Post[] = [
     priority: 'high',
     timestamp: new Date('2024-07-05T10:00:00'),
     votes: generateVotes(),
-    comments: []
+    comments: generateSampleComments('post-4', 2)
   },
   {
     id: 'post-5',
@@ -115,7 +197,7 @@ export const demoPosts: Post[] = [
     priority: 'medium',
     timestamp: new Date('2024-07-25T13:30:00'),
     votes: generateVotes(),
-    comments: []
+    comments: generateSampleComments('post-5', 3)
   },
   
   // Autumn (September-November) - Mid-year reviews, planning

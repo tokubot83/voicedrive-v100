@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import VotingSection from './VotingSection';
-import { Post as PostType, VoteOption } from '../types';
+import { Post as PostType, VoteOption, User } from '../types';
 
 interface EnhancedPostProps {
   post: PostType;
+  currentUser: User;
   onVote: (postId: string, option: VoteOption) => void;
   onComment: (postId: string) => void;
 }
 
-const EnhancedPost = ({ post, onVote, onComment }: EnhancedPostProps) => {
+const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProps) => {
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(null);
 
   const getAuthorDisplay = () => {
@@ -105,6 +106,7 @@ const EnhancedPost = ({ post, onVote, onComment }: EnhancedPostProps) => {
               {/* 統一ステータス表示と最適化された投票UI */}
               <VotingSection
                 post={post}
+                currentUser={currentUser}
                 onVote={onVote}
                 onComment={onComment}
                 userVote={selectedVote}

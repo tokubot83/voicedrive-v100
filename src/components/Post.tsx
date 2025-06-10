@@ -1,20 +1,25 @@
 import { useState, useEffect } from 'react';
 import VotingSystem from './VotingSystem';
 import EnhancedVotingSystem from './EnhancedVotingSystem';
-import { Post as PostType, VoteOption } from '../types';
+import CommentForm from './CommentForm';
+import CommentList from './CommentList';
+import { Post as PostType, VoteOption, Comment, User } from '../types';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 import { generateSampleVotesByStakeholder } from '../utils/votingCalculations';
 import { proposalTypeConfigs } from '../config/proposalTypes';
 
 interface PostProps {
   post: PostType;
+  currentUser: User;
   onVote: (postId: string, option: VoteOption) => void;
-  onComment: (postId: string) => void;
+  onComment: (postId: string, comment: Omit<Comment, 'id' | 'timestamp'>) => void;
 }
 
-const Post = ({ post, onVote, onComment }: PostProps) => {
+const Post = ({ post, currentUser, onVote, onComment }: PostProps) => {
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(null);
   const [showWorkflow, setShowWorkflow] = useState(false);
+  const [showCommentForm, setShowCommentForm] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const { calculateScore, getStatusConfig, convertVotesToEngagements } = useProjectScoring();
   
   // プロジェクトスコアを計算してワークフロー表示を判定
@@ -82,6 +87,19 @@ const Post = ({ post, onVote, onComment }: PostProps) => {
     onVote(post.id, option);
   };
 
+  const handleCommentSubmit = (comment: Omit<Comment, 'id' | 'timestamp'>) => {
+    onComment(post.id, comment);
+    setShowCommentForm(false);
+  };
+
+  const handleCommentClick = () => {
+    if (post.comments.length > 0) {
+      setShowComments(!showComments);
+    } else {
+      setShowCommentForm(true);
+    }
+  };
+
   return (
     <div className="border-b border-gray-800/30 p-5 transition-all duration-300 hover:bg-white/2 hover:shadow-[inset_0_0_20px_rgba(29,155,240,0.1)]">
       <div className="flex gap-3">
@@ -146,18 +164,52 @@ const Post = ({ post, onVote, onComment }: PostProps) => {
           )}
           
           <div className="mt-5">
-            <button
-              onClick={() => onComment(post.id)}
-              className="flex items-center gap-3 px-6 py-4 bg-gradient-to-br from-blue-500/8 to-purple-500/8 border border-blue-500/20 text-blue-400 rounded-2xl transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-500/15 hover:to-purple-500/15 hover:border-blue-500/40 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(29,155,240,0.2)] group"
-            >
-              <span className="text-xl drop-shadow-[0_0_8px_rgba(29,155,240,0.5)] group-hover:animate-float">
-                💬
-              </span>
-              <span className="font-medium">コメントする</span>
-              <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-xl font-bold text-sm">
-                {post.comments.length}
-              </span>
-            </button>
+            <div className="flex items-center gap-3 mb-4">
+              <button
+                onClick={handleCommentClick}
+                className="flex items-center gap-3 px-6 py-4 bg-gradient-to-br from-blue-500/8 to-purple-500/8 border border-blue-500/20 text-blue-400 rounded-2xl transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-500/15 hover:to-purple-500/15 hover:border-blue-500/40 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(29,155,240,0.2)] group"
+              >
+                <span className="text-xl drop-shadow-[0_0_8px_rgba(29,155,240,0.5)] group-hover:animate-float">
+                  💬
+                </span>
+                <span className="font-medium">
+                  {post.comments.length > 0 ? 'コメントを見る' : 'コメントする'}
+                </span>
+                <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-xl font-bold text-sm">
+                  {post.comments.length}
+                </span>
+              </button>
+              
+              {post.comments.length > 0 && !showCommentForm && (
+                <button
+                  onClick={() => setShowCommentForm(true)}
+                  className="px-4 py-2 text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium"
+                >
+                  + 新しいコメント
+                </button>
+              )}
+            </div>
+
+            {showCommentForm && (
+              <div className="mb-4">
+                <CommentForm
+                  postId={post.id}
+                  proposalType={post.proposalType}
+                  currentUser={currentUser}
+                  onSubmit={handleCommentSubmit}
+                  onCancel={() => setShowCommentForm(false)}
+                />
+              </div>
+            )}
+
+            {showComments && post.comments.length > 0 && (
+              <div className="mt-4">
+                <CommentList
+                  comments={post.comments}
+                  currentUser={currentUser}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
