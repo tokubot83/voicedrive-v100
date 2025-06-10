@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, Filter, Plus, Calendar, Users, TrendingUp, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { usePermissions } from '../hooks/usePermissions';
 import { useDemoMode } from '../components/demo/DemoModeController';
+import Header from '../components/Header';
 
 interface Project {
   id: string;
@@ -19,11 +21,30 @@ interface Project {
 }
 
 const ProjectListPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { hasPermission } = usePermissions();
   const { currentUser } = useDemoMode();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'completed' | 'proposed'>('all');
   const [filterCategory, setFilterCategory] = useState<'all' | 'improvement' | 'community' | 'facility' | 'system'>('all');
+
+  // URLパラメータから初期フィルターを設定
+  useEffect(() => {
+    const filter = searchParams.get('filter');
+    
+    // サブフィルターに応じてフィルターを設定
+    if (filter === 'active') {
+      setFilterStatus('active');
+    } else if (filter === 'completed') {
+      setFilterStatus('completed');
+    } else if (filter === 'department') {
+      setFilterCategory('improvement'); // 部署内プロジェクトは主に改善提案から
+    } else if (filter === 'facility') {
+      setFilterCategory('facility');
+    } else if (filter === 'corporate') {
+      setFilterCategory('system'); // 法人レベルはシステム系
+    }
+  }, [searchParams]);
 
   // Mock projects data
   const projects: Project[] = [
@@ -168,7 +189,15 @@ const ProjectListPage: React.FC = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <Header 
+        currentTab="projects"
+        setCurrentTab={() => {}}
+        currentFilter={searchParams.get('filter') || 'all'}
+        setCurrentFilter={() => {}}
+        toggleSidebar={() => {}}
+      />
+      <div className="pt-20 p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -321,6 +350,7 @@ const ProjectListPage: React.FC = () => {
           <p className="text-gray-500">該当するプロジェクトが見つかりません</p>
         </div>
       )}
+      </div>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SubFilter } from '../../types/tabs';
 
 interface SubFiltersProps {
@@ -38,8 +39,24 @@ export const SubFilters: React.FC<SubFiltersProps> = ({
   activeFilter, 
   onFilterChange 
 }) => {
+  const navigate = useNavigate();
+  
   // 現在のタブに対応するサブフィルターを取得
   const currentFilters = subFilters.filter(filter => filter.parentTab === parentTab);
+
+  const handleFilterClick = (filterId: string) => {
+    if (parentTab === 'projects') {
+      // プロジェクトページの場合はプロジェクトページ内でフィルター
+      navigate(`/projects?filter=${filterId}`);
+    } else if (parentTab === 'whistleblowing') {
+      // 公益通報の場合は専用ページに遷移
+      navigate('/whistleblowing');
+    } else {
+      // その他はホームページでタブとフィルターを適用
+      navigate(`/?tab=${parentTab}&filter=${filterId}`);
+    }
+    onFilterChange(filterId);
+  };
   
   if (currentFilters.length === 0) {
     return null;
@@ -55,7 +72,7 @@ export const SubFilters: React.FC<SubFiltersProps> = ({
           return (
             <button
               key={uniqueKey}
-              onClick={() => onFilterChange(filter.id)}
+              onClick={() => handleFilterClick(filter.id)}
               className={`
                 px-3 py-1.5 rounded-full text-sm font-medium
                 transition-all duration-200 transform hover:scale-105

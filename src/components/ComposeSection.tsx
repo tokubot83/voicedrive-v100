@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ComposeCard from './ComposeCard';
 import ComposeForm from './ComposeForm';
 import { PostType } from '../types';
@@ -10,6 +11,7 @@ interface ComposeSectionProps {
 
 const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectionProps) => {
   const [showForm, setShowForm] = useState(false);
+  const navigate = useNavigate();
 
   const cards = [
     {
@@ -41,11 +43,11 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
   const handleCardClick = (type: PostType) => {
     if (type === 'report') {
       // 公益通報の場合は専用ページに遷移
-      window.location.href = '/whistleblowing';
+      navigate('/whistleblowing');
       return;
     }
-    setSelectedPostType(type);
-    setShowForm(true);
+    // 各投稿タイプに対応するページに遷移（投稿フォーム表示）
+    navigate(`/?tab=${type}&action=compose`);
   };
 
   return (

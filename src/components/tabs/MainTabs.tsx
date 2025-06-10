@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MainTab } from '../../types/tabs';
 
 interface MainTabsProps {
@@ -17,13 +18,32 @@ export const mainTabs: MainTab[] = [
 ];
 
 export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) => {
+  const navigate = useNavigate();
+
+  const handleTabClick = (tabId: string) => {
+    if (tabId === 'whistleblowing') {
+      // 公益通報は専用ページに遷移
+      navigate('/whistleblowing');
+    } else if (tabId === 'projects') {
+      // プロジェクトページに遷移
+      navigate('/projects');
+    } else if (tabId === 'home') {
+      // ホームページに遷移
+      navigate('/');
+    } else {
+      // その他のタブはホームページのタブ切り替え
+      navigate(`/?tab=${tabId}`);
+    }
+    onTabChange(tabId);
+  };
+
   return (
     <div className="flex justify-center items-center">
       <div className="flex overflow-x-auto scrollbar-hide">
         {mainTabs.map(tab => (
           <button
             key={tab.id}
-            onClick={() => onTabChange(tab.id)}
+            onClick={() => handleTabClick(tab.id)}
             className={`
               flex items-center gap-2 px-4 py-3 
               whitespace-nowrap transition-all duration-200
