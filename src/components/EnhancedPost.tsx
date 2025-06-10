@@ -108,7 +108,6 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
                 post={post}
                 currentUser={currentUser}
                 onVote={onVote}
-                onComment={onComment}
                 userVote={selectedVote}
               />
             </>

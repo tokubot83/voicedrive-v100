@@ -103,7 +103,6 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
                   post={samplePost}
                   currentUser={currentUser}
                   onVote={handleVote}
-                  onComment={handleComment}
                 />
               </div>
 
@@ -169,7 +168,6 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
                       post={post}
                       currentUser={currentUser}
                       onVote={handleVote}
-                      onComment={handleComment}
                     />
                   </div>
                 ))}
@@ -193,7 +191,6 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
                   post={post}
                   currentUser={currentUser}
                   onVote={handleVote}
-                  onComment={handleComment}
                 />
               ))}
               {filteredPosts.length === 0 && (
@@ -215,7 +212,6 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
                   post={post}
                   currentUser={currentUser}
                   onVote={handleVote}
-                  onComment={handleComment}
                 />
               ))}
               {filteredPosts.length === 0 && (
@@ -237,7 +233,6 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
                   post={post}
                   currentUser={currentUser}
                   onVote={handleVote}
-                  onComment={handleComment}
                 />
               ))}
               {filteredPosts.length === 0 && (
@@ -259,7 +254,6 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
                   post={post}
                   currentUser={currentUser}
                   onVote={handleVote}
-                  onComment={handleComment}
                 />
               ))}
               {filteredPosts.length === 0 && (

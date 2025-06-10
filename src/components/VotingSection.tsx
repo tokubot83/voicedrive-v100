@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { Post, VoteOption, User } from '../types';
 import UnifiedProgressBar from './UnifiedProgressBar';
 import { ConsensusInsightGenerator } from '../utils/consensusInsights';
-import { MessageCircle } from 'lucide-react';
 
 interface VotingSectionProps {
   post: Post;
   currentUser?: User;
   onVote: (postId: string, option: VoteOption) => void;
-  onComment: (postId: string) => void;
   userVote?: VoteOption;
 }
 
@@ -16,7 +14,6 @@ const VotingSection: React.FC<VotingSectionProps> = ({
   post, 
   currentUser,
   onVote, 
-  onComment,
   userVote 
 }) => {
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(userVote || null);
@@ -229,20 +226,13 @@ const VotingSection: React.FC<VotingSectionProps> = ({
         </div>
         
         {/* アクションボタン */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex">
           <button
             onClick={handleVote}
             disabled={!selectedVote || userVote !== undefined || isVoting}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:cursor-not-allowed"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:cursor-not-allowed"
           >
             {isVoting ? '投票中...' : userVote ? '投票済み' : '投票する'}
-          </button>
-          <button 
-            onClick={() => onComment(post.id)}
-            className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-          >
-            <MessageCircle className="w-4 h-4" />
-            コメント
           </button>
         </div>
       </div>
