@@ -7,56 +7,67 @@ interface ComposeCardProps {
   color: string;
   isSelected: boolean;
   onClick: () => void;
+  index?: number;
+  totalCards?: number;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
 }
 
-const ComposeCard = ({ icon, title, description, features, color, isSelected, onClick }: ComposeCardProps) => {
+const ComposeCard = ({ type, icon, title, description, features, color, isSelected, onClick, index, onKeyDown }: ComposeCardProps) => {
+  const getSelectedStyle = (cardType: string) => {
+    switch (cardType) {
+      case 'improvement':
+        return 'border-yellow-500 bg-yellow-500/10 text-yellow-400 shadow-lg shadow-yellow-500/20 ring-1 ring-yellow-500/30';
+      case 'community':
+        return 'border-purple-500 bg-purple-500/10 text-purple-400 shadow-lg shadow-purple-500/20 ring-1 ring-purple-500/30';
+      case 'report':
+        return 'border-red-500 bg-red-500/10 text-red-400 shadow-lg shadow-red-500/20 ring-1 ring-red-500/30';
+      default:
+        return 'border-blue-500 bg-blue-500/10 text-blue-400 shadow-lg shadow-blue-500/20 ring-1 ring-blue-500/30';
+    }
+  };
+
   return (
-    <div
+    <button
       onClick={onClick}
+      onKeyDown={onKeyDown}
+      role="radio"
+      aria-checked={isSelected}
+      tabIndex={isSelected ? 0 : -1}
       className={`
-        relative overflow-hidden cursor-pointer
-        bg-gradient-to-br from-white/8 to-white/4
-        border-2 rounded-2xl p-5
-        transition-all duration-400 group
+        w-full p-4 rounded-lg border transition-all duration-200 text-left cursor-pointer
+        transform hover:scale-[1.02] hover:shadow-lg
+        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900
         ${isSelected 
-          ? 'border-blue-500 bg-gradient-to-br from-blue-500/15 to-purple-500/15 transform -translate-y-0.5 shadow-[0_8px_30px_rgba(29,155,240,0.3)]' 
-          : 'border-gray-800/50 hover:border-blue-500/50 hover:transform hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(29,155,240,0.2)]'
+          ? getSelectedStyle(type)
+          : 'border-gray-700 bg-gray-800/30 text-gray-300 hover:border-gray-600 hover:bg-gray-800/50'
         }
       `}
     >
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-600">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
-      </div>
-      
-      <div className="relative z-10 flex items-center gap-4">
-        <div className="text-5xl drop-shadow-[0_0_10px_currentColor] group-hover:animate-float">
-          {icon}
-        </div>
-        
+      <div className="flex items-center gap-3">
+        <div className="text-2xl flex-shrink-0">{icon}</div>
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-100 mb-2">
-            {title}
-          </h3>
-          <p className="text-gray-400 text-sm mb-3 leading-relaxed">
-            {description}
-          </p>
+          <div className="font-medium mb-1">{title}</div>
+          <div className="text-sm opacity-80 leading-tight mb-2">{description}</div>
           <div className="flex gap-2 flex-wrap">
             {features.map((feature, index) => (
               <span
                 key={index}
-                className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-lg text-xs font-medium"
+                className="text-xs px-2 py-1 rounded-full bg-current/20 opacity-70"
               >
                 {feature}
               </span>
             ))}
           </div>
         </div>
-        
-        <div className={`text-2xl text-blue-500 transition-transform duration-300 group-hover:translate-x-1`}>
-          →
-        </div>
+        {isSelected && (
+          <div className="flex-shrink-0">
+            <div className="w-5 h-5 rounded-full bg-current opacity-60 flex items-center justify-center">
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </button>
   );
 };
 

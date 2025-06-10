@@ -54,13 +54,35 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-        {cards.map((card) => (
+      <div 
+        className="space-y-3 mb-8"
+        role="radiogroup"
+        aria-label="投稿タイプを選択"
+      >
+        {cards.map((card, index) => (
           <ComposeCard
             key={card.type}
-            {...card}
+            type={card.type}
+            icon={card.icon}
+            title={card.title}
+            description={card.description}
+            features={card.features}
+            color={card.color}
             isSelected={selectedPostType === card.type && showForm}
             onClick={() => handleCardClick(card.type)}
+            index={index}
+            totalCards={cards.length}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const nextIndex = (index + 1) % cards.length;
+                handleCardClick(cards[nextIndex].type);
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const prevIndex = (index - 1 + cards.length) % cards.length;
+                handleCardClick(cards[prevIndex].type);
+              }
+            }}
           />
         ))}
       </div>
