@@ -1,20 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User } from '../../types';
 import { RetirementProcessingService, RetirementProcessingOptions } from '../../services/RetirementProcessingService';
 import { AuditService } from '../../services/AuditService';
 import { NotificationService } from '../../services/NotificationService';
 import { usePermissions } from '../../hooks/usePermissions';
+import { RetirementFlowController } from '../../services/RetirementFlowController';
+import { RetirementProcessState } from '../../types/retirementFlow';
+import RetirementProgressIndicator from '../retirement/RetirementProgressIndicator';
 
 interface RetirementProcessingPanelProps {
   currentUser: User;
 }
 
 const RetirementProcessingPanel = ({ currentUser }: RetirementProcessingPanelProps) => {
+  const navigate = useNavigate();
   const { hasPermission } = usePermissions();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [activeProcesses, setActiveProcesses] = useState<RetirementProcessState[]>([]);
+  const [retirementController] = useState(() => 
+    RetirementFlowController.getInstance(
+      AuditService.getInstance(),
+      NotificationService.getInstance()
+    )
+  );
   
   const [processingOptions, setProcessingOptions] = useState<RetirementProcessingOptions>({
     preserveAnonymousContent: true,
@@ -31,32 +43,39 @@ const RetirementProcessingPanel = ({ currentUser }: RetirementProcessingPanelPro
     );
   }
 
-  const handleProcessRetirement = async () => {
+  useEffect(() => {
+    // アクティブなプロセスを取得
+    const processes = retirementController.getAllProcesses();
+    setActiveProcesses(processes);
+  }, [retirementController]);
+
+  const handleStartRetirementProcess = async () => {
     if (!selectedUser || !currentUser) return;
 
     setIsProcessing(true);
     try {
-      const retirementService = RetirementProcessingService.getInstance(
-        AuditService.getInstance(),
-        NotificationService.getInstance()
-      );
-
-      await retirementService.processRetirement(
-        selectedUser.id,
-        currentUser,
-        processingOptions
+      const processId = await retirementController.startRetirementProcess(
+        selectedUser,
+        currentUser
       );
 
       // 成功通知
-      alert(`${selectedUser.name}の退職処理が完了しました`);
+      alert(`${selectedUser.name}の退職処理プロセスを開始しました`);
       setSelectedUser(null);
       setShowConfirmDialog(false);
+      
+      // ステップ1に移動
+      navigate(`/retirement-processing/step1/${processId}`);
     } catch (error) {
-      console.error('退職処理エラー:', error);
-      alert('退職処理中にエラーが発生しました');
+      console.error('退職プロセス開始エラー:', error);
+      alert('退職処理プロセスの開始中にエラーが発生しました');
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleResumeProcess = (processId: string, currentStep: number) => {
+    navigate(`/retirement-processing/step${currentStep}/${processId}`);
   };
 
   return (
@@ -163,8 +182,39 @@ const RetirementProcessingPanel = ({ currentUser }: RetirementProcessingPanelPro
         disabled={!selectedUser || isProcessing}
         className="w-full py-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold rounded-xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(239,68,68,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isProcessing ? '処理中...' : '退職処理を実行'}
+        {isProcessing ? 'プロセス開始中...' : '段階的退職処理を開始'}
       </button>
+
+      {/* アクティブプロセス一覧 */}
+      {activeProcesses.length > 0 && (
+        <div className="mt-8">
+          <h3 className="text-lg font-bold text-white mb-4">進行中のプロセス</h3>
+          <div className="space-y-4">
+            {activeProcesses.map((process) => (
+              <div key={process.processId} className="bg-gray-800/30 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <h4 className="font-medium text-white">{process.employeeName}</h4>
+                    <p className="text-gray-400 text-sm">{process.employeeDepartment} {process.employeeRole}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg text-sm">
+                      ステップ {process.currentStep}/4
+                    </span>
+                    <button
+                      onClick={() => handleResumeProcess(process.processId, process.currentStep)}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                    >
+                      続行
+                    </button>
+                  </div>
+                </div>
+                <RetirementProgressIndicator processState={process} compact />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 確認ダイアログ */}
       {showConfirmDialog && (
@@ -197,10 +247,10 @@ const RetirementProcessingPanel = ({ currentUser }: RetirementProcessingPanelPro
                 キャンセル
               </button>
               <button
-                onClick={handleProcessRetirement}
+                onClick={handleStartRetirementProcess}
                 className="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors"
               >
-                実行する
+                プロセス開始
               </button>
             </div>
           </div>

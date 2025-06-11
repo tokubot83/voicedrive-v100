@@ -56,6 +56,9 @@ import WhistleblowingPage from '../pages/WhistleblowingPage';
 
 // Retirement Processing
 import RetirementProcessingPage from '../pages/RetirementProcessingPage';
+import Step1AccountDeactivation from '../components/retirement/Step1AccountDeactivation';
+import Step2PermissionRevocation from '../components/retirement/Step2PermissionRevocation';
+import Step4CompletionNotification from '../components/retirement/Step4CompletionNotification';
 
 // Error pages
 import NotFoundPage from '../pages/NotFoundPage';
@@ -185,11 +188,40 @@ const AppRouter: React.FC = () => {
         } />
         
         {/* Retirement Processing (Level 6+) */}
-        <Route path="retirement-processing" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
-            <RetirementProcessingPage />
-          </ProtectedRoute>
-        } />
+        <Route path="retirement-processing">
+          <Route index element={
+            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
+              <RetirementProcessingPage />
+            </ProtectedRoute>
+          } />
+          <Route path="step1/:processId" element={
+            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
+              <Step1AccountDeactivation 
+                onStepComplete={() => Promise.resolve()}
+                onStepError={() => {}}
+                onNavigateBack={() => {}}
+              />
+            </ProtectedRoute>
+          } />
+          <Route path="step2/:processId" element={
+            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
+              <Step2PermissionRevocation 
+                onStepComplete={() => Promise.resolve()}
+                onStepError={() => {}}
+                onNavigateBack={() => {}}
+              />
+            </ProtectedRoute>
+          } />
+          <Route path="step4/:processId" element={
+            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
+              <Step4CompletionNotification 
+                onStepComplete={() => Promise.resolve()}
+                onStepError={() => {}}
+                onNavigateBack={() => {}}
+              />
+            </ProtectedRoute>
+          } />
+        </Route>
         
         {/* Facility Management (Level 7+) */}
         <Route path="facility-management" element={
