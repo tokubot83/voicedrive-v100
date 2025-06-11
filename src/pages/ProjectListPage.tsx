@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Search, Filter, Plus, Calendar, Users, TrendingUp, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Search, Filter, Plus, Calendar, Users, TrendingUp, CheckCircle, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
 import { usePermissions } from '../hooks/usePermissions';
 import { useDemoMode } from '../components/demo/DemoModeController';
-import Header from '../components/Header';
 
 interface Project {
   id: string;
@@ -190,23 +189,32 @@ const ProjectListPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      <Header 
-        toggleSidebar={() => {}}
-      />
-      <div className="pt-20 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-white">プロジェクト一覧</h1>
-          <p className="text-gray-400 mt-1">参加中のプロジェクトを管理</p>
+      {/* Custom Header with Back Button */}
+      <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm">ホームに戻る</span>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-white">プロジェクト一覧</h1>
+              <p className="text-gray-400 text-sm">参加中のプロジェクトを管理</p>
+            </div>
+          </div>
+          {hasPermission(3) && (
+            <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+              <Plus className="w-5 h-5" />
+              新規プロジェクト
+            </button>
+          )}
         </div>
-        {hasPermission(3) && (
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors">
-            <Plus className="w-5 h-5" />
-            新規プロジェクト
-          </button>
-        )}
-      </div>
+      </header>
+      
+      <div className="p-6">
 
       {/* Search and Filters */}
       <div className="mb-6 space-y-4">

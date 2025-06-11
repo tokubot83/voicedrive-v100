@@ -22,7 +22,31 @@ const Layout: React.FC = () => {
     '/authority',
     '/whistleblowing',
     '/admin-settings',
-    '/system-management'
+    '/system-management',
+    '/projects',
+    '/personal-dashboard',
+    '/team-dashboard',
+    '/department-dashboard',
+    '/facility-dashboard',
+    '/corporate-dashboard',
+    '/hr-dashboard',
+    '/strategic-dashboard',
+    '/strategic-overview',
+    '/strategic-planning',
+    '/strategic-initiatives',
+    '/executive-overview',
+    '/executive-reports',
+    '/board-reports',
+    '/organization-analytics',
+    '/performance-analytics',
+    '/talent-analytics',
+    '/governance',
+    '/policy-management',
+    '/budget',
+    '/budget-planning',
+    '/facility-management',
+    '/team-management',
+    '/org-development'
   ];
   
   // 現在のパスが専用管理画面かどうかを判定
