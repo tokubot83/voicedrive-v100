@@ -4,10 +4,6 @@ const OrganizationAnalyticsPage = () => {
   return (
     <>
       <Header 
-        currentTab="organization-analytics"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

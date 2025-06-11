@@ -4,10 +4,6 @@ const PerformanceAnalyticsPage = () => {
   return (
     <>
       <Header 
-        currentTab="performance"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

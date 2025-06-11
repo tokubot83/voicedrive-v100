@@ -10,8 +10,8 @@ export const getApprovalSteps = (post: Post): ApprovalStep[] => {
     return convertExistingApprovalFlow(post);
   }
 
-  // 公益通報の場合
-  if (post.type === 'whistleblowing') {
+  // 公益通報の場合（report typeで proposalType が公益通報関連の場合）
+  if (post.type === 'report' && post.proposalType === 'riskManagement') {
     return getWhistleblowingSteps(post);
   }
 

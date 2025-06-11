@@ -4,10 +4,6 @@ const TeamManagementPage = () => {
   return (
     <>
       <Header 
-        currentTab="team"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

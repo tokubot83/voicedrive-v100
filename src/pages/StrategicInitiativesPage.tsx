@@ -4,10 +4,6 @@ const StrategicInitiativesPage = () => {
   return (
     <>
       <Header 
-        currentTab="strategic-initiatives"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

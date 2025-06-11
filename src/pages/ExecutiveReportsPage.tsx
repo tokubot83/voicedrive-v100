@@ -4,10 +4,6 @@ const ExecutiveReportsPage = () => {
   return (
     <>
       <Header 
-        currentTab="executive-reports"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

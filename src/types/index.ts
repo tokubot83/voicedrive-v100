@@ -44,6 +44,8 @@ export interface User {
   stakeholderCategory?: StakeholderCategory;
   position?: string;
   expertise?: number;
+  hierarchyLevel?: number;
+  permissionLevel?: number;
   // 退職関連
   isRetired?: boolean;
   retirementDate?: Date;

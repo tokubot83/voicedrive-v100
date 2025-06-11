@@ -4,10 +4,6 @@ const DepartmentOverviewPage = () => {
   return (
     <>
       <Header 
-        currentTab="department"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

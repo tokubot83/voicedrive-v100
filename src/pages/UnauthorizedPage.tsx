@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { usePermissions } from '../hooks/usePermissions';
 
 const UnauthorizedPage = () => {
-  const { metadata } = usePermissions();
+  const { userLevel, userRole, accountType } = usePermissions();
   
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
@@ -13,7 +13,7 @@ const UnauthorizedPage = () => {
           このページにアクセスするには適切な権限が必要です。
         </p>
         <p className="text-gray-500 text-sm mb-8">
-          現在の権限レベル: {metadata.displayName}
+          現在の権限レベル: {accountType} (Level {userLevel})
         </p>
         <Link 
           to="/"

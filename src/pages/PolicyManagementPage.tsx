@@ -4,10 +4,6 @@ const PolicyManagementPage = () => {
   return (
     <>
       <Header 
-        currentTab="policy"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

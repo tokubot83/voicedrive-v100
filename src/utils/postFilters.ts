@@ -18,8 +18,12 @@ const isRecent = (createdAt: string | Date, days: number = 7): boolean => {
  * 投稿タイプの判定（type フィールドがない場合の推定）
  */
 const getPostType = (post: Post): 'improvement' | 'community' | 'whistleblowing' | null => {
-  // typeフィールドがある場合はそれを使用
-  if ('type' in post) {
+  // typeフィールドがある場合はそれを使用（whistleblowingは特別扱い）
+  if (post.type === 'report' && post.proposalType === 'riskManagement') {
+    return 'whistleblowing';
+  }
+  
+  if (post.type) {
     return post.type as any;
   }
   
@@ -29,11 +33,11 @@ const getPostType = (post: Post): 'improvement' | 'community' | 'whistleblowing'
   }
   
   // tags や content から推定
-  if (post.tags?.includes('公益通報') || post.tags?.includes('内部告発')) {
+  if (post.tags && (post.tags.includes('公益通報') || post.tags.includes('内部告発'))) {
     return 'whistleblowing';
   }
   
-  if (post.tags?.includes('コミュニティ') || post.tags?.includes('交流')) {
+  if (post.tags && (post.tags.includes('コミュニティ') || post.tags.includes('交流'))) {
     return 'community';
   }
   
@@ -56,7 +60,7 @@ const isUrgent = (post: Post): boolean => {
   }
   
   // tags に緊急が含まれる場合
-  if (post.tags?.includes('緊急') || post.tags?.includes('至急')) {
+  if (post.tags && (post.tags.includes('緊急') || post.tags.includes('至急'))) {
     return true;
   }
   

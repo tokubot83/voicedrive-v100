@@ -13,59 +13,49 @@ export const strategicInsightsDemoData = {
   actionItems: 12,
   recommendations: [
     {
-      id: "rec-001",
       title: "AIベース業務自動化の推進",
       description: "ルーチン作業の70%を自動化し、人材をより戦略的業務にシフト。RPAツール導入と業務プロセス再設計を実施。",
       type: "SCALING_OPPORTUNITY",
       priority: "HIGH",
       expectedImpact: "年間¥420M節約、生産性35%向上",
       implementationCost: "HIGH",
-      timeframe: "12-18ヶ月",
-      confidence: 0.92
+      timeframe: "12-18ヶ月"
     },
     {
-      id: "rec-002", 
       title: "データ駆動型意思決定基盤構築",
       description: "全部門のデータを統合し、リアルタイム分析によるより迅速な意思決定を実現。BIツール導入とデータレイク構築。",
       type: "INVESTMENT_OPTIMIZATION",
       priority: "HIGH",
       expectedImpact: "意思決定速度50%向上、機会損失¥200M削減",
       implementationCost: "MEDIUM",
-      timeframe: "8-12ヶ月",
-      confidence: 0.88
+      timeframe: "8-12ヶ月"
     },
     {
-      id: "rec-003",
       title: "サイバーセキュリティ強化",
       description: "ゼロトラスト・アーキテクチャ導入によりセキュリティリスクを軽減。多要素認証とエンドツーエンド暗号化の実装。",
       type: "RISK_MITIGATION", 
       priority: "HIGH",
       expectedImpact: "データ漏洩リスク85%削減、コンプライアンス向上",
       implementationCost: "MEDIUM",
-      timeframe: "6-9ヶ月",
-      confidence: 0.95
+      timeframe: "6-9ヶ月"
     },
     {
-      id: "rec-004",
       title: "イノベーション・ラボ設立",
       description: "社内起業家精神を育成し、破壊的イノベーションを創出。プロトタイプ開発とMVP検証プロセスの標準化。",
       type: "INNOVATION_FOCUS",
       priority: "MEDIUM",
       expectedImpact: "新規事業3-5件創出、売上¥300M増",
       implementationCost: "HIGH",
-      timeframe: "18-24ヶ月",
-      confidence: 0.75
+      timeframe: "18-24ヶ月"
     },
     {
-      id: "rec-005",
       title: "アジャイル組織変革",
       description: "階層型組織からネットワーク型組織への移行。クロスファンクショナルチームと迅速な意思決定プロセス。",
       type: "SCALING_OPPORTUNITY",
       priority: "MEDIUM", 
       expectedImpact: "開発速度40%向上、従業員満足度20%向上",
       implementationCost: "LOW",
-      timeframe: "12-15ヶ月",
-      confidence: 0.82
+      timeframe: "12-15ヶ月"
     }
   ] as StrategicRecommendation[]
 };

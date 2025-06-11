@@ -3,13 +3,7 @@ import Header from '../components/Header';
 const BoardReportsPage = () => {
   return (
     <>
-      <Header 
-        currentTab="board-reports"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
-        toggleSidebar={() => {}}
-      />
+      <Header toggleSidebar={() => {}} />
       
       <div className="overflow-y-auto">
         <div className="p-6">

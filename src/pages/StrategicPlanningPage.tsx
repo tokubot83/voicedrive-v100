@@ -4,10 +4,6 @@ const StrategicPlanningPage = () => {
   return (
     <>
       <Header 
-        currentTab="strategic"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

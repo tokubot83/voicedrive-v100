@@ -50,6 +50,26 @@ export class AuditService {
     return AuditService.instance;
   }
 
+  // New interface for compatibility
+  async logAction(actionData: {
+    userId: string;
+    action: string;
+    targetId: string;
+    details: any;
+    risk?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  }): Promise<string> {
+    return this.logAuditEntry(
+      actionData.userId,
+      actionData.action as AuthorityType,
+      'user_action',
+      actionData.targetId,
+      {
+        reason: actionData.action,
+        newState: actionData.details
+      }
+    );
+  }
+
   // Log audit entry
   async logAuditEntry(
     actorId: string,

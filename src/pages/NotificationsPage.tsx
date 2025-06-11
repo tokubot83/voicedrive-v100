@@ -4,10 +4,6 @@ const NotificationsPage = () => {
   return (
     <>
       <Header 
-        currentTab="notifications"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

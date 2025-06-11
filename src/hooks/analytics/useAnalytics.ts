@@ -130,22 +130,42 @@ export const useAnalytics = (
             riskAssessment: {
               overallRiskScore: 2.8,
               riskBreakdown: {
-                implementationRisks: riskAssessmentDemoData.filter(r => r.category === 'セキュリティ'),
-                financialRisks: riskAssessmentDemoData.filter(r => r.category === '財務'),
-                operationalRisks: riskAssessmentDemoData.filter(r => r.category === '技術'),
-                strategicRisks: riskAssessmentDemoData.filter(r => r.category === '事業')
+                implementationRisks: riskAssessmentDemoData.filter(r => r.category === 'セキュリティ').map(r => ({
+                  ...r,
+                  score: r.impact * r.probability,
+                  description: r.mitigation
+                })),
+                financialRisks: riskAssessmentDemoData.filter(r => r.category === '財務').map(r => ({
+                  ...r,
+                  score: r.impact * r.probability,
+                  description: r.mitigation
+                })),
+                operationalRisks: riskAssessmentDemoData.filter(r => r.category === '技術').map(r => ({
+                  ...r,
+                  score: r.impact * r.probability,
+                  description: r.mitigation
+                })),
+                strategicRisks: riskAssessmentDemoData.filter(r => r.category === '事業').map(r => ({
+                  ...r,
+                  score: r.impact * r.probability,
+                  description: r.mitigation
+                }))
               },
               mitigationStrategies: [],
               monitoringMetrics: []
             },
             futureProjections: [],
-            benchmarkComparison: benchmarkComparisonDemoData,
+            benchmarkComparison: benchmarkComparisonDemoData.map(b => ({
+              ...b,
+              topPerformer: b.organizationValue * 1.3,
+              percentile: Math.floor(75 + Math.random() * 20)
+            })),
             actionableInsights: strategicInsightsDemoData.keyFindings.map((finding, index) => ({
-              id: `insight-${index}`,
               insight: finding,
-              priority: 'HIGH',
-              category: 'STRATEGIC',
-              confidence: 0.85 + Math.random() * 0.1
+              action: `${finding}に関する具体的なアクション計画を策定`,
+              priority: 'IMMEDIATE' as const,
+              expectedOutcome: '効率性とROIの大幅な改善',
+              requiredResources: ['プロジェクトマネージャー', '技術チーム', '予算承認']
             }))
           },
           performanceMetrics: {

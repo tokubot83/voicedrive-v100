@@ -4,10 +4,6 @@ const OrgDevelopmentPage = () => {
   return (
     <>
       <Header 
-        currentTab="org-development"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

@@ -15,9 +15,9 @@ interface SidebarProps {
 interface NavItem {
   id: string;
   path?: string;
-  icon: string;
-  label: string;
-  section: string;
+  icon?: string;
+  label?: string;
+  section?: string;
   menuKey?: string;
   requiredLevel?: number;
   exactLevel?: boolean;

@@ -4,10 +4,6 @@ const BudgetPlanningPage = () => {
   return (
     <>
       <Header 
-        currentTab="budget-planning"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

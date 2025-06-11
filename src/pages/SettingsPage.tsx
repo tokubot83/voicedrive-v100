@@ -7,10 +7,6 @@ const SettingsPage = () => {
   return (
     <>
       <Header 
-        currentTab="settings"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

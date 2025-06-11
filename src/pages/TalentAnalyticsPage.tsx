@@ -4,10 +4,6 @@ const TalentAnalyticsPage = () => {
   return (
     <>
       <Header 
-        currentTab="talent"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

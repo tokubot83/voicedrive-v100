@@ -4,10 +4,6 @@ const GovernancePage = () => {
   return (
     <>
       <Header 
-        currentTab="governance"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

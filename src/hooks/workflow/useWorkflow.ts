@@ -93,7 +93,8 @@ export const useWorkflow = (projectId: string): UseWorkflowReturn => {
         );
         
         // 承認通知を送信
-        await NotificationService.sendWorkflowNotification(
+        const notificationService = NotificationService.getInstance();
+        await notificationService.sendWorkflowNotification(
           updatedWorkflow, 
           updatedWorkflow.stages[stageIndex], 
           'STAGE_COMPLETED'
@@ -101,14 +102,14 @@ export const useWorkflow = (projectId: string): UseWorkflowReturn => {
         
         // 次のステージがある場合は通知
         if (stageIndex < updatedWorkflow.stages.length - 1) {
-          await NotificationService.sendWorkflowNotification(
+          await notificationService.sendWorkflowNotification(
             updatedWorkflow,
             updatedWorkflow.stages[stageIndex + 1],
             'STAGE_ASSIGNED'
           );
         } else {
           // ワークフロー完了通知
-          await NotificationService.sendWorkflowNotification(
+          await notificationService.sendWorkflowNotification(
             updatedWorkflow,
             updatedWorkflow.stages[stageIndex],
             'WORKFLOW_COMPLETED'
@@ -124,7 +125,8 @@ export const useWorkflow = (projectId: string): UseWorkflowReturn => {
         );
         
         // 却下通知を送信
-        await NotificationService.sendWorkflowNotification(
+        const notificationService = NotificationService.getInstance();
+        await notificationService.sendWorkflowNotification(
           updatedWorkflow,
           updatedWorkflow.stages[stageIndex],
           'WORKFLOW_REJECTED'

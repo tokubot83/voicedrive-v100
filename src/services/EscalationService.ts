@@ -63,7 +63,8 @@ export class EscalationService {
       workflow.escalations.push(escalation);
       
       // 通知送信
-      await NotificationService.sendWorkflowNotification(workflow, stage, 'STAGE_ESCALATED');
+      const notificationService = NotificationService.getInstance();
+      await notificationService.sendWorkflowNotification(workflow, stage, 'STAGE_ESCALATED');
       
       // 新しい承認者に再割り当て
       if (escalationTarget.autoReassign && escalationTarget.newAssignee) {

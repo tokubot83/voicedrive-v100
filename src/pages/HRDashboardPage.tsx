@@ -4,10 +4,6 @@ const HRDashboardPage = () => {
   return (
     <>
       <Header 
-        currentTab="hr"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

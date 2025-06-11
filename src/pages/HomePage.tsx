@@ -76,10 +76,6 @@ const HomePage = () => {
   return (
     <>
       <Header 
-        currentTab={currentTab}
-        setCurrentTab={handleTabChange}
-        currentFilter={currentFilter}
-        setCurrentFilter={handleFilterChange}
         toggleSidebar={() => {}} // Not needed in router version
       />
       

@@ -20,8 +20,27 @@ export interface NotificationData {
   channels: NotificationChannel[];
 }
 
+export interface SimpleNotificationData {
+  recipientId: string;
+  type: string;
+  title: string;
+  message: string;
+  data?: any;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+}
+
 export class NotificationService {
-  static async sendWorkflowNotification(
+  private static instance: NotificationService;
+
+  private constructor() {}
+
+  public static getInstance(): NotificationService {
+    if (!NotificationService.instance) {
+      NotificationService.instance = new NotificationService();
+    }
+    return NotificationService.instance;
+  }
+  async sendWorkflowNotification(
     workflow: ProjectWorkflow, 
     stage: WorkflowStage, 
     event: string
@@ -68,7 +87,21 @@ export class NotificationService {
     ));
   }
   
-  static selectChannels(urgency: NotificationUrgency): NotificationChannel[] {
+  private mapPriorityToUrgency(priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'): NotificationUrgency {
+    switch (priority) {
+      case 'LOW':
+      case 'MEDIUM':
+        return 'NORMAL';
+      case 'HIGH':
+        return 'HIGH';
+      case 'CRITICAL':
+        return 'URGENT';
+      default:
+        return 'NORMAL';
+    }
+  }
+
+  selectChannels(urgency: NotificationUrgency): NotificationChannel[] {
     const channelConfigs: Record<NotificationUrgency, NotificationChannel[]> = {
       NORMAL: ['IN_APP'],
       HIGH: ['IN_APP', 'EMAIL'],
@@ -77,7 +110,31 @@ export class NotificationService {
     return channelConfigs[urgency] || ['IN_APP'];
   }
   
-  static async sendNotification(notification: NotificationData): Promise<void> {
+  async sendNotification(notification: NotificationData | SimpleNotificationData): Promise<void> {
+    // Handle simple notification format
+    if ('recipientId' in notification) {
+      const simpleNotification = notification as SimpleNotificationData;
+      const recipient: NotificationRecipient = {
+        id: simpleNotification.recipientId,
+        name: simpleNotification.recipientId
+      };
+      
+      const fullNotification: NotificationData = {
+        to: recipient,
+        template: simpleNotification.type,
+        data: {
+          title: simpleNotification.title,
+          message: simpleNotification.message,
+          ...simpleNotification.data
+        },
+        urgency: this.mapPriorityToUrgency(simpleNotification.priority),
+        channels: this.selectChannels(this.mapPriorityToUrgency(simpleNotification.priority))
+      };
+      
+      return this.sendNotification(fullNotification);
+    }
+    
+    // Handle full notification format
     const recipients = Array.isArray(notification.to) ? notification.to : [notification.to];
     
     for (const recipient of recipients) {
@@ -87,7 +144,7 @@ export class NotificationService {
     }
   }
   
-  private static async sendToChannel(
+  private async sendToChannel(
     channel: NotificationChannel,
     recipient: NotificationRecipient,
     notification: NotificationData
@@ -114,7 +171,7 @@ export class NotificationService {
     }
   }
   
-  private static async sendInAppNotification(
+  private async sendInAppNotification(
     recipient: NotificationRecipient,
     notification: NotificationData
   ): Promise<void> {
@@ -123,7 +180,7 @@ export class NotificationService {
     // 実際の実装では、WebSocketやプッシュ通知を使用
   }
   
-  private static async sendEmailNotification(
+  private async sendEmailNotification(
     recipient: NotificationRecipient,
     notification: NotificationData
   ): Promise<void> {
@@ -132,7 +189,7 @@ export class NotificationService {
     // 実際の実装では、メールサービスAPIを使用
   }
   
-  private static async sendSlackNotification(
+  private async sendSlackNotification(
     recipient: NotificationRecipient,
     notification: NotificationData
   ): Promise<void> {
@@ -141,7 +198,7 @@ export class NotificationService {
     // 実際の実装では、Slack APIを使用
   }
   
-  private static async sendSMSNotification(
+  private async sendSMSNotification(
     recipient: NotificationRecipient,
     notification: NotificationData
   ): Promise<void> {
@@ -151,28 +208,28 @@ export class NotificationService {
   }
   
   // ヘルパーメソッド
-  private static async getStakeholders(workflow: ProjectWorkflow): Promise<NotificationRecipient[]> {
+  private async getStakeholders(workflow: ProjectWorkflow): Promise<NotificationRecipient[]> {
     // 実装では、ワークフローに関連するステークホルダーを取得
     return [];
   }
   
-  private static async getEscalationRecipients(stage: WorkflowStage): Promise<NotificationRecipient[]> {
+  private async getEscalationRecipients(stage: WorkflowStage): Promise<NotificationRecipient[]> {
     // 実装では、エスカレーション先の受信者を取得
     return [];
   }
   
-  private static async getAllParticipants(workflow: ProjectWorkflow): Promise<NotificationRecipient[]> {
+  private async getAllParticipants(workflow: ProjectWorkflow): Promise<NotificationRecipient[]> {
     // 実装では、すべての参加者を取得
     return [];
   }
   
-  private static async getProjectCreator(workflow: ProjectWorkflow): Promise<NotificationRecipient[]> {
+  private async getProjectCreator(workflow: ProjectWorkflow): Promise<NotificationRecipient[]> {
     // 実装では、プロジェクト作成者を取得
     return [];
   }
   
   // 通知テンプレート
-  static getNotificationTemplate(templateName: string, data: any): {
+  getNotificationTemplate(templateName: string, data: any): {
     subject: string;
     body: string;
   } {

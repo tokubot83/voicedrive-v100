@@ -4,10 +4,6 @@ const ExecutiveOverviewPage = () => {
   return (
     <>
       <Header 
-        currentTab="executive-overview"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       

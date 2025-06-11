@@ -4,10 +4,6 @@ const FacilityManagementPage = () => {
   return (
     <>
       <Header 
-        currentTab="facility"
-        setCurrentTab={() => {}}
-        currentFilter="all"
-        setCurrentFilter={() => {}}
         toggleSidebar={() => {}}
       />
       
