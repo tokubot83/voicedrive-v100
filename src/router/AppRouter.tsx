@@ -41,6 +41,8 @@ import ExecutiveDashboardPage from '../pages/ExecutiveDashboardPage';
 
 // Staff Dashboard pages
 import DepartmentStaffDashboardPage from '../pages/DepartmentStaffDashboardPage';
+import FacilityStaffDashboardPage from '../pages/FacilityStaffDashboardPage';
+import CorporateStaffDashboardPage from '../pages/CorporateStaffDashboardPage';
 
 // Authority & Settings
 import AuthorityDashboard from '../components/authority/AuthorityDashboard';
@@ -127,7 +129,16 @@ const AppRouter: React.FC = () => {
               <DepartmentStaffDashboardPage />
             </ProtectedRoute>
           } />
-          {/* TODO: Add facility and corporate staff dashboard routes */}
+          <Route path="facility" element={
+            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_4}>
+              <FacilityStaffDashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="corporate" element={
+            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
+              <CorporateStaffDashboardPage />
+            </ProtectedRoute>
+          } />
         </Route>
         
         {/* Team management (Level 2+) */}
