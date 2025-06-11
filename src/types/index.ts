@@ -44,6 +44,12 @@ export interface User {
   stakeholderCategory?: StakeholderCategory;
   position?: string;
   expertise?: number;
+  // 退職関連
+  isRetired?: boolean;
+  retirementDate?: Date;
+  anonymizedId?: string;
+  retirementProcessedBy?: string;
+  retirementProcessedDate?: Date;
 }
 
 // Account types mapping to permission levels
