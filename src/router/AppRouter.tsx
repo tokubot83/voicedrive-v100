@@ -44,6 +44,9 @@ import DepartmentStaffDashboardPage from '../pages/DepartmentStaffDashboardPage'
 import FacilityStaffDashboardPage from '../pages/FacilityStaffDashboardPage';
 import CorporateStaffDashboardPage from '../pages/CorporateStaffDashboardPage';
 
+// Error Boundary
+import ErrorBoundary from '../components/common/ErrorBoundary';
+
 // Authority & Settings
 import AuthorityDashboard from '../components/authority/AuthorityDashboard';
 import NotificationsPage from '../pages/NotificationsPage';
@@ -136,7 +139,22 @@ const AppRouter: React.FC = () => {
           } />
           <Route path="corporate" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-              <CorporateStaffDashboardPage />
+              <ErrorBoundary fallback={
+                <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+                  <div className="text-center">
+                    <h2 className="text-xl font-bold text-white mb-4">法人職員ダッシュボードでエラーが発生しました</h2>
+                    <p className="text-gray-400 mb-4">データの読み込みに問題があります。しばらく後に再試行してください。</p>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="px-4 py-2 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/30 rounded-lg text-cyan-400 transition-colors"
+                    >
+                      再読み込み
+                    </button>
+                  </div>
+                </div>
+              }>
+                <CorporateStaffDashboardPage />
+              </ErrorBoundary>
             </ProtectedRoute>
           } />
         </Route>

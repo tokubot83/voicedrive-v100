@@ -243,8 +243,20 @@ export const organizationalHealth: OrganizationalHealth = {
 
 // Level 5+: 法人分析データ
 export const corporateAnalytics: CorporateAnalytics = {
+  organizationId: 'org-001',
+  organizationName: '医療法人社団 健康会',
+  organizationRanking: 1,
   facilityAnalytics: [facilityAnalytics],
   corporateMetrics: {
+    totalStaff: 468,
+    activeStaff: 431,
+    averageProposals: 3.6,
+    averageParticipation: 2.3,
+    averageEngagement: 0.77,
+    topPerformers: [],
+    improvementOpportunities: []
+  },
+  organizationMetrics: {
     totalStaff: 468,
     activeStaff: 431,
     averageProposals: 3.6,
@@ -263,7 +275,14 @@ export const corporateAnalytics: CorporateAnalytics = {
     costSavings: 22500000,
     productivityGains: 0.28,
     qualityImprovements: 0.35
-  }
+  },
+  strategicMetrics: {
+    marketCompetitiveness: 0.87,
+    growthPotential: 0.82,
+    governanceScore: 0.91,
+    digitalTransformation: 0.75
+  },
+  departmentAnalytics: [nursingDepartmentAnalytics]
 };
 
 // ランキングデータ

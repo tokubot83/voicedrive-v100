@@ -70,11 +70,22 @@ export interface FacilityAnalytics {
 }
 
 export interface CorporateAnalytics {
+  organizationId?: string;
+  organizationName?: string;
+  organizationRanking?: number;
   facilityAnalytics: FacilityAnalytics[];
   corporateMetrics: AggregatedMetrics;
+  organizationMetrics?: AggregatedMetrics;
   strategicInitiatives: StrategicInitiative[];
   organizationalHealth: OrganizationalHealth;
   investmentAnalysis: InvestmentAnalysis;
+  strategicMetrics?: {
+    marketCompetitiveness: number;
+    growthPotential: number;
+    governanceScore: number;
+    digitalTransformation: number;
+  };
+  departmentAnalytics?: DepartmentAnalytics[];
 }
 
 export interface CrossDepartmentProject {

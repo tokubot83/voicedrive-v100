@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Globe, Filter, Download, RefreshCw, TrendingUp, Building2 } from 'lucide-react';
 import StrategicInitiatives from '../components/dashboard/StrategicInitiatives';
@@ -12,7 +12,63 @@ import {
   nursingDepartmentAnalytics,
   facilityAnalytics
 } from '../data/demo/staffDashboardData';
-import { DashboardFilters } from '../types/staffDashboard';
+import { DashboardFilters, CorporateAnalytics, AggregatedMetrics } from '../types/staffDashboard';
+
+// デフォルトデータの定義
+const defaultCorporateData: CorporateAnalytics = {
+  organizationId: 'default-org',
+  organizationName: '医療法人社団',
+  organizationRanking: 1,
+  facilityAnalytics: [],
+  corporateMetrics: {
+    totalStaff: 0,
+    activeStaff: 0,
+    averageProposals: 0,
+    averageParticipation: 0,
+    averageEngagement: 0,
+    topPerformers: [],
+    improvementOpportunities: []
+  },
+  organizationMetrics: {
+    totalStaff: 0,
+    activeStaff: 0,
+    averageProposals: 0,
+    averageParticipation: 0,
+    averageEngagement: 0,
+    topPerformers: [],
+    improvementOpportunities: []
+  },
+  strategicInitiatives: [],
+  organizationalHealth: {
+    engagementScore: 0,
+    collaborationIndex: 0,
+    innovationRate: 0,
+    retentionRate: 0,
+    satisfactionScore: 0,
+    cultureAlignment: 0,
+    trends: {
+      engagement: [],
+      collaboration: [],
+      innovation: []
+    }
+  },
+  investmentAnalysis: {
+    totalInvestment: 0,
+    measuredReturns: 0,
+    roiPercentage: 0,
+    paybackPeriod: 0,
+    costSavings: 0,
+    productivityGains: 0,
+    qualityImprovements: 0
+  },
+  strategicMetrics: {
+    marketCompetitiveness: 0,
+    growthPotential: 0,
+    governanceScore: 0,
+    digitalTransformation: 0
+  },
+  departmentAnalytics: []
+};
 
 const CorporateStaffDashboardPage: React.FC = () => {
   const [filters, setFilters] = useState<DashboardFilters>({
@@ -20,11 +76,52 @@ const CorporateStaffDashboardPage: React.FC = () => {
     metric: 'overall'
   });
   
+  const [dashboardData, setDashboardData] = useState<CorporateAnalytics>(defaultCorporateData);
   const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // データロード関数
+  const loadCorporateData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // 実際のデータロード（現在はデモデータを使用）
+      const data = corporateAnalytics;
+      
+      // データの安全性確認
+      if (!data || typeof data !== 'object') {
+        throw new Error('Corporate analytics data is invalid');
+      }
+      
+      // 安全なデータ設定
+      setDashboardData({
+        ...defaultCorporateData,
+        ...data,
+        organizationMetrics: data.organizationMetrics || data.corporateMetrics || defaultCorporateData.organizationMetrics,
+        organizationName: data.organizationName || defaultCorporateData.organizationName,
+        organizationRanking: data.organizationRanking || defaultCorporateData.organizationRanking,
+        strategicMetrics: data.strategicMetrics || defaultCorporateData.strategicMetrics,
+        departmentAnalytics: data.departmentAnalytics || defaultCorporateData.departmentAnalytics
+      });
+      
+    } catch (err) {
+      console.error('Error loading corporate staff data:', err);
+      setError('データの読み込みに失敗しました。デフォルトデータを表示します。');
+      setDashboardData(defaultCorporateData);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCorporateData();
+  }, []);
 
   const handleRefresh = () => {
     setLastUpdated(new Date());
-    // TODO: Implement actual data refresh
+    loadCorporateData();
   };
 
   const handleExport = () => {
@@ -39,89 +136,22 @@ const CorporateStaffDashboardPage: React.FC = () => {
     { value: 'all', label: '全期間' }
   ];
 
-  // デモ用に複数施設・部署のデータを作成
-  const demoCorporateAnalytics = {
-    ...corporateAnalytics,
-    facilityAnalytics: [
-      facilityAnalytics,
-      {
-        ...facilityAnalytics,
-        facilityId: 'facility-002',
-        facilityName: '第二病院',
-        facilityRanking: 2,
-        facilityMetrics: {
-          ...facilityAnalytics.facilityMetrics,
-          totalStaff: 180,
-          activeStaff: 165,
-          averageProposals: 3.8,
-          averageParticipation: 2.4,
-          averageEngagement: 0.78
-        }
-      },
-      {
-        ...facilityAnalytics,
-        facilityId: 'facility-003',
-        facilityName: '介護センター',
-        facilityRanking: 3,
-        facilityMetrics: {
-          ...facilityAnalytics.facilityMetrics,
-          totalStaff: 85,
-          activeStaff: 75,
-          averageProposals: 3.2,
-          averageParticipation: 1.9,
-          averageEngagement: 0.72
-        }
-      }
-    ],
-    departmentAnalytics: [
-      nursingDepartmentAnalytics,
-      {
-        ...nursingDepartmentAnalytics,
-        departmentId: 'dept-medical-002',
-        departmentName: '医師部',
-        facilityName: '第一病院',
-        departmentRanking: 1,
-        aggregatedMetrics: {
-          ...nursingDepartmentAnalytics.aggregatedMetrics,
-          totalStaff: 45,
-          activeStaff: 42,
-          averageProposals: 5.8,
-          averageParticipation: 3.4,
-          averageEngagement: 0.91
-        }
-      },
-      {
-        ...nursingDepartmentAnalytics,
-        departmentId: 'dept-pharmacy-002',
-        departmentName: '薬剤部',
-        facilityName: '第二病院',
-        departmentRanking: 4,
-        aggregatedMetrics: {
-          ...nursingDepartmentAnalytics.aggregatedMetrics,
-          totalStaff: 28,
-          activeStaff: 24,
-          averageProposals: 3.4,
-          averageParticipation: 2.1,
-          averageEngagement: 0.75
-        }
-      },
-      {
-        ...nursingDepartmentAnalytics,
-        departmentId: 'dept-care-001',
-        departmentName: '介護部',
-        facilityName: '介護センター',
-        departmentRanking: 5,
-        aggregatedMetrics: {
-          ...nursingDepartmentAnalytics.aggregatedMetrics,
-          totalStaff: 42,
-          activeStaff: 35,
-          averageProposals: 2.9,
-          averageParticipation: 1.7,
-          averageEngagement: 0.68
-        }
-      }
-    ]
+  // 安全なデータアクセス関数
+  const safeGetProperty = <T,>(obj: any, key: string, defaultValue: T): T => {
+    return obj && typeof obj === 'object' && obj[key] !== undefined ? obj[key] : defaultValue;
   };
+
+  // ローディング中の表示
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <div className="text-white text-lg">データを読み込み中...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -142,8 +172,13 @@ const CorporateStaffDashboardPage: React.FC = () => {
                 法人職員ダッシュボード
               </h1>
               <p className="text-gray-400 text-sm">
-                {demoCorporateAnalytics.organizationName} - 全施設統合管理
+                {safeGetProperty(dashboardData, 'organizationName', '医療法人社団')} - 全施設統合管理
               </p>
+              {error && (
+                <p className="text-orange-400 text-xs mt-1">
+                  ⚠️ {error}
+                </p>
+              )}
             </div>
           </div>
           
@@ -196,13 +231,13 @@ const CorporateStaffDashboardPage: React.FC = () => {
             {/* 法人情報 */}
             <div className="flex items-center gap-4 text-sm">
               <div className="text-gray-400">
-                法人ランキング: <span className="text-yellow-400 font-semibold">#{demoCorporateAnalytics.organizationRanking}</span>
+                法人ランキング: <span className="text-yellow-400 font-semibold">#{safeGetProperty(dashboardData, 'organizationRanking', 1)}</span>
               </div>
               <div className="text-gray-400">
-                総職員数: <span className="text-cyan-400 font-semibold">{demoCorporateAnalytics.organizationMetrics.totalStaff}名</span>
+                総職員数: <span className="text-cyan-400 font-semibold">{safeGetProperty(safeGetProperty(dashboardData, 'organizationMetrics', defaultCorporateData.organizationMetrics!), 'totalStaff', 0)}名</span>
               </div>
               <div className="text-gray-400">
-                施設数: <span className="text-blue-400 font-semibold">{demoCorporateAnalytics.facilityAnalytics.length}</span>
+                施設数: <span className="text-blue-400 font-semibold">{safeGetProperty(dashboardData, 'facilityAnalytics', []).length}</span>
               </div>
             </div>
           </div>
@@ -210,15 +245,15 @@ const CorporateStaffDashboardPage: React.FC = () => {
 
         {/* 法人レベルエンゲージメント指標 */}
         <EngagementMetrics 
-          metrics={demoCorporateAnalytics.organizationMetrics}
+          metrics={safeGetProperty(dashboardData, 'organizationMetrics', defaultCorporateData.organizationMetrics!)}
           scope="corporate"
         />
 
         {/* 組織健康度指標 */}
-        <OrganizationalHealthComponent healthData={organizationalHealth} />
+        <OrganizationalHealthComponent healthData={safeGetProperty(dashboardData, 'organizationalHealth', defaultCorporateData.organizationalHealth)} />
 
         {/* 戦略的イニシアチブ */}
-        <StrategicInitiatives initiatives={strategicInitiatives} />
+        <StrategicInitiatives initiatives={safeGetProperty(dashboardData, 'strategicInitiatives', [])} />
 
         {/* 施設間比較 */}
         <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
@@ -231,13 +266,14 @@ const CorporateStaffDashboardPage: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            {demoCorporateAnalytics.facilityAnalytics.map((facility, index) => {
+            {safeGetProperty(dashboardData, 'facilityAnalytics', []).map((facility: any, index: number) => {
               const rank = index + 1;
-              const engagement = facility.facilityMetrics.averageEngagement * 100;
+              const facilityMetrics = safeGetProperty(facility, 'facilityMetrics', defaultCorporateData.organizationMetrics!);
+              const engagement = safeGetProperty(facilityMetrics, 'averageEngagement', 0) * 100;
               
               return (
                 <div
-                  key={facility.facilityId}
+                  key={safeGetProperty(facility, 'facilityId', `facility-${index}`)}
                   className="flex items-center justify-between p-4 bg-slate-700/20 rounded-lg hover:bg-slate-700/40 transition-colors"
                 >
                   <div className="flex items-center gap-4">
@@ -249,19 +285,19 @@ const CorporateStaffDashboardPage: React.FC = () => {
                       {rank}
                     </div>
                     <div className="min-w-[120px]">
-                      <div className="text-white font-medium">{facility.facilityName}</div>
-                      <div className="text-xs text-gray-400">総職員数: {facility.facilityMetrics.totalStaff}名</div>
+                      <div className="text-white font-medium">{safeGetProperty(facility, 'facilityName', `施設${rank}`)}</div>
+                      <div className="text-xs text-gray-400">総職員数: {safeGetProperty(facilityMetrics, 'totalStaff', 0)}名</div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-6">
                     <div className="text-center">
                       <div className="text-sm text-gray-400">提案数/月</div>
-                      <div className="text-white font-semibold">{facility.facilityMetrics.averageProposals.toFixed(1)}</div>
+                      <div className="text-white font-semibold">{safeGetProperty(facilityMetrics, 'averageProposals', 0).toFixed(1)}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-sm text-gray-400">参加率/月</div>
-                      <div className="text-white font-semibold">{facility.facilityMetrics.averageParticipation.toFixed(1)}</div>
+                      <div className="text-white font-semibold">{safeGetProperty(facilityMetrics, 'averageParticipation', 0).toFixed(1)}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-sm text-gray-400">エンゲージメント</div>
@@ -282,7 +318,7 @@ const CorporateStaffDashboardPage: React.FC = () => {
                             engagement >= 65 ? 'bg-gradient-to-r from-yellow-500 to-yellow-400' :
                             'bg-gradient-to-r from-orange-500 to-orange-400'
                           }`}
-                          style={{ width: `${engagement}%` }}
+                          style={{ width: `${Math.min(100, engagement)}%` }}
                         />
                       </div>
                     </div>
@@ -295,7 +331,7 @@ const CorporateStaffDashboardPage: React.FC = () => {
 
         {/* 部署間統合比較 */}
         <DepartmentComparison 
-          departments={demoCorporateAnalytics.departmentAnalytics}
+          departments={safeGetProperty(dashboardData, 'departmentAnalytics', [])}
           scope="corporate"
         />
 
@@ -314,7 +350,7 @@ const CorporateStaffDashboardPage: React.FC = () => {
                 <span className="text-green-400 text-sm font-medium">市場競争力</span>
               </div>
               <div className="text-2xl font-bold text-green-400">
-                {(demoCorporateAnalytics.strategicMetrics.marketCompetitiveness * 100).toFixed(1)}%
+                {(safeGetProperty(safeGetProperty(dashboardData, 'strategicMetrics', defaultCorporateData.strategicMetrics!), 'marketCompetitiveness', 0) * 100).toFixed(1)}%
               </div>
               <div className="text-xs text-gray-400">業界平均比</div>
             </div>
@@ -326,7 +362,7 @@ const CorporateStaffDashboardPage: React.FC = () => {
                 <span className="text-blue-400 text-sm font-medium">成長ポテンシャル</span>
               </div>
               <div className="text-2xl font-bold text-blue-400">
-                {(demoCorporateAnalytics.strategicMetrics.growthPotential * 100).toFixed(1)}%
+                {(safeGetProperty(safeGetProperty(dashboardData, 'strategicMetrics', defaultCorporateData.strategicMetrics!), 'growthPotential', 0) * 100).toFixed(1)}%
               </div>
               <div className="text-xs text-gray-400">前年同期比</div>
             </div>
@@ -338,7 +374,7 @@ const CorporateStaffDashboardPage: React.FC = () => {
                 <span className="text-purple-400 text-sm font-medium">ガバナンス</span>
               </div>
               <div className="text-2xl font-bold text-purple-400">
-                {(demoCorporateAnalytics.strategicMetrics.governanceScore * 100).toFixed(1)}%
+                {(safeGetProperty(safeGetProperty(dashboardData, 'strategicMetrics', defaultCorporateData.strategicMetrics!), 'governanceScore', 0) * 100).toFixed(1)}%
               </div>
               <div className="text-xs text-gray-400">コンプライアンス</div>
             </div>
@@ -350,7 +386,7 @@ const CorporateStaffDashboardPage: React.FC = () => {
                 <span className="text-cyan-400 text-sm font-medium">DX推進度</span>
               </div>
               <div className="text-2xl font-bold text-cyan-400">
-                {(demoCorporateAnalytics.strategicMetrics.digitalTransformation * 100).toFixed(1)}%
+                {(safeGetProperty(safeGetProperty(dashboardData, 'strategicMetrics', defaultCorporateData.strategicMetrics!), 'digitalTransformation', 0) * 100).toFixed(1)}%
               </div>
               <div className="text-xs text-gray-400">デジタル化率</div>
             </div>
