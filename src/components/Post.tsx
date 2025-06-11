@@ -7,6 +7,7 @@ import { Post as PostType, VoteOption, Comment, User } from '../types';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 import { generateSampleVotesByStakeholder } from '../utils/votingCalculations';
 import { proposalTypeConfigs } from '../config/proposalTypes';
+import { FACILITIES } from '../data/medical/facilities';
 
 interface PostProps {
   post: PostType;
@@ -23,6 +24,11 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
   const [showComments, setShowComments] = useState(false);
   const { calculateScore, getStatusConfig, convertVotesToEngagements } = useProjectScoring();
   
+  // 施設名を取得するヘルパー関数
+  const getFacilityName = (facilityId: string) => {
+    return FACILITIES[facilityId as keyof typeof FACILITIES]?.name || '';
+  };
+  
   // プロジェクトスコアを計算してワークフロー表示を判定
   useEffect(() => {
     if (post.type === 'improvement') {
@@ -36,23 +42,35 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
   }, [post, calculateScore, getStatusConfig, convertVotesToEngagements]);
 
   const getAuthorDisplay = () => {
+    const facilityName = post.author.facility_id ? getFacilityName(post.author.facility_id) : '';
+    
     switch (post.anonymityLevel) {
-      case 'real':
+      case 'real_name':
         return post.author.name;
-      case 'department':
+      case 'facility_department':
+        return `${facilityName} ${post.author.department}職員`;
+      case 'facility_anonymous':
+        return `${facilityName} 匿名職員`;
+      case 'department_only':
         return `${post.author.department}職員`;
       case 'anonymous':
+        return '匿名職員';
+      default:
         return '匿名職員';
     }
   };
 
   const getAvatarInitial = () => {
     switch (post.anonymityLevel) {
-      case 'real':
+      case 'real_name':
         return post.author.name.charAt(0);
-      case 'department':
+      case 'facility_department':
+      case 'department_only':
         return post.author.department.charAt(0);
+      case 'facility_anonymous':
       case 'anonymous':
+        return '?';
+      default:
         return '?';
     }
   };
@@ -143,7 +161,7 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
             )}
             
             <span className="font-bold text-gray-100">{getAuthorDisplay()}</span>
-            {post.anonymityLevel === 'real' && (
+            {post.anonymityLevel === 'real_name' && (
               <span className="text-blue-400 text-sm font-medium">@{post.author.role}</span>
             )}
             <span className="text-gray-500 text-sm">・5分前</span>

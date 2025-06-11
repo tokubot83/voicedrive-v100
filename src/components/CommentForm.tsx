@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Comment, CommentPrivacyLevel, ProposalType, User } from '../types';
-import { getCommentPrivacyLevel } from '../config/proposalTypes';
+import { Comment, AnonymityLevel, ProposalType, User } from '../types';
+import { FACILITIES } from '../data/medical/facilities';
 
 interface CommentFormProps {
   postId: string;
@@ -18,25 +18,25 @@ export default function CommentForm({
   onCancel 
 }: CommentFormProps) {
   const [content, setContent] = useState('');
-  const [customPrivacyLevel, setCustomPrivacyLevel] = useState<CommentPrivacyLevel | null>(null);
+  const [customAnonymityLevel, setCustomAnonymityLevel] = useState<AnonymityLevel | null>(null);
 
-  const defaultPrivacyLevel = proposalType ? getCommentPrivacyLevel(proposalType) : 'partial';
-  const effectivePrivacyLevel = customPrivacyLevel || defaultPrivacyLevel;
+  const defaultAnonymityLevel: AnonymityLevel = proposalType === 'riskManagement' ? 'real_name' : 
+                                                proposalType === 'communication' ? 'anonymous' : 'facility_department';
+  const effectiveAnonymityLevel = customAnonymityLevel || defaultAnonymityLevel;
 
-  const canSelectPrivacy = proposalType === 'innovation' || proposalType === 'strategic';
+  const canSelectAnonymity = proposalType === 'innovation' || proposalType === 'strategic';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
 
-    const visibleInfo = getVisibleInfo(effectivePrivacyLevel, currentUser);
+    const visibleInfo = getVisibleInfo(effectiveAnonymityLevel, currentUser);
 
     const comment: Omit<Comment, 'id' | 'timestamp'> = {
       postId,
       content: content.trim(),
       author: currentUser,
-      anonymityLevel: mapPrivacyToAnonymity(effectivePrivacyLevel),
-      privacyLevel: effectivePrivacyLevel,
+      anonymityLevel: effectiveAnonymityLevel,
       visibleInfo
     };
 
@@ -44,61 +44,38 @@ export default function CommentForm({
     setContent('');
   };
 
-  const getVisibleInfo = (privacy: CommentPrivacyLevel, user: User) => {
-    switch (privacy) {
+  const getVisibleInfo = (anonymity: AnonymityLevel, user: User) => {
+    const facilityName = user.facility_id ? FACILITIES[user.facility_id as keyof typeof FACILITIES]?.name : '';
+    
+    switch (anonymity) {
       case 'anonymous':
         return undefined;
-      case 'partial':
+      case 'department_only':
+      case 'facility_anonymous':
+      case 'facility_department':
+      case 'real_name':
         return {
-          facility: user.department, // 簡略化：部署を施設として使用
+          facility: facilityName,
           position: user.role,
-          experienceYears: user.expertise || 0,
-          isManagement: user.role.includes('管理') || user.role.includes('主任')
-        };
-      case 'selective':
-        const isManagement = user.role.includes('管理') || user.role.includes('主任');
-        return isManagement ? {
-          facility: user.department,
-          position: user.role,
-          experienceYears: user.expertise || 0,
-          isManagement: true
-        } : {
-          facility: user.department,
-          position: user.role,
-          experienceYears: user.expertise || 0,
-          isManagement: false
-        };
-      case 'full':
-        return {
-          facility: user.department,
-          position: user.role,
-          experienceYears: user.expertise || 0,
-          isManagement: user.role.includes('管理') || user.role.includes('主任')
+          experienceYears: user.expertise || 0
         };
       default:
         return undefined;
     }
   };
 
-  const mapPrivacyToAnonymity = (privacy: CommentPrivacyLevel): 'real' | 'department' | 'anonymous' => {
-    switch (privacy) {
-      case 'full': return 'real';
-      case 'partial':
-      case 'selective': return 'department';
-      case 'anonymous': return 'anonymous';
-      default: return 'anonymous';
-    }
-  };
 
-  const getPrivacyDescription = (privacy: CommentPrivacyLevel) => {
-    switch (privacy) {
+  const getAnonymityDescription = (anonymity: AnonymityLevel) => {
+    switch (anonymity) {
       case 'anonymous':
         return '完全匿名 - 名前や所属は表示されません';
-      case 'partial':
-        return '部分匿名 - 施設・職種・経験年数のみ表示';
-      case 'selective':
-        return '段階的 - 管理職は実名、その他は部分匿名';
-      case 'full':
+      case 'department_only':
+        return '部署名のみ - 部署名と経験年数のみ表示';
+      case 'facility_anonymous':
+        return '施設名＋匿名 - 施設名と経験年数のみ表示';
+      case 'facility_department':
+        return '施設名＋部署名 - 施設名、部署名、経験年数を表示';
+      case 'real_name':
         return '実名制 - 氏名と所属が表示されます';
       default:
         return '';
@@ -130,11 +107,11 @@ export default function CommentForm({
           )}
         </div>
         <div className="text-xs text-gray-600 bg-yellow-50 p-2 rounded border-l-4 border-yellow-400">
-          <strong>公開レベル:</strong> {getPrivacyDescription(effectivePrivacyLevel)}
+          <strong>公開レベル:</strong> {getAnonymityDescription(effectiveAnonymityLevel)}
         </div>
       </div>
 
-      {canSelectPrivacy && (
+      {canSelectAnonymity && (
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             公開レベルを選択
@@ -143,9 +120,9 @@ export default function CommentForm({
             <label className="flex items-center">
               <input
                 type="radio"
-                name="privacy"
-                checked={effectivePrivacyLevel === 'anonymous'}
-                onChange={() => setCustomPrivacyLevel('anonymous')}
+                name="anonymity"
+                checked={effectiveAnonymityLevel === 'anonymous'}
+                onChange={() => setCustomAnonymityLevel('anonymous')}
                 className="mr-2"
               />
               <span className="text-sm">完全匿名</span>
@@ -153,31 +130,29 @@ export default function CommentForm({
             <label className="flex items-center">
               <input
                 type="radio"
-                name="privacy"
-                checked={effectivePrivacyLevel === 'partial'}
-                onChange={() => setCustomPrivacyLevel('partial')}
+                name="anonymity"
+                checked={effectiveAnonymityLevel === 'facility_department'}
+                onChange={() => setCustomAnonymityLevel('facility_department')}
                 className="mr-2"
               />
-              <span className="text-sm">部分匿名（推奨）</span>
+              <span className="text-sm">施設名＋部署名（推奨）</span>
             </label>
-            {proposalType === 'strategic' && (
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="privacy"
-                  checked={effectivePrivacyLevel === 'selective'}
-                  onChange={() => setCustomPrivacyLevel('selective')}
-                  className="mr-2"
-                />
-                <span className="text-sm">段階的公開</span>
-              </label>
-            )}
             <label className="flex items-center">
               <input
                 type="radio"
-                name="privacy"
-                checked={effectivePrivacyLevel === 'full'}
-                onChange={() => setCustomPrivacyLevel('full')}
+                name="anonymity"
+                checked={effectiveAnonymityLevel === 'facility_anonymous'}
+                onChange={() => setCustomAnonymityLevel('facility_anonymous')}
+                className="mr-2"
+              />
+              <span className="text-sm">施設名＋匿名</span>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="anonymity"
+                checked={effectiveAnonymityLevel === 'real_name'}
+                onChange={() => setCustomAnonymityLevel('real_name')}
                 className="mr-2"
               />
               <span className="text-sm">実名制</span>

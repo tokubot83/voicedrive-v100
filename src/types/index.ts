@@ -1,5 +1,5 @@
 export type PostType = 'improvement' | 'community' | 'report';
-export type AnonymityLevel = 'real' | 'department' | 'anonymous';
+export type AnonymityLevel = 'anonymous' | 'department_only' | 'facility_anonymous' | 'facility_department' | 'real_name';
 export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 export type VoteOption = 'strongly-oppose' | 'oppose' | 'neutral' | 'support' | 'strongly-support';
 export type UserRole = 'employee' | 'chief' | 'manager' | 'executive';
@@ -167,16 +167,12 @@ export interface VotingData {
   participation: number;
 }
 
-// Comment privacy levels based on proposal category
-export type CommentPrivacyLevel = 'anonymous' | 'partial' | 'selective' | 'full';
-
 export interface Comment {
   id: string;
   postId: string;
   content: string;
   author: User;
   anonymityLevel: AnonymityLevel;
-  privacyLevel: CommentPrivacyLevel;
   timestamp: Date;
   visibleInfo?: {
     facility?: string;

@@ -34,9 +34,9 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
     
     // Set default anonymity level based on post type
     if (selectedType === 'improvement') {
-      setAnonymity('real');
+      setAnonymity('real_name');
     } else if (selectedType === 'community') {
-      setAnonymity('department');
+      setAnonymity('department_only');
     } else if (selectedType === 'report') {
       setAnonymity('anonymous');
     }
@@ -317,14 +317,26 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
             <div className="space-y-3">
               {[
                 { 
-                  value: 'real', 
+                  value: 'real_name', 
                   icon: '👤', 
                   label: '実名表示', 
                   desc: selectedType === 'improvement' ? '責任を持った提案' : '通常の情報共有',
                   disabled: selectedType === 'report' 
                 },
                 { 
-                  value: 'department', 
+                  value: 'facility_department', 
+                  icon: '🏥', 
+                  label: '施設名＋部署名', 
+                  desc: '施設間での情報共有' 
+                },
+                { 
+                  value: 'facility_anonymous', 
+                  icon: '🏥', 
+                  label: '施設名＋匿名', 
+                  desc: '施設での匿名提案' 
+                },
+                { 
+                  value: 'department_only', 
                   icon: '📍', 
                   label: '部署名のみ', 
                   desc: selectedType === 'improvement' ? 'センシティブな内容' : '部署間の調整' 

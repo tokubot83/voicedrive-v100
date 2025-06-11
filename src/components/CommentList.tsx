@@ -1,5 +1,6 @@
 import React from 'react';
-import { Comment, CommentPrivacyLevel, User } from '../types';
+import { Comment, AnonymityLevel, User } from '../types';
+import { FACILITIES } from '../data/medical/facilities';
 
 interface CommentListProps {
   comments: Comment[];
@@ -12,41 +13,42 @@ interface CommentItemProps {
 }
 
 function CommentItem({ comment, currentUser }: CommentItemProps) {
-  const formatDisplayName = (comment: Comment): { name: string; subtitle?: string } => {
-    const { privacyLevel, author, visibleInfo } = comment;
+  // 施設名を取得するヘルパー関数
+  const getFacilityName = (facilityId: string) => {
+    return FACILITIES[facilityId as keyof typeof FACILITIES]?.name || '';
+  };
 
-    switch (privacyLevel) {
+  const formatDisplayName = (comment: Comment): { name: string; subtitle?: string } => {
+    const { anonymityLevel, author, visibleInfo } = comment;
+    const facilityName = author.facility_id ? getFacilityName(author.facility_id) : visibleInfo?.facility || '';
+
+    switch (anonymityLevel) {
       case 'anonymous':
-        return { name: '匿名' };
+        return { name: '匿名職員' };
       
-      case 'partial':
-        if (visibleInfo) {
-          return {
-            name: `${visibleInfo.facility || '不明'} ${visibleInfo.position || '職員'}`,
-            subtitle: `経験${visibleInfo.experienceYears || 0}年`
-          };
-        }
-        return { name: '職員' };
+      case 'department_only':
+        return { 
+          name: `${author.department}職員`,
+          subtitle: visibleInfo?.experienceYears ? `経験${visibleInfo.experienceYears}年` : undefined
+        };
       
-      case 'selective':
-        if (visibleInfo?.isManagement) {
-          return {
-            name: author.name,
-            subtitle: `${visibleInfo.facility} ${visibleInfo.position} (経験${visibleInfo.experienceYears}年)`
-          };
-        } else if (visibleInfo) {
-          return {
-            name: `${visibleInfo.facility} ${visibleInfo.position}`,
-            subtitle: `経験${visibleInfo.experienceYears}年`
-          };
-        }
-        return { name: '職員' };
+      case 'facility_anonymous':
+        return { 
+          name: `${facilityName} 匿名職員`,
+          subtitle: visibleInfo?.experienceYears ? `経験${visibleInfo.experienceYears}年` : undefined
+        };
       
-      case 'full':
+      case 'facility_department':
+        return {
+          name: `${facilityName} ${author.department}職員`,
+          subtitle: visibleInfo?.experienceYears ? `経験${visibleInfo.experienceYears}年` : undefined
+        };
+      
+      case 'real_name':
         return {
           name: author.name,
-          subtitle: visibleInfo ? 
-            `${visibleInfo.facility} ${visibleInfo.position} (経験${visibleInfo.experienceYears}年)` :
+          subtitle: facilityName ? 
+            `${facilityName} ${author.department} ${author.role}` + (visibleInfo?.experienceYears ? ` (経験${visibleInfo.experienceYears}年)` : '') :
             `${author.department} ${author.role}`
         };
       
@@ -55,14 +57,15 @@ function CommentItem({ comment, currentUser }: CommentItemProps) {
     }
   };
 
-  const getPrivacyBadge = (privacy: CommentPrivacyLevel) => {
+  const getPrivacyBadge = (anonymity: AnonymityLevel) => {
     const badges = {
       anonymous: { label: '匿名', color: 'bg-gray-100 text-gray-700' },
-      partial: { label: '部分', color: 'bg-blue-100 text-blue-700' },
-      selective: { label: '段階', color: 'bg-purple-100 text-purple-700' },
-      full: { label: '実名', color: 'bg-green-100 text-green-700' }
+      department_only: { label: '部署', color: 'bg-blue-100 text-blue-700' },
+      facility_anonymous: { label: '施設匿名', color: 'bg-indigo-100 text-indigo-700' },
+      facility_department: { label: '施設部署', color: 'bg-purple-100 text-purple-700' },
+      real_name: { label: '実名', color: 'bg-green-100 text-green-700' }
     };
-    return badges[privacy];
+    return badges[anonymity];
   };
 
   const formatTimestamp = (date: Date) => {
@@ -86,7 +89,7 @@ function CommentItem({ comment, currentUser }: CommentItemProps) {
   };
 
   const displayInfo = formatDisplayName(comment);
-  const privacyBadge = getPrivacyBadge(comment.privacyLevel);
+  const privacyBadge = getPrivacyBadge(comment.anonymityLevel);
   const isOwnComment = comment.author.id === currentUser.id;
 
   return (
