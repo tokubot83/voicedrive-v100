@@ -54,6 +54,9 @@ import ExecutiveDashboard from '../components/analytics/ExecutiveDashboard';
 // Whistleblowing
 import WhistleblowingPage from '../pages/WhistleblowingPage';
 
+// Retirement Processing
+import RetirementProcessingPage from '../pages/RetirementProcessingPage';
+
 // Error pages
 import NotFoundPage from '../pages/NotFoundPage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
@@ -178,6 +181,13 @@ const AppRouter: React.FC = () => {
         <Route path="performance" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
             <PerformanceAnalyticsPage />
+          </ProtectedRoute>
+        } />
+        
+        {/* Retirement Processing (Level 6+) */}
+        <Route path="retirement-processing" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
+            <RetirementProcessingPage />
           </ProtectedRoute>
         } />
         

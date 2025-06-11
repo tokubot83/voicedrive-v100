@@ -69,6 +69,7 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
     { id: 'strategic_planning', path: '/strategic-planning', icon: '🎯', label: '戦略的人事計画', section: 'hr_strategic', menuKey: 'strategic_planning' },
     { id: 'org_development', path: '/org-development', icon: '🏗️', label: '組織開発', section: 'hr_strategic', menuKey: 'org_development' },
     { id: 'performance_analytics', path: '/performance', icon: '📈', label: 'パフォーマンス分析', section: 'hr_strategic', menuKey: 'performance_analytics' },
+    { id: 'retirement_processing', path: '/retirement-processing', icon: '👤', label: '退職処理管理', section: 'hr_strategic', requiredLevel: 6 },
     
     // 施設管理機能（レベル7以上）
     { id: 'facility_management', path: '/facility-management', icon: '🏭', label: '施設管理', section: 'facility', menuKey: 'facility_management' },
@@ -124,6 +125,12 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
     if (item.exactLevel && item.requiredLevel) {
       const userLevel = currentUser?.permissionLevel || 1;
       return userLevel === item.requiredLevel;
+    }
+    
+    // requiredLevelが指定されている場合は、権限レベルをチェック
+    if (item.requiredLevel && !item.exactLevel) {
+      const userLevel = currentUser?.permissionLevel || 1;
+      return userLevel >= item.requiredLevel;
     }
     
     // menuKeyが指定されている場合は、アクセス可能なメニューかチェック
