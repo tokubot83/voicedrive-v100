@@ -48,6 +48,13 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
     { id: 'dashboard-corporate', path: '/dashboard/corporate', icon: '🏢', label: '法人統括ダッシュボード', section: 'dashboard', requiredLevel: 7, exactLevel: true },
     { id: 'dashboard-executive', path: '/dashboard/executive', icon: '🏛️', label: '経営ダッシュボード', section: 'dashboard', requiredLevel: 8, exactLevel: true },
     
+    { id: 'divider-staff', isDivider: true },
+    
+    // 階層別職員ダッシュボード（Level 3以上）
+    { id: 'staff-dashboard-department', path: '/staff-dashboard/department', icon: '👥', label: '部門職員ダッシュボード', section: 'staff-dashboard', requiredLevel: 3 },
+    { id: 'staff-dashboard-facility', path: '/staff-dashboard/facility', icon: '🏥', label: '施設職員ダッシュボード', section: 'staff-dashboard', requiredLevel: 4 },
+    { id: 'staff-dashboard-corporate', path: '/staff-dashboard/corporate', icon: '🌐', label: '法人職員ダッシュボード', section: 'staff-dashboard', requiredLevel: 5 },
+    
     // チーム管理機能（レベル2以上）
     { id: 'team_management', path: '/team-management', icon: '👥', label: 'チーム管理', section: 'team', menuKey: 'team_management' },
     
@@ -117,6 +124,11 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
           nextItem.section === 'dashboard' && 
           nextItem.requiredLevel === (currentUser?.permissionLevel || 1)
         );
+      }
+      // 職員ダッシュボードの区切り線は、職員ダッシュボードが表示される場合のみ表示
+      if (item.id === 'divider-staff') {
+        const userLevel = currentUser?.permissionLevel || 1;
+        return userLevel >= 3; // Level 3以上で職員ダッシュボードが利用可能
       }
       return false;
     }

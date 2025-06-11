@@ -39,6 +39,9 @@ import StrategicDashboardPage from '../pages/StrategicDashboardPage';
 import CorporateDashboardPage from '../pages/CorporateDashboardPage';
 import ExecutiveDashboardPage from '../pages/ExecutiveDashboardPage';
 
+// Staff Dashboard pages
+import DepartmentStaffDashboardPage from '../pages/DepartmentStaffDashboardPage';
+
 // Authority & Settings
 import AuthorityDashboard from '../components/authority/AuthorityDashboard';
 import NotificationsPage from '../pages/NotificationsPage';
@@ -115,6 +118,16 @@ const AppRouter: React.FC = () => {
               <ExecutiveDashboardPage />
             </ProtectedRoute>
           } />
+        </Route>
+        
+        {/* Staff Dashboard routes */}
+        <Route path="staff-dashboard">
+          <Route path="department" element={
+            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
+              <DepartmentStaffDashboardPage />
+            </ProtectedRoute>
+          } />
+          {/* TODO: Add facility and corporate staff dashboard routes */}
         </Route>
         
         {/* Team management (Level 2+) */}
