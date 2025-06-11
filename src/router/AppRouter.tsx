@@ -30,14 +30,14 @@ import BoardReportsPage from '../pages/BoardReportsPage';
 import GovernancePage from '../pages/GovernancePage';
 
 // Dashboard pages
-import PersonalDashboard from '../components/dashboards/PersonalDashboard';
-import TeamLeaderDashboard from '../components/dashboards/TeamLeaderDashboard';
-import DepartmentDashboard from '../components/dashboards/DepartmentDashboard';
-import FacilityDashboard from '../components/dashboards/FacilityDashboard';
-import HRManagementDashboard from '../components/dashboards/HRManagementDashboard';
-import StrategicDashboard from '../components/dashboards/StrategicDashboard';
-import CorporateDashboard from '../components/dashboards/CorporateDashboard';
-import ExecutiveLevelDashboard from '../components/dashboards/ExecutiveLevelDashboard';
+import PersonalDashboardPage from '../pages/PersonalDashboardPage';
+import TeamLeaderDashboardPage from '../pages/TeamLeaderDashboardPage';
+import DepartmentDashboardPage from '../pages/DepartmentDashboardPage';
+import FacilityDashboardPage from '../pages/FacilityDashboardPage';
+import HRManagementDashboardPage from '../pages/HRManagementDashboardPage';
+import StrategicDashboardPage from '../pages/StrategicDashboardPage';
+import CorporateDashboardPage from '../pages/CorporateDashboardPage';
+import ExecutiveDashboardPage from '../pages/ExecutiveDashboardPage';
 
 // Authority & Settings
 import AuthorityDashboard from '../components/authority/AuthorityDashboard';
@@ -77,42 +77,42 @@ const AppRouter: React.FC = () => {
         <Route path="dashboard">
           <Route path="personal" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_1} exactLevel>
-              <PersonalDashboard />
+              <PersonalDashboardPage />
             </ProtectedRoute>
           } />
           <Route path="team-leader" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_2} exactLevel>
-              <TeamLeaderDashboard />
+              <TeamLeaderDashboardPage />
             </ProtectedRoute>
           } />
           <Route path="department" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3} exactLevel>
-              <DepartmentDashboard />
+              <DepartmentDashboardPage />
             </ProtectedRoute>
           } />
           <Route path="facility" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_4} exactLevel>
-              <FacilityDashboard />
+              <FacilityDashboardPage />
             </ProtectedRoute>
           } />
           <Route path="hr-management" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5} exactLevel>
-              <HRManagementDashboard />
+              <HRManagementDashboardPage />
             </ProtectedRoute>
           } />
           <Route path="strategic" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6} exactLevel>
-              <StrategicDashboard />
+              <StrategicDashboardPage />
             </ProtectedRoute>
           } />
           <Route path="corporate" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7} exactLevel>
-              <CorporateDashboard />
+              <CorporateDashboardPage />
             </ProtectedRoute>
           } />
           <Route path="executive" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8} exactLevel>
-              <ExecutiveLevelDashboard />
+              <ExecutiveDashboardPage />
             </ProtectedRoute>
           } />
         </Route>
