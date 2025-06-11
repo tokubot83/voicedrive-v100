@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import EnhancedPost from './EnhancedPost';
-import { Post as PostType, VoteOption } from '../types';
+import Post from './Post';
+import { Post as PostType, VoteOption, Comment } from '../types';
 import { demoPosts } from '../data/demo/posts';
 import { useDemoMode } from './demo/DemoModeController';
 
@@ -11,6 +12,7 @@ interface TimelineProps {
 
 const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
   const { isDemoMode, currentUser } = useDemoMode();
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   
   // Use demo posts in demo mode, otherwise use the original posts
   const initialPosts = useMemo(() => {
@@ -139,14 +141,34 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
     ] as PostType[];
   }, [isDemoMode]);
   
-  const [posts] = useState<PostType[]>(initialPosts);
+  const [posts, setPosts] = useState<PostType[]>(initialPosts);
 
   const handleVote = (postId: string, option: VoteOption) => {
     console.log(`Voted ${option} for post ${postId}`);
   };
 
   const handleComment = (postId: string) => {
-    console.log(`Opening comment modal for post ${postId}`);
+    setSelectedPostId(postId);
+  };
+
+  const handleCommentSubmit = (postId: string, comment: Omit<Comment, 'id' | 'timestamp'>) => {
+    setPosts(prevPosts => 
+      prevPosts.map(post => {
+        if (post.id === postId) {
+          const newComment = {
+            id: Date.now().toString(),
+            ...comment,
+            timestamp: new Date(),
+            likes: 0
+          };
+          return {
+            ...post,
+            comments: [...post.comments, newComment]
+          };
+        }
+        return post;
+      })
+    );
   };
 
   // Filter posts based on activeTab and user
@@ -182,13 +204,24 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
   return (
     <div className="overflow-y-auto">
       {filteredPosts.map((post) => (
-        <EnhancedPost
-          key={post.id}
-          post={post}
-          currentUser={currentUser}
-          onVote={handleVote}
-          onComment={handleComment}
-        />
+        selectedPostId === post.id ? (
+          <Post
+            key={post.id}
+            post={post}
+            currentUser={currentUser}
+            onVote={handleVote}
+            onComment={handleCommentSubmit}
+            onClose={() => setSelectedPostId(null)}
+          />
+        ) : (
+          <EnhancedPost
+            key={post.id}
+            post={post}
+            currentUser={currentUser}
+            onVote={handleVote}
+            onComment={handleComment}
+          />
+        )
       ))}
     </div>
   );

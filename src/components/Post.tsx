@@ -13,9 +13,10 @@ interface PostProps {
   currentUser: User;
   onVote: (postId: string, option: VoteOption) => void;
   onComment: (postId: string, comment: Omit<Comment, 'id' | 'timestamp'>) => void;
+  onClose?: () => void;
 }
 
-const Post = ({ post, currentUser, onVote, onComment }: PostProps) => {
+const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(null);
   const [showWorkflow, setShowWorkflow] = useState(false);
   const [showCommentForm, setShowCommentForm] = useState(false);
@@ -102,6 +103,17 @@ const Post = ({ post, currentUser, onVote, onComment }: PostProps) => {
 
   return (
     <div className="border-b border-gray-800/30 p-5 transition-all duration-300 hover:bg-white/2 hover:shadow-[inset_0_0_20px_rgba(29,155,240,0.1)]">
+      {onClose && (
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-200 transition-colors"
+            aria-label="閉じる"
+          >
+            ✕
+          </button>
+        </div>
+      )}
       <div className="flex gap-3">
         <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold flex-shrink-0">
           {getAvatarInitial()}
