@@ -38,6 +38,7 @@ import HRManagementDashboardPage from '../pages/HRManagementDashboardPage';
 import StrategicDashboardPage from '../pages/StrategicDashboardPage';
 import CorporateDashboardPage from '../pages/CorporateDashboardPage';
 import ExecutiveDashboardPage from '../pages/ExecutiveDashboardPage';
+import IntegratedCorporateDashboardPage from '../pages/IntegratedCorporateDashboardPage';
 
 // Staff Dashboard pages
 import DepartmentStaffDashboardPage from '../pages/DepartmentStaffDashboardPage';
@@ -121,6 +122,12 @@ const AppRouter: React.FC = () => {
           <Route path="executive" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8} exactLevel>
               <ExecutiveDashboardPage />
+            </ProtectedRoute>
+          } />
+          {/* 統合ダッシュボード（レベル5以上） */}
+          <Route path="integrated-corporate" element={
+            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
+              <IntegratedCorporateDashboardPage />
             </ProtectedRoute>
           } />
         </Route>
