@@ -27,7 +27,7 @@ interface DemoModeProviderProps {
 
 export const DemoModeProvider: React.FC<DemoModeProviderProps> = ({ children }) => {
   const [isDemoMode, setIsDemoMode] = useState(true); // Default to demo mode
-  const [currentUser, setCurrentUser] = useState<DemoUser>(demoUsers[7]); // Default to manager
+  const [currentUser, setCurrentUser] = useState<DemoUser>(demoUsers[7]); // user-8: Level 5 HR_DEPARTMENT_HEAD
 
   const toggleDemoMode = () => {
     setIsDemoMode(!isDemoMode);
