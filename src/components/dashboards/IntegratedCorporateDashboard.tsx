@@ -6,7 +6,7 @@ import { departments } from '../../data/medical/departments';
 import { staffDashboardData } from '../../data/demo/staffDashboardData';
 import { Card, CardContent } from '../ui/Card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/Tabs';
-import EngagementMetrics from '../analytics/EngagementMetrics';
+import EngagementMetrics from '../dashboard/EngagementMetrics';
 import DepartmentComparison from '../dashboard/DepartmentComparison';
 import CrossDepartmentProjects from '../dashboard/CrossDepartmentProjects';
 import StaffRankings from '../dashboard/StaffRankings';

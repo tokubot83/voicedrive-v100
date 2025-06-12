@@ -344,3 +344,189 @@ export const staffAlerts: StaffAlert[] = [
     isRead: true
   }
 ];
+
+// IntegratedCorporateDashboard.tsx用の統合データ（既存データを活用）
+export const staffDashboardData = {
+  // 部門職員データ
+  departmentStaff: [
+    {
+      department: '看護部',
+      totalStaff: 24,
+      activeStaff: 22,
+      averageEngagement: 83,
+      topPerformers: ['田中 花子', '佐藤 太郎', '山田 美咲'],
+      recentActivity: { proposals: 19, projects: 9, discussions: 105 }
+    },
+    {
+      department: '地域包括医療病棟',
+      totalStaff: 18,
+      activeStaff: 17,
+      averageEngagement: 78,
+      topPerformers: ['鈴木 健太', '高橋 恵子', '伊藤 真一'],
+      recentActivity: { proposals: 12, projects: 5, discussions: 67 }
+    },
+    {
+      department: '地域包括ケア病棟',
+      totalStaff: 16,
+      activeStaff: 15,
+      averageEngagement: 81,
+      topPerformers: ['渡辺 美樹', '加藤 雄一', '藤田 愛'],
+      recentActivity: { proposals: 15, projects: 7, discussions: 89 }
+    },
+    {
+      department: '回復期リハビリ病棟',
+      totalStaff: 14,
+      activeStaff: 13,
+      averageEngagement: 85,
+      topPerformers: ['中村 優子', '小林 大輔', '松本 香織'],
+      recentActivity: { proposals: 18, projects: 6, discussions: 72 }
+    },
+    {
+      department: '外来',
+      totalStaff: 22,
+      activeStaff: 20,
+      averageEngagement: 79,
+      topPerformers: ['吉田 俊介', '岡田 桜子', '森田 健'],
+      recentActivity: { proposals: 14, projects: 8, discussions: 94 }
+    },
+    {
+      department: '医療療養病棟',
+      totalStaff: 20,
+      activeStaff: 18,
+      averageEngagement: 76,
+      topPerformers: ['木村 正男', '田村 智子', '石川 直樹'],
+      recentActivity: { proposals: 11, projects: 4, discussions: 58 }
+    },
+    {
+      department: '入所サービス部門',
+      totalStaff: 32,
+      activeStaff: 29,
+      averageEngagement: 82,
+      topPerformers: ['井上 麻美', '坂本 浩司', '清水 結衣'],
+      recentActivity: { proposals: 21, projects: 11, discussions: 126 }
+    },
+    {
+      department: '通所サービス部門',
+      totalStaff: 15,
+      activeStaff: 14,
+      averageEngagement: 84,
+      topPerformers: ['西村 康弘', '長谷川 優', '山口 美香'],
+      recentActivity: { proposals: 16, projects: 6, discussions: 71 }
+    },
+    {
+      department: '居宅サービス部門',
+      totalStaff: 28,
+      activeStaff: 26,
+      averageEngagement: 88,
+      topPerformers: ['大野 修', '前田 千恵', '村上 達也'],
+      recentActivity: { proposals: 24, projects: 9, discussions: 112 }
+    }
+  ],
+  
+  // 施設職員データ
+  facilityStaff: [
+    {
+      facility: '小原病院',
+      totalStaff: 94,
+      departments: 5,
+      averageEngagement: 80,
+      keyMetrics: {
+        proposalRate: 0.32,
+        projectCompletionRate: 0.86,
+        collaborationIndex: 0.78
+      }
+    },
+    {
+      facility: '立神リハ温泉病院',
+      totalStaff: 38,
+      departments: 2,
+      averageEngagement: 77,
+      keyMetrics: {
+        proposalRate: 0.29,
+        projectCompletionRate: 0.82,
+        collaborationIndex: 0.74
+      }
+    },
+    {
+      facility: 'エスポワール立神',
+      totalStaff: 47,
+      departments: 2,
+      averageEngagement: 83,
+      keyMetrics: {
+        proposalRate: 0.36,
+        projectCompletionRate: 0.89,
+        collaborationIndex: 0.81
+      }
+    },
+    {
+      facility: '介護医療院',
+      totalStaff: 35,
+      departments: 1,
+      averageEngagement: 79,
+      keyMetrics: {
+        proposalRate: 0.31,
+        projectCompletionRate: 0.84,
+        collaborationIndex: 0.76
+      }
+    },
+    {
+      facility: '宝寿庵',
+      totalStaff: 28,
+      departments: 1,
+      averageEngagement: 85,
+      keyMetrics: {
+        proposalRate: 0.38,
+        projectCompletionRate: 0.91,
+        collaborationIndex: 0.83
+      }
+    },
+    {
+      facility: '訪問看護ステーション',
+      totalStaff: 24,
+      departments: 1,
+      averageEngagement: 87,
+      keyMetrics: {
+        proposalRate: 0.42,
+        projectCompletionRate: 0.93,
+        collaborationIndex: 0.85
+      }
+    },
+    {
+      facility: '訪問介護事業所',
+      totalStaff: 31,
+      departments: 1,
+      averageEngagement: 86,
+      keyMetrics: {
+        proposalRate: 0.39,
+        projectCompletionRate: 0.88,
+        collaborationIndex: 0.82
+      }
+    },
+    {
+      facility: '居宅介護支援事業所',
+      totalStaff: 19,
+      departments: 1,
+      averageEngagement: 89,
+      keyMetrics: {
+        proposalRate: 0.45,
+        projectCompletionRate: 0.95,
+        collaborationIndex: 0.87
+      }
+    }
+  ],
+
+  // 法人全体データ
+  corporateData: {
+    totalFacilities: 8,
+    totalDepartments: 15,
+    totalStaff: 316,
+    averageEngagement: 82,
+    overallMetrics: {
+      proposalRate: 0.35,
+      projectCompletionRate: 0.87,
+      collaborationIndex: 0.80,
+      retentionRate: 0.94,
+      satisfactionScore: 4.2
+    }
+  }
+};
