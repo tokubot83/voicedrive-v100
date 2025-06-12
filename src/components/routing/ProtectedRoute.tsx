@@ -19,6 +19,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { userLevel, hasPermission } = usePermissions();
   const location = useLocation();
   
+  // デバッグ用ログ
+  console.log('ProtectedRoute - Path:', location.pathname);
+  console.log('ProtectedRoute - User Level:', userLevel);
+  console.log('ProtectedRoute - Required Level:', requiredLevel);
+  console.log('ProtectedRoute - Exact Level:', exactLevel);
+  
   // Check if user has required permission level
   if (requiredLevel) {
     if (exactLevel) {

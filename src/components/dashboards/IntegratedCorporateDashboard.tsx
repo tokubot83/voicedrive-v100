@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useDemoMode } from '../demo/DemoModeController';
-import { usePermissions } from '../../permissions/hooks/usePermissions';
 
 const IntegratedCorporateDashboard: React.FC = () => {
   const { currentUser } = useDemoMode();
+  
+  // デバッグ用ログ
+  console.log('IntegratedCorporateDashboard - Current User:', currentUser);
+  console.log('IntegratedCorporateDashboard - Permission Level:', currentUser?.permissionLevel);
   
   // 権限レベルに応じた表示制御
   const canViewFinancials = currentUser.permissionLevel >= 6;
