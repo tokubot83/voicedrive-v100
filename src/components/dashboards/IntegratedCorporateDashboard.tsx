@@ -11,16 +11,128 @@ const IntegratedCorporateDashboard: React.FC = () => {
   const canViewStrategic = currentUser.permissionLevel >= 7;
   const canViewExecutive = currentUser.permissionLevel >= 8;
 
-  // 施設データ（8施設）
+  // 施設データ（8施設）品質スコアの詳細付き
   const facilities = [
-    { id: 1, name: '小原病院', staff: 450, occupancy: 85.2, budget: 78.5, quality: 92.1 },
-    { id: 2, name: '立神リハ温泉病院', staff: 320, occupancy: 78.9, budget: 82.3, quality: 89.7 },
-    { id: 3, name: 'エスポワール立神', staff: 180, occupancy: 82.1, budget: 76.8, quality: 87.9 },
-    { id: 4, name: '介護医療院', staff: 95, occupancy: 79.8, budget: 84.2, quality: 85.3 },
-    { id: 5, name: '宝寿庵', staff: 85, occupancy: 88.5, budget: 79.1, quality: 91.2 },
-    { id: 6, name: '訪問看護ステーション', staff: 45, occupancy: 91.2, budget: 88.7, quality: 94.5 },
-    { id: 7, name: '訪問介護事業所', staff: 35, occupancy: 86.7, budget: 83.4, quality: 88.8 },
-    { id: 8, name: '居宅介護支援事業所', staff: 40, occupancy: 84.3, budget: 81.6, quality: 89.1 }
+    { 
+      id: 1, 
+      name: '小原病院', 
+      staff: 450, 
+      occupancy: 85.2, 
+      budget: 78.5, 
+      quality: 92.1,
+      qualityDetails: {
+        patientSatisfaction: 94.5,  // 患者満足度
+        medicalSafety: 91.2,        // 医療安全指標
+        staffRetention: 89.8,       // 職員定着率
+        efficiency: 92.3,           // 業務効率性
+        communityCollaboration: 91.7 // 地域連携度
+      }
+    },
+    { 
+      id: 2, 
+      name: '立神リハ温泉病院', 
+      staff: 320, 
+      occupancy: 78.9, 
+      budget: 82.3, 
+      quality: 89.7,
+      qualityDetails: {
+        patientSatisfaction: 91.3,
+        medicalSafety: 89.5,
+        staffRetention: 86.2,
+        efficiency: 90.1,
+        communityCollaboration: 91.4
+      }
+    },
+    { 
+      id: 3, 
+      name: 'エスポワール立神', 
+      staff: 180, 
+      occupancy: 82.1, 
+      budget: 76.8, 
+      quality: 87.9,
+      qualityDetails: {
+        patientSatisfaction: 89.2,
+        medicalSafety: 88.1,
+        staffRetention: 84.7,
+        efficiency: 87.5,
+        communityCollaboration: 89.8
+      }
+    },
+    { 
+      id: 4, 
+      name: '介護医療院', 
+      staff: 95, 
+      occupancy: 79.8, 
+      budget: 84.2, 
+      quality: 85.3,
+      qualityDetails: {
+        patientSatisfaction: 87.1,
+        medicalSafety: 85.8,
+        staffRetention: 82.3,
+        efficiency: 84.9,
+        communityCollaboration: 86.4
+      }
+    },
+    { 
+      id: 5, 
+      name: '宝寿庵', 
+      staff: 85, 
+      occupancy: 88.5, 
+      budget: 79.1, 
+      quality: 91.2,
+      qualityDetails: {
+        patientSatisfaction: 93.8,
+        medicalSafety: 90.5,
+        staffRetention: 88.9,
+        efficiency: 91.2,
+        communityCollaboration: 91.6
+      }
+    },
+    { 
+      id: 6, 
+      name: '訪問看護ステーション', 
+      staff: 45, 
+      occupancy: 91.2, 
+      budget: 88.7, 
+      quality: 94.5,
+      qualityDetails: {
+        patientSatisfaction: 96.2,
+        medicalSafety: 94.8,
+        staffRetention: 92.1,
+        efficiency: 94.3,
+        communityCollaboration: 95.1
+      }
+    },
+    { 
+      id: 7, 
+      name: '訪問介護事業所', 
+      staff: 35, 
+      occupancy: 86.7, 
+      budget: 83.4, 
+      quality: 88.8,
+      qualityDetails: {
+        patientSatisfaction: 90.3,
+        medicalSafety: 88.2,
+        staffRetention: 86.5,
+        efficiency: 89.1,
+        communityCollaboration: 89.8
+      }
+    },
+    { 
+      id: 8, 
+      name: '居宅介護支援事業所', 
+      staff: 40, 
+      occupancy: 84.3, 
+      budget: 81.6, 
+      quality: 89.1,
+      qualityDetails: {
+        patientSatisfaction: 91.5,
+        medicalSafety: 88.9,
+        staffRetention: 86.8,
+        efficiency: 88.7,
+        communityCollaboration: 89.6
+      }
+    }
   ];
 
   // 施設別部門データ
@@ -264,13 +376,43 @@ const IntegratedCorporateDashboard: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
+              <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105 relative group">
                 <div className="text-4xl mb-3">⭐</div>
                 <h4 className="font-bold text-white mb-2">品質管理</h4>
                 <div className="text-3xl font-bold text-purple-400 mb-1">{avgQuality.toFixed(1)}</div>
                 <p className="text-sm text-gray-400">品質スコア</p>
                 <div className="mt-3 text-xs text-gray-500">
                   業界平均: 82.0
+                </div>
+                
+                {/* ホバー時の詳細説明 */}
+                <div className="absolute bottom-full left-0 mb-2 w-64 bg-gray-900 border border-gray-700 rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                  <div className="text-xs text-white mb-2 font-semibold">品質スコア構成要素:</div>
+                  <div className="space-y-1 text-xs text-gray-300">
+                    <div className="flex justify-between">
+                      <span>• 患者満足度</span>
+                      <span className="text-purple-400">30%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• 医療安全指標</span>
+                      <span className="text-purple-400">25%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• 職員定着率</span>
+                      <span className="text-purple-400">20%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• 業務効率性</span>
+                      <span className="text-purple-400">15%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• 地域連携度</span>
+                      <span className="text-purple-400">10%</span>
+                    </div>
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-gray-700 text-xs text-gray-400">
+                    100点満点の総合評価
+                  </div>
                 </div>
               </div>
             )}
@@ -458,9 +600,61 @@ const IntegratedCorporateDashboard: React.FC = () => {
                           <div className="text-xl font-bold text-yellow-400">{facility.budget.toFixed(1)}%</div>
                         </div>
                       )}
-                      <div>
+                      <div className="relative group">
                         <div className="text-sm text-gray-400">品質スコア</div>
-                        <div className="text-xl font-bold text-purple-400">{facility.quality.toFixed(1)}</div>
+                        <div className="text-xl font-bold text-purple-400 cursor-help">{facility.quality.toFixed(1)}</div>
+                        
+                        {/* 品質スコア詳細ホバー */}
+                        <div className="absolute bottom-full right-0 mb-2 w-56 bg-gray-900 border border-gray-700 rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                          <div className="text-xs text-white mb-2 font-semibold">品質スコア内訳</div>
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-300">患者満足度</span>
+                              <span className={`font-medium ${
+                                facility.qualityDetails.patientSatisfaction >= 90 ? 'text-green-400' :
+                                facility.qualityDetails.patientSatisfaction >= 85 ? 'text-yellow-400' : 'text-red-400'
+                              }`}>
+                                {facility.qualityDetails.patientSatisfaction.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-300">医療安全</span>
+                              <span className={`font-medium ${
+                                facility.qualityDetails.medicalSafety >= 90 ? 'text-green-400' :
+                                facility.qualityDetails.medicalSafety >= 85 ? 'text-yellow-400' : 'text-red-400'
+                              }`}>
+                                {facility.qualityDetails.medicalSafety.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-300">職員定着率</span>
+                              <span className={`font-medium ${
+                                facility.qualityDetails.staffRetention >= 90 ? 'text-green-400' :
+                                facility.qualityDetails.staffRetention >= 85 ? 'text-yellow-400' : 'text-red-400'
+                              }`}>
+                                {facility.qualityDetails.staffRetention.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-300">業務効率</span>
+                              <span className={`font-medium ${
+                                facility.qualityDetails.efficiency >= 90 ? 'text-green-400' :
+                                facility.qualityDetails.efficiency >= 85 ? 'text-yellow-400' : 'text-red-400'
+                              }`}>
+                                {facility.qualityDetails.efficiency.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-300">地域連携</span>
+                              <span className={`font-medium ${
+                                facility.qualityDetails.communityCollaboration >= 90 ? 'text-green-400' :
+                                facility.qualityDetails.communityCollaboration >= 85 ? 'text-yellow-400' : 'text-red-400'
+                              }`}>
+                                {facility.qualityDetails.communityCollaboration.toFixed(1)}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1001,6 +1195,132 @@ const IntegratedCorporateDashboard: React.FC = () => {
                       <div className="bg-cyan-400 h-2 rounded-full" style={{ width: '94.8%' }} />
                     </div>
                     <p className="text-sm text-gray-400 mt-2">前月比 +0.5%</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* 品質管理詳細分析 */}
+              <div className="bg-gray-800/50 rounded-xl p-6">
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="text-2xl">⭐</span>
+                  品質管理分析
+                </h2>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* 品質指標の説明 */}
+                  <div className="bg-gray-700/20 rounded-lg p-4">
+                    <h3 className="text-lg font-medium text-white mb-4">品質スコアとは？</h3>
+                    <div className="space-y-3 text-sm">
+                      <div className="border-l-4 border-purple-400 pl-3">
+                        <h4 className="font-medium text-white mb-1">総合的な医療・介護サービスの質を評価</h4>
+                        <p className="text-gray-300">
+                          各施設の医療・介護サービスの質を5つの観点から総合的に評価した指標です。
+                          100点満点で、業界平均は82.0点です。
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="text-purple-400 mt-1">📊</span>
+                          <div>
+                            <div className="text-white font-medium">患者満足度 (30%)</div>
+                            <div className="text-gray-400 text-xs">患者アンケート、口コミ評価、リピート率</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-2">
+                          <span className="text-purple-400 mt-1">🛡️</span>
+                          <div>
+                            <div className="text-white font-medium">医療安全指標 (25%)</div>
+                            <div className="text-gray-400 text-xs">インシデント発生率、感染対策、安全管理体制</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-2">
+                          <span className="text-purple-400 mt-1">👥</span>
+                          <div>
+                            <div className="text-white font-medium">職員定着率 (20%)</div>
+                            <div className="text-gray-400 text-xs">離職率、職員満足度、教育研修体制</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-2">
+                          <span className="text-purple-400 mt-1">⚡</span>
+                          <div>
+                            <div className="text-white font-medium">業務効率性 (15%)</div>
+                            <div className="text-gray-400 text-xs">ベッド回転率、待ち時間、業務改善活動</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-2">
+                          <span className="text-purple-400 mt-1">🤝</span>
+                          <div>
+                            <div className="text-white font-medium">地域連携度 (10%)</div>
+                            <div className="text-gray-400 text-xs">紹介率、地域活動参加、他機関との連携</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 施設別品質ランキング */}
+                  <div className="bg-gray-700/20 rounded-lg p-4">
+                    <h3 className="text-lg font-medium text-white mb-4">施設別品質ランキング</h3>
+                    <div className="space-y-2">
+                      {[...facilities]
+                        .sort((a, b) => b.quality - a.quality)
+                        .map((facility, index) => (
+                          <div key={facility.id} className="flex items-center gap-3">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                              index === 0 ? 'bg-yellow-500 text-black' :
+                              index === 1 ? 'bg-gray-400 text-black' :
+                              index === 2 ? 'bg-orange-600 text-white' :
+                              'bg-gray-600 text-white'
+                            }`}>
+                              {index + 1}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex justify-between items-center">
+                                <span className="text-white text-sm">{facility.name}</span>
+                                <span className={`font-bold text-sm ${
+                                  facility.quality >= 90 ? 'text-green-400' :
+                                  facility.quality >= 85 ? 'text-yellow-400' :
+                                  'text-orange-400'
+                                }`}>
+                                  {facility.quality.toFixed(1)}
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-600/50 rounded-full h-1.5 mt-1">
+                                <div 
+                                  className={`h-1.5 rounded-full ${
+                                    facility.quality >= 90 ? 'bg-green-400' :
+                                    facility.quality >= 85 ? 'bg-yellow-400' :
+                                    'bg-orange-400'
+                                  }`}
+                                  style={{ width: `${facility.quality}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                    
+                    <div className="mt-4 pt-4 border-t border-gray-700">
+                      <div className="text-xs text-gray-400">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                          <span>90点以上: 優秀</span>
+                        </div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                          <span>85-89点: 良好</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-orange-400 rounded-full"></div>
+                          <span>85点未満: 改善推奨</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
