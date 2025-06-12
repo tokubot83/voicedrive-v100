@@ -151,7 +151,7 @@ const IntegratedCorporateDashboard: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">法人統合ダッシュボード</h1>
-            <p className="text-gray-400">全施設・全部門の統合管理ビュー</p>
+            <p className="text-gray-400">全施設・全部門の統合管理ビュー（更新済み）</p>
           </div>
           <div className="text-right">
             <div className="text-sm text-gray-400">権限レベル</div>
