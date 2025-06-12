@@ -6,12 +6,13 @@ import { departments } from '../../data/medical/departments';
 import { staffDashboardData } from '../../data/demo/staffDashboardData';
 import { Card, CardContent } from '../ui/Card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/Tabs';
-import EngagementMetrics from '../dashboard/EngagementMetrics';
-import DepartmentComparison from '../dashboard/DepartmentComparison';
-import CrossDepartmentProjects from '../dashboard/CrossDepartmentProjects';
-import StaffRankings from '../dashboard/StaffRankings';
-import OrganizationalHealth from '../dashboard/OrganizationalHealth';
-import StrategicInitiatives from '../dashboard/StrategicInitiatives';
+// 子コンポーネントは段階的にインポート（エラー回避のため一時的にコメントアウト）
+// import EngagementMetrics from '../dashboard/EngagementMetrics';
+// import DepartmentComparison from '../dashboard/DepartmentComparison';
+// import CrossDepartmentProjects from '../dashboard/CrossDepartmentProjects';
+// import StaffRankings from '../dashboard/StaffRankings';
+// import OrganizationalHealth from '../dashboard/OrganizationalHealth';
+// import StrategicInitiatives from '../dashboard/StrategicInitiatives';
 
 interface FacilityMetrics {
   id: string;
@@ -373,11 +374,56 @@ const IntegratedCorporateDashboard: React.FC = () => {
             )}
           </div>
 
-          {/* エンゲージメント指標 */}
-          <EngagementMetrics />
+          {/* エンゲージメント指標 - 一時的に無効化 */}
+          <div className="glass-panel p-6">
+            <h2 className="text-xl font-bold text-white mb-4">エンゲージメント指標</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-gray-800/30 rounded-xl p-4">
+                <h3 className="text-lg font-medium text-white mb-2">提案参加率</h3>
+                <div className="text-3xl font-bold text-blue-400">87.3%</div>
+                <p className="text-sm text-gray-400">前月比 +2.1%</p>
+              </div>
+              <div className="bg-gray-800/30 rounded-xl p-4">
+                <h3 className="text-lg font-medium text-white mb-2">コラボレーション</h3>
+                <div className="text-3xl font-bold text-green-400">92.1%</div>
+                <p className="text-sm text-gray-400">前月比 +1.8%</p>
+              </div>
+              <div className="bg-gray-800/30 rounded-xl p-4">
+                <h3 className="text-lg font-medium text-white mb-2">満足度スコア</h3>
+                <div className="text-3xl font-bold text-purple-400">4.2</div>
+                <p className="text-sm text-gray-400">5点満点中</p>
+              </div>
+            </div>
+          </div>
           
           {/* 戦略的イニシアチブ（レベル7以上） */}
-          {canViewStrategic && <StrategicInitiatives />}
+          {canViewStrategic && (
+            <div className="glass-panel p-6">
+              <h2 className="text-xl font-bold text-white mb-4">戦略的イニシアチブ</h2>
+              <div className="space-y-4">
+                <div className="bg-gray-800/30 rounded-xl p-4">
+                  <h3 className="text-lg font-medium text-white mb-2">DX推進プロジェクト</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-400">進捗率</span>
+                    <span className="text-green-400 font-medium">78%</span>
+                  </div>
+                  <div className="w-full bg-gray-700/50 rounded-full h-2">
+                    <div className="bg-green-400 h-2 rounded-full" style={{ width: '78%' }} />
+                  </div>
+                </div>
+                <div className="bg-gray-800/30 rounded-xl p-4">
+                  <h3 className="text-lg font-medium text-white mb-2">人材育成プログラム</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-400">進捗率</span>
+                    <span className="text-blue-400 font-medium">65%</span>
+                  </div>
+                  <div className="w-full bg-gray-700/50 rounded-full h-2">
+                    <div className="bg-blue-400 h-2 rounded-full" style={{ width: '65%' }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="facility" className="space-y-6">
@@ -401,20 +447,58 @@ const IntegratedCorporateDashboard: React.FC = () => {
               <h2 className="text-xl font-bold text-white mb-4">
                 {facilities.find(f => f.id === selectedFacility)?.name}
               </h2>
-              <DepartmentComparison 
-                departments={filteredDepartments.map(d => ({
-                  name: d.name,
-                  productivity: d.performanceScore,
-                  quality: d.performanceScore * 0.9,
-                  collaboration: d.performanceScore * 0.85,
-                  innovation: d.performanceScore * 0.8
-                }))} 
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {filteredDepartments.map(d => (
+                  <div key={d.id} className="bg-gray-800/30 rounded-xl p-4">
+                    <h3 className="text-lg font-medium text-white mb-2">{d.name}</h3>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">職員数</span>
+                        <span className="text-white">{d.staffCount}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">プロジェクト</span>
+                        <span className="text-white">{d.activeProjects}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">パフォーマンス</span>
+                        <span className="text-blue-400">{d.performanceScore.toFixed(1)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {/* 部門間プロジェクト */}
-          <CrossDepartmentProjects />
+          <div className="glass-panel p-6">
+            <h2 className="text-xl font-bold text-white mb-4">部門間連携プロジェクト</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-800/30 rounded-xl p-4">
+                <h3 className="text-lg font-medium text-white mb-2">患者安全向上プロジェクト</h3>
+                <p className="text-sm text-gray-400 mb-2">看護部・医師部・薬剤部が連携</p>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-gray-400">進捗</span>
+                  <span className="text-green-400 font-medium">85%</span>
+                </div>
+                <div className="w-full bg-gray-700/50 rounded-full h-2">
+                  <div className="bg-green-400 h-2 rounded-full" style={{ width: '85%' }} />
+                </div>
+              </div>
+              <div className="bg-gray-800/30 rounded-xl p-4">
+                <h3 className="text-lg font-medium text-white mb-2">デジタル化推進</h3>
+                <p className="text-sm text-gray-400 mb-2">IT部・事務部・各病棟が連携</p>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-gray-400">進捗</span>
+                  <span className="text-blue-400 font-medium">72%</span>
+                </div>
+                <div className="w-full bg-gray-700/50 rounded-full h-2">
+                  <div className="bg-blue-400 h-2 rounded-full" style={{ width: '72%' }} />
+                </div>
+              </div>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="department" className="space-y-6">
@@ -468,12 +552,113 @@ const IntegratedCorporateDashboard: React.FC = () => {
           </div>
 
           {/* スタッフランキング */}
-          <StaffRankings />
+          <div className="glass-panel p-6">
+            <h2 className="text-xl font-bold text-white mb-4">スタッフランキング</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h3 className="text-lg font-medium text-white mb-3">今月のトップパフォーマー</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <span className="text-yellow-400 font-bold">1</span>
+                      <span className="text-white">田中 花子</span>
+                      <span className="text-gray-400 text-sm">看護部</span>
+                    </div>
+                    <span className="text-blue-400 font-medium">98.5pt</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <span className="text-gray-400 font-bold">2</span>
+                      <span className="text-white">佐藤 太郎</span>
+                      <span className="text-gray-400 text-sm">外来</span>
+                    </div>
+                    <span className="text-blue-400 font-medium">95.2pt</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <span className="text-orange-400 font-bold">3</span>
+                      <span className="text-white">山田 美咲</span>
+                      <span className="text-gray-400 text-sm">リハビリ</span>
+                    </div>
+                    <span className="text-blue-400 font-medium">92.8pt</span>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-white mb-3">部門別参加率</h3>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-gray-400">看護部</span>
+                      <span className="text-white">94%</span>
+                    </div>
+                    <div className="w-full bg-gray-700/50 rounded-full h-2">
+                      <div className="bg-green-400 h-2 rounded-full" style={{ width: '94%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-gray-400">外来</span>
+                      <span className="text-white">89%</span>
+                    </div>
+                    <div className="w-full bg-gray-700/50 rounded-full h-2">
+                      <div className="bg-blue-400 h-2 rounded-full" style={{ width: '89%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-gray-400">リハビリ</span>
+                      <span className="text-white">86%</span>
+                    </div>
+                    <div className="w-full bg-gray-700/50 rounded-full h-2">
+                      <div className="bg-purple-400 h-2 rounded-full" style={{ width: '86%' }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-6">
           {/* 組織健全性 */}
-          <OrganizationalHealth />
+          <div className="glass-panel p-6">
+            <h2 className="text-xl font-bold text-white mb-4">組織健全性分析</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-gray-800/30 rounded-xl p-4">
+                <h3 className="text-lg font-medium text-white mb-2">エンゲージメント</h3>
+                <div className="text-3xl font-bold text-green-400 mb-2">82.5%</div>
+                <div className="w-full bg-gray-700/50 rounded-full h-2">
+                  <div className="bg-green-400 h-2 rounded-full" style={{ width: '82.5%' }} />
+                </div>
+                <p className="text-sm text-gray-400 mt-2">前月比 +3.2%</p>
+              </div>
+              <div className="bg-gray-800/30 rounded-xl p-4">
+                <h3 className="text-lg font-medium text-white mb-2">コラボレーション</h3>
+                <div className="text-3xl font-bold text-blue-400 mb-2">78.3%</div>
+                <div className="w-full bg-gray-700/50 rounded-full h-2">
+                  <div className="bg-blue-400 h-2 rounded-full" style={{ width: '78.3%' }} />
+                </div>
+                <p className="text-sm text-gray-400 mt-2">前月比 +1.8%</p>
+              </div>
+              <div className="bg-gray-800/30 rounded-xl p-4">
+                <h3 className="text-lg font-medium text-white mb-2">イノベーション</h3>
+                <div className="text-3xl font-bold text-purple-400 mb-2">71.2%</div>
+                <div className="w-full bg-gray-700/50 rounded-full h-2">
+                  <div className="bg-purple-400 h-2 rounded-full" style={{ width: '71.2%' }} />
+                </div>
+                <p className="text-sm text-gray-400 mt-2">前月比 +2.7%</p>
+              </div>
+              <div className="bg-gray-800/30 rounded-xl p-4">
+                <h3 className="text-lg font-medium text-white mb-2">定着率</h3>
+                <div className="text-3xl font-bold text-cyan-400 mb-2">94.8%</div>
+                <div className="w-full bg-gray-700/50 rounded-full h-2">
+                  <div className="bg-cyan-400 h-2 rounded-full" style={{ width: '94.8%' }} />
+                </div>
+                <p className="text-sm text-gray-400 mt-2">前月比 +0.5%</p>
+              </div>
+            </div>
+          </div>
 
           {/* 経営層向け分析（レベル8） */}
           {canViewExecutive && (
