@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDemoMode } from '../demo/DemoModeController';
 import { demoUsers, getDemoUsersByFacility } from '../../data/demo/users';
 
 const IntegratedCorporateDashboard: React.FC = () => {
   const { currentUser } = useDemoMode();
+  const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState<'overview' | 'facilities' | 'departments' | 'analytics' | 'users'>('overview');
   
   // 権限レベルに応じた表示制御
@@ -322,10 +324,19 @@ const IntegratedCorporateDashboard: React.FC = () => {
               </h1>
               <p className="text-gray-400 mt-2">全8施設・25部門の統合管理ビュー</p>
             </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-400">権限レベル</div>
-              <div className="text-2xl font-bold text-blue-400">Lv.{currentUser.permissionLevel}</div>
-              <div className="text-sm text-gray-500">{currentUser.name}</div>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/')}
+                className="px-4 py-2 bg-gray-700/50 hover:bg-gray-700 text-white rounded-lg flex items-center gap-2 transition-all hover:scale-105"
+              >
+                <span className="text-lg">🏠</span>
+                <span>ホームに戻る</span>
+              </button>
+              <div className="text-right">
+                <div className="text-sm text-gray-400">権限レベル</div>
+                <div className="text-2xl font-bold text-blue-400">Lv.{currentUser.permissionLevel}</div>
+                <div className="text-sm text-gray-500">{currentUser.name}</div>
+              </div>
             </div>
           </div>
 
