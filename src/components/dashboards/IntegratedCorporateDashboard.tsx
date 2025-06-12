@@ -101,7 +101,50 @@ const IntegratedCorporateDashboard: React.FC = () => {
     : departmentMetrics.filter(d => d.facilityId === selectedFacility);
 
   return (
-    <div className="space-y-6">
+    <>
+      {/* カスタムCSS */}
+      <style>{`
+        @keyframes slideIn {
+          from { width: 0%; }
+          to { width: var(--target-width); }
+        }
+        
+        @keyframes fadeInUp {
+          from { 
+            opacity: 0; 
+            transform: translateY(30px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
+        }
+        
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+        
+        .animate-fade-in-up {
+          animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        .animate-pulse-subtle {
+          animation: pulse 2s infinite;
+        }
+        
+        .glass-panel {
+          backdrop-filter: blur(12px);
+          background: rgba(15, 23, 42, 0.7);
+          border: 1px solid rgba(148, 163, 184, 0.1);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+      `}</style>
+      
+      <div className="space-y-6 min-h-screen animate-fade-in-up"
+           style={{
+             background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.8) 50%, rgba(51, 65, 85, 0.7) 100%)'
+           }}>
       {/* ヘッダー */}
       <div className="glass-panel p-6">
         <div className="flex items-center justify-between mb-4">
@@ -115,34 +158,78 @@ const IntegratedCorporateDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* 法人全体サマリー */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-6">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-white">{corporateSummary.totalFacilities}</div>
-            <div className="text-sm text-gray-400">施設数</div>
+        {/* プログレス概要バー */}
+        <div className="bg-gray-800/20 rounded-xl p-4 mt-6 border border-gray-700/30">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-300">法人全体の進行状況</span>
+            <span className="text-sm text-gray-400">
+              {Math.round((corporateSummary.averageOccupancy + corporateSummary.averageQualityScore) / 2)}% 達成
+            </span>
           </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-white">{corporateSummary.totalDepartments}</div>
-            <div className="text-sm text-gray-400">部門数</div>
+          <div className="w-full bg-gray-700/50 rounded-full h-3">
+            <div 
+              className="bg-gradient-to-r from-blue-500 via-cyan-500 to-green-500 h-3 rounded-full transition-all duration-1000 ease-out"
+              style={{ 
+                width: `${Math.round((corporateSummary.averageOccupancy + corporateSummary.averageQualityScore) / 2)}%`,
+                animation: 'slideIn 1.5s ease-out'
+              }}
+            />
           </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-white">{corporateSummary.totalStaff.toLocaleString()}</div>
-            <div className="text-sm text-gray-400">総職員数</div>
+        </div>
+
+        {/* 法人全体サマリー - 退職処理画面風の水平レイアウト */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+          <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
+            <div className="text-4xl mb-3">🏢</div>
+            <h4 className="font-bold text-white mb-2">施設管理</h4>
+            <div className="text-3xl font-bold text-blue-400 mb-1">{corporateSummary.totalFacilities}</div>
+            <p className="text-sm text-gray-400">施設数</p>
+            <div className="mt-3 text-xs text-gray-500">
+              全8施設を統合管理
+            </div>
           </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-green-400">{corporateSummary.averageOccupancy.toFixed(1)}%</div>
-            <div className="text-sm text-gray-400">平均稼働率</div>
+          
+          <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
+            <div className="text-4xl mb-3">👥</div>
+            <h4 className="font-bold text-white mb-2">人事統計</h4>
+            <div className="text-3xl font-bold text-green-400 mb-1">{corporateSummary.totalStaff.toLocaleString()}</div>
+            <p className="text-sm text-gray-400">総職員数</p>
+            <div className="mt-3 text-xs text-gray-500">
+              {corporateSummary.totalDepartments}部門に配属
+            </div>
           </div>
-          {canViewFinancials && (
-            <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-400">{corporateSummary.averageBudgetExecution.toFixed(1)}%</div>
-              <div className="text-sm text-gray-400">予算執行率</div>
+          
+          <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
+            <div className="text-4xl mb-3">📊</div>
+            <h4 className="font-bold text-white mb-2">稼働率</h4>
+            <div className="text-3xl font-bold text-cyan-400 mb-1">{corporateSummary.averageOccupancy.toFixed(1)}%</div>
+            <p className="text-sm text-gray-400">平均稼働率</p>
+            <div className="mt-3 text-xs text-gray-500">
+              目標値: 85%
+            </div>
+          </div>
+          
+          {canViewFinancials ? (
+            <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
+              <div className="text-4xl mb-3">💰</div>
+              <h4 className="font-bold text-white mb-2">予算執行</h4>
+              <div className="text-3xl font-bold text-yellow-400 mb-1">{corporateSummary.averageBudgetExecution.toFixed(1)}%</div>
+              <p className="text-sm text-gray-400">予算執行率</p>
+              <div className="mt-3 text-xs text-gray-500">
+                適正範囲: 80-95%
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
+              <div className="text-4xl mb-3">⭐</div>
+              <h4 className="font-bold text-white mb-2">品質管理</h4>
+              <div className="text-3xl font-bold text-purple-400 mb-1">{corporateSummary.averageQualityScore.toFixed(1)}</div>
+              <p className="text-sm text-gray-400">品質スコア</p>
+              <div className="mt-3 text-xs text-gray-500">
+                業界平均: 82.0
+              </div>
             </div>
           )}
-          <div className="text-center">
-            <div className="text-3xl font-bold text-blue-400">{corporateSummary.averageQualityScore.toFixed(1)}</div>
-            <div className="text-sm text-gray-400">品質スコア</div>
-          </div>
         </div>
       </div>
 
@@ -156,43 +243,134 @@ const IntegratedCorporateDashboard: React.FC = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          {/* 施設別サマリーカード */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {facilityMetrics.map(facility => (
-              <Card key={facility.id} className="glass-panel hover:scale-105 transition-transform cursor-pointer"
+          {/* 施設パフォーマンス概要 */}
+          <div className="glass-panel p-6">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <span className="text-2xl">🏥</span>
+              施設パフォーマンス概要
+            </h2>
+            
+            {/* 施設別サマリーカード - 水平レイアウト */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {facilityMetrics.slice(0, 4).map((facility, index) => {
+                const facilityIcons = ['🏥', '🏥', '🏢', '🏢'];
+                const facilityColors = ['blue', 'green', 'purple', 'orange'];
+                const currentColor = facilityColors[index % facilityColors.length];
+                
+                return (
+                  <div 
+                    key={facility.id} 
+                    className="bg-gray-800/30 rounded-xl p-4 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105 cursor-pointer border border-gray-700/50 hover:border-gray-600/50"
                     onClick={() => {
                       setSelectedFacility(facility.id);
                       setSelectedView('facility');
-                    }}>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-bold text-white mb-4">{facility.name}</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">職員数</span>
-                      <span className="text-white font-medium">{facility.totalStaff}名</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">部門数</span>
-                      <span className="text-white font-medium">{facility.totalDepartments}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">稼働率</span>
-                      <span className="text-green-400 font-medium">{facility.occupancyRate.toFixed(1)}%</span>
-                    </div>
-                    {canViewFinancials && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">予算執行</span>
-                        <span className="text-yellow-400 font-medium">{facility.budgetExecution.toFixed(1)}%</span>
+                    }}
+                  >
+                    <div className="text-3xl mb-3">{facilityIcons[index] || '🏢'}</div>
+                    <h4 className="font-bold text-white mb-2 text-sm">{facility.name}</h4>
+                    
+                    <div className="space-y-1 mb-3">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-400">職員</span>
+                        <span className={`font-medium ${currentColor === 'blue' ? 'text-blue-400' : 
+                                                      currentColor === 'green' ? 'text-green-400' :
+                                                      currentColor === 'purple' ? 'text-purple-400' : 'text-orange-400'}`}>
+                          {facility.totalStaff}名
+                        </span>
                       </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">品質スコア</span>
-                      <span className="text-blue-400 font-medium">{facility.qualityScore.toFixed(1)}</span>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-400">稼働率</span>
+                        <span className="text-cyan-400 font-medium">{facility.occupancyRate.toFixed(1)}%</span>
+                      </div>
+                      {canViewFinancials && (
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-400">予算</span>
+                          <span className="text-yellow-400 font-medium">{facility.budgetExecution.toFixed(1)}%</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* プログレスバー風の視覚化 */}
+                    <div className="mt-3">
+                      <div className="w-full bg-gray-700/50 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all duration-500 ${
+                            currentColor === 'blue' ? 'bg-blue-400' : 
+                            currentColor === 'green' ? 'bg-green-400' :
+                            currentColor === 'purple' ? 'bg-purple-400' : 'bg-orange-400'
+                          }`}
+                          style={{ width: `${Math.min(facility.occupancyRate, 100)}%` }}
+                        />
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1 text-center">
+                        {facility.totalDepartments}部門
+                      </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                );
+              })}
+            </div>
+            
+            {/* 残りの施設（5施設目以降） */}
+            {facilityMetrics.length > 4 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold text-white mb-4">その他の施設</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {facilityMetrics.slice(4).map((facility, index) => {
+                    const facilityIcons = ['🏥', '🚑', '🏠', '🏡'];
+                    const facilityColors = ['teal', 'pink', 'indigo', 'emerald'];
+                    const currentColor = facilityColors[index % facilityColors.length];
+                    
+                    return (
+                      <div 
+                        key={facility.id} 
+                        className="bg-gray-800/20 rounded-xl p-4 hover:bg-gray-800/30 transition-all duration-300 hover:scale-105 cursor-pointer border border-gray-700/30 hover:border-gray-600/30"
+                        onClick={() => {
+                          setSelectedFacility(facility.id);
+                          setSelectedView('facility');
+                        }}
+                      >
+                        <div className="text-3xl mb-3">{facilityIcons[index] || '🏢'}</div>
+                        <h4 className="font-bold text-white mb-2 text-sm">{facility.name}</h4>
+                        
+                        <div className="space-y-1 mb-3">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-gray-400">職員</span>
+                            <span className={`font-medium ${
+                              currentColor === 'teal' ? 'text-teal-400' : 
+                              currentColor === 'pink' ? 'text-pink-400' :
+                              currentColor === 'indigo' ? 'text-indigo-400' : 'text-emerald-400'
+                            }`}>
+                              {facility.totalStaff}名
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-gray-400">稼働率</span>
+                            <span className="text-cyan-400 font-medium">{facility.occupancyRate.toFixed(1)}%</span>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-3">
+                          <div className="w-full bg-gray-700/50 rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full transition-all duration-500 ${
+                                currentColor === 'teal' ? 'bg-teal-400' : 
+                                currentColor === 'pink' ? 'bg-pink-400' :
+                                currentColor === 'indigo' ? 'bg-indigo-400' : 'bg-emerald-400'
+                              }`}
+                              style={{ width: `${Math.min(facility.occupancyRate, 100)}%` }}
+                            />
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1 text-center">
+                            {facility.totalDepartments}部門
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* エンゲージメント指標 */}
@@ -333,7 +511,8 @@ const IntegratedCorporateDashboard: React.FC = () => {
           )}
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </>
   );
 };
 
