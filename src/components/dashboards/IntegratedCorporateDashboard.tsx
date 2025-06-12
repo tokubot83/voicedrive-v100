@@ -22,6 +22,85 @@ const IntegratedCorporateDashboard: React.FC = () => {
     { id: 8, name: '居宅介護支援事業所', staff: 40, occupancy: 84.3, budget: 81.6, quality: 89.1 }
   ];
 
+  // 施設別部門データ
+  const departmentsByFacility = [
+    {
+      facilityId: 1,
+      facilityName: '小原病院',
+      departments: [
+        { name: '地域包括医療病棟', staff: 95, performance: 94.2, projects: 8, budget: 82.1 },
+        { name: '地域包括ケア病棟', staff: 88, performance: 91.8, projects: 6, budget: 78.5 },
+        { name: '回復期リハビリ病棟', staff: 76, performance: 89.5, projects: 5, budget: 85.3 },
+        { name: '外来', staff: 124, performance: 92.1, projects: 12, budget: 79.8 },
+        { name: 'その他', staff: 67, performance: 87.3, projects: 7, budget: 81.2 }
+      ]
+    },
+    {
+      facilityId: 2,
+      facilityName: '立神リハ温泉病院',
+      departments: [
+        { name: '医療療養病棟', staff: 145, performance: 88.7, projects: 9, budget: 83.4 },
+        { name: 'リハビリテーション部', staff: 94, performance: 95.2, projects: 11, budget: 87.1 },
+        { name: '温泉療法部', staff: 45, performance: 92.3, projects: 4, budget: 85.6 },
+        { name: 'その他', staff: 36, performance: 86.1, projects: 3, budget: 79.2 }
+      ]
+    },
+    {
+      facilityId: 3,
+      facilityName: 'エスポワール立神',
+      departments: [
+        { name: '介護サービス部', staff: 87, performance: 89.4, projects: 7, budget: 76.8 },
+        { name: 'デイサービス部', staff: 52, performance: 91.2, projects: 5, budget: 82.3 },
+        { name: '生活支援部', staff: 41, performance: 87.6, projects: 4, budget: 74.9 }
+      ]
+    },
+    {
+      facilityId: 4,
+      facilityName: '介護医療院',
+      departments: [
+        { name: '介護療養部', staff: 56, performance: 84.1, projects: 4, budget: 83.7 },
+        { name: '医療管理部', staff: 23, performance: 87.9, projects: 3, budget: 86.2 },
+        { name: '生活支援部', staff: 16, performance: 83.5, projects: 2, budget: 81.8 }
+      ]
+    },
+    {
+      facilityId: 5,
+      facilityName: '宝寿庵',
+      departments: [
+        { name: '特別養護老人ホーム', staff: 48, performance: 91.8, projects: 5, budget: 78.4 },
+        { name: 'デイサービス', staff: 22, performance: 89.6, projects: 3, budget: 81.1 },
+        { name: 'ショートステイ', staff: 15, performance: 88.2, projects: 2, budget: 76.9 }
+      ]
+    },
+    {
+      facilityId: 6,
+      facilityName: '訪問看護ステーション',
+      departments: [
+        { name: '訪問看護部', staff: 32, performance: 95.1, projects: 6, budget: 89.3 },
+        { name: '在宅支援部', staff: 13, performance: 92.7, projects: 3, budget: 87.8 }
+      ]
+    },
+    {
+      facilityId: 7,
+      facilityName: '訪問介護事業所',
+      departments: [
+        { name: '訪問介護部', staff: 24, performance: 88.9, projects: 4, budget: 84.1 },
+        { name: 'ヘルパー管理部', staff: 11, performance: 85.3, projects: 2, budget: 81.7 }
+      ]
+    },
+    {
+      facilityId: 8,
+      facilityName: '居宅介護支援事業所',
+      departments: [
+        { name: 'ケアプラン作成部', staff: 28, performance: 90.4, projects: 5, budget: 82.9 },
+        { name: '相談支援部', staff: 12, performance: 87.1, projects: 2, budget: 79.3 }
+      ]
+    }
+  ];
+
+  // 部門別タブのフィルター状態
+  const [selectedFacilityForDept, setSelectedFacilityForDept] = useState<number | 'all'>('all');
+
   // 集計データ
   const totalStaff = facilities.reduce((sum, f) => sum + f.staff, 0);
   const avgOccupancy = facilities.reduce((sum, f) => sum + f.occupancy, 0) / facilities.length;
@@ -300,36 +379,261 @@ const IntegratedCorporateDashboard: React.FC = () => {
           )}
 
           {selectedTab === 'departments' && (
-            <div className="bg-gray-800/50 rounded-xl p-6">
-              <h2 className="text-xl font-bold text-white mb-4">部門別パフォーマンス</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[
-                  { name: '看護部', staff: 380, performance: 94.2, projects: 12 },
-                  { name: '医師部', staff: 156, performance: 91.8, projects: 8 },
-                  { name: 'リハビリ部', staff: 94, performance: 89.5, projects: 6 },
-                  { name: '薬剤部', staff: 32, performance: 92.1, projects: 4 },
-                  { name: '事務部', staff: 87, performance: 86.3, projects: 9 },
-                  { name: 'IT部', staff: 25, performance: 95.7, projects: 15 }
-                ].map((dept, index) => (
-                  <div key={index} className="bg-gray-700/30 rounded-lg p-4">
-                    <h3 className="text-lg font-medium text-white mb-2">{dept.name}</h3>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">職員数</span>
-                        <span className="text-white">{dept.staff}名</span>
+            <div className="space-y-6">
+              {/* 施設フィルター */}
+              <div className="bg-gray-800/50 rounded-xl p-4">
+                <div className="flex items-center gap-4">
+                  <label className="text-white font-medium">施設フィルター:</label>
+                  <select 
+                    value={selectedFacilityForDept}
+                    onChange={(e) => setSelectedFacilityForDept(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
+                    className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                  >
+                    <option value="all">全施設</option>
+                    {facilities.map(facility => (
+                      <option key={facility.id} value={facility.id}>{facility.name}</option>
+                    ))}
+                  </select>
+                  <div className="text-sm text-gray-400">
+                    {selectedFacilityForDept === 'all' 
+                      ? `全${departmentsByFacility.reduce((sum, f) => sum + f.departments.length, 0)}部門を表示中`
+                      : `${departmentsByFacility.find(f => f.facilityId === selectedFacilityForDept)?.departments.length || 0}部門を表示中`
+                    }
+                  </div>
+                </div>
+              </div>
+
+              {/* 部門データ表示 */}
+              {selectedFacilityForDept === 'all' ? (
+                // 全施設の部門を施設別にグループ表示
+                <div className="space-y-6">
+                  {departmentsByFacility.map((facilityDept) => (
+                    <div key={facilityDept.facilityId} className="bg-gray-800/50 rounded-xl p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                          <span className="text-2xl">🏥</span>
+                          {facilityDept.facilityName}
+                        </h3>
+                        <span className="text-sm text-gray-400">
+                          {facilityDept.departments.length}部門 • {facilityDept.departments.reduce((sum, d) => sum + d.staff, 0)}名
+                        </span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">プロジェクト</span>
-                        <span className="text-white">{dept.projects}件</span>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {facilityDept.departments.map((dept, index) => (
+                          <div key={index} className="bg-gray-700/30 rounded-lg p-4 hover:bg-gray-700/40 transition-all duration-300">
+                            <h4 className="text-lg font-medium text-white mb-3">{dept.name}</h4>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-400">職員数</span>
+                                <span className="text-white font-medium">{dept.staff}名</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-400">プロジェクト</span>
+                                <span className="text-white font-medium">{dept.projects}件</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-400">パフォーマンス</span>
+                                <span className={`font-medium ${
+                                  dept.performance >= 90 ? 'text-green-400' :
+                                  dept.performance >= 85 ? 'text-yellow-400' : 'text-red-400'
+                                }`}>
+                                  {dept.performance.toFixed(1)}%
+                                </span>
+                              </div>
+                              {canViewFinancials && (
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-gray-400">予算執行</span>
+                                  <span className={`font-medium ${
+                                    dept.budget >= 85 ? 'text-green-400' :
+                                    dept.budget >= 75 ? 'text-yellow-400' : 'text-red-400'
+                                  }`}>
+                                    {dept.budget.toFixed(1)}%
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* パフォーマンス可視化バー */}
+                            <div className="mt-3">
+                              <div className="w-full bg-gray-600/50 rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full transition-all duration-500 ${
+                                    dept.performance >= 90 ? 'bg-green-400' :
+                                    dept.performance >= 85 ? 'bg-yellow-400' : 'bg-red-400'
+                                  }`}
+                                  style={{ width: `${Math.min(dept.performance, 100)}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">パフォーマンス</span>
-                        <span className="text-blue-400">{dept.performance}%</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                // 特定施設の部門詳細表示
+                (() => {
+                  const selectedFacilityDept = departmentsByFacility.find(f => f.facilityId === selectedFacilityForDept);
+                  if (!selectedFacilityDept) return null;
+                  
+                  return (
+                    <div className="bg-gray-800/50 rounded-xl p-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                          <span className="text-2xl">🏥</span>
+                          {selectedFacilityDept.facilityName} 部門詳細
+                        </h3>
+                        <div className="text-sm text-gray-400">
+                          {selectedFacilityDept.departments.length}部門 • 
+                          {selectedFacilityDept.departments.reduce((sum, d) => sum + d.staff, 0)}名 • 
+                          {selectedFacilityDept.departments.reduce((sum, d) => sum + d.projects, 0)}プロジェクト
+                        </div>
+                      </div>
+
+                      {/* 部門パフォーマンス比較チャート風 */}
+                      <div className="mb-6 bg-gray-700/20 rounded-lg p-4">
+                        <h4 className="text-lg font-medium text-white mb-4">部門パフォーマンス比較</h4>
+                        <div className="space-y-3">
+                          {selectedFacilityDept.departments
+                            .sort((a, b) => b.performance - a.performance)
+                            .map((dept, index) => (
+                            <div key={index} className="flex items-center gap-4">
+                              <div className="w-32 text-sm text-white truncate">{dept.name}</div>
+                              <div className="flex-1 bg-gray-600/50 rounded-full h-3 relative">
+                                <div 
+                                  className={`h-3 rounded-full transition-all duration-1000 ${
+                                    index === 0 ? 'bg-gradient-to-r from-green-400 to-green-500' :
+                                    index === 1 ? 'bg-gradient-to-r from-blue-400 to-blue-500' :
+                                    index === 2 ? 'bg-gradient-to-r from-purple-400 to-purple-500' :
+                                    'bg-gradient-to-r from-gray-400 to-gray-500'
+                                  }`}
+                                  style={{ width: `${dept.performance}%` }}
+                                />
+                                <span className="absolute right-2 top-0 text-xs text-white leading-3">
+                                  {dept.performance.toFixed(1)}%
+                                </span>
+                              </div>
+                              <div className="w-16 text-xs text-gray-400">{dept.staff}名</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 詳細部門カード */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {selectedFacilityDept.departments.map((dept, index) => (
+                          <div key={index} className="bg-gray-700/30 rounded-lg p-6 hover:bg-gray-700/40 transition-all duration-300">
+                            <div className="flex items-center justify-between mb-4">
+                              <h4 className="text-lg font-medium text-white">{dept.name}</h4>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                dept.performance >= 90 ? 'bg-green-500/20 text-green-400' :
+                                dept.performance >= 85 ? 'bg-yellow-500/20 text-yellow-400' : 
+                                'bg-red-500/20 text-red-400'
+                              }`}>
+                                {dept.performance >= 90 ? '優秀' : dept.performance >= 85 ? '良好' : '要改善'}
+                              </span>
+                            </div>
+                            
+                            <div className="space-y-3">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <div className="text-xs text-gray-400 mb-1">職員数</div>
+                                  <div className="text-xl font-bold text-white">{dept.staff}名</div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-gray-400 mb-1">プロジェクト</div>
+                                  <div className="text-xl font-bold text-blue-400">{dept.projects}件</div>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <div className="text-xs text-gray-400 mb-1">パフォーマンス</div>
+                                  <div className="text-xl font-bold text-cyan-400">{dept.performance.toFixed(1)}%</div>
+                                </div>
+                                {canViewFinancials && (
+                                  <div>
+                                    <div className="text-xs text-gray-400 mb-1">予算執行</div>
+                                    <div className="text-xl font-bold text-yellow-400">{dept.budget.toFixed(1)}%</div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()
+              )}
+
+              {/* 部門横断比較（全施設表示時のみ） */}
+              {selectedFacilityForDept === 'all' && (
+                <div className="bg-gray-800/50 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span className="text-2xl">📊</span>
+                    部門タイプ別比較分析
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* リハビリ系部門比較 */}
+                    <div className="bg-gray-700/20 rounded-lg p-4">
+                      <h4 className="font-medium text-white mb-3">リハビリ系部門</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">回復期リハビリ病棟</span>
+                          <span className="text-green-400">89.5%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">リハビリテーション部</span>
+                          <span className="text-green-400">95.2%</span>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                          平均: 92.4%
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 介護系部門比較 */}
+                    <div className="bg-gray-700/20 rounded-lg p-4">
+                      <h4 className="font-medium text-white mb-3">介護系部門</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">介護サービス部</span>
+                          <span className="text-yellow-400">89.4%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">介護療養部</span>
+                          <span className="text-yellow-400">84.1%</span>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                          平均: 86.8%
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 訪問系部門比較 */}
+                    <div className="bg-gray-700/20 rounded-lg p-4">
+                      <h4 className="font-medium text-white mb-3">訪問系部門</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">訪問看護部</span>
+                          <span className="text-green-400">95.1%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">訪問介護部</span>
+                          <span className="text-yellow-400">88.9%</span>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                          平均: 92.0%
+                        </div>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
           )}
 
