@@ -28,6 +28,7 @@ const Layout: React.FC = () => {
     '/dashboard/team-leader',
     '/dashboard/department',
     '/dashboard/facility',
+    '/dashboard/integrated-corporate',
     '/dashboard/hr-management',
     '/dashboard/strategic',
     '/dashboard/corporate',
