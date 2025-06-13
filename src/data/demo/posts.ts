@@ -2,6 +2,7 @@ import { Post, PostType, AnonymityLevel, Priority, VoteOption, ProposalType, Sta
 import { demoUsers } from './users';
 import { generateSampleVotesByStakeholder } from '../../utils/votingCalculations';
 import { projectDemoPosts } from './projectDemoData';
+import { progressiveVisibilityDemoPosts } from './progressiveVisibilityPosts';
 
 // Helper function to generate random votes
 const generateVotes = (): Record<VoteOption, number> => {
@@ -376,7 +377,10 @@ export const demoPosts: Post[] = [
   },
   
   // Add project-level demo posts
-  ...projectDemoPosts
+  ...projectDemoPosts,
+  
+  // Add progressive visibility demo posts
+  ...progressiveVisibilityDemoPosts
 ];
 
 // Helper functions

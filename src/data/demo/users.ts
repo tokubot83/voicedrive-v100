@@ -5,11 +5,15 @@ import { DemoUser, ACCOUNT_TYPE_MAPPING, BUDGET_APPROVAL_LIMITS } from './types'
 export type { DemoUser } from './types';
 export { ACCOUNT_TYPE_MAPPING, BUDGET_APPROVAL_LIMITS } from './types';
 
-// Import hierarchical users
+// Import hierarchical users and facility users
 import { hierarchicalDemoUsers } from './hierarchicalUsers';
+import { facilityDemoUsers } from './facilityDemoUsers';
 
-// Export the hierarchical users as demoUsers for backward compatibility
-export const demoUsers: DemoUser[] = hierarchicalDemoUsers;
+// Combine hierarchical users and facility-specific users for comprehensive demo
+export const demoUsers: DemoUser[] = [
+  ...hierarchicalDemoUsers,
+  ...facilityDemoUsers
+];
 
 // Helper function to get user by ID
 export const getDemoUserById = (id: string): DemoUser | undefined => {
