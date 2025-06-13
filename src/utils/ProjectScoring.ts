@@ -29,13 +29,12 @@ export interface ProjectStatus {
 }
 
 export class ProjectScoringEngine {
-  // 8段階権限システムに対応した閾値設定
-  private readonly thresholds = {
-    TEAM: 100,          // チーム内プロジェクト（レベル2承認）
-    DEPARTMENT: 200,    // 部署内プロジェクト（レベル4承認）
-    FACILITY: 400,      // 施設内プロジェクト（レベル7承認）
-    ORGANIZATION: 800,  // 法人内プロジェクト（レベル8承認）
-    STRATEGIC: 1200     // 戦略的プロジェクト（レベル8+理事会承認）
+  // 見直し版閾値設定（段階的昇格対応）
+  private readonly baseThresholds = {
+    TEAM: 50,           // チーム内（昇格なし）
+    DEPARTMENT: 100,    // 部署内→施設内昇格可能
+    FACILITY: 300,      // 施設内→法人内昇格可能  
+    ORGANIZATION: 600   // 法人内（最終）
   };
   
   // エンゲージメントレベルごとの重み付け（参照HTML準拠）
@@ -96,7 +95,9 @@ export class ProjectScoringEngine {
   
   getProjectStatus(
     score: number, 
-    postType: 'improvement' | 'community' | 'report' = 'improvement'
+    postType: 'improvement' | 'community' | 'report' = 'improvement',
+    organizationSize?: number,
+    projectScope?: ProjectScope
   ): ProjectStatus {
     // 投稿タイプ別の閾値調整
     const typeMultiplier = {
@@ -105,12 +106,15 @@ export class ProjectScoringEngine {
       report: 1.2           // 公益通報は高い閾値
     };
     
+    // 組織規模による調整
+    const sizeMultiplier = organizationSize ? this.getSizeMultiplier(organizationSize, projectScope) : 1.0;
+    
     const adjustedThresholds = {
-      TEAM: this.thresholds.TEAM * typeMultiplier[postType],
-      DEPARTMENT: this.thresholds.DEPARTMENT * typeMultiplier[postType],
-      FACILITY: this.thresholds.FACILITY * typeMultiplier[postType],
-      ORGANIZATION: this.thresholds.ORGANIZATION * typeMultiplier[postType],
-      STRATEGIC: this.thresholds.STRATEGIC * typeMultiplier[postType]
+      TEAM: this.baseThresholds.TEAM * typeMultiplier[postType] * sizeMultiplier,
+      DEPARTMENT: this.baseThresholds.DEPARTMENT * typeMultiplier[postType] * sizeMultiplier,
+      FACILITY: this.baseThresholds.FACILITY * typeMultiplier[postType] * sizeMultiplier,
+      ORGANIZATION: this.baseThresholds.ORGANIZATION * typeMultiplier[postType] * sizeMultiplier,
+      STRATEGIC: 1200 * typeMultiplier[postType] // 戦略的プロジェクトは固定
     };
     
     // 達成済みレベルを判定
@@ -207,11 +211,40 @@ export class ProjectScoringEngine {
     };
   }
   
+  /**
+   * 組織規模による閾値調整倍率を計算
+   */
+  private getSizeMultiplier(organizationSize: number, projectScope?: ProjectScope): number {
+    // 基準組織規模（小原病院本院規模: 約400人）
+    const baseOrganizationSize = 400;
+    
+    // プロジェクトスコープ別の調整係数
+    const scopeAdjustments = {
+      [ProjectScope.TEAM]: 0.8,        // チームは組織規模の影響小
+      [ProjectScope.DEPARTMENT]: 1.0,  // 部署は標準
+      [ProjectScope.FACILITY]: 1.2,   // 施設は組織規模の影響大
+      [ProjectScope.ORGANIZATION]: 1.5, // 法人は最も影響大
+      [ProjectScope.STRATEGIC]: 1.0    // 戦略は固定
+    };
+    
+    // 基本倍率計算（対数スケール使用で急激な変化を抑制）
+    const baseSizeRatio = organizationSize / baseOrganizationSize;
+    const logMultiplier = Math.log(baseSizeRatio) / Math.log(2) * 0.3 + 1.0;
+    
+    // 0.5倍～2.0倍の範囲に制限
+    const clampedMultiplier = Math.max(0.5, Math.min(2.0, logMultiplier));
+    
+    // スコープ別調整適用
+    const scopeAdjustment = projectScope ? scopeAdjustments[projectScope] : 1.0;
+    
+    return Math.round(clampedMultiplier * scopeAdjustment * 100) / 100;
+  }
+
   getThresholdName(threshold: number): string {
-    if (threshold <= this.thresholds.TEAM) return 'チーム内';
-    if (threshold <= this.thresholds.DEPARTMENT) return '部署内';
-    if (threshold <= this.thresholds.FACILITY) return '施設内';
-    if (threshold <= this.thresholds.ORGANIZATION) return '法人内';
+    if (threshold <= this.baseThresholds.TEAM) return 'チーム内';
+    if (threshold <= this.baseThresholds.DEPARTMENT) return '部署内';
+    if (threshold <= this.baseThresholds.FACILITY) return '施設内';
+    if (threshold <= this.baseThresholds.ORGANIZATION) return '法人内';
     return '戦略的';
   }
   
