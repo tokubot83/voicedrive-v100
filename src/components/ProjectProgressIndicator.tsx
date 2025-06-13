@@ -19,12 +19,24 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
 }) => {
   const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
   
-  // プロジェクトレベルの閾値設定
+  // データ検証
+  if (currentScore < 0 || isNaN(currentScore)) {
+    console.warn('ProjectProgressIndicator: Invalid currentScore', currentScore);
+    return null;
+  }
+  
+  if (!votes || typeof votes !== 'object') {
+    console.warn('ProjectProgressIndicator: Invalid votes data', votes);
+    return null;
+  }
+  
+  // プロジェクトレベルの閾値設定（ProjectScoring.tsと統一）
   const thresholds = [
     { level: 'PENDING', score: 0, label: '議論開始', shortLabel: '議論', icon: Users, color: 'gray' },
-    { level: 'DEPARTMENT', score: 200, label: '部署プロジェクト', shortLabel: '部署', icon: Users, color: 'blue' },
-    { level: 'FACILITY', score: 500, label: '施設プロジェクト', shortLabel: '施設', icon: Target, color: 'purple' },
-    { level: 'CORPORATE', score: 1000, label: '法人プロジェクト', shortLabel: '法人', icon: Star, color: 'orange' }
+    { level: 'TEAM', score: 50, label: 'チーム内', shortLabel: 'チーム', icon: Users, color: 'green' },
+    { level: 'DEPARTMENT', score: 100, label: '部署プロジェクト', shortLabel: '部署', icon: Users, color: 'blue' },
+    { level: 'FACILITY', score: 300, label: '施設プロジェクト', shortLabel: '施設', icon: Target, color: 'purple' },
+    { level: 'ORGANIZATION', score: 600, label: '法人プロジェクト', shortLabel: '法人', icon: Star, color: 'orange' }
   ];
 
   // 合意度の計算
@@ -95,7 +107,12 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
             {/* マイルストーンマーカー */}
             {thresholds.map((threshold, index) => {
               if (index === 0) return null; // PENDINGはスキップ
-              const position = ((threshold.score - currentThreshold.score) / (nextMilestone?.score - currentThreshold.score || 1)) * 100;
+              
+              // 安全な除算チェック
+              const denominator = (nextMilestone?.score || 0) - currentThreshold.score;
+              if (denominator <= 0) return null;
+              
+              const position = ((threshold.score - currentThreshold.score) / denominator) * 100;
               
               if (position > 0 && position <= 100) {
                 const Icon = threshold.icon;

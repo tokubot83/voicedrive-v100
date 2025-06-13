@@ -23,7 +23,7 @@ export const progressiveVisibilityDemoPosts: Post[] = [
       permissionLevel: 2,
       stakeholderCategory: 'frontline'
     },
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'high',
     timestamp: new Date('2024-12-15T10:30:00'),
     votes: {
@@ -74,7 +74,7 @@ export const progressiveVisibilityDemoPosts: Post[] = [
           role: '温泉療法士',
           stakeholderCategory: 'frontline'
         },
-        anonymityLevel: 'real',
+        anonymityLevel: 'real_name',
         timestamp: new Date('2024-12-16T09:00:00')
       }
     ]
@@ -98,7 +98,7 @@ export const progressiveVisibilityDemoPosts: Post[] = [
       permissionLevel: 3,
       stakeholderCategory: 'management'
     },
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'high',
     timestamp: new Date('2024-12-14T14:20:00'),
     votes: {
@@ -150,7 +150,7 @@ export const progressiveVisibilityDemoPosts: Post[] = [
           role: 'システム管理者',
           stakeholderCategory: 'management'
         },
-        anonymityLevel: 'real',
+        anonymityLevel: 'real_name',
         timestamp: new Date('2024-12-15T11:30:00')
       }
     ]
@@ -174,7 +174,7 @@ export const progressiveVisibilityDemoPosts: Post[] = [
       permissionLevel: 5,
       stakeholderCategory: 'management'
     },
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'urgent',
     timestamp: new Date('2024-12-10T09:00:00'),
     votes: {
@@ -227,7 +227,7 @@ export const progressiveVisibilityDemoPosts: Post[] = [
           role: '看護師',
           stakeholderCategory: 'frontline'
         },
-        anonymityLevel: 'real',
+        anonymityLevel: 'real_name',
         timestamp: new Date('2024-12-12T16:45:00')
       },
       {
@@ -241,7 +241,7 @@ export const progressiveVisibilityDemoPosts: Post[] = [
           role: '事務長',
           stakeholderCategory: 'management'
         },
-        anonymityLevel: 'real',
+        anonymityLevel: 'real_name',
         timestamp: new Date('2024-12-13T10:20:00')
       }
     ]
@@ -265,7 +265,7 @@ export const progressiveVisibilityDemoPosts: Post[] = [
       permissionLevel: 6,
       stakeholderCategory: 'management'
     },
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'high',
     timestamp: new Date('2024-12-05T11:00:00'),
     votes: {
@@ -356,7 +356,7 @@ export const progressiveVisibilityDemoPosts: Post[] = [
       permissionLevel: 2,
       stakeholderCategory: 'frontline'
     },
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'medium',
     timestamp: new Date('2024-12-18T13:45:00'),
     votes: {
@@ -398,7 +398,7 @@ export const progressiveVisibilityDemoPosts: Post[] = [
           role: '主任',
           stakeholderCategory: 'management'
         },
-        anonymityLevel: 'real',
+        anonymityLevel: 'real_name',
         timestamp: new Date('2024-12-19T10:30:00')
       }
     ]
@@ -421,7 +421,7 @@ export const progressiveVisibilityDemoPosts: Post[] = [
       permissionLevel: 4,
       stakeholderCategory: 'management'
     },
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'urgent',
     timestamp: new Date('2024-12-17T08:00:00'),
     votes: {
@@ -475,7 +475,7 @@ export const progressiveVisibilityDemoPosts: Post[] = [
           role: '課長',
           stakeholderCategory: 'management'
         },
-        anonymityLevel: 'real',
+        anonymityLevel: 'real_name',
         timestamp: new Date('2024-12-17T09:30:00')
       }
     ]

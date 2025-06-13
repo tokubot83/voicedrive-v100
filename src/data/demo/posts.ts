@@ -107,7 +107,7 @@ export const demoPosts: Post[] = [
     proposalType: 'operational' as ProposalType,
     content: '新入社員の研修プログラムについて、もっと実践的な内容を増やしてはどうでしょうか。座学だけでなく、先輩社員とのペアプログラミングやOJTの時間を増やすことで、より早く戦力になれると思います。',
     author: demoUsers[2], // Senior employee
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'high',
     timestamp: new Date('2024-04-15T09:30:00'),
     votes: {
@@ -158,7 +158,7 @@ export const demoPosts: Post[] = [
     type: 'community',
     content: '新年度の歓迎会を4月26日（金）に開催予定です！新しく入社された皆さんを温かく迎えましょう。場所は会社近くの「さくら」で、19時開始予定です。',
     author: demoUsers[5], // Team lead
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     timestamp: new Date('2024-04-10T14:20:00'),
     votes: generateVotes(),
     comments: generateSampleComments('post-2', 2)
@@ -171,7 +171,7 @@ export const demoPosts: Post[] = [
     proposalType: 'operational' as ProposalType,
     content: 'オフィスの空調設定について提案があります。現在28度設定ですが、午後の西日が強い部屋では暑すぎます。エリアごとに温度設定を調整できるようにしていただけないでしょうか。',
     author: demoUsers[1], // Entry-level employee
-    anonymityLevel: 'department',
+    anonymityLevel: 'department_only',
     priority: 'medium',
     timestamp: new Date('2024-06-20T11:45:00'),
     votes: {
@@ -219,7 +219,7 @@ export const demoPosts: Post[] = [
     type: 'report',
     content: '夏季の電力使用量削減プロジェクトの進捗報告です。6月の電力使用量は前年同月比で15%削減を達成しました。LED照明への切り替えと、エアコンの効率的な運用が功を奏しています。',
     author: demoUsers[6], // Supervisor
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'high',
     timestamp: new Date('2024-07-05T10:00:00'),
     votes: generateVotes(),
@@ -257,7 +257,7 @@ export const demoPosts: Post[] = [
     type: 'report',
     content: '第2四半期の業績報告：売上高は前年同期比112%を達成しました。特に新製品ラインが好調で、計画を上回る成果を出しています。詳細は添付資料をご覧ください。',
     author: demoUsers[11], // Director
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     timestamp: new Date('2024-10-01T09:00:00'),
     votes: generateVotes(),
     comments: []
@@ -267,7 +267,7 @@ export const demoPosts: Post[] = [
     type: 'community',
     content: '社内運動会を11月3日（祝）に開催します！昨年好評だったリレーや綱引きに加えて、今年は新種目も検討中です。ご家族の参加も大歓迎です。',
     author: demoUsers[4], // Team lead
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     timestamp: new Date('2024-10-15T11:30:00'),
     votes: generateVotes(),
     comments: []
@@ -280,7 +280,7 @@ export const demoPosts: Post[] = [
     proposalType: 'strategic' as ProposalType,
     content: '年末年始の休暇取得について、もっと柔軟な制度にできないでしょうか。12月29日から1月3日の一律休業ではなく、個人の事情に合わせて休暇を取得できるようにしてほしいです。',
     author: demoUsers[7], // Manager
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'medium',
     timestamp: new Date('2024-11-20T14:00:00'),
     votes: generateVotes(),
@@ -291,7 +291,7 @@ export const demoPosts: Post[] = [
     type: 'report',
     content: '忘年会の参加率が昨年より20%向上しました。オンライン参加オプションの導入と、複数日程での開催が効果的だったようです。来年も継続したいと思います。',
     author: demoUsers[8], // Manager
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     timestamp: new Date('2024-12-25T10:30:00'),
     votes: generateVotes(),
     comments: []
@@ -304,7 +304,7 @@ export const demoPosts: Post[] = [
     proposalType: 'innovation' as ProposalType,
     content: '社内のナレッジ共有システムの改善提案です。現在のWikiは検索機能が弱く、必要な情報を見つけるのに時間がかかります。AIを活用した検索機能の導入を検討してください。',
     author: demoUsers[9], // Manager
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'high',
     timestamp: new Date('2025-01-05T09:15:00'),
     votes: generateVotes(),
@@ -317,7 +317,7 @@ export const demoPosts: Post[] = [
     type: 'community',
     content: '社内勉強会「AI活用セミナー」を1月24日（金）16時から開催します。ChatGPTやCopilotなど、業務で使えるAIツールの実践的な使い方を紹介します。',
     author: demoUsers[2], // Senior employee
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     timestamp: new Date('2025-01-08T11:00:00'),
     votes: generateVotes(),
     comments: []
@@ -328,7 +328,7 @@ export const demoPosts: Post[] = [
     proposalType: 'operational' as ProposalType,
     content: '会議室の予約システムが使いにくいです。空き状況の確認と予約を同じ画面でできるようにし、定期予約の機能も追加してもらえないでしょうか。',
     author: demoUsers[1], // Entry-level employee
-    anonymityLevel: 'department',
+    anonymityLevel: 'department_only',
     priority: 'low',
     timestamp: new Date('2025-01-06T14:30:00'),
     votes: generateVotes(),
@@ -339,7 +339,7 @@ export const demoPosts: Post[] = [
     type: 'report',
     content: 'リモートワーク環境改善プロジェクトの最終報告：VPN接続の安定性が95%以上に改善、平均接続速度が2倍に向上しました。社員満足度も85%と高評価でした。',
     author: demoUsers[10], // Senior Manager
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'high',
     timestamp: new Date('2025-01-07T10:00:00'),
     votes: generateVotes(),
@@ -362,7 +362,7 @@ export const demoPosts: Post[] = [
     type: 'community',
     content: '社内バスケットボールチームのメンバー募集中！毎週水曜日の19時から近くの体育館で練習しています。初心者も大歓迎です。',
     author: demoUsers[0], // Entry-level employee
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     timestamp: new Date('2025-01-05T17:20:00'),
     votes: generateVotes(),
     comments: []
@@ -373,7 +373,7 @@ export const demoPosts: Post[] = [
     proposalType: 'strategic' as ProposalType,
     content: '育児支援制度の拡充について提案があります。時短勤務の期間を小学校3年生まで延長し、在宅勤務との併用も可能にしてはどうでしょうか。',
     author: demoUsers[5], // Team lead
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'high',
     timestamp: new Date('2025-01-04T11:00:00'),
     votes: generateVotes(),
@@ -385,7 +385,7 @@ export const demoPosts: Post[] = [
     type: 'report',
     content: '社内DXプロジェクトの進捗：業務自動化により月間40時間の工数削減を達成。ROIは初年度で150%を見込んでいます。',
     author: demoUsers[12], // Director
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     timestamp: new Date('2025-01-03T09:30:00'),
     votes: generateVotes(),
     comments: []
@@ -396,7 +396,7 @@ export const demoPosts: Post[] = [
     proposalType: 'riskManagement' as ProposalType,
     content: '駐車場の利用ルールについて、エコカー優先スペースを設けてはどうでしょうか。環境への取り組みをアピールできますし、社員のエコカー購入を促進できると思います。',
     author: demoUsers[6], // Supervisor
-    anonymityLevel: 'department',
+    anonymityLevel: 'department_only',
     priority: 'medium',
     timestamp: new Date('2025-01-02T15:00:00'),
     votes: generateVotes(),
@@ -407,7 +407,7 @@ export const demoPosts: Post[] = [
     type: 'community',
     content: '新年あけましておめでとうございます！今年もVoiceDriveを通じて、より良い職場環境を一緒に作っていきましょう。皆様のご意見・ご提案をお待ちしています。',
     author: demoUsers[13], // Executive
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     timestamp: new Date('2025-01-01T09:00:00'),
     votes: generateVotes(),
     comments: []

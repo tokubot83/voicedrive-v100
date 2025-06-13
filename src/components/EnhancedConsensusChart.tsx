@@ -17,12 +17,24 @@ const EnhancedConsensusChart: React.FC<EnhancedConsensusChartProps> = ({
 }) => {
   const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
   
-  // プロジェクトレベルの閾値設定
+  // データ検証
+  if (currentScore < 0 || isNaN(currentScore)) {
+    console.warn('EnhancedConsensusChart: Invalid currentScore', currentScore);
+    return null;
+  }
+  
+  if (!votes || typeof votes !== 'object') {
+    console.warn('EnhancedConsensusChart: Invalid votes data', votes);
+    return null;
+  }
+  
+  // プロジェクトレベルの閾値設定（ProjectScoring.tsと統一）
   const thresholds = [
     { level: 'PENDING', score: 0, label: '部署内議論', icon: Target, color: 'gray' },
-    { level: 'DEPARTMENT', score: 200, label: '部署プロジェクト', icon: Building2, color: 'blue' },
-    { level: 'FACILITY', score: 500, label: '施設プロジェクト', icon: Building, color: 'purple' },
-    { level: 'CORPORATE', score: 1000, label: '法人プロジェクト', icon: Briefcase, color: 'orange' }
+    { level: 'TEAM', score: 50, label: 'チーム内', icon: Target, color: 'green' },
+    { level: 'DEPARTMENT', score: 100, label: '部署プロジェクト', icon: Building2, color: 'blue' },
+    { level: 'FACILITY', score: 300, label: '施設プロジェクト', icon: Building, color: 'purple' },
+    { level: 'ORGANIZATION', score: 600, label: '法人プロジェクト', icon: Briefcase, color: 'orange' }
   ];
 
   // 次のマイルストーンを計算
@@ -107,10 +119,12 @@ const EnhancedConsensusChart: React.FC<EnhancedConsensusChartProps> = ({
             '--purple-500': '#8b5cf6',
             '--orange-500': '#f59e0b',
             '--gray-500': '#6b7280',
+            '--green-500': '#10b981',
             '--blue-400': '#60a5fa',
             '--purple-400': '#a78bfa',
             '--orange-400': '#fbbf24',
-            '--gray-400': '#9ca3af'
+            '--gray-400': '#9ca3af',
+            '--green-400': '#34d399'
           } as React.CSSProperties}
         />
       );

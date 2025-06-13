@@ -17,7 +17,7 @@ export const projectDemoPosts: Post[] = [
       expertise: 4,
       stakeholderCategory: 'frontline'
     },
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'high',
     timestamp: new Date('2024-12-01T09:00:00'),
     votes: {
@@ -89,7 +89,7 @@ export const projectDemoPosts: Post[] = [
       expertise: 5,
       stakeholderCategory: 'management'
     },
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'urgent',
     timestamp: new Date('2024-11-20T14:30:00'),
     votes: {
@@ -162,7 +162,7 @@ export const projectDemoPosts: Post[] = [
       expertise: 5,
       stakeholderCategory: 'management'
     },
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'high',
     timestamp: new Date('2024-10-15T10:00:00'),
     votes: {
@@ -236,7 +236,7 @@ export const projectDemoPosts: Post[] = [
       expertise: 4,
       stakeholderCategory: 'frontline'
     },
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'medium',
     timestamp: new Date('2024-12-10T11:00:00'),
     votes: {

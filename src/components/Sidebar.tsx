@@ -88,6 +88,7 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
     // ツール機能（全レベルでアクセス可能）
     { id: 'time-axis', path: '/demo/time-axis', icon: '⏰', label: '時間管理', section: 'tools' },
     { id: 'hierarchy-demo', path: '/demo/hierarchy', icon: '🏢', label: '階層デモ', section: 'tools' },
+    { id: 'progressive-visibility', path: '/demo/progressive-visibility', icon: '👁️', label: '段階的公開デモ', section: 'tools' },
     
     { id: 'divider2', isDivider: true },
     

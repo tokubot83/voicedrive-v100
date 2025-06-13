@@ -1,5 +1,6 @@
 export type PostType = 'improvement' | 'community' | 'report';
 export type AnonymityLevel = 'anonymous' | 'department_only' | 'facility_anonymous' | 'facility_department' | 'real_name';
+export type CommentPrivacyLevel = 'anonymous' | 'partial' | 'selective' | 'full';
 export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 export type VoteOption = 'strongly-oppose' | 'oppose' | 'neutral' | 'support' | 'strongly-support';
 export type UserRole = 'employee' | 'chief' | 'manager' | 'executive';
@@ -13,7 +14,7 @@ export type ProposalType = 'operational' | 'strategic' | 'innovation' | 'riskMan
 // Project levels for organization hierarchy
 export type ProjectLevel = 'DEPARTMENT' | 'FACILITY' | 'CORPORATE';
 export type ProjectStage = 'DEPARTMENT_PROJECT' | 'FACILITY_PROJECT' | 'CORPORATE_PROJECT';
-export type ApprovalLevel = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3' | 'LEVEL_4' | 'LEVEL_5';
+export type ApprovalLevel = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3' | 'LEVEL_4' | 'LEVEL_5' | 'LEVEL_7_OVERRIDE';
 export type MilestoneStatus = 'completed' | 'in_progress' | 'pending';
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected' | 'in_progress';
 
@@ -41,6 +42,7 @@ export interface User {
   department: string;
   role: string;
   avatar?: string;
+  facility_id?: string;
   stakeholderCategory?: StakeholderCategory;
   position?: string;
   expertise?: number;
@@ -114,6 +116,11 @@ export interface Post {
   approvalFlow?: ApprovalFlow;
   tags?: string[];
   relatedProjects?: string[];
+  // Emergency escalation properties
+  isEmergencyEscalated?: boolean;
+  escalatedBy?: string;
+  escalatedDate?: string;
+  escalationReason?: string;
 }
 
 export interface ProjectMilestone {
@@ -173,6 +180,7 @@ export interface Comment {
   content: string;
   author: User;
   anonymityLevel: AnonymityLevel;
+  privacyLevel?: CommentPrivacyLevel;
   timestamp: Date;
   visibleInfo?: {
     facility?: string;

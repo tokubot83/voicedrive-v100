@@ -3,9 +3,9 @@ import React from 'react';
 import { Post, User } from '../../types';
 import { PostVisibilityStatus } from './PostVisibilityStatus';
 import { usePostVisibility } from '../../hooks/visibility/usePostVisibility';
-import { VotingSection } from '../VotingSection';
-import { CommentForm } from '../CommentForm';
-import { CommentList } from '../CommentList';
+import VotingSection from '../VotingSection';
+import CommentForm from '../CommentForm';
+import CommentList from '../CommentList';
 import { ProjectScope } from '../../permissions/types/PermissionTypes';
 
 interface EnhancedPostWrapperProps {
