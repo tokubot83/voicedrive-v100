@@ -1,11 +1,13 @@
 // 法人統括ダッシュボード - LEVEL_7 (事務局長専用)
-import React from 'react';
+import React, { useState } from 'react';
 import { usePermissions } from '../../hooks/usePermissions';
 import { useDemoMode } from '../demo/DemoModeController';
+import CorporatePostingAnalytics from '../corporate/CorporatePostingAnalytics';
 
 const CorporateDashboard: React.FC = () => {
   const { currentUser } = useDemoMode();
   const { hasPermission } = usePermissions();
+  const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview');
 
   // ダミーデータ
   const corporateMetrics = {
@@ -93,7 +95,38 @@ const CorporateDashboard: React.FC = () => {
         </p>
       </div>
 
-      {/* 法人全体指標 */}
+      {/* タブナビゲーション */}
+      <div className="mb-6">
+        <div className="flex space-x-1 bg-gray-900/50 rounded-xl p-1">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all ${
+              activeTab === 'overview'
+                ? 'bg-amber-600 text-white'
+                : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+            }`}
+          >
+            <span>🏢</span>
+            <span>法人概要</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all ${
+              activeTab === 'analytics'
+                ? 'bg-amber-600 text-white'
+                : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+            }`}
+          >
+            <span>📊</span>
+            <span>グループ分析</span>
+          </button>
+        </div>
+      </div>
+
+      {/* タブコンテンツ */}
+      {activeTab === 'overview' ? (
+        <>
+          {/* 法人全体指標 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
           <div className="flex items-center justify-between mb-2">
@@ -286,6 +319,10 @@ const CorporateDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+        </>
+      ) : (
+        <CorporatePostingAnalytics />
+      )}
     </div>
   );
 };

@@ -1,11 +1,13 @@
 // 戦略企画ダッシュボード - LEVEL_6 (人財統括本部統括管理部門長)
-import React from 'react';
+import React, { useState } from 'react';
 import { usePermissions } from '../../hooks/usePermissions';
 import { useDemoMode } from '../demo/DemoModeController';
+import StrategicPostingAnalytics from '../strategic/StrategicPostingAnalytics';
 
 const StrategicDashboard: React.FC = () => {
   const { currentUser } = useDemoMode();
   const { hasPermission } = usePermissions();
+  const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview');
 
   // ダミーデータ
   const strategicMetrics = {
@@ -107,7 +109,38 @@ const StrategicDashboard: React.FC = () => {
         </p>
       </div>
 
-      {/* 戦略指標 */}
+      {/* タブナビゲーション */}
+      <div className="mb-6">
+        <div className="flex space-x-1 bg-gray-900/50 rounded-xl p-1">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all ${
+              activeTab === 'overview'
+                ? 'bg-violet-600 text-white'
+                : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+            }`}
+          >
+            <span>📊</span>
+            <span>戦略概要</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all ${
+              activeTab === 'analytics'
+                ? 'bg-violet-600 text-white'
+                : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+            }`}
+          >
+            <span>🎯</span>
+            <span>戦略分析</span>
+          </button>
+        </div>
+      </div>
+
+      {/* タブコンテンツ */}
+      {activeTab === 'overview' ? (
+        <>
+          {/* 戦略指標 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
           <div className="flex items-center justify-between mb-2">
@@ -302,6 +335,10 @@ const StrategicDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+        </>
+      ) : (
+        <StrategicPostingAnalytics />
+      )}
     </div>
   );
 };

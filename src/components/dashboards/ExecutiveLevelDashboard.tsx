@@ -1,11 +1,13 @@
 // 経営ダッシュボード - LEVEL_8 (理事長専用)
-import React from 'react';
+import React, { useState } from 'react';
 import { usePermissions } from '../../hooks/usePermissions';
 import { useDemoMode } from '../demo/DemoModeController';
+import ExecutivePostingAnalytics from '../executive/ExecutivePostingAnalytics';
 
 const ExecutiveLevelDashboard: React.FC = () => {
   const { currentUser } = useDemoMode();
   const { hasPermission } = usePermissions();
+  const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview');
 
   // ダミーデータ
   const executiveMetrics = {
@@ -78,7 +80,38 @@ const ExecutiveLevelDashboard: React.FC = () => {
         </p>
       </div>
 
-      {/* エグゼクティブサマリー */}
+      {/* タブナビゲーション */}
+      <div className="mb-6">
+        <div className="flex space-x-1 bg-gray-900/50 rounded-xl p-1">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all ${
+              activeTab === 'overview'
+                ? 'bg-indigo-600 text-white'
+                : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+            }`}
+          >
+            <span>🏛️</span>
+            <span>経営概要</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all ${
+              activeTab === 'analytics'
+                ? 'bg-indigo-600 text-white'
+                : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+            }`}
+          >
+            <span>📊</span>
+            <span>戦略分析</span>
+          </button>
+        </div>
+      </div>
+
+      {/* タブコンテンツ */}
+      {activeTab === 'overview' ? (
+        <>
+          {/* エグゼクティブサマリー */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
           <div className="flex items-center justify-between mb-2">
@@ -281,6 +314,10 @@ const ExecutiveLevelDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+        </>
+      ) : (
+        <ExecutivePostingAnalytics />
+      )}
     </div>
   );
 };
