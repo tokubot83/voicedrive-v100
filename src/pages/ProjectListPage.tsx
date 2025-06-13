@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Search, Filter, Calendar, Users, TrendingUp, CheckCircle, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Search, Filter, Calendar, Users, TrendingUp, CheckCircle, Clock, AlertCircle, ArrowLeft, Building2, Building, Briefcase, AlertTriangle, Eye } from 'lucide-react';
 import { usePermissions } from '../hooks/usePermissions';
 import { useDemoMode } from '../components/demo/DemoModeController';
+import { projectDemoPosts } from '../data/demo/projectDemoData';
+import { Post, ProjectLevel, ApprovalStatus } from '../types';
 
 interface Project {
   id: string;
@@ -14,9 +16,16 @@ interface Project {
   endDate?: string;
   participants: number;
   department: string;
+  facility?: string;
   category: 'improvement' | 'community' | 'facility' | 'system';
-  priority: 'high' | 'medium' | 'low';
+  priority: 'high' | 'medium' | 'low' | 'urgent';
   myRole?: 'owner' | 'participant' | 'viewer';
+  projectLevel?: ProjectLevel;
+  isEmergencyEscalated?: boolean;
+  escalatedBy?: string;
+  escalatedDate?: string;
+  approvalStatus?: ApprovalStatus;
+  currentApprover?: string;
 }
 
 const ProjectListPage: React.FC = () => {
@@ -26,6 +35,26 @@ const ProjectListPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'completed' | 'proposed'>('all');
   const [filterCategory, setFilterCategory] = useState<'all' | 'improvement' | 'community' | 'facility' | 'system'>('all');
+  const [filterLevel, setFilterLevel] = useState<'all' | 'DEPARTMENT' | 'FACILITY' | 'CORPORATE' | 'EMERGENCY'>('all');
+
+  // 施設マッピング
+  const getFacilityFromDepartment = (department: string): string => {
+    const facilityMap: Record<string, string> = {
+      'リハビリテーション科': '立神リハ温泉病院',
+      'リハビリテーション部': '立神リハ温泉病院',
+      '温泉療法科': '立神リハ温泉病院',
+      '看護部': '小原病院',
+      '医療情報部': '小原病院',
+      '外来': '小原病院',
+      '病棟': '小原病院',
+      '事務部': '小原病院',
+      '薬剤部': '小原病院',
+      '経営企画部': '本部',
+      '人事部': '本部',
+      '総務部': '本部'
+    };
+    return facilityMap[department] || '小原病院';
+  };
 
   // URLパラメータから初期フィルターを設定
   useEffect(() => {
