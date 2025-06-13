@@ -32,7 +32,6 @@ const Step2PermissionRevocation: React.FC<Step2Props> = ({
     { id: 'user_management', name: 'ユーザー管理権限', critical: true },
     { id: 'system_settings', name: 'システム設定権限', critical: true },
     { id: 'approval_authority', name: '承認権限', critical: false },
-    { id: 'project_creation', name: 'プロジェクト作成権限', critical: false },
     { id: 'budget_approval', name: '予算承認権限', critical: true },
     { id: 'hr_management', name: '人事管理権限', critical: true }
   ];

@@ -197,12 +197,6 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
 // 機能別必要権限レベル
 export const FEATURE_PERMISSIONS: Record<string, FeaturePermission> = {
   // プロジェクト関連
-  CREATE_PROJECT: {
-    featureId: 'CREATE_PROJECT',
-    requiredLevel: PermissionLevel.LEVEL_1,
-    description: 'プロジェクト提案の作成',
-    category: 'PROJECT'
-  },
   APPROVE_TEAM_PROJECT: {
     featureId: 'APPROVE_TEAM_PROJECT',
     requiredLevel: PermissionLevel.LEVEL_3,

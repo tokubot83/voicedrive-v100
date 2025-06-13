@@ -223,8 +223,8 @@ export class NotificationService {
     return [];
   }
   
-  private async getProjectCreator(workflow: ProjectWorkflow): Promise<NotificationRecipient[]> {
-    // 実装では、プロジェクト作成者を取得
+  private async getProjectInitiator(workflow: ProjectWorkflow): Promise<NotificationRecipient[]> {
+    // 実装では、プロジェクト提案者を取得
     return [];
   }
   
