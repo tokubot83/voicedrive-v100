@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import VotingSystem from './VotingSystem';
 import EnhancedVotingSystem from './EnhancedVotingSystem';
 import EnhancedConsensusChart from './EnhancedConsensusChart';
+import ProjectProgressIndicator from './ProjectProgressIndicator';
 import CommentForm from './CommentForm';
 import CommentList from './CommentList';
 import { Post as PostType, VoteOption, Comment, User } from '../types';
@@ -174,7 +175,16 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
           
           {post.type === 'improvement' && (
             <>
-              {/* プロジェクトレベルの投稿では新しいチャートを使用 */}
+              {/* プロジェクト進捗インジケーター（全ての改善提案に表示） */}
+              <ProjectProgressIndicator
+                votes={post.votes}
+                currentScore={calculateScore(convertVotesToEngagements(post.votes), post.proposalType)}
+                currentLevel={post.enhancedProjectStatus?.level}
+                postId={post.id}
+                isCompact={!post.enhancedProjectStatus} // プロジェクトレベルでない場合はコンパクト表示
+              />
+              
+              {/* プロジェクトレベルの投稿では詳細チャートも表示 */}
               {post.enhancedProjectStatus ? (
                 <EnhancedConsensusChart
                   votes={post.votes}

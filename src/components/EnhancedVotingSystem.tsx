@@ -6,6 +6,7 @@ import {
   getStakeholderBreakdown,
   getConsensusLevel 
 } from '../utils/votingCalculations';
+import { TrendingUp, Target, Clock } from 'lucide-react';
 
 interface EnhancedVotingSystemProps {
   postId: string;
