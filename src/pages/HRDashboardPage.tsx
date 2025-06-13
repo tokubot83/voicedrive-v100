@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 const HRDashboardPage = () => {
   const navigate = useNavigate();
@@ -12,10 +13,10 @@ const HRDashboardPage = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-xl transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors"
             >
-              <span className="text-xl">←</span>
-              <span>ホームに戻る</span>
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm">ホームに戻る</span>
             </button>
             <div>
               <h1 className="text-2xl font-bold text-white">

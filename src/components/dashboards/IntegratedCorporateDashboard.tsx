@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useDemoMode } from '../demo/DemoModeController';
 import { demoUsers, getDemoUsersByFacility } from '../../data/demo/users';
 
@@ -317,21 +318,23 @@ const IntegratedCorporateDashboard: React.FC = () => {
       <div className="bg-gray-900/50 backdrop-blur-md border-b border-gray-800/50 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                <span className="text-4xl">🏢</span>
-                法人統合ダッシュボード
-              </h1>
-              <p className="text-gray-400 mt-2">全8施設・25部門の統合管理ビュー</p>
-            </div>
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/')}
-                className="px-4 py-2 bg-gray-700/50 hover:bg-gray-700 text-white rounded-lg flex items-center gap-2 transition-all hover:scale-105"
+                className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors"
               >
-                <span className="text-lg">🏠</span>
-                <span>ホームに戻る</span>
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-sm">ホームに戻る</span>
               </button>
+              <div>
+                <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                  <span className="text-4xl">🏢</span>
+                  法人統合ダッシュボード
+                </h1>
+                <p className="text-gray-400 mt-2">全8施設・25部門の統合管理ビュー</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
               <div className="text-right">
                 <div className="text-sm text-gray-400">権限レベル</div>
                 <div className="text-2xl font-bold text-blue-400">Lv.{currentUser.permissionLevel}</div>
