@@ -1,11 +1,13 @@
 // 現場リーダーダッシュボード - LEVEL_2 (主任・師長専用)
-import React from 'react';
+import React, { useState } from 'react';
 import { usePermissions } from '../../hooks/usePermissions';
 import { useDemoMode } from '../demo/DemoModeController';
+import TeamMemberPostingAnalytics from '../teamleader/TeamMemberPostingAnalytics';
 
 const TeamLeaderDashboard: React.FC = () => {
   const { currentUser } = useDemoMode();
   const { hasPermission } = usePermissions();
+  const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview');
 
   // ダミーデータ
   const teamMetrics = {
@@ -66,8 +68,39 @@ const TeamLeaderDashboard: React.FC = () => {
         </p>
       </div>
 
-      {/* チーム統計 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* タブナビゲーション */}
+      <div className="mb-6">
+        <div className="flex space-x-1 bg-gray-900/50 rounded-xl p-1">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all ${
+              activeTab === 'overview'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+            }`}
+          >
+            <span>📋</span>
+            <span>チーム概要</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all ${
+              activeTab === 'analytics'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+            }`}
+          >
+            <span>📊</span>
+            <span>投稿分析</span>
+          </button>
+        </div>
+      </div>
+
+      {/* タブコンテンツ */}
+      {activeTab === 'overview' ? (
+        <>
+          {/* チーム統計 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
           <div className="flex items-center justify-between mb-2">
             <span className="text-gray-400">チームメンバー</span>
@@ -211,6 +244,10 @@ const TeamLeaderDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+        </>
+      ) : (
+        <TeamMemberPostingAnalytics />
+      )}
     </div>
   );
 };
