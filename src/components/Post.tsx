@@ -175,6 +175,15 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
           
           {post.type === 'improvement' && (
             <>
+              {/* デバッグ情報（開発環境のみ） */}
+              {import.meta.env.DEV && (
+                <div className="bg-gray-800/50 border border-gray-700 rounded p-2 mb-2 text-xs">
+                  <div>投票数: {JSON.stringify(post.votes)}</div>
+                  <div>スコア: {calculateScore(convertVotesToEngagements(post.votes), post.proposalType)}</div>
+                  <div>タイプ: {post.proposalType || 'なし'}</div>
+                </div>
+              )}
+              
               {/* プロジェクト進捗インジケーター（全ての改善提案に表示） */}
               <ProjectProgressIndicator
                 votes={post.votes}

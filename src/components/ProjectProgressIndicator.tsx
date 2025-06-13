@@ -17,17 +17,41 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
   postId,
   isCompact = true
 }) => {
-  const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+  // 安全な投票数の計算（votesがundefinedでも対応）
+  const safeVotes = votes || {
+    'strongly-oppose': 0,
+    'oppose': 0,
+    'neutral': 0,
+    'support': 0,
+    'strongly-support': 0
+  };
+  const totalVotes = Object.values(safeVotes).reduce((sum, count) => sum + (count || 0), 0);
   
   // データ検証
   if (currentScore < 0 || isNaN(currentScore)) {
     console.warn('ProjectProgressIndicator: Invalid currentScore', currentScore);
-    return null;
+    // フォールバック表示
+    return (
+      <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/30 rounded-xl p-4 mb-4">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-red-400" />
+          <span className="text-sm font-medium text-red-400">スコア計算エラー</span>
+        </div>
+      </div>
+    );
   }
   
   if (!votes || typeof votes !== 'object') {
     console.warn('ProjectProgressIndicator: Invalid votes data', votes);
-    return null;
+    // フォールバック表示
+    return (
+      <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/30 rounded-xl p-4 mb-4">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-red-400" />
+          <span className="text-sm font-medium text-red-400">投票データエラー</span>
+        </div>
+      </div>
+    );
   }
   
   // プロジェクトレベルの閾値設定（ProjectScoring.tsと統一）
@@ -39,9 +63,9 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
     { level: 'ORGANIZATION', score: 600, label: '法人プロジェクト', shortLabel: '法人', icon: Star, color: 'orange' }
   ];
 
-  // 合意度の計算
+  // 合意度の計算（安全なアクセス）
   const consensusScore = totalVotes > 0 
-    ? Math.round(((votes.support + votes['strongly-support']) / totalVotes) * 100)
+    ? Math.round((((safeVotes.support || 0) + (safeVotes['strongly-support'] || 0)) / totalVotes) * 100)
     : 0;
 
   // 次のマイルストーンを計算
@@ -75,7 +99,7 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
           </div>
           <div className="flex items-center gap-3 text-sm">
             <span className="text-gray-400">現在スコア</span>
-            <span className="text-white font-bold">{currentScore}点</span>
+            <span className="text-white font-bold">{currentScore || 0}点</span>
           </div>
         </div>
 

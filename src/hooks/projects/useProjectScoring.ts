@@ -26,6 +26,11 @@ export const useProjectScoring = () => {
     const engagements: EngagementData[] = [];
     const voteTypes = ['strongly-oppose', 'oppose', 'neutral', 'support', 'strongly-support'] as const;
     
+    // votesがnullまたはundefinedの場合、空の配列を返す
+    if (!votes || typeof votes !== 'object') {
+      return [];
+    }
+    
     let userIndex = 0;
     voteTypes.forEach(voteType => {
       const count = votes[voteType] || 0;
