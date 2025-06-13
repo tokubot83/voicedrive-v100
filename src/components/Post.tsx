@@ -35,7 +35,7 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
   useEffect(() => {
     if (post.type === 'improvement') {
       const engagements = convertVotesToEngagements(post.votes);
-      const score = calculateScore(engagements, post.id);
+      const score = calculateScore(engagements, post.proposalType);
       const status = getStatusConfig(score, post.type);
       
       // 閾値を達成していればワークフローを表示

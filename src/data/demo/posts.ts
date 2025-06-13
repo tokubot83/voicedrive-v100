@@ -132,6 +132,25 @@ export const demoPosts: Post[] = [
       score: 420,
       threshold: 400,
       progress: 105
+    },
+    enhancedProjectStatus: {
+      stage: 'FACILITY_PROJECT',
+      level: 'FACILITY',
+      approvalLevel: 'LEVEL_4',
+      budget: 800000,
+      timeline: '6ヶ月プロジェクト (3/6ヶ月経過)',
+      milestones: [
+        { name: '要件定義', status: 'completed', progress: 100, date: '2024-04-01' },
+        { name: '設計', status: 'completed', progress: 100, date: '2024-05-01' },
+        { name: '実装', status: 'in_progress', progress: 75, date: '2024-06-15' },
+        { name: 'テスト', status: 'pending', progress: 0, date: '2024-07-01' }
+      ],
+      resources: {
+        completion: 75,
+        budget_total: 800000,
+        budget_used: 450000,
+        team_size: 12
+      }
     }
   },
   {
@@ -175,6 +194,24 @@ export const demoPosts: Post[] = [
       score: 185,
       threshold: 200,
       progress: 92.5
+    },
+    enhancedProjectStatus: {
+      stage: 'DEPARTMENT_PROJECT',
+      level: 'DEPARTMENT',
+      approvalLevel: 'LEVEL_3',
+      budget: 300000,
+      timeline: '3ヶ月検討期間 (1/3ヶ月経過)',
+      milestones: [
+        { name: '課題分析', status: 'completed', progress: 100, date: '2024-06-15' },
+        { name: '予算確保', status: 'in_progress', progress: 60, date: '2024-07-01' },
+        { name: '実施計画', status: 'pending', progress: 0, date: '2024-07-15' }
+      ],
+      resources: {
+        completion: 25,
+        budget_total: 300000,
+        budget_used: 85000,
+        team_size: 6
+      }
     }
   },
   {

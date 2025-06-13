@@ -9,7 +9,7 @@ export const useProjectScoring = () => {
     return ProjectScoringEngine.generateDemoUserWeights(100);
   }, []);
   
-  const calculateScore = (engagements: EngagementData[], postId: string) => {
+  const calculateScore = (engagements: EngagementData[], proposalType?: string) => {
     return scoringEngine.calculateProjectScore(engagements, userWeights);
   };
   
