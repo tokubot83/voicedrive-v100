@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Search, Filter, Plus, Calendar, Users, TrendingUp, CheckCircle, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Search, Filter, Calendar, Users, TrendingUp, CheckCircle, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
 import { usePermissions } from '../hooks/usePermissions';
 import { useDemoMode } from '../components/demo/DemoModeController';
 
@@ -205,12 +205,6 @@ const ProjectListPage: React.FC = () => {
               <p className="text-gray-400 text-sm">参加中のプロジェクトを管理</p>
             </div>
           </div>
-          {hasPermission(3) && (
-            <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
-              <Plus className="w-5 h-5" />
-              新規プロジェクト
-            </button>
-          )}
         </div>
       </header>
       
