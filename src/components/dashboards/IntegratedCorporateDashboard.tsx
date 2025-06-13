@@ -10,9 +10,9 @@ const IntegratedCorporateDashboard: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<'overview' | 'facilities' | 'departments' | 'analytics' | 'users'>('overview');
   
   // 権限レベルに応じた表示制御
-  const canViewFinancials = currentUser.permissionLevel >= 6;
-  const canViewStrategic = currentUser.permissionLevel >= 7;
-  const canViewExecutive = currentUser.permissionLevel >= 8;
+  const canViewFinancials = currentUser?.permissionLevel >= 6;
+  const canViewStrategic = currentUser?.permissionLevel >= 7;
+  const canViewExecutive = currentUser?.permissionLevel >= 8;
 
   // 施設データ（8施設）品質スコアの詳細付き
   const facilities = [
@@ -259,20 +259,35 @@ const IntegratedCorporateDashboard: React.FC = () => {
     departmentName: departmentMap[user.department_id as keyof typeof departmentMap] || user.department
   }));
 
+  // currentUserのnullチェック
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold mb-2">ユーザー情報を読み込み中...</h2>
+          <p className="text-gray-400">しばらくお待ちください</p>
+        </div>
+      </div>
+    );
+  }
+
   // ランキングスコア計算関数
   function calculateUserRankingScore(user: any) {
     let score = 0;
     
     // 権限レベル (30点満点)
-    score += user.permissionLevel * 5;
+    score += (user.permissionLevel || 1) * 5;
     
     // 在籍期間 (25点満点)
-    const yearsOfService = new Date().getFullYear() - user.joinDate.getFullYear();
+    const joinDate = user.joinDate ? new Date(user.joinDate) : new Date();
+    const yearsOfService = new Date().getFullYear() - joinDate.getFullYear();
     score += Math.min(yearsOfService * 3, 25);
     
     // 直属部下数 (20点満点) 
-    if (user.directReports) {
-      score += Math.min(user.directReports * 2, 20);
+    if (user.directReports || user.children_ids?.length) {
+      const reportCount = user.directReports || user.children_ids?.length || 0;
+      score += Math.min(reportCount * 2, 20);
     }
     
     // 予算承認権限 (15点満点)
@@ -337,8 +352,8 @@ const IntegratedCorporateDashboard: React.FC = () => {
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <div className="text-sm text-gray-400">権限レベル</div>
-                <div className="text-2xl font-bold text-blue-400">Lv.{currentUser.permissionLevel}</div>
-                <div className="text-sm text-gray-500">{currentUser.name}</div>
+                <div className="text-2xl font-bold text-blue-400">Lv.{currentUser?.permissionLevel || 1}</div>
+                <div className="text-sm text-gray-500">{currentUser?.name || 'ゲスト'}</div>
               </div>
             </div>
           </div>
@@ -1041,7 +1056,7 @@ const IntegratedCorporateDashboard: React.FC = () => {
                                 <div>
                                   <span className="text-gray-400">在籍: </span>
                                   <span className="text-green-400">
-                                    {new Date().getFullYear() - user.joinDate.getFullYear()}年
+                                    {user.joinDate ? new Date().getFullYear() - new Date(user.joinDate).getFullYear() : 0}年
                                   </span>
                                 </div>
                               </div>
@@ -1131,7 +1146,7 @@ const IntegratedCorporateDashboard: React.FC = () => {
                         { range: '1年未満', min: 0, max: 0 }
                       ].map(({ range, min, max }) => {
                         const count = filteredUsers.filter(u => {
-                          const years = new Date().getFullYear() - u.joinDate.getFullYear();
+                          const years = u.joinDate ? new Date().getFullYear() - new Date(u.joinDate).getFullYear() : 0;
                           return years >= min && years <= max;
                         }).length;
                         return count > 0 ? (

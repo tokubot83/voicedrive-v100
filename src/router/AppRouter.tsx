@@ -10,6 +10,7 @@ import Layout from '../components/layout/Layout';
 import HomePage from '../pages/HomePage';
 import ProfilePage from '../pages/ProfilePage';
 import ProjectListPage from '../pages/ProjectListPage';
+import EnhancedProjectListPage from '../pages/EnhancedProjectListPage';
 import TeamManagementPage from '../pages/TeamManagementPage';
 import DepartmentOverviewPage from '../pages/DepartmentOverviewPage';
 import BudgetPage from '../pages/BudgetPage';
@@ -56,6 +57,7 @@ import SettingsPage from '../pages/SettingsPage';
 // Demo pages
 import TimeAxisDemo from '../components/TimeAxisDemo';
 import { HierarchyDemo } from '../components/demo/HierarchyDemo';
+import ProgressiveVisibilityDemo from '../components/demo/ProgressiveVisibilityDemo';
 
 // Analytics
 import ExecutiveDashboard from '../components/analytics/ExecutiveDashboard';
@@ -80,7 +82,8 @@ const AppRouter: React.FC = () => {
         {/* Main navigation routes */}
         <Route index element={<HomePage />} />
         <Route path="profile" element={<ProfilePage />} />
-        <Route path="projects" element={<ProjectListPage />} />
+        <Route path="projects" element={<EnhancedProjectListPage />} />
+        <Route path="projects-legacy" element={<ProjectListPage />} />
         
         {/* Role-based dashboard routes with exact level protection */}
         <Route path="dashboard">
@@ -353,6 +356,7 @@ const AppRouter: React.FC = () => {
         <Route path="demo">
           <Route path="time-axis" element={<TimeAxisDemo />} />
           <Route path="hierarchy" element={<HierarchyDemo />} />
+          <Route path="progressive-visibility" element={<ProgressiveVisibilityDemo />} />
         </Route>
         
         {/* Error pages */}
