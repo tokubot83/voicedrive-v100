@@ -12,9 +12,7 @@ export const mainTabs: MainTab[] = [
   { id: 'home', label: 'ホーム', icon: '🏠', hasSubFilters: false },
   { id: 'improvement', label: '改善提案', icon: '💡', hasSubFilters: true },
   { id: 'community', label: 'フリースペース', icon: '💬', hasSubFilters: true },
-  { id: 'whistleblowing', label: '公益通報', icon: '🚨', hasSubFilters: true },
-  { id: 'urgent', label: '緊急', icon: '🔥', hasSubFilters: false },
-  { id: 'projects', label: 'プロジェクト', icon: '🚀', hasSubFilters: true }
+  { id: 'whistleblowing', label: '公益通報', icon: '🚨', hasSubFilters: true }
 ];
 
 export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) => {
@@ -24,9 +22,6 @@ export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) =>
     if (tabId === 'whistleblowing') {
       // 公益通報は専用ページに遷移
       navigate('/whistleblowing');
-    } else if (tabId === 'projects') {
-      // プロジェクトページに遷移
-      navigate('/projects');
     } else if (tabId === 'home') {
       // ホームページに遷移
       navigate('/');
