@@ -12,6 +12,7 @@ interface VotingSystemProps {
 }
 
 const VotingSystem = ({ votes, selectedVote, onVote, postId, proposalType, showScore = false }: VotingSystemProps) => {
+  console.log('🗳️ VotingSystem component rendering:', postId, 'showScore:', showScore);
   const { calculateScore, convertVotesToEngagements } = useProjectScoring();
   const voteOptions = [
     { id: 'strongly-oppose' as VoteOption, emoji: '😠', label: '強く反対', color: 'red' },
@@ -202,5 +203,7 @@ const VotingSystem = ({ votes, selectedVote, onVote, postId, proposalType, showS
     </div>
   );
 };
+
+VotingSystem.displayName = 'VotingSystem';
 
 export default VotingSystem;

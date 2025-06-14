@@ -19,11 +19,14 @@ interface PostProps {
 }
 
 const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
+  console.log('🎯 Post component rendering:', post.id, post.type, post.content.slice(0, 50));
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(null);
   const [showWorkflow, setShowWorkflow] = useState(false);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const { calculateScore, getStatusConfig, convertVotesToEngagements } = useProjectScoring();
+  
+  console.log('Post component rendered:', post.id, post.content.substring(0, 50));
   
   // 施設名を取得するヘルパー関数
   const getFacilityName = (facilityId: string) => {
@@ -194,14 +197,17 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
                   onVote={handleVote}
                 />
               ) : (
-                <VotingSystem
-                  postId={post.id}
-                  votes={post.votes}
-                  selectedVote={selectedVote}
-                  onVote={handleVote}
-                  proposalType={post.proposalType}
-                  showScore={true}
-                />
+                <>
+                  {console.log('🎯 Rendering VotingSystem for post:', post.id, 'type:', post.type)}
+                  <VotingSystem
+                    postId={post.id}
+                    votes={post.votes}
+                    selectedVote={selectedVote}
+                    onVote={handleVote}
+                    proposalType={post.proposalType}
+                    showScore={true}
+                  />
+                </>
               )}
             </>
           )}
@@ -259,5 +265,7 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
     </div>
   );
 };
+
+Post.displayName = 'Post';
 
 export default Post;

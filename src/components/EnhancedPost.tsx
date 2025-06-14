@@ -133,4 +133,6 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
   );
 };
 
+EnhancedPost.displayName = 'EnhancedPost';
+
 export default EnhancedPost;

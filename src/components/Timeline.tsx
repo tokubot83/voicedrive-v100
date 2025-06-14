@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import EnhancedPost from './EnhancedPost';
 import Post from './Post';
+import ComponentInspector from './ComponentInspector';
 import { Post as PostType, VoteOption, Comment } from '../types';
 import { demoPosts } from '../data/demo/posts';
 import { useDemoMode } from './demo/DemoModeController';
@@ -13,6 +14,14 @@ interface TimelineProps {
 const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
   const { isDemoMode, currentUser } = useDemoMode();
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  
+  // Debug logging
+  console.log('Timeline component rendered', {
+    activeTab,
+    filterByUser,
+    isDemoMode,
+    currentUser
+  });
   
   // Use demo posts in demo mode, otherwise use the original posts
   const initialPosts = useMemo(() => {
@@ -201,30 +210,40 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
     return filtered;
   }, [posts, activeTab, filterByUser]);
 
+  console.log('Timeline rendering posts:', filteredPosts.length);
+  
   return (
-    <div className="overflow-y-auto">
-      {filteredPosts.map((post) => (
-        selectedPostId === post.id ? (
-          <Post
-            key={post.id}
-            post={post}
-            currentUser={currentUser}
-            onVote={handleVote}
-            onComment={handleCommentSubmit}
-            onClose={() => setSelectedPostId(null)}
-          />
-        ) : (
-          <EnhancedPost
-            key={post.id}
-            post={post}
-            currentUser={currentUser}
-            onVote={handleVote}
-            onComment={handleComment}
-          />
-        )
-      ))}
-    </div>
+    <ComponentInspector name="Timeline">
+      <div className="overflow-y-auto">
+        {filteredPosts.map((post) => {
+          console.log('Rendering post:', post.id, post.type);
+          return (
+          <ComponentInspector key={post.id} name={`PostWrapper-${post.id}`}>
+            {selectedPostId === post.id ? (
+              <Post
+                key={post.id}
+                post={post}
+                currentUser={currentUser}
+                onVote={handleVote}
+                onComment={handleCommentSubmit}
+                onClose={() => setSelectedPostId(null)}
+              />
+            ) : (
+              <EnhancedPost
+                key={post.id}
+                post={post}
+                currentUser={currentUser}
+                onVote={handleVote}
+                onComment={handleComment}
+              />
+            )}
+          </ComponentInspector>
+        )})}
+      </div>
+    </ComponentInspector>
   );
 };
+
+Timeline.displayName = 'Timeline';
 
 export default Timeline;
