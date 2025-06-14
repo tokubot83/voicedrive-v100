@@ -1,14 +1,17 @@
-import { VoteOption } from '../types';
+import { VoteOption, ProposalType } from '../types';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
+import { TrendingUp, Target, Users, Star } from 'lucide-react';
 
 interface VotingSystemProps {
   postId: string;
   votes: Record<VoteOption, number>;
   selectedVote: VoteOption | null;
   onVote: (option: VoteOption) => void;
+  proposalType?: ProposalType;
+  showScore?: boolean;
 }
 
-const VotingSystem = ({ votes, selectedVote, onVote, postId }: VotingSystemProps) => {
+const VotingSystem = ({ votes, selectedVote, onVote, postId, proposalType, showScore = false }: VotingSystemProps) => {
   const { calculateScore, convertVotesToEngagements } = useProjectScoring();
   const voteOptions = [
     { id: 'strongly-oppose' as VoteOption, emoji: '😠', label: '強く反対', color: 'red' },
@@ -24,7 +27,30 @@ const VotingSystem = ({ votes, selectedVote, onVote, postId }: VotingSystemProps
     : 0;
   
   // スコア計算
-  const currentScore = calculateScore(convertVotesToEngagements(votes));
+  const currentScore = calculateScore(convertVotesToEngagements(votes), proposalType);
+  
+  // マイルストーン設定
+  const milestones = [
+    { score: 50, label: 'チーム', icon: Users, color: 'green' },
+    { score: 100, label: '部署', icon: Target, color: 'blue' },
+    { score: 300, label: '施設', icon: Target, color: 'purple' },
+    { score: 600, label: '法人', icon: Star, color: 'orange' }
+  ];
+  
+  // 現在のレベルと次のマイルストーンを計算
+  const getCurrentLevel = () => {
+    for (let i = milestones.length - 1; i >= 0; i--) {
+      if (currentScore >= milestones[i].score) {
+        return { current: milestones[i], next: milestones[i + 1] || null };
+      }
+    }
+    return { current: null, next: milestones[0] };
+  };
+  
+  const { current: currentLevel, next: nextMilestone } = getCurrentLevel();
+  const progressToNext = nextMilestone 
+    ? Math.min(100, ((currentScore - (currentLevel?.score || 0)) / (nextMilestone.score - (currentLevel?.score || 0))) * 100)
+    : 100;
 
   const getVoteStyle = (option: typeof voteOptions[0], isSelected: boolean) => {
     const baseStyles = {
@@ -106,18 +132,53 @@ const VotingSystem = ({ votes, selectedVote, onVote, postId }: VotingSystemProps
         </div>
 
         <div className="flex flex-col items-center">
-          {/* 緊急スコア表示 */}
-          <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border-2 border-orange-500 rounded-xl p-4 mb-4 w-full">
-            <div className="text-center">
-              <div className="text-orange-300 font-bold text-sm mb-1">🚨 スコア表示テスト</div>
-              <div className="text-white text-2xl font-bold">現在スコア: {Math.round(currentScore)}点</div>
-              <div className="text-orange-200 text-xs mt-1">Post ID: {postId}</div>
+          {/* スコア情報表示（改善提案の場合のみ） */}
+          {showScore && (
+            <div className="w-full mb-4">
+              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-blue-400" />
+                    <span className="text-sm font-medium text-blue-400">プロジェクト進捗</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-white">{Math.round(currentScore)}点</div>
+                    <div className="text-xs text-gray-400">現在スコア</div>
+                  </div>
+                </div>
+                
+                {/* 進捗バーとマイルストーン */}
+                {nextMilestone && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-gray-400">
+                        {currentLevel ? currentLevel.label : '開始'}
+                      </span>
+                      <span className="text-blue-400 font-medium">
+                        次: {nextMilestone.label} まで{nextMilestone.score - currentScore}点
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-700/50 rounded-full h-2">
+                      <div
+                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${Math.min(progressToNext, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
           
           <div className="relative w-48 h-48 mb-5">
             <div className="absolute inset-0 rounded-full bg-gradient-conic from-red-500 via-yellow-500 via-gray-500 via-green-500 to-blue-500 p-4 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
               <div className="w-full h-full rounded-full bg-gradient-to-br from-black/80 to-black/60 backdrop-blur-xl flex flex-col items-center justify-center border-2 border-white/10">
+                {/* スコア表示（円グラフ中央上部） */}
+                {showScore && (
+                  <div className="text-center mb-1">
+                    <div className="text-sm font-bold text-blue-400">{Math.round(currentScore)}点</div>
+                  </div>
+                )}
                 <div className="text-4xl font-bold text-blue-400 drop-shadow-[0_0_20px_rgba(29,155,240,0.8)] mb-2">
                   {totalVotes}
                 </div>
