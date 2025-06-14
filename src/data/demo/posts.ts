@@ -100,12 +100,12 @@ const generateSampleComments = (postId: string, count: number = 2): Comment[] =>
 
 // Seasonal posts based on Japanese fiscal year and seasons
 export const demoPosts: Post[] = [
-  // VotingSystemコンポーネントをテストするための基本投稿（proposalTypeなし）
+  // 社内会議効率化の提案
   {
     id: 'post-voting-system-test',
     type: 'improvement',
-    // proposalTypeを意図的に設定しない - VotingSystemが表示される
-    content: '【VotingSystemテスト】社内の会議時間を短縮するため、アジェンダの事前共有と時間制限の導入を提案します。',
+    // 基本的な改善提案
+    content: '社内の会議時間を短縮するため、アジェンダの事前共有と時間制限の導入を提案します。',
     author: demoUsers[4],
     anonymityLevel: 'real_name',
     priority: 'medium',
@@ -118,15 +118,15 @@ export const demoPosts: Post[] = [
       'strongly-support': 3,
     },
     comments: generateSampleComments('post-voting-system-test', 2),
-    // enhancedProjectStatusも設定しない
+    // シンプルな改善提案
   },
   
-  // 【テスト用】確実にスコア表示される部署プロジェクト化投稿
+  // 部署プロジェクト化された電子カルテ改善提案
   {
     id: 'post-score-test',
     type: 'improvement',
     proposalType: 'operational' as ProposalType,
-    content: '【部署プロジェクト化済み】電子カルテシステムの入力効率を向上させるため、よく使用する定型文のショートカット機能を追加提案します。現在、同じ内容を何度も入力する作業が多く、1日あたり30分程度の時間短縮が見込めます。',
+    content: '電子カルテシステムの入力効率を向上させるため、よく使用する定型文のショートカット機能を追加提案します。現在、同じ内容を何度も入力する作業が多く、1日あたり30分程度の時間短縮が見込めます。',
     author: demoUsers[8], // HR Staff - 確実に権限あり
     anonymityLevel: 'real_name',
     priority: 'high',
@@ -137,7 +137,7 @@ export const demoPosts: Post[] = [
       'neutral': 7,
       'support': 35,
       'strongly-support': 25,
-    }, // 総投票数70票、賛成率85% → 高い合意
+    }, // 高い賛成率でプロジェクト化された改善提案
     votesByStakeholder: generateSampleVotesByStakeholder({
       'strongly-oppose': 1,
       'oppose': 2,
@@ -150,11 +150,11 @@ export const demoPosts: Post[] = [
     approver: demoUsers[10],
     projectStatus: {
       stage: 'active',
-      score: 650, // 確実に部署レベル(100点)を超える高スコア
+      score: 650, // 部署レベルを超える高スコア
       threshold: 100,
-      progress: 650 // 650%達成
+      progress: 650 // 高い進捗状況
     },
-    // 部署プロジェクト化状態を明示
+    // プロジェクトの現在のステータス
     enhancedProjectStatus: {
       stage: 'DEPARTMENT_PROJECT',
       level: 'DEPARTMENT',
@@ -174,12 +174,12 @@ export const demoPosts: Post[] = [
       }
     }
   },
-  // VotingSystem表示用の追加テスト投稿
+  // LED照明への交換提案
   {
     id: 'post-voting-system-test-2',
     type: 'improvement',
-    // proposalTypeとenhancedProjectStatusを設定しない
-    content: '【VotingSystem表示確認】オフィスの照明をLEDに交換して電気代を節約しませんか？環境にも優しく、長期的にコスト削減につながります。',
+    // 基本的な環境改善提案
+    content: 'オフィスの照明をLEDに交換して電気代を節約しませんか？環境にも優しく、長期的にコスト削減につながります。',
     author: demoUsers[1],
     anonymityLevel: 'department_only',
     priority: 'low',
