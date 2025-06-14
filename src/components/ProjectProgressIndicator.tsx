@@ -38,15 +38,22 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
   };
   const totalVotes = Object.values(safeVotes).reduce((sum, count) => sum + (count || 0), 0);
   
-  // データ検証
+  // データ検証 - エラー時も強制表示
   if (currentScore < 0 || isNaN(currentScore)) {
     console.warn('ProjectProgressIndicator: Invalid currentScore', currentScore);
-    // フォールバック表示
+    // エラー時も強制的にスコアを表示
+    const fallbackScore = 0;
     return (
-      <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/30 rounded-xl p-4 mb-4">
-        <div className="flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-red-400" />
-          <span className="text-sm font-medium text-red-400">スコア計算エラー</span>
+      <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-xl p-4 mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-orange-400" />
+            <span className="text-sm font-medium text-orange-400">スコア計算エラー（強制表示）</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-gray-400">現在スコア</span>
+            <span className="text-white font-bold text-lg">{fallbackScore}点</span>
+          </div>
         </div>
       </div>
     );
