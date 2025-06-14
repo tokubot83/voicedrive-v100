@@ -4,7 +4,6 @@ import Header from '../components/Header';
 import ComposeSection from '../components/ComposeSection';
 import ComposeForm from '../components/ComposeForm';
 import Timeline from '../components/Timeline';
-import SimpleTimeline from '../components/SimpleTimeline';
 import { PostType } from '../types';
 
 const HomePage = () => {

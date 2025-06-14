@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import EnhancedPost from './EnhancedPost';
 import Post from './Post';
-import ComponentInspector from './ComponentInspector';
 import { Post as PostType, VoteOption, Comment } from '../types';
 import { demoPosts } from '../data/demo/posts';
 import { useDemoMode } from './demo/DemoModeController';
