@@ -173,6 +173,22 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
             {post.content}
           </div>
           
+          {/* 🔥 強制スコア表示テスト - 全投稿に表示 🔥 */}
+          <div className="bg-red-500 border-4 border-yellow-500 rounded-lg p-6 mb-4 text-center">
+            <div className="text-yellow-300 text-3xl font-black mb-2">🔥 EMERGENCY SCORE TEST 🔥</div>
+            <div className="text-white text-2xl font-bold">
+              投稿タイプ: {post.type} | 条件: {post.type === 'improvement' ? 'TRUE' : 'FALSE'}
+            </div>
+            {post.votes && (
+              <div className="text-white text-4xl font-black mt-3">
+                現在スコア: {Math.round(calculateScore(convertVotesToEngagements(post.votes), post.proposalType))}点
+              </div>
+            )}
+            <div className="text-yellow-200 text-lg mt-2">
+              このテキストが見えない場合はデプロイ問題
+            </div>
+          </div>
+          
           {/* 緊急デバッグ：全ての投稿に表示 */}
           <div className="bg-red-500/20 border-2 border-red-500 rounded-lg p-4 mb-4">
             <div className="text-red-300 font-bold mb-2">🚨 緊急デバッグ情報 🚨</div>

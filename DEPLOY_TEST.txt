@@ -1,0 +1,8 @@
+🔥 EMERGENCY DEPLOY TEST 🔥
+Timestamp: 2025-06-14 12:30:00
+This file is created to force a new deployment.
+
+If you can see this change, the deployment is working.
+If score displays are still missing, there's a different issue.
+
+CRITICAL: This test will determine if our changes are reaching Vercel.
