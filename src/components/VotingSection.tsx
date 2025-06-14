@@ -74,15 +74,48 @@ const VotingSection: React.FC<VotingSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 緊急スコア表示テスト */}
+      {/* 改善提案用スコア表示パネル */}
       {post.type === 'improvement' && (
-        <div className="bg-red-500 border-4 border-yellow-500 rounded-lg p-4 mb-4">
-          <div className="text-white text-center">
-            <div className="text-2xl font-bold">🚨 VotingSection スコア表示テスト 🚨</div>
-            <div className="text-3xl font-black mt-2">現在スコア: {Math.round(currentScore)}点</div>
-            <div className="text-lg mt-2">Post ID: {post.id}</div>
-            <div className="text-sm">このテキストが見えればVotingSection修正成功</div>
+        <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-blue-400 text-lg">🎯</span>
+              <span className="text-blue-400 font-medium">プロジェクトスコア</span>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-white">{Math.round(currentScore)}点</div>
+              <div className="text-xs text-gray-400">
+                {currentScore >= 600 ? '🏢 法人レベル' :
+                 currentScore >= 300 ? '🏥 施設レベル' :
+                 currentScore >= 100 ? '🏢 部署レベル' :
+                 currentScore >= 50 ? '👥 チームレベル' : '💭 議論段階'}
+              </div>
+            </div>
           </div>
+          {currentScore < 600 && (
+            <div className="mt-3">
+              <div className="text-sm text-gray-400 mb-1">
+                次の目標: {currentScore >= 300 ? '法人レベル(600点)' :
+                          currentScore >= 100 ? '施設レベル(300点)' :
+                          currentScore >= 50 ? '部署レベル(100点)' : 'チームレベル(50点)'}
+                まで残り{currentScore >= 300 ? 600 - currentScore :
+                        currentScore >= 100 ? 300 - currentScore :
+                        currentScore >= 50 ? 100 - currentScore : 50 - currentScore}点
+              </div>
+              <div className="w-full bg-gray-700/50 rounded-full h-2">
+                <div
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                  style={{ 
+                    width: `${Math.min(100, (currentScore / (
+                      currentScore >= 300 ? 600 :
+                      currentScore >= 100 ? 300 :
+                      currentScore >= 50 ? 100 : 50
+                    )) * 100)}%` 
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
 
