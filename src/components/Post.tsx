@@ -186,19 +186,37 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
               {/* プロジェクト進捗インジケーター（全ての改善提案に表示） */}
               <div className="bg-yellow-500/10 border border-yellow-500/30 rounded p-2 mb-2">
                 <div className="text-xs text-yellow-400 mb-1">ProjectProgressIndicator表示エリア</div>
-                <ProjectProgressIndicator
-                  votes={post.votes || {
+                {(() => {
+                  const votes = post.votes || {
                     'strongly-oppose': 0,
                     'oppose': 0,
                     'neutral': 0,
                     'support': 0,
                     'strongly-support': 0
-                  }}
-                  currentScore={calculateScore(convertVotesToEngagements(post.votes || {}), post.proposalType)}
-                  currentLevel={post.enhancedProjectStatus?.level}
-                  postId={post.id}
-                  isCompact={!post.enhancedProjectStatus} // プロジェクトレベルでない場合はコンパクト表示
-                />
+                  };
+                  const engagements = convertVotesToEngagements(votes);
+                  const currentScore = calculateScore(engagements, post.proposalType);
+                  
+                  // デバッグ情報をコンソールに出力
+                  console.log('ProjectProgressIndicator Props:', {
+                    postId: post.id,
+                    votes,
+                    engagements,
+                    currentScore,
+                    currentLevel: post.enhancedProjectStatus?.level,
+                    isCompact: !post.enhancedProjectStatus
+                  });
+                  
+                  return (
+                    <ProjectProgressIndicator
+                      votes={votes}
+                      currentScore={currentScore}
+                      currentLevel={post.enhancedProjectStatus?.level}
+                      postId={post.id}
+                      isCompact={!post.enhancedProjectStatus}
+                    />
+                  );
+                })()}
               </div>
               
               {/* プロジェクトレベルの投稿では詳細チャートも表示 */}

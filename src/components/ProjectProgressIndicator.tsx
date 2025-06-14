@@ -17,6 +17,17 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
   postId,
   isCompact = true
 }) => {
+  // 早期リターンでSSR/CSRの不一致を防ぐ
+  if (typeof window === 'undefined') {
+    return (
+      <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-blue-400/20 rounded animate-pulse" />
+          <span className="text-sm font-medium text-blue-400">プロジェクト進捗読み込み中...</span>
+        </div>
+      </div>
+    );
+  }
   // 安全な投票数の計算（votesがundefinedでも対応）
   const safeVotes = votes || {
     'strongly-oppose': 0,
@@ -79,19 +90,43 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
   };
 
   const nextMilestone = getNextMilestone();
-  const currentThreshold = thresholds.find(t => currentScore >= t.score) || thresholds[0];
   
-  // 次のマイルストーンまでの進捗
+  // 現在の閾値を正しく計算（修正版）
+  const getCurrentThreshold = () => {
+    let currentThreshold = thresholds[0]; // デフォルトはPENDING
+    for (let i = thresholds.length - 1; i >= 0; i--) {
+      if (currentScore >= thresholds[i].score) {
+        currentThreshold = thresholds[i];
+        break;
+      }
+    }
+    return currentThreshold;
+  };
+  
+  const currentThreshold = getCurrentThreshold();
+  
+  // 次のマイルストーンまでの進捗（安全な計算）
   const progressToNext = nextMilestone 
-    ? ((currentScore - currentThreshold.score) / (nextMilestone.score - currentThreshold.score)) * 100
+    ? Math.max(0, Math.min(100, ((currentScore - currentThreshold.score) / (nextMilestone.score - currentThreshold.score)) * 100))
     : 100;
 
-  const remainingPoints = nextMilestone ? nextMilestone.score - currentScore : 0;
+  const remainingPoints = nextMilestone ? Math.max(0, nextMilestone.score - currentScore) : 0;
+
+  // 計算結果の検証
+  if (isNaN(progressToNext) || progressToNext < 0) {
+    console.warn('ProjectProgressIndicator: Invalid progressToNext calculation', {
+      currentScore,
+      currentThreshold,
+      nextMilestone,
+      progressToNext
+    });
+  }
 
   // コンパクト表示（通常投稿用）
   if (isCompact) {
-    return (
-      <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
+    try {
+      return (
+        <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-blue-400" />
@@ -140,17 +175,22 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
               
               if (position > 0 && position <= 100) {
                 const Icon = threshold.icon;
+                // 安全なクラス名の使用（動的クラス名の問題を回避）
+                const bgColorClass = currentScore >= threshold.score 
+                  ? 'bg-green-500' 
+                  : threshold.color === 'gray' ? 'bg-gray-500' :
+                    threshold.color === 'green' ? 'bg-green-500' :
+                    threshold.color === 'blue' ? 'bg-blue-500' :
+                    threshold.color === 'purple' ? 'bg-purple-500' :
+                    threshold.color === 'orange' ? 'bg-orange-500' : 'bg-gray-500';
+                
                 return (
                   <div
                     key={threshold.level}
                     className="absolute top-0 transform -translate-x-1/2"
                     style={{ left: `${Math.min(position, 95)}%` }}
                   >
-                    <div className={`w-3 h-3 rounded-full border-2 border-white ${
-                      currentScore >= threshold.score 
-                        ? 'bg-green-500' 
-                        : `bg-${threshold.color}-500`
-                    }`} />
+                    <div className={`w-3 h-3 rounded-full border-2 border-white ${bgColorClass}`} />
                   </div>
                 );
               }
@@ -188,7 +228,23 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
           </div>
         )}
       </div>
-    );
+      );
+    } catch (error) {
+      console.error('ProjectProgressIndicator render error:', error);
+      return (
+        <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/30 rounded-xl p-4 mb-4">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-400" />
+            <span className="text-sm font-medium text-red-400">
+              プロジェクト進捗の表示中にエラーが発生しました
+            </span>
+          </div>
+          <div className="text-xs text-gray-400 mt-1">
+            スコア: {currentScore}点 | 投票数: {totalVotes}票
+          </div>
+        </div>
+      );
+    }
   }
 
   // フル表示（EnhancedConsensusChart用）- 既存のEnhancedConsensusChartのロジックを使用
