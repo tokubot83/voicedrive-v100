@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Post, VoteOption, User } from '../types';
 import UnifiedProgressBar from './UnifiedProgressBar';
 import { ConsensusInsightGenerator } from '../utils/consensusInsights';
+import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 
 interface VotingSectionProps {
   post: Post;
@@ -16,8 +17,11 @@ const VotingSection: React.FC<VotingSectionProps> = ({
   onVote, 
   userVote 
 }) => {
+  console.log('🗳️ VotingSection rendering for post:', post.id, 'type:', post.type);
+  
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(userVote || null);
   const [isVoting, setIsVoting] = useState(false);
+  const { calculateScore, convertVotesToEngagements } = useProjectScoring();
 
   // 合意形成データの計算
   const consensusData = ConsensusInsightGenerator.calculateSimpleConsensus(post.votes);
@@ -32,6 +36,13 @@ const VotingSection: React.FC<VotingSectionProps> = ({
     deadline: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48時間後
     status: 'pending' as const
   };
+
+  // スコア計算（改善提案の場合）
+  const currentScore = post.type === 'improvement' 
+    ? calculateScore(convertVotesToEngagements(post.votes), post.proposalType)
+    : 0;
+  
+  console.log('📊 VotingSection calculated score:', currentScore, 'for post:', post.id);
 
   // プロジェクトデータ（デモ用）
   const projectData = {
@@ -117,8 +128,8 @@ const VotingSection: React.FC<VotingSectionProps> = ({
           />
         )}
         
-        {/* プロジェクト進捗（条件付き） */}
-        {(post.projectStatus === 'active' || post.enhancedProjectStatus) && (
+        {/* プロジェクト進捗（改善提案の場合は常に表示） */}
+        {(post.type === 'improvement' || post.projectStatus === 'active' || post.enhancedProjectStatus) && (
           <UnifiedProgressBar
             type="project"
             title="プロジェクト進捗"
@@ -129,6 +140,16 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               `💰 予算${Math.round((post.enhancedProjectStatus.resources.budget_used / post.enhancedProjectStatus.resources.budget_total) * 100)}%使用`,
               `👥 ${post.enhancedProjectStatus.resources.team_size}名参加`,
               `⏱️ ${post.enhancedProjectStatus.timeline}`
+            ] : post.type === 'improvement' ? [
+              `🎯 現在スコア: ${Math.round(currentScore)}点`,
+              currentScore >= 600 ? '🏢 法人レベル到達' :
+              currentScore >= 300 ? '🏥 施設レベル到達' :
+              currentScore >= 100 ? '🏢 部署レベル到達' :
+              currentScore >= 50 ? '👥 チームレベル到達' : '💭 議論段階',
+              `📊 次の目標まで${currentScore >= 600 ? '完了' : 
+                currentScore >= 300 ? Math.round(600 - currentScore) + '点' :
+                currentScore >= 100 ? Math.round(300 - currentScore) + '点' :
+                currentScore >= 50 ? Math.round(100 - currentScore) + '点' : Math.round(50 - currentScore) + '点'}`
             ] : [
               '📅 予定通り',
               `💰 予算${Math.round((projectData.budget.used / projectData.budget.total) * 100)}%使用`,
