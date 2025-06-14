@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import VotingSystem from './VotingSystem';
 import EnhancedVotingSystem from './EnhancedVotingSystem';
 import EnhancedConsensusChart from './EnhancedConsensusChart';
-import ProjectProgressIndicator from './ProjectProgressIndicator';
 import CommentForm from './CommentForm';
 import CommentList from './CommentList';
 import { Post as PostType, VoteOption, Comment, User } from '../types';
@@ -173,90 +172,9 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
             {post.content}
           </div>
           
-          {/* 🔥 強制スコア表示テスト - 全投稿に表示 🔥 */}
-          <div className="bg-red-500 border-4 border-yellow-500 rounded-lg p-6 mb-4 text-center">
-            <div className="text-yellow-300 text-3xl font-black mb-2">🔥 EMERGENCY SCORE TEST 🔥</div>
-            <div className="text-white text-2xl font-bold">
-              投稿タイプ: {post.type} | 条件: {post.type === 'improvement' ? 'TRUE' : 'FALSE'}
-            </div>
-            {post.votes && (
-              <div className="text-white text-4xl font-black mt-3">
-                現在スコア: {Math.round(calculateScore(convertVotesToEngagements(post.votes), post.proposalType))}点
-              </div>
-            )}
-            <div className="text-yellow-200 text-lg mt-2">
-              このテキストが見えない場合はデプロイ問題
-            </div>
-          </div>
-          
-          {/* 緊急デバッグ：全ての投稿に表示 */}
-          <div className="bg-red-500/20 border-2 border-red-500 rounded-lg p-4 mb-4">
-            <div className="text-red-300 font-bold mb-2">🚨 緊急デバッグ情報 🚨</div>
-            <div className="text-white text-sm space-y-1">
-              <div>投稿タイプ: "{post.type}" (improvement期待値)</div>
-              <div>条件判定: {post.type === 'improvement' ? '✅ TRUE' : '❌ FALSE'}</div>
-              <div>提案タイプ: {post.proposalType || 'なし'}</div>
-              <div>投票データ: {post.votes ? JSON.stringify(post.votes) : 'なし'}</div>
-              <div>計算スコア: {post.votes ? calculateScore(convertVotesToEngagements(post.votes), post.proposalType) : 'N/A'}</div>
-            </div>
-          </div>
-
-          {/* 強制スコア表示（全投稿に表示） */}
-          <div className="bg-green-500/20 border-2 border-green-500 rounded-lg p-4 mb-4">
-            <div className="text-green-300 font-bold mb-2">🎯 強制スコア表示テスト</div>
-            {post.votes && (
-              <div className="text-white">
-                <div className="text-2xl font-bold">現在スコア: {Math.round(calculateScore(convertVotesToEngagements(post.votes), post.proposalType))}点</div>
-                <div className="text-sm mt-1">投票総数: {Object.values(post.votes).reduce((sum, count) => sum + count, 0)}票</div>
-              </div>
-            )}
-          </div>
           
           {post.type === 'improvement' && (
             <>
-              {/* デバッグ情報（一時的に本番環境でも表示） */}
-              <div className="bg-gray-800/50 border border-gray-700 rounded p-2 mb-2 text-xs">
-                <div>ポストタイプ: {post.type}</div>
-                <div>提案タイプ: {post.proposalType || 'なし'}</div>
-                <div>投票数: {JSON.stringify(post.votes)}</div>
-                <div>スコア: {calculateScore(convertVotesToEngagements(post.votes), post.proposalType)}</div>
-              </div>
-              
-              {/* プロジェクト進捗インジケーター（全ての改善提案に表示） */}
-              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded p-2 mb-2">
-                <div className="text-xs text-yellow-400 mb-1">ProjectProgressIndicator表示エリア</div>
-                {(() => {
-                  const votes = post.votes || {
-                    'strongly-oppose': 0,
-                    'oppose': 0,
-                    'neutral': 0,
-                    'support': 0,
-                    'strongly-support': 0
-                  };
-                  const engagements = convertVotesToEngagements(votes);
-                  const currentScore = calculateScore(engagements, post.proposalType);
-                  
-                  // デバッグ情報をコンソールに出力
-                  console.log('ProjectProgressIndicator Props:', {
-                    postId: post.id,
-                    votes,
-                    engagements,
-                    currentScore,
-                    currentLevel: post.enhancedProjectStatus?.level,
-                    isCompact: !post.enhancedProjectStatus
-                  });
-                  
-                  return (
-                    <ProjectProgressIndicator
-                      votes={votes}
-                      currentScore={currentScore}
-                      currentLevel={post.enhancedProjectStatus?.level}
-                      postId={post.id}
-                      isCompact={!post.enhancedProjectStatus}
-                    />
-                  );
-                })()}
-              </div>
               
               {/* プロジェクトレベルの投稿では詳細チャートも表示 */}
               {post.enhancedProjectStatus ? (

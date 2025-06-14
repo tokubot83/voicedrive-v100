@@ -87,7 +87,7 @@ const VotingSystem = ({ votes, selectedVote, onVote, postId, proposalType, showS
     <div className="bg-gradient-to-br from-blue-500/8 to-purple-500/8 border border-blue-500/20 rounded-3xl p-6 mt-5 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
       <div className="flex items-center justify-between mb-5">
         <h3 className="text-xl font-bold text-blue-400 drop-shadow-[0_0_10px_rgba(29,155,240,0.5)]">
-          🗳️ 合意形成投票 🔥TEST🔥
+          🗳️ 合意形成投票
         </h3>
         {consensusScore >= 70 && (
           <span className="px-4 py-2 rounded-3xl text-sm font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-[0_4px_15px_rgba(0,186,124,0.3)] animate-pulse-green">
