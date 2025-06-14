@@ -178,27 +178,40 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
           
           {post.type === 'improvement' && (
             <>
+              {console.log('🔥 IMPROVEMENT POST DETECTED:', post.id, {
+                type: post.type,
+                hasEnhancedProjectStatus: !!post.enhancedProjectStatus,
+                hasProposalType: !!post.proposalType,
+                proposalType: post.proposalType,
+                enhancedProjectStatus: post.enhancedProjectStatus
+              })}
               
               {/* プロジェクトレベルの投稿では詳細チャートも表示 */}
               {post.enhancedProjectStatus ? (
-                <EnhancedConsensusChart
-                  votes={post.votes}
-                  currentScore={calculateScore(convertVotesToEngagements(post.votes), post.proposalType)}
-                  currentLevel={post.enhancedProjectStatus.level}
-                  postId={post.id}
-                />
+                <>
+                  {console.log('🟡 RENDERING EnhancedConsensusChart for:', post.id)}
+                  <EnhancedConsensusChart
+                    votes={post.votes}
+                    currentScore={calculateScore(convertVotesToEngagements(post.votes), post.proposalType)}
+                    currentLevel={post.enhancedProjectStatus.level}
+                    postId={post.id}
+                  />
+                </>
               ) : post.proposalType ? (
-                <EnhancedVotingSystem
-                  postId={post.id}
-                  votes={post.votes}
-                  votesByStakeholder={post.votesByStakeholder || generateSampleVotesByStakeholder(post.votes)}
-                  proposalType={post.proposalType}
-                  selectedVote={selectedVote}
-                  onVote={handleVote}
-                />
+                <>
+                  {console.log('🟠 RENDERING EnhancedVotingSystem for:', post.id, 'proposalType:', post.proposalType)}
+                  <EnhancedVotingSystem
+                    postId={post.id}
+                    votes={post.votes}
+                    votesByStakeholder={post.votesByStakeholder || generateSampleVotesByStakeholder(post.votes)}
+                    proposalType={post.proposalType}
+                    selectedVote={selectedVote}
+                    onVote={handleVote}
+                  />
+                </>
               ) : (
                 <>
-                  {console.log('🎯 Rendering VotingSystem for post:', post.id, 'type:', post.type)}
+                  {console.log('🟢 RENDERING VotingSystem for:', post.id, 'NO proposalType, NO enhancedProjectStatus')}
                   <VotingSystem
                     postId={post.id}
                     votes={post.votes}
