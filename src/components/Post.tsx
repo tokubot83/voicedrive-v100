@@ -281,6 +281,8 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
                   votes={post.votes}
                   selectedVote={selectedVote}
                   onVote={handleVote}
+                  proposalType={post.proposalType}
+                  showScore={true}
                 />
               )}
             </>
