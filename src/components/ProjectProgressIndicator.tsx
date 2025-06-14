@@ -99,7 +99,7 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
           </div>
           <div className="flex items-center gap-3 text-sm">
             <span className="text-gray-400">現在スコア</span>
-            <span className="text-white font-bold">{currentScore || 0}点</span>
+            <span className="text-white font-bold text-lg">{Math.round(currentScore || 0)}点</span>
           </div>
         </div>
 

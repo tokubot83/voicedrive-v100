@@ -175,23 +175,31 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
           
           {post.type === 'improvement' && (
             <>
-              {/* デバッグ情報（開発環境のみ） */}
-              {import.meta.env.DEV && (
-                <div className="bg-gray-800/50 border border-gray-700 rounded p-2 mb-2 text-xs">
-                  <div>投票数: {JSON.stringify(post.votes)}</div>
-                  <div>スコア: {calculateScore(convertVotesToEngagements(post.votes), post.proposalType)}</div>
-                  <div>タイプ: {post.proposalType || 'なし'}</div>
-                </div>
-              )}
+              {/* デバッグ情報（一時的に本番環境でも表示） */}
+              <div className="bg-gray-800/50 border border-gray-700 rounded p-2 mb-2 text-xs">
+                <div>ポストタイプ: {post.type}</div>
+                <div>提案タイプ: {post.proposalType || 'なし'}</div>
+                <div>投票数: {JSON.stringify(post.votes)}</div>
+                <div>スコア: {calculateScore(convertVotesToEngagements(post.votes), post.proposalType)}</div>
+              </div>
               
               {/* プロジェクト進捗インジケーター（全ての改善提案に表示） */}
-              <ProjectProgressIndicator
-                votes={post.votes}
-                currentScore={calculateScore(convertVotesToEngagements(post.votes), post.proposalType)}
-                currentLevel={post.enhancedProjectStatus?.level}
-                postId={post.id}
-                isCompact={!post.enhancedProjectStatus} // プロジェクトレベルでない場合はコンパクト表示
-              />
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded p-2 mb-2">
+                <div className="text-xs text-yellow-400 mb-1">ProjectProgressIndicator表示エリア</div>
+                <ProjectProgressIndicator
+                  votes={post.votes || {
+                    'strongly-oppose': 0,
+                    'oppose': 0,
+                    'neutral': 0,
+                    'support': 0,
+                    'strongly-support': 0
+                  }}
+                  currentScore={calculateScore(convertVotesToEngagements(post.votes || {}), post.proposalType)}
+                  currentLevel={post.enhancedProjectStatus?.level}
+                  postId={post.id}
+                  isCompact={!post.enhancedProjectStatus} // プロジェクトレベルでない場合はコンパクト表示
+                />
+              </div>
               
               {/* プロジェクトレベルの投稿では詳細チャートも表示 */}
               {post.enhancedProjectStatus ? (
