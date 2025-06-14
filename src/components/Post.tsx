@@ -173,6 +173,29 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
             {post.content}
           </div>
           
+          {/* 緊急デバッグ：全ての投稿に表示 */}
+          <div className="bg-red-500/20 border-2 border-red-500 rounded-lg p-4 mb-4">
+            <div className="text-red-300 font-bold mb-2">🚨 緊急デバッグ情報 🚨</div>
+            <div className="text-white text-sm space-y-1">
+              <div>投稿タイプ: "{post.type}" (improvement期待値)</div>
+              <div>条件判定: {post.type === 'improvement' ? '✅ TRUE' : '❌ FALSE'}</div>
+              <div>提案タイプ: {post.proposalType || 'なし'}</div>
+              <div>投票データ: {post.votes ? JSON.stringify(post.votes) : 'なし'}</div>
+              <div>計算スコア: {post.votes ? calculateScore(convertVotesToEngagements(post.votes), post.proposalType) : 'N/A'}</div>
+            </div>
+          </div>
+
+          {/* 強制スコア表示（全投稿に表示） */}
+          <div className="bg-green-500/20 border-2 border-green-500 rounded-lg p-4 mb-4">
+            <div className="text-green-300 font-bold mb-2">🎯 強制スコア表示テスト</div>
+            {post.votes && (
+              <div className="text-white">
+                <div className="text-2xl font-bold">現在スコア: {Math.round(calculateScore(convertVotesToEngagements(post.votes), post.proposalType))}点</div>
+                <div className="text-sm mt-1">投票総数: {Object.values(post.votes).reduce((sum, count) => sum + count, 0)}票</div>
+              </div>
+            )}
+          </div>
+          
           {post.type === 'improvement' && (
             <>
               {/* デバッグ情報（一時的に本番環境でも表示） */}

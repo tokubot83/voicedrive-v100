@@ -1,4 +1,5 @@
 import { VoteOption } from '../types';
+import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 
 interface VotingSystemProps {
   postId: string;
@@ -7,7 +8,8 @@ interface VotingSystemProps {
   onVote: (option: VoteOption) => void;
 }
 
-const VotingSystem = ({ votes, selectedVote, onVote }: VotingSystemProps) => {
+const VotingSystem = ({ votes, selectedVote, onVote, postId }: VotingSystemProps) => {
+  const { calculateScore, convertVotesToEngagements } = useProjectScoring();
   const voteOptions = [
     { id: 'strongly-oppose' as VoteOption, emoji: '😠', label: '強く反対', color: 'red' },
     { id: 'oppose' as VoteOption, emoji: '😞', label: '反対', color: 'orange' },
@@ -20,6 +22,9 @@ const VotingSystem = ({ votes, selectedVote, onVote }: VotingSystemProps) => {
   const consensusScore = totalVotes > 0 
     ? Math.round(((votes.support + votes['strongly-support']) / totalVotes) * 100)
     : 0;
+  
+  // スコア計算
+  const currentScore = calculateScore(convertVotesToEngagements(votes));
 
   const getVoteStyle = (option: typeof voteOptions[0], isSelected: boolean) => {
     const baseStyles = {
@@ -101,6 +106,15 @@ const VotingSystem = ({ votes, selectedVote, onVote }: VotingSystemProps) => {
         </div>
 
         <div className="flex flex-col items-center">
+          {/* 緊急スコア表示 */}
+          <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border-2 border-orange-500 rounded-xl p-4 mb-4 w-full">
+            <div className="text-center">
+              <div className="text-orange-300 font-bold text-sm mb-1">🚨 スコア表示テスト</div>
+              <div className="text-white text-2xl font-bold">現在スコア: {Math.round(currentScore)}点</div>
+              <div className="text-orange-200 text-xs mt-1">Post ID: {postId}</div>
+            </div>
+          </div>
+          
           <div className="relative w-48 h-48 mb-5">
             <div className="absolute inset-0 rounded-full bg-gradient-conic from-red-500 via-yellow-500 via-gray-500 via-green-500 to-blue-500 p-4 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
               <div className="w-full h-full rounded-full bg-gradient-to-br from-black/80 to-black/60 backdrop-blur-xl flex flex-col items-center justify-center border-2 border-white/10">
