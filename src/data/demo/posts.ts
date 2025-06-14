@@ -100,6 +100,27 @@ const generateSampleComments = (postId: string, count: number = 2): Comment[] =>
 
 // Seasonal posts based on Japanese fiscal year and seasons
 export const demoPosts: Post[] = [
+  // VotingSystemコンポーネントをテストするための基本投稿（proposalTypeなし）
+  {
+    id: 'post-voting-system-test',
+    type: 'improvement',
+    // proposalTypeを意図的に設定しない - VotingSystemが表示される
+    content: '【VotingSystemテスト】社内の会議時間を短縮するため、アジェンダの事前共有と時間制限の導入を提案します。',
+    author: demoUsers[4],
+    anonymityLevel: 'real_name',
+    priority: 'medium',
+    timestamp: new Date('2025-01-10T10:00:00'),
+    votes: {
+      'strongly-oppose': 1,
+      'oppose': 2,
+      'neutral': 5,
+      'support': 8,
+      'strongly-support': 3,
+    },
+    comments: generateSampleComments('post-voting-system-test', 2),
+    // enhancedProjectStatusも設定しない
+  },
+  
   // 【テスト用】確実にスコア表示される部署プロジェクト化投稿
   {
     id: 'post-score-test',
@@ -153,6 +174,26 @@ export const demoPosts: Post[] = [
       }
     }
   },
+  // VotingSystem表示用の追加テスト投稿
+  {
+    id: 'post-voting-system-test-2',
+    type: 'improvement',
+    // proposalTypeとenhancedProjectStatusを設定しない
+    content: '【VotingSystem表示確認】オフィスの照明をLEDに交換して電気代を節約しませんか？環境にも優しく、長期的にコスト削減につながります。',
+    author: demoUsers[1],
+    anonymityLevel: 'department_only',
+    priority: 'low',
+    timestamp: new Date('2025-01-09T14:30:00'),
+    votes: {
+      'strongly-oppose': 0,
+      'oppose': 1,
+      'neutral': 3,
+      'support': 6,
+      'strongly-support': 2,
+    },
+    comments: [],
+  },
+  
   // Spring (April-May) - New fiscal year, new employees
   {
     id: 'post-1',
