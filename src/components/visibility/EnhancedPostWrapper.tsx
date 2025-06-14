@@ -84,20 +84,34 @@ export const EnhancedPostWrapper: React.FC<EnhancedPostWrapperProps> = ({
           <VotingSection 
             post={post} 
             currentUser={currentUser}
-            // 既存のVotingSectionのpropsに合わせる
+            onVote={(postId: string, option: any) => {
+              // 投票処理の実装
+              console.log('Vote submitted:', postId, option);
+            }}
           />
         </div>
       )}
 
       {/* コメントセクション */}
       <div className="border-t px-6 py-4">
-        <CommentList comments={post.comments} />
+        <CommentList 
+          comments={post.comments} 
+          currentUser={currentUser}
+        />
         
         {canComment && (
           <div className="mt-4">
             <CommentForm 
               postId={post.id}
               currentUser={currentUser}
+              onSubmit={(comment) => {
+                // コメント送信処理の実装
+                console.log('Comment submitted:', comment);
+              }}
+              onCancel={() => {
+                // キャンセル処理の実装
+                console.log('Comment cancelled');
+              }}
             />
           </div>
         )}

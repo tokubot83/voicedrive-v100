@@ -14,9 +14,9 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
 
   const getAuthorDisplay = () => {
     switch (post.anonymityLevel) {
-      case 'real':
+      case 'real_name':
         return post.author.name;
-      case 'department':
+      case 'department_only':
         return `${post.author.department}職員`;
       case 'anonymous':
         return '匿名職員';
@@ -25,9 +25,9 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
 
   const getAvatarInitial = () => {
     switch (post.anonymityLevel) {
-      case 'real':
+      case 'real_name':
         return post.author.name.charAt(0);
-      case 'department':
+      case 'department_only':
         return post.author.department.charAt(0);
       case 'anonymous':
         return '?';
@@ -91,7 +91,7 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
             )}
             
             <span className="font-bold text-gray-100">{getAuthorDisplay()}</span>
-            {post.anonymityLevel === 'real' && (
+            {post.anonymityLevel === 'real_name' && (
               <span className="text-blue-400 text-sm font-medium">@{post.author.role}</span>
             )}
             <span className="text-gray-500 text-sm">・5分前</span>

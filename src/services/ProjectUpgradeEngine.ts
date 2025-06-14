@@ -79,27 +79,28 @@ export class ProjectUpgradeEngine {
     const newScope = this.getVisibilityScopeForLevel(newLevel);
     
     // 監査ログ記録
-    const auditId = await this.auditService.logAuditEvent({
-      action: 'EMERGENCY_PROJECT_ESCALATION',
-      userId: executorUser.id,
-      targetId: post.id,
-      metadata: {
-        fromLevel: currentLevel,
-        toLevel: newLevel,
-        targetScope,
-        justification,
-        executorLevel: executorLevel as PermissionLevel,
-        requiresPostActionReport: escalationConfig.auditRequirements.postActionReportRequired
+    const auditId = await this.auditService.logAuditEntry(
+      executorUser.id,
+      'EMERGENCY_ESCALATION' as any,
+      'POST',
+      post.id,
+      {
+        reason: justification,
+        previousState: { level: currentLevel },
+        newState: { level: newLevel, scope: targetScope },
+        ipAddress: '127.0.0.1' // 実際の実装では取得する
       }
-    });
+    );
 
     // 緊急通知送信
     if (escalationConfig.immediateVisibilityChange.emergencyNotification) {
-      await this.notificationService.sendSystemNotification({
+      await this.notificationService.sendNotification({
+        recipientId: executorUser.id,
         type: 'emergency_escalation',
         title: `緊急プロジェクト昇格: ${newLevel}`,
         message: `投稿「${post.content.slice(0, 50)}...」が緊急昇格されました`,
-        metadata: {
+        priority: 'CRITICAL',
+        data: {
           postId: post.id,
           executor: executorUser.name,
           fromLevel: currentLevel,

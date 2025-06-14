@@ -42,7 +42,7 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
           department: '総務部',
           role: '事務職員',
         },
-        anonymityLevel: 'real' as const,
+        anonymityLevel: 'real_name' as const,
         priority: 'low' as const,
         timestamp: new Date(),
         votes: {
@@ -65,7 +65,7 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
           department: '看護部',
           role: '看護師',
         },
-        anonymityLevel: 'real' as const,
+        anonymityLevel: 'real_name' as const,
         priority: 'high' as const,
         timestamp: new Date(),
         votes: {
@@ -88,7 +88,7 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
           department: '内科',
           role: '医師',
         },
-        anonymityLevel: 'real' as const,
+        anonymityLevel: 'real_name' as const,
         priority: 'urgent' as const,
         timestamp: new Date(),
         votes: {
@@ -111,7 +111,7 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
           department: '看護部',
           role: '看護師長',
         },
-        anonymityLevel: 'real' as const,
+        anonymityLevel: 'real_name' as const,
         priority: 'high' as const,
         timestamp: new Date(),
         votes: {
@@ -134,7 +134,7 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
           department: '内科',
           role: '医師',
         },
-        anonymityLevel: 'real' as const,
+        anonymityLevel: 'real_name' as const,
         priority: 'medium' as const,
         timestamp: new Date(),
         votes: {

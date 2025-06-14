@@ -15,7 +15,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   const [content, setContent] = useState('');
   const [proposalType, setProposalType] = useState<ProposalType>('operational');
   const [priority, setPriority] = useState<Priority>('medium');
-  const [anonymity, setAnonymity] = useState<AnonymityLevel>('real');
+  const [anonymity, setAnonymity] = useState<AnonymityLevel>('real_name');
   const [currentProposalCount] = useState(7); // TODO: Get from actual data
   
   const { 
@@ -429,7 +429,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
               </div>
               <div>
                 <div className="font-bold text-gray-100">
-                  {anonymity === 'real' ? '田中職員' : anonymity === 'department' ? '看護部職員' : '匿名職員'}
+                  {anonymity === 'real_name' ? '田中職員' : anonymity === 'department_only' ? '看護部職員' : '匿名職員'}
                 </div>
                 <div className="text-sm text-gray-400">看護師</div>
               </div>

@@ -14,7 +14,7 @@ export function getRetiredUserDisplayName(
   }
 
   // 部署レベル投稿の場合
-  if (anonymityLevel === 'department') {
+  if (anonymityLevel === 'department_only') {
     if (monthsSinceRetirement && monthsSinceRetirement > 24) {
       return '退職者';
     }
@@ -22,7 +22,7 @@ export function getRetiredUserDisplayName(
   }
 
   // 実名投稿の場合の処理
-  if (anonymityLevel === 'real') {
+  if (anonymityLevel === 'real_name') {
     // 2年以上経過している場合は完全匿名化
     if (monthsSinceRetirement && monthsSinceRetirement > 24) {
       return '退職者';

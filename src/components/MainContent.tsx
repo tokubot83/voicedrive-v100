@@ -38,7 +38,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
       department: 'リハビリテーション科',
       role: '理学療法士'
     },
-    anonymityLevel: 'real',
+    anonymityLevel: 'real_name',
     priority: 'high',
     timestamp: new Date(),
     votes: {

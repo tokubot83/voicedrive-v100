@@ -67,7 +67,7 @@ export class NotificationService {
         urgency: 'NORMAL' as NotificationUrgency
       },
       WORKFLOW_REJECTED: {
-        recipients: await this.getProjectCreator(workflow),
+        recipients: await this.getProjectInitiator(workflow),
         template: 'project_rejected',
         urgency: 'HIGH' as NotificationUrgency
       }
