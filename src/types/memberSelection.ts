@@ -108,3 +108,30 @@ export interface SelectionPermission {
   allowedRoles: MemberRole[];
   restrictions?: string[];
 }
+
+// Phase 2: 協議式選定関連の型定義
+export interface CollaborativeSelectionData {
+  stakeholderCount: number;
+  votingRounds: number;
+  consensusLevel: number;
+  professionBalanceScore: number;
+  participationRate: number;
+}
+
+export interface ProfessionDistribution {
+  medical: number;      // 医療職の人数
+  nursing: number;      // 看護職の人数
+  care: number;         // 介護職の人数
+  rehabilitation: number; // リハビリ職の人数
+  administrative: number; // 事務職の人数
+  technical: number;    // 技術職の人数
+  total: number;        // 合計人数
+}
+
+export interface StakeholderVoteData {
+  stakeholderId: string;
+  weight: number;
+  votedAt?: Date;
+  support: number;      // -5 to +5
+  comments?: string;
+}
