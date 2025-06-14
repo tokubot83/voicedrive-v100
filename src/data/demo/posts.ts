@@ -100,6 +100,59 @@ const generateSampleComments = (postId: string, count: number = 2): Comment[] =>
 
 // Seasonal posts based on Japanese fiscal year and seasons
 export const demoPosts: Post[] = [
+  // 【テスト用】確実にスコア表示される部署プロジェクト化投稿
+  {
+    id: 'post-score-test',
+    type: 'improvement',
+    proposalType: 'operational' as ProposalType,
+    content: '【部署プロジェクト化済み】電子カルテシステムの入力効率を向上させるため、よく使用する定型文のショートカット機能を追加提案します。現在、同じ内容を何度も入力する作業が多く、1日あたり30分程度の時間短縮が見込めます。',
+    author: demoUsers[8], // HR Staff - 確実に権限あり
+    anonymityLevel: 'real_name',
+    priority: 'high',
+    timestamp: new Date('2024-05-01T10:00:00'),
+    votes: {
+      'strongly-oppose': 1,
+      'oppose': 2, 
+      'neutral': 7,
+      'support': 35,
+      'strongly-support': 25,
+    }, // 総投票数70票、賛成率85% → 高い合意
+    votesByStakeholder: generateSampleVotesByStakeholder({
+      'strongly-oppose': 1,
+      'oppose': 2,
+      'neutral': 7, 
+      'support': 35,
+      'strongly-support': 25,
+    }),
+    comments: generateSampleComments('post-score-test', 5),
+    projectId: 'proj-score-test',
+    approver: demoUsers[10],
+    projectStatus: {
+      stage: 'active',
+      score: 650, // 確実に部署レベル(100点)を超える高スコア
+      threshold: 100,
+      progress: 650 // 650%達成
+    },
+    // 部署プロジェクト化状態を明示
+    enhancedProjectStatus: {
+      stage: 'DEPARTMENT_PROJECT',
+      level: 'DEPARTMENT',
+      approvalLevel: 'LEVEL_2',
+      budget: 150000,
+      timeline: '3ヶ月プロジェクト (1/3ヶ月経過)',
+      milestones: [
+        { name: '要件定義', status: 'completed', progress: 100, date: '2024-05-01' },
+        { name: '開発', status: 'in_progress', progress: 30, date: '2024-06-01' },
+        { name: 'テスト', status: 'pending', progress: 0, date: '2024-07-01' }
+      ],
+      resources: {
+        completion: 30,
+        budget_total: 150000,
+        budget_used: 45000,
+        team_size: 3
+      }
+    }
+  },
   // Spring (April-May) - New fiscal year, new employees
   {
     id: 'post-1',
