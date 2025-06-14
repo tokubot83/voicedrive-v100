@@ -212,12 +212,11 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
   console.log('Timeline rendering posts:', filteredPosts.length);
   
   return (
-    <ComponentInspector name="Timeline">
-      <div className="overflow-y-auto">
-        {filteredPosts.map((post) => {
-          console.log('Rendering post:', post.id, post.type);
-          return (
-          <ComponentInspector key={post.id} name={`PostWrapper-${post.id}`}>
+    <div className="overflow-y-auto">
+      {filteredPosts.map((post) => {
+        console.log('Rendering post:', post.id, post.type);
+        return (
+          <div key={post.id}>
             {selectedPostId === post.id ? (
               <Post
                 key={post.id}
@@ -236,10 +235,10 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
                 onComment={handleComment}
               />
             )}
-          </ComponentInspector>
-        )})}
-      </div>
-    </ComponentInspector>
+          </div>
+        );
+      })}
+    </div>
   );
 };
 
