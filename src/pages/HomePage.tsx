@@ -101,7 +101,6 @@ const HomePage = () => {
               selectedPostType={selectedPostType}
               setSelectedPostType={setSelectedPostType}
             />
-            <SimpleTimeline />
             <Timeline activeTab="all" />
           </>
         )}
