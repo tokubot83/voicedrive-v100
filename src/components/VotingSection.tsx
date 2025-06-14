@@ -74,6 +74,18 @@ const VotingSection: React.FC<VotingSectionProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* 緊急スコア表示テスト */}
+      {post.type === 'improvement' && (
+        <div className="bg-red-500 border-4 border-yellow-500 rounded-lg p-4 mb-4">
+          <div className="text-white text-center">
+            <div className="text-2xl font-bold">🚨 VotingSection スコア表示テスト 🚨</div>
+            <div className="text-3xl font-black mt-2">現在スコア: {Math.round(currentScore)}点</div>
+            <div className="text-lg mt-2">Post ID: {post.id}</div>
+            <div className="text-sm">このテキストが見えればVotingSection修正成功</div>
+          </div>
+        </div>
+      )}
+
       {/* 統一ステータス表示（縦積みレイアウト） */}
       <div className="space-y-4">
         {/* 合意形成（常に表示） */}
