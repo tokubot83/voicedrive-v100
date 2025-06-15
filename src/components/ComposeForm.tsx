@@ -86,6 +86,8 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       anonymity, 
       type: selectedType, 
       proposalType: selectedType === 'improvement' ? proposalType : undefined,
+      freespaceCategory: selectedType === 'community' ? freespaceCategory : undefined,
+      freespaceScope: selectedType === 'community' ? freespaceScope : undefined,
       season: currentSeason 
     });
     alert('投稿が完了しました！');
@@ -283,6 +285,17 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
 
       {((step === 2 && selectedType !== 'improvement') || (step === 3 && selectedType === 'improvement')) && (
         <div>
+          {selectedType === 'community' && (
+            <div className="mb-8">
+              <FreespaceOptions
+                selectedCategory={freespaceCategory}
+                selectedScope={freespaceScope}
+                onCategoryChange={setFreespaceCategory}
+                onScopeChange={setFreespaceScope}
+              />
+            </div>
+          )}
+          
           {selectedType !== 'community' && (
             <div className="mb-8">
               <div className="mb-4">
