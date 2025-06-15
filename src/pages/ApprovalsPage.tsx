@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout } from '../components/layout/Layout';
+import Layout from '../components/layout/Layout';
 import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { NotificationService, ActionableNotification, NotificationType } from '../services/NotificationService';
