@@ -23,10 +23,19 @@ const VotingSection: React.FC<VotingSectionProps> = ({
   const [isVoting, setIsVoting] = useState(false);
   const { calculateScore, convertVotesToEngagements } = useProjectScoring();
 
+  // 投票データのnullチェック
+  const safeVotes = post.votes || {
+    'strongly-oppose': 0,
+    'oppose': 0,
+    'neutral': 0,
+    'support': 0,
+    'strongly-support': 0
+  };
+
   // 合意形成データの計算
-  const consensusData = ConsensusInsightGenerator.calculateSimpleConsensus(post.votes);
-  const insights = ConsensusInsightGenerator.generateInsights(post.votes);
-  const details = ConsensusInsightGenerator.getConsensusDetails(post.votes);
+  const consensusData = ConsensusInsightGenerator.calculateSimpleConsensus(safeVotes);
+  const insights = ConsensusInsightGenerator.generateInsights(safeVotes);
+  const details = ConsensusInsightGenerator.getConsensusDetails(safeVotes);
 
   // 承認プロセスデータ（デモ用）
   const approvalData = {
@@ -39,7 +48,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
 
   // スコア計算（改善提案の場合）
   const currentScore = post.type === 'improvement' 
-    ? calculateScore(convertVotesToEngagements(post.votes), post.proposalType)
+    ? calculateScore(convertVotesToEngagements(safeVotes), post.proposalType)
     : 0;
   
   console.log('📊 VotingSection calculated score:', currentScore, 'for post:', post.id);
@@ -54,11 +63,13 @@ const VotingSection: React.FC<VotingSectionProps> = ({
   };
 
   const handleVote = async () => {
-    if (!selectedVote) return;
+    if (!selectedVote || typeof onVote !== 'function') return;
     
     setIsVoting(true);
     try {
       await onVote(post.id, selectedVote);
+    } catch (error) {
+      console.error('Vote error:', error);
     } finally {
       setIsVoting(false);
     }
@@ -263,12 +274,13 @@ const VotingSection: React.FC<VotingSectionProps> = ({
         <div className="mb-4 space-y-2">
           <div className="flex justify-between text-sm text-gray-400">
             <span>現在の投票分布</span>
-            <span>計 {Object.values(post.votes).reduce((sum, count) => sum + count, 0)} 票</span>
+            <span>計 {Object.values(safeVotes).reduce((sum, count) => sum + count, 0)} 票</span>
           </div>
           <div className="flex h-4 rounded-full overflow-hidden bg-gray-800">
             {voteOptions.map(vote => {
-              const percentage = Object.values(post.votes).reduce((sum, count) => sum + count, 0) > 0
-                ? (post.votes[vote.type] / Object.values(post.votes).reduce((sum, count) => sum + count, 0)) * 100
+              const totalVotes = Object.values(safeVotes).reduce((sum, count) => sum + count, 0);
+              const percentage = totalVotes > 0
+                ? (safeVotes[vote.type] / totalVotes) * 100
                 : 0;
               
               if (percentage === 0) return null;
@@ -284,7 +296,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
                     'bg-blue-500'
                   }`}
                   style={{ width: `${percentage}%` }}
-                  title={`${vote.label}: ${post.votes[vote.type]}票 (${Math.round(percentage)}%)`}
+                  title={`${vote.label}: ${safeVotes[vote.type]}票 (${Math.round(percentage)}%)`}
                 />
               );
             })}

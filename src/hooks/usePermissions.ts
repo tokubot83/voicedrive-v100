@@ -7,6 +7,7 @@ import { AccountType } from '../types';
 
 interface UsePermissionsReturn {
   hasPermission: (permission: string | number) => boolean;
+  hasAnyPermission: (permissions: string[]) => boolean;
   canViewUser: (targetUserId: string) => boolean;
   canApproveBudget: (amount: number) => boolean;
   getNextApprover: (amount: number) => DemoUser | null;
@@ -67,9 +68,15 @@ export const usePermissions = (): UsePermissionsReturn => {
     if (!demoUser) return null;
     return AccountHierarchyService.getNextApprover(demoUser, amount);
   }, [demoUser]);
+
+  const hasAnyPermission = useCallback((permissions: string[]): boolean => {
+    if (!permissions || permissions.length === 0) return false;
+    return permissions.some(permission => hasPermission(permission));
+  }, [hasPermission]);
   
   return {
     hasPermission,
+    hasAnyPermission,
     canViewUser,
     canApproveBudget,
     getNextApprover,

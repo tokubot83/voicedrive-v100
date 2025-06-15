@@ -15,7 +15,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export const AuthProvider = React.forwardRef<any, AuthProviderProps>(({ children }, ref) => {
   // デモ用: 最初のユーザーをデフォルトとして設定
   const [currentUser, setCurrentUser] = useState<HierarchicalUser | null>(demoUsers[0] as HierarchicalUser);
 
@@ -28,7 +28,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return React.createElement(AuthContext.Provider, { value }, children);
-};
+});
+
+AuthProvider.displayName = 'AuthProvider';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
