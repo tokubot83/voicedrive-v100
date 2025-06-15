@@ -94,7 +94,7 @@ export const useNotificationIntegration = () => {
       });
     };
 
-    // 投票通知の設定
+    // 投票通知の設定（4カテゴリ対応）
     const setupVotingNotifications = async () => {
       const pendingVotes = await checkPendingVotes(currentUser.id);
       
@@ -108,16 +108,28 @@ export const useNotificationIntegration = () => {
           }
         ];
 
+        // カテゴリ別の通知タイトル生成
+        const getCategoryTitle = (category: string) => {
+          const categoryTitles = {
+            operational: '🏥 業務改善の投票依頼',
+            communication: '👥 コミュニケーション改善の投票依頼',
+            innovation: '💡 イノベーション提案の投票依頼',
+            strategic: '🎯 戦略提案の投票依頼（管理職向け）'
+          };
+          return categoryTitles[category as keyof typeof categoryTitles] || '投票依頼';
+        };
+
         await notificationService.createActionableNotification(
           currentUser.id,
           'VOTE_REQUIRED',
           {
-            title: `投票依頼: ${vote.postTitle}`,
-            message: `${vote.department}での投票が必要です`,
+            title: getCategoryTitle(vote.category),
+            message: `${vote.postTitle}への投票が必要です`,
             dueDate: vote.votingDeadline,
             actions,
             metadata: {
-              postId: vote.postId
+              postId: vote.postId,
+              category: vote.category
             }
           }
         );
@@ -207,8 +219,10 @@ async function checkPendingVotes(userId: string): Promise<Array<{
   postTitle: string;
   department: string;
   votingDeadline: Date;
+  category: 'operational' | 'communication' | 'innovation' | 'strategic';
 }>> {
-  // 実装例
+  // 4カテゴリ対応の投票チェック実装例
+  // 実際の実装では、カテゴリごとに投票待ちの提案を取得
   return [];
 }
 

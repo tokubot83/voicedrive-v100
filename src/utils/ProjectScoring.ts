@@ -95,15 +95,21 @@ export class ProjectScoringEngine {
   
   getProjectStatus(
     score: number, 
-    postType: 'improvement' | 'community' | 'report' = 'improvement',
+    postType: 'improvement' | 'community' | 'report' | 'operational' | 'communication' | 'innovation' | 'strategic' = 'improvement',
     organizationSize?: number,
     projectScope?: ProjectScope
   ): ProjectStatus {
-    // 投稿タイプ別の閾値調整
+    // 投稿タイプ別の閾値調整（4カテゴリ対応）
     const typeMultiplier = {
+      // 従来タイプ
       improvement: 1.0,      // 改善提案は標準
       community: 0.8,        // コミュニティは少し低い閾値
-      report: 1.2           // 公益通報は高い閾値
+      report: 1.2,          // 公益通報は高い閾値
+      // 新4カテゴリ
+      operational: 1.0,      // 業務改善は標準
+      communication: 0.9,    // コミュニケーションは少し低め
+      innovation: 1.3,       // イノベーションは高い閾値（慎重に）
+      strategic: 1.5         // 戦略提案は最も高い閾値（管理職重視）
     };
     
     // 組織規模による調整

@@ -88,7 +88,7 @@ export class VotingDeadlineService {
     const deadlineMap: Record<string, Record<string, number>> = {
       // === 改善提案カテゴリ（医療・介護系法人向け） ===
       // 業務改善
-      business_improvement: {
+      operational: {
         low: 168,      // 7日（診療・介護業務の改善）
         medium: 72,    // 3日
         high: 24,      // 1日

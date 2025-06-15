@@ -1,7 +1,7 @@
 import { PostCategory } from './categories';
 
 // 医療・介護系特有のカテゴリ
-export type MedicalPostCategory = PostCategory | 
+export type MedicalPostCategory = PostCategory 
   // 医療系戦略提案
   | 'new_medical_service'          // 新規医療サービス
   | 'clinical_pathway'             // クリニカルパス

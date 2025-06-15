@@ -103,6 +103,7 @@ export class ApprovalWorkflowEngine {
     department: string;
     facility?: string;
     organization?: string;
+    category?: 'operational' | 'communication' | 'innovation' | 'strategic';
   }): Promise<ProjectWorkflow> {
     const template = this.workflowTemplates[projectData.level];
     
@@ -184,9 +185,20 @@ export class ApprovalWorkflowEngine {
       IMPLEMENTATION: 30 // 30日
     };
     
-    const days = durations[stage.stage] || 3;
+    // カテゴリ別の期間調整
+    const categoryMultipliers = {
+      operational: 1.0,      // 業務改善は標準
+      communication: 1.2,    // コミュニケーション改善は少し長め
+      innovation: 1.5,       // イノベーションは慎重に検討
+      strategic: 2.0         // 戦略提案は十分な検討期間
+    };
+    
+    const baseDays = durations[stage.stage] || 3;
+    const multiplier = projectData.category ? categoryMultipliers[projectData.category] : 1.0;
+    const adjustedDays = Math.ceil(baseDays * multiplier);
+    
     const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + days);
+    dueDate.setDate(dueDate.getDate() + adjustedDays);
     return dueDate;
   }
   

@@ -1,8 +1,9 @@
 export type PostCategory = 
-  // 改善提案カテゴリ
-  | 'business_improvement'    // 業務改善
+  // 改善提案カテゴリ（proposalTypes.tsと統一）
+  | 'operational'            // 業務改善
   | 'communication'          // コミュニケーション
   | 'innovation'             // イノベーション
+  | 'strategic'              // 戦略提案
   // 戦略提案カテゴリ
   | 'new_business'           // 新規事業
   | 'market_strategy'        // 市場戦略
@@ -31,9 +32,9 @@ export interface CategoryInfo {
 }
 
 export const POST_CATEGORIES: Record<PostCategory, CategoryInfo> = {
-  // 改善提案カテゴリ（医療・介護系法人向け）
-  business_improvement: {
-    id: 'business_improvement',
+  // 改善提案カテゴリ（医療・介護系法人向け）- proposalTypes.tsと統一
+  operational: {
+    id: 'operational',
     name: '業務改善',
     description: '診療業務・介護業務・事務作業の効率化や品質向上の提案',
     mainTab: 'improvement',
@@ -55,6 +56,14 @@ export const POST_CATEGORIES: Record<PostCategory, CategoryInfo> = {
     mainTab: 'improvement',
     icon: '💡',
     requiresCarefulConsideration: true // 大きな変革のため慎重検討
+  },
+  strategic: {
+    id: 'strategic',
+    name: '戦略提案',
+    description: '組織運営・経営戦略・事業展開に関する管理職向け提案',
+    mainTab: 'improvement',
+    icon: '🎯',
+    requiresCarefulConsideration: true // 戦略的判断のため慎重検討
   },
   
   // 戦略提案カテゴリ（すべて慎重な検討が必要）
@@ -174,7 +183,7 @@ export const POST_CATEGORIES: Record<PostCategory, CategoryInfo> = {
 export const CATEGORY_GROUPS = {
   improvement: {
     name: '改善提案',
-    categories: ['business_improvement', 'communication', 'innovation'] // ①業務改善 ②コミュニケーション ③イノベーション
+    categories: ['operational', 'communication', 'innovation', 'strategic'] // ①業務改善 ②コミュニケーション ③イノベーション ④戦略提案
   },
   strategic: {
     name: '戦略提案（慎重検討）',

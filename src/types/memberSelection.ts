@@ -8,6 +8,7 @@ export interface MemberSelection {
   selectionType: 'BASIC' | 'COLLABORATIVE' | 'AI_ASSISTED' | 'EMERGENCY' | 'STRATEGIC';
   selectedMembers: MemberAssignment[];
   selectionReason?: string;
+  category?: 'operational' | 'communication' | 'innovation' | 'strategic'; // 4カテゴリ対応
   createdAt: Date;
   updatedAt: Date;
   status: 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'ACTIVE' | 'COMPLETED';

@@ -438,7 +438,7 @@ export class NotificationService {
     return [];
   }
   
-  // 通知テンプレート
+  // 通知テンプレート（4カテゴリ対応）
   getNotificationTemplate(templateName: string, data: any): {
     subject: string;
     body: string;
@@ -447,6 +447,23 @@ export class NotificationService {
       workflow_assignment: (data) => ({
         subject: '新しい承認依頼があります',
         body: `${data.stage.stage}の承認をお願いします。期限: ${data.stage.dueDate}`
+      }),
+      // 4カテゴリ別通知テンプレート
+      operational_vote: (data) => ({
+        subject: '🏥 業務改善の投票依頼',
+        body: `業務改善案「${data.title}」への投票をお願いします。期限: ${data.deadline}`
+      }),
+      communication_vote: (data) => ({
+        subject: '👥 コミュニケーション改善の投票依頼',
+        body: `職場環境改善案「${data.title}」への投票をお願いします。期限: ${data.deadline}`
+      }),
+      innovation_vote: (data) => ({
+        subject: '💡 イノベーション提案の投票依頼',
+        body: `革新的提案「${data.title}」への投票をお願いします。期限: ${data.deadline}`
+      }),
+      strategic_vote: (data) => ({
+        subject: '🎯 戦略提案の投票依頼（管理職向け）',
+        body: `戦略提案「${data.title}」への投票をお願いします。期限: ${data.deadline}`
       }),
       workflow_progress: (data) => ({
         subject: 'ワークフローが進行しました',
