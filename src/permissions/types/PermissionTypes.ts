@@ -1,4 +1,4 @@
-// 8段階権限レベルシステム - 人財統括本部組織階層対応
+// 10段階権限レベルシステム - 人財統括本部組織階層対応（面談予約機能統合）
 export enum PermissionLevel {
   // レベル1: 一般従業員
   LEVEL_1 = 1,
@@ -12,17 +12,23 @@ export enum PermissionLevel {
   // レベル4: 課長級
   LEVEL_4 = 4,
   
-  // レベル5: 人財統括本部部門長
+  // レベル5: 人財統括本部 戦略企画・統括管理部門（面談予約1次窓口）
   LEVEL_5 = 5,
   
-  // レベル6: 人財統括本部統括管理部門長
+  // レベル6: 人財統括本部 キャリア支援部門員（面談実施者）
   LEVEL_6 = 6,
   
-  // レベル7: 部長・本部長級
+  // レベル7: 人財統括本部 各部門長（キャリア支援・人材開発・業務革新）
   LEVEL_7 = 7,
   
-  // レベル8: 役員・経営層
-  LEVEL_8 = 8
+  // レベル8: 人財統括本部 統括管理部門長
+  LEVEL_8 = 8,
+  
+  // レベル9: 部長・本部長級
+  LEVEL_9 = 9,
+  
+  // レベル10: 役員・経営層
+  LEVEL_10 = 10
 }
 
 // 権限レベルのメタデータ
@@ -119,27 +125,65 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
   
   [PermissionLevel.LEVEL_5]: {
     level: PermissionLevel.LEVEL_5,
+    name: 'hr_admin_staff',
+    displayName: '人財統括本部 戦略企画・統括管理部門（面談予約1次窓口）',
+    description: '面談予約システムの管理・運用権限',
+    accessibleFeatures: [
+      'create_post', 'vote', 'view_all_posts', 
+      'interview_booking_management', 'schedule_management', 'timeslot_control'
+    ],
+    approvalLimit: 0, // 予算承認権限なし
+    projectScopes: [ProjectScope.TEAM],
+    menuItems: [
+      'home', 'voice', 'my_posts', 'interview_management', 'booking_calendar', 
+      'schedule_reports', 'booking_statistics'
+    ],
+    analyticsAccess: false,
+    workflowStages: ['proposal']
+  },
+  
+  [PermissionLevel.LEVEL_6]: {
+    level: PermissionLevel.LEVEL_6,
+    name: 'hr_career_support_staff',
+    displayName: '人財統括本部 キャリア支援部門員（面談実施者）',
+    description: '面談実施・キャリアコンサルティング権限',
+    accessibleFeatures: [
+      'create_post', 'vote', 'view_all_posts', 
+      'conduct_interviews', 'interview_record_management', 'career_consultation'
+    ],
+    approvalLimit: 1000000, // 研修・育成関連
+    projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT],
+    menuItems: [
+      'home', 'voice', 'my_posts', 'interview_schedule', 'interview_records', 
+      'career_tracking', 'consultation_reports'
+    ],
+    analyticsAccess: true,
+    workflowStages: ['proposal', 'initial_review', 'career_review']
+  },
+  
+  [PermissionLevel.LEVEL_7]: {
+    level: PermissionLevel.LEVEL_7,
     name: 'hr_department_head',
-    displayName: '人財統括本部部門長',
-    description: '人事関連プロジェクトの統括管理権限',
+    displayName: '人財統括本部 各部門長（キャリア支援・人材開発・業務革新）',
+    description: '人事関連プロジェクトの統括管理権限・面談実施責任者',
     accessibleFeatures: [
       'create_post', 'vote', 'view_all_posts', 'approve_hr_projects', 
-      'hr_policy_management', 'cross_department_coordination'
+      'hr_policy_management', 'cross_department_coordination', 'interview_oversight'
     ],
     approvalLimit: 5000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: [
       'home', 'voice', 'my_posts', 'team_management', 'department_dashboard', 
-      'hr_dashboard', 'policy_management', 'talent_analytics', 'authority_management'
+      'hr_dashboard', 'policy_management', 'talent_analytics', 'interview_oversight', 'authority_management'
     ],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'hr_review', 'facility_coordination']
   },
   
-  [PermissionLevel.LEVEL_6]: {
-    level: PermissionLevel.LEVEL_6,
+  [PermissionLevel.LEVEL_8]: {
+    level: PermissionLevel.LEVEL_8,
     name: 'hr_general_manager',
-    displayName: '人財統括本部統括管理部門長',
+    displayName: '人財統括本部 統括管理部門長',
     description: '全社人事戦略の企画・実行権限',
     accessibleFeatures: [
       'create_post', 'vote', 'view_all_posts', 'approve_facility_projects',
@@ -154,9 +198,9 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'hr_review', 'strategic_review']
   },
-  
-  [PermissionLevel.LEVEL_7]: {
-    level: PermissionLevel.LEVEL_7,
+
+  [PermissionLevel.LEVEL_9]: {
+    level: PermissionLevel.LEVEL_9,
     name: 'director',
     displayName: '部長・本部長',
     description: '施設全体のプロジェクト承認・戦略決定権限',
@@ -173,9 +217,9 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'facility_approval', 'strategic_review']
   },
-  
-  [PermissionLevel.LEVEL_8]: {
-    level: PermissionLevel.LEVEL_8,
+
+  [PermissionLevel.LEVEL_10]: {
+    level: PermissionLevel.LEVEL_10,
     name: 'executive',
     displayName: '役員・経営層',
     description: '全社レベルの最終意思決定権限',
