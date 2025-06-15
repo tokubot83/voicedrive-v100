@@ -14,7 +14,11 @@ export interface MemberSelection {
   selectionReason?: string;
   createdAt: Date;
   updatedAt: Date;
-  status: 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'ACTIVE' | 'COMPLETED';
+  status: 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+  // 承認ワークフロー連携
+  approvalCompleted?: boolean;
+  approvalCompletedAt?: Date;
+  workflowStageId?: string;
 }
 
 export interface MemberAssignment {
@@ -240,7 +244,9 @@ export class BasicMemberSelectionService {
       selectionReason: criteria ? `選定基準: ${JSON.stringify(criteria)}` : undefined,
       createdAt: now,
       updatedAt: now,
-      status: 'DRAFT'
+      status: 'DRAFT',
+      // 承認ワークフロー連携フィールド
+      approvalCompleted: false
     };
   }
 
@@ -385,6 +391,71 @@ export class BasicMemberSelectionService {
     selection.updatedAt = new Date();
 
     return { success: true, selection };
+  }
+
+  /**
+   * 承認ステータスを確認
+   */
+  private async checkApprovalStatus(projectId: string): Promise<{
+    completed: boolean;
+    completedAt?: Date;
+    stageId?: string;
+  }> {
+    // 実際の実装では ApprovalWorkflowEngine から情報を取得
+    // デモ用の実装
+    return {
+      completed: true,
+      completedAt: new Date(),
+      stageId: `${projectId}_approval_completed`
+    };
+  }
+
+  /**
+   * ワークフローステージを更新
+   */
+  private async updateWorkflowStage(projectId: string, status: 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'): Promise<void> {
+    // 実際の実装では ApprovalWorkflowEngine のメンバー選出ステージを更新
+    console.log(`ワークフローステージ更新: プロジェクト ${projectId}, ステータス: ${status}`);
+  }
+
+  /**
+   * メンバー選出をキャンセル
+   */
+  async cancelMemberSelection(projectId: string, selectorId: string, reason: string): Promise<SelectionResult> {
+    try {
+      const selection = Array.from(this.selections.values()).find(s => s.projectId === projectId);
+      
+      if (!selection) {
+        return {
+          success: false,
+          errors: ['選出プロセスが見つかりません']
+        };
+      }
+
+      if (selection.status === 'COMPLETED') {
+        return {
+          success: false,
+          errors: ['既に完了した選出はキャンセルできません']
+        };
+      }
+
+      selection.status = 'CANCELLED';
+      selection.updatedAt = new Date();
+      selection.selectionReason = reason;
+
+      await this.updateWorkflowStage(projectId, 'CANCELLED');
+
+      return {
+        success: true,
+        selection
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        errors: [`キャンセル処理中にエラーが発生しました: ${error}`]
+      };
+    }
   }
 }
 

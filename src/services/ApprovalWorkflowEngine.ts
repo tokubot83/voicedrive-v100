@@ -15,6 +15,9 @@ export interface WorkflowStage {
   dueDate?: Date;
   escalationDate?: Date;
   comments?: string;
+  // メンバー選出関連
+  memberSelectionStatus?: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  provisionalMembers?: string[];
 }
 
 export interface AssigneeInfo {
@@ -33,6 +36,11 @@ export interface ProjectWorkflow {
   escalations: WorkflowEscalation[];
   createdAt: Date;
   updatedAt: Date;
+  // 承認フロー完了フラグ
+  isApprovalCompleted?: boolean;
+  approvalCompletedAt?: Date;
+  rejectedAt?: Date;
+  rejectionReason?: string;
 }
 
 export interface WorkflowNotification {
@@ -57,6 +65,8 @@ export class ApprovalWorkflowEngine {
       { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
       { stage: 'TEAM_LEAD_APPROVAL', assignee: 'TEAM_LEAD', requiredLevel: PermissionLevel.LEVEL_2 },
       { stage: 'MANAGER_APPROVAL', assignee: 'MANAGER', requiredLevel: PermissionLevel.LEVEL_3 },
+      { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true }, // 承認完了マーカー
+      { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false }, // メンバー選出
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
     ],
     // 部門レベルプロジェクト
@@ -64,6 +74,8 @@ export class ApprovalWorkflowEngine {
       { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
       { stage: 'MANAGER_APPROVAL', assignee: 'MANAGER', requiredLevel: PermissionLevel.LEVEL_3 },
       { stage: 'SECTION_CHIEF_APPROVAL', assignee: 'SECTION_CHIEF', requiredLevel: PermissionLevel.LEVEL_4 },
+      { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
+      { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
     ],
     // 施設レベルプロジェクト（10段階権限対応）
@@ -74,6 +86,8 @@ export class ApprovalWorkflowEngine {
       { stage: 'HR_GENERAL_MANAGER_APPROVAL', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_8 },
       { stage: 'BUDGET_APPROVAL', assignee: 'FINANCE_HEAD', requiredLevel: PermissionLevel.LEVEL_8 },
       { stage: 'DIRECTOR_APPROVAL', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_9 },
+      { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
+      { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
     ],
     // 組織全体レベルプロジェクト（10段階権限対応）
@@ -84,6 +98,8 @@ export class ApprovalWorkflowEngine {
       { stage: 'DIRECTOR_APPROVAL', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_9 },
       { stage: 'EXECUTIVE_APPROVAL', assignee: 'EXECUTIVE', requiredLevel: PermissionLevel.LEVEL_10 },
       { stage: 'BUDGET_ALLOCATION', assignee: 'CFO', requiredLevel: PermissionLevel.LEVEL_9 },
+      { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
+      { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
     ],
     // 戦略的プロジェクト（10段階権限対応）
@@ -93,6 +109,8 @@ export class ApprovalWorkflowEngine {
       { stage: 'EXECUTIVE_APPROVAL', assignee: 'EXECUTIVE', requiredLevel: PermissionLevel.LEVEL_10 },
       { stage: 'BOARD_APPROVAL', assignee: 'BOARD', requiredLevel: PermissionLevel.LEVEL_10 },
       { stage: 'STRATEGIC_ALLOCATION', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_10 },
+      { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
+      { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
       { stage: 'IMPLEMENTATION', assignee: 'STRATEGIC_TEAM', autoComplete: false }
     ],
     
@@ -102,6 +120,8 @@ export class ApprovalWorkflowEngine {
       { stage: 'HR_ADMIN_REVIEW', assignee: 'HR_ADMIN', requiredLevel: PermissionLevel.LEVEL_5 },
       { stage: 'CAREER_SUPPORT_APPROVAL', assignee: 'CAREER_SUPPORT_HEAD', requiredLevel: PermissionLevel.LEVEL_7 },
       { stage: 'HR_GENERAL_MANAGER_APPROVAL', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_8 },
+      { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
+      { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
       { stage: 'IMPLEMENTATION', assignee: 'INTERVIEW_TEAM', autoComplete: false }
     ],
     
@@ -112,6 +132,8 @@ export class ApprovalWorkflowEngine {
       { stage: 'CAREER_SUPPORT_REVIEW', assignee: 'CAREER_SUPPORT_STAFF', requiredLevel: PermissionLevel.LEVEL_6 },
       { stage: 'HR_DEPT_HEAD_APPROVAL', assignee: 'HR_DEPT_HEAD', requiredLevel: PermissionLevel.LEVEL_7 },
       { stage: 'FINAL_APPROVAL', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_8 },
+      { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
+      { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
       { stage: 'IMPLEMENTATION', assignee: 'HR_TEAM', autoComplete: false }
     ]
   };
@@ -183,6 +205,7 @@ export class ApprovalWorkflowEngine {
       FINANCE_HEAD: async () => this.findFinanceHead(projectData.organization),
       CFO: async () => this.findCFO(projectData.organization),
       CEO: async () => this.findCEO(projectData.organization),
+      PROJECT_LEAD: async () => this.findProjectLead(projectData),
       PROJECT_TEAM: async () => this.assembleProjectTeam(projectData),
       STRATEGIC_TEAM: async () => this.assembleStrategicTeam(projectData)
     };
@@ -214,6 +237,8 @@ export class ApprovalWorkflowEngine {
       CAREER_SUPPORT_APPROVAL: 4, // 4日
       CAREER_SUPPORT_REVIEW: 3, // 3日
       FINAL_APPROVAL: 5, // 5日
+      APPROVAL_COMPLETED: 0, // 即座に完了
+      MEMBER_SELECTION: 7, // 7日
       IMPLEMENTATION: 30 // 30日
     };
     
@@ -261,10 +286,25 @@ export class ApprovalWorkflowEngine {
     stage.completedAt = new Date();
     stage.comments = comments;
     
+    // APPROVAL_COMPLETEDステージの場合、承認完了をマーク
+    if (stage.stage === 'APPROVAL_COMPLETED') {
+      workflow.isApprovalCompleted = true;
+      workflow.approvalCompletedAt = new Date();
+      
+      // メンバー選出通知を送信
+      await this.notifyMemberSelectionStart(workflow);
+    }
+    
     // 次のステージに進む
     if (stageIndex < workflow.stages.length - 1) {
       workflow.currentStage = stageIndex + 1;
-      workflow.stages[stageIndex + 1].status = 'IN_PROGRESS';
+      const nextStage = workflow.stages[stageIndex + 1];
+      nextStage.status = 'IN_PROGRESS';
+      
+      // 次のステージが自動完了の場合は即座に実行
+      if (nextStage.autoComplete) {
+        await this.completeStage(workflow, stageIndex + 1, 'SYSTEM', '自動完了');
+      }
     }
     
     workflow.updatedAt = new Date();
@@ -284,6 +324,13 @@ export class ApprovalWorkflowEngine {
     stage.status = 'REJECTED';
     stage.completedAt = new Date();
     stage.comments = reason;
+    
+    // プロジェクトが却下されたことを記録
+    workflow.rejectedAt = new Date();
+    workflow.rejectionReason = reason;
+    
+    // メンバー選出が進行中の場合はキャンセル
+    await this.cancelMemberSelection(workflow);
     
     workflow.updatedAt = new Date();
   }
@@ -442,6 +489,37 @@ export class ApprovalWorkflowEngine {
     };
   }
   
+  private async findProjectLead(projectData: any): Promise<AssigneeInfo> {
+    return {
+      id: 'project_lead',
+      name: 'プロジェクトリーダー',
+      type: 'USER'
+    };
+  }
+  
+  // メンバー選出開始通知
+  private async notifyMemberSelectionStart(workflow: ProjectWorkflow): Promise<void> {
+    // メンバー選出ステージを找す
+    const memberSelectionStage = workflow.stages.find(s => s.stage === 'MEMBER_SELECTION');
+    if (memberSelectionStage) {
+      memberSelectionStage.memberSelectionStatus = 'NOT_STARTED';
+      // 実際のアプリケーションではNotificationServiceを使用
+      console.log(`メンバー選出開始通知: プロジェクトID ${workflow.projectId}`);
+    }
+  }
+  
+  // メンバー選出キャンセル
+  private async cancelMemberSelection(workflow: ProjectWorkflow): Promise<void> {
+    const memberSelectionStage = workflow.stages.find(s => s.stage === 'MEMBER_SELECTION');
+    if (memberSelectionStage && memberSelectionStage.memberSelectionStatus === 'IN_PROGRESS') {
+      memberSelectionStage.memberSelectionStatus = 'CANCELLED';
+      // 仮メンバーへのキャンセル通知
+      if (memberSelectionStage.provisionalMembers) {
+        console.log(`メンバー選出キャンセル通知: ${memberSelectionStage.provisionalMembers.join(', ')}`);
+      }
+    }
+  }
+  
   getStageDisplayName(stage: string): string {
     const displayNames: Record<string, string> = {
       AUTO_PROJECT: '自動プロジェクト化',
@@ -465,6 +543,8 @@ export class ApprovalWorkflowEngine {
       CAREER_SUPPORT_APPROVAL: 'キャリア支援部門長承認',
       CAREER_SUPPORT_REVIEW: 'キャリア支援部門員レビュー',
       FINAL_APPROVAL: '最終承認',
+      APPROVAL_COMPLETED: '承認完了',
+      MEMBER_SELECTION: 'メンバー選出',
       IMPLEMENTATION: 'プロジェクト実行'
     };
     

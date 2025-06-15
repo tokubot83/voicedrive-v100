@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { PostType, AnonymityLevel, Priority, ProposalType } from '../types';
+import { StakeholderGroup } from '../types/visibility';
 import { useSeasonalCapacity } from '../hooks/useSeasonalCapacity';
 import SeasonalCapacityIndicator from './SeasonalCapacityIndicator';
 import ProposalEchoCard from './ProposalEchoCard';
 import { proposalTypes } from '../config/proposalTypes';
+import FreespaceOptions, { FreespaceCategory } from './FreespaceOptions';
 
 interface ComposeFormProps {
   selectedType: PostType;
@@ -17,6 +19,10 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   const [priority, setPriority] = useState<Priority>('medium');
   const [anonymity, setAnonymity] = useState<AnonymityLevel>('real_name');
   const [currentProposalCount] = useState(7); // TODO: Get from actual data
+  
+  // フリースペース用の状態
+  const [freespaceCategory, setFreespaceCategory] = useState<FreespaceCategory>(FreespaceCategory.CASUAL_DISCUSSION);
+  const [freespaceScope, setFreespaceScope] = useState<StakeholderGroup>(StakeholderGroup.SAME_DEPARTMENT);
   
   const { 
     currentSeason, 
