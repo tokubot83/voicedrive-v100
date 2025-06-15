@@ -1,4 +1,3 @@
-// 面談予約カレンダー（50代でも使いやすいUI設計）
 import React, { useState, useEffect } from 'react';
 import { 
   InterviewBooking, 
@@ -10,681 +9,531 @@ import {
 import { InterviewBookingService } from '../../services/InterviewBookingService';
 
 interface InterviewBookingCalendarProps {
-  currentUserId: string;
-  onBookingComplete: (booking: InterviewBooking) => void;
-  onCancel: () => void;
+  employeeId?: string;
 }
 
-export const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
-  currentUserId,
-  onBookingComplete,
-  onCancel
+const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({ 
+  employeeId = 'EMP001' 
 }) => {
-  // State管理
+  const bookingService = new InterviewBookingService();
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-  const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([]);
-  const [interviewRequest, setInterviewRequest] = useState<Partial<BookingRequest>>({
-    employeeId: currentUserId,
-    preferredDates: [],
-    preferredTimes: [],
-    interviewType: 'career',
-    interviewCategory: 'career_path',
-    requestedTopics: [],
-    urgencyLevel: 'medium'
-  });
-  
-  const [availableSlots, setAvailableSlots] = useState<Record<string, TimeSlot[]>>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [suggestedAlternatives, setSuggestedAlternatives] = useState<TimeSlot[]>([]);
+  const [selectedSlots, setSelectedSlots] = useState<TimeSlot[]>([]);
+  const [interviewType, setInterviewType] = useState<InterviewType>('career');
+  const [interviewCategory, setInterviewCategory] = useState<InterviewCategory>('career_path');
+  const [description, setDescription] = useState('');
+  const [availableSlots, setAvailableSlots] = useState<Map<string, TimeSlot[]>>(new Map());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [existingBookings, setExistingBookings] = useState<InterviewBooking[]>([]);
 
-  const bookingService = InterviewBookingService.getInstance();
+  // 時間枠の定義
+  const timeSlots = [
+    { id: 'slot1', startTime: '13:40', endTime: '14:10', label: '13:40-14:10' },
+    { id: 'slot2', startTime: '14:20', endTime: '14:50', label: '14:20-14:50' },
+    { id: 'slot3', startTime: '15:00', endTime: '15:30', label: '15:00-15:30' },
+    { id: 'slot4', startTime: '15:40', endTime: '16:10', label: '15:40-16:10' },
+    { id: 'slot5', startTime: '16:20', endTime: '16:50', label: '16:20-16:50' }
+  ];
 
-  // カレンダー用のデータ準備
-  const today = new Date();
-  const maxDate = new Date();
-  maxDate.setDate(today.getDate() + 30); // 30日先まで予約可能
+  // 面談タイプの選択肢
+  const interviewTypes = [
+    { value: 'regular', label: '定期面談', icon: '📅' },
+    { value: 'career', label: 'キャリア相談', icon: '🎯' },
+    { value: 'concern', label: '悩み相談', icon: '💭' },
+    { value: 'evaluation', label: '評価面談', icon: '📊' },
+    { value: 'development', label: '能力開発', icon: '📚' },
+    { value: 'other', label: 'その他', icon: '📝' }
+  ];
+
+  // カテゴリの選択肢
+  const categoryOptions = {
+    career_path: 'キャリアパス',
+    skill_development: 'スキル開発',
+    work_environment: '職場環境',
+    workload_balance: '業務量調整',
+    interpersonal: '人間関係',
+    performance: '業績改善',
+    compensation: '待遇・処遇',
+    training: '研修・教育',
+    promotion: '昇進・昇格',
+    transfer: '異動希望',
+    health_safety: '健康・安全',
+    other: 'その他'
+  };
 
   useEffect(() => {
-    loadAvailableSlots();
-  }, []);
+    loadExistingBookings();
+  }, [employeeId]);
 
-  const loadAvailableSlots = async () => {
-    setIsLoading(true);
+  useEffect(() => {
+    if (selectedDates.length > 0) {
+      loadAvailableSlots();
+    }
+  }, [selectedDates]);
+
+  const loadExistingBookings = async () => {
     try {
-      // 30日分の空き枠を取得
-      const slots: Record<string, TimeSlot[]> = {};
-      for (let i = 1; i <= 30; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        
-        if (isWorkingDay(date)) {
-          const dateKey = formatDateKey(date);
-          slots[dateKey] = await getAvailableSlotsForDate(date);
-        }
-      }
-      setAvailableSlots(slots);
-    } catch (error) {
-      setErrorMessage('予約情報の取得に失敗しました');
-    } finally {
-      setIsLoading(false);
+      const bookings = await bookingService.getEmployeeBookings(employeeId);
+      setExistingBookings(bookings);
+    } catch (err) {
+      console.error('Failed to load existing bookings:', err);
     }
   };
 
-  const isWorkingDay = (date: Date): boolean => {
-    const day = date.getDay();
-    return day >= 1 && day <= 5; // 月曜〜金曜
-  };
-
-  const getAvailableSlotsForDate = async (date: Date): Promise<TimeSlot[]> => {
-    // 実装では、InterviewBookingServiceから取得
-    const defaultSlots = [
-      { id: '1', date, startTime: '13:40', endTime: '14:10', isAvailable: true, isBlocked: false },
-      { id: '2', date, startTime: '14:20', endTime: '14:50', isAvailable: true, isBlocked: false },
-      { id: '3', date, startTime: '15:00', endTime: '15:30', isAvailable: true, isBlocked: false },
-      { id: '4', date, startTime: '15:40', endTime: '16:10', isAvailable: true, isBlocked: false },
-      { id: '5', date, startTime: '16:20', endTime: '16:50', isAvailable: true, isBlocked: false }
-    ];
-    
-    // ランダムに一部を予約済みにする（デモ用）
-    return defaultSlots.filter(() => Math.random() > 0.3);
-  };
-
-  const formatDateKey = (date: Date): string => {
-    return date.toISOString().split('T')[0];
-  };
-
-  const formatDisplayDate = (date: Date): string => {
-    const options: Intl.DateTimeFormatOptions = {
-      month: 'long',
-      day: 'numeric',
-      weekday: 'short'
-    };
-    return date.toLocaleDateString('ja-JP', options);
+  const loadAvailableSlots = async () => {
+    setLoading(true);
+    try {
+      const slotsMap = new Map<string, TimeSlot[]>();
+      
+      for (const date of selectedDates) {
+        const slots = await bookingService.getAvailableSlots(date);
+        const dateKey = date.toISOString().split('T')[0];
+        slotsMap.set(dateKey, slots);
+      }
+      
+      setAvailableSlots(slotsMap);
+    } catch (err) {
+      setError('利用可能な時間帯の取得に失敗しました');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDateSelect = (date: Date) => {
-    const dateKey = formatDateKey(date);
-    const hasAvailableSlots = availableSlots[dateKey]?.length > 0;
+    if (selectedDates.length >= 3 && !selectedDates.some(d => d.getTime() === date.getTime())) {
+      setError('選択できる日付は最大3日までです');
+      return;
+    }
     
-    if (!hasAvailableSlots) {
-      setErrorMessage('この日は予約可能な時間がありません');
+    setSelectedDates(prev => {
+      const exists = prev.some(d => d.getTime() === date.getTime());
+      if (exists) {
+        return prev.filter(d => d.getTime() !== date.getTime());
+      } else {
+        return [...prev, date];
+      }
+    });
+    setError(null);
+  };
+
+  const handleSlotSelect = (date: Date, slot: TimeSlot) => {
+    const dateKey = date.toISOString().split('T')[0];
+    const slotKey = `${dateKey}_${slot.slotId}`;
+    
+    setSelectedSlots(prev => {
+      const exists = prev.some(s => `${s.date}_${s.slotId}` === slotKey);
+      if (exists) {
+        return prev.filter(s => `${s.date}_${s.slotId}` !== slotKey);
+      } else {
+        return [...prev, { ...slot, date: dateKey }];
+      }
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (selectedSlots.length === 0) {
+      setError('少なくとも1つの時間帯を選択してください');
       return;
     }
 
-    setSelectedDates(prev => {
-      const isAlreadySelected = prev.some(d => formatDateKey(d) === dateKey);
-      
-      if (isAlreadySelected) {
-        return prev.filter(d => formatDateKey(d) !== dateKey);
-      } else if (prev.length < 3) {
-        return [...prev, date];
-      } else {
-        setErrorMessage('最大3日まで選択できます');
-        return prev;
-      }
-    });
-    setErrorMessage('');
-  };
+    setLoading(true);
+    setError(null);
 
-  const handleTimeSlotSelect = (timeSlot: string) => {
-    setSelectedTimeSlots(prev => {
-      const isAlreadySelected = prev.includes(timeSlot);
-      
-      if (isAlreadySelected) {
-        return prev.filter(t => t !== timeSlot);
-      } else {
-        return [...prev, timeSlot];
-      }
-    });
-  };
-
-  const handleStepNext = () => {
-    if (currentStep === 1) {
-      if (selectedDates.length === 0) {
-        setErrorMessage('希望日を選択してください');
-        return;
-      }
-      if (selectedTimeSlots.length === 0) {
-        setErrorMessage('希望時間を選択してください');
-        return;
-      }
-      setInterviewRequest(prev => ({
-        ...prev,
-        preferredDates: selectedDates,
-        preferredTimes: selectedTimeSlots
-      }));
-      setCurrentStep(2);
-    } else if (currentStep === 2) {
-      if (!interviewRequest.interviewType) {
-        setErrorMessage('面談の種類を選択してください');
-        return;
-      }
-      if (!interviewRequest.interviewCategory) {
-        setErrorMessage('面談のカテゴリを選択してください');
-        return;
-      }
-      setCurrentStep(3);
-    }
-    setErrorMessage('');
-  };
-
-  const handleSubmitBooking = async () => {
-    setIsLoading(true);
-    setErrorMessage('');
-    
     try {
-      const response = await bookingService.requestBooking(
-        currentUserId,
-        interviewRequest as BookingRequest
-      );
+      const request: BookingRequest = {
+        preferredDates: selectedDates,
+        preferredSlots: selectedSlots,
+        interviewType,
+        category: interviewCategory,
+        description,
+        urgency: 'normal'
+      };
+
+      const response = await bookingService.requestBooking(employeeId, request);
       
       if (response.success) {
-        // 成功時の処理
-        if (response.bookingId) {
-          // 予約情報を取得して返す（実装では、bookingServiceから取得）
-          const booking: InterviewBooking = {
-            id: response.bookingId,
-            employeeId: currentUserId,
-            employeeName: '現在のユーザー',
-            employeeEmail: 'user@hospital.com',
-            employeePhone: '090-0000-0000',
-            facility: '本院',
-            department: '内科',
-            position: '看護師',
-            bookingDate: selectedDates[0],
-            timeSlot: availableSlots[formatDateKey(selectedDates[0])][0],
-            interviewType: interviewRequest.interviewType!,
-            interviewCategory: interviewRequest.interviewCategory!,
-            requestedTopics: interviewRequest.requestedTopics || [],
-            description: interviewRequest.description,
-            urgencyLevel: interviewRequest.urgencyLevel!,
-            status: 'pending',
-            createdAt: new Date(),
-            createdBy: currentUserId
-          };
-          
-          onBookingComplete(booking);
-        }
+        alert('面談予約が完了しました！');
+        // リセット
+        setCurrentStep(1);
+        setSelectedDates([]);
+        setSelectedSlots([]);
+        setDescription('');
+        loadExistingBookings();
       } else {
-        setErrorMessage(response.message);
-        if (response.suggestedAlternatives) {
-          setSuggestedAlternatives(response.suggestedAlternatives);
-        }
+        setError(response.message || '予約に失敗しました');
       }
-    } catch (error) {
-      setErrorMessage('予約申請に失敗しました。しばらく後にお試しください。');
+    } catch (err) {
+      setError('予約処理中にエラーが発生しました');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
+  };
+
+  const renderDatePicker = () => {
+    const today = new Date();
+    const dates = [];
+    
+    for (let i = 1; i <= 30; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      
+      // 土日を除外
+      if (date.getDay() === 0 || date.getDay() === 6) continue;
+      
+      dates.push(date);
+    }
+
+    return (
+      <div className="grid grid-cols-7 gap-2">
+        {dates.map((date, index) => {
+          const isSelected = selectedDates.some(d => d.getTime() === date.getTime());
+          const dateStr = date.toLocaleDateString('ja-JP', { 
+            month: 'numeric', 
+            day: 'numeric',
+            weekday: 'short'
+          });
+          
+          return (
+            <button
+              key={index}
+              onClick={() => handleDateSelect(date)}
+              className={`
+                p-3 rounded-lg text-center transition-all
+                ${isSelected 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                }
+              `}
+            >
+              <div className="text-sm font-medium">{dateStr}</div>
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderTimeSlots = () => {
+    if (selectedDates.length === 0) {
+      return (
+        <div className="text-center text-gray-500 py-8">
+          まず日付を選択してください
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        {selectedDates.map(date => {
+          const dateKey = date.toISOString().split('T')[0];
+          const dateSlots = availableSlots.get(dateKey) || [];
+          
+          return (
+            <div key={dateKey} className="border rounded-lg p-4">
+              <h4 className="font-medium text-lg mb-3">
+                {date.toLocaleDateString('ja-JP', { 
+                  year: 'numeric',
+                  month: 'long', 
+                  day: 'numeric',
+                  weekday: 'long'
+                })}
+              </h4>
+              
+              <div className="grid grid-cols-5 gap-2">
+                {timeSlots.map(slot => {
+                  const availableSlot = dateSlots.find(s => s.slotId === slot.id);
+                  const isAvailable = availableSlot?.isAvailable || false;
+                  const isSelected = selectedSlots.some(
+                    s => s.date === dateKey && s.slotId === slot.id
+                  );
+                  
+                  return (
+                    <button
+                      key={slot.id}
+                      onClick={() => isAvailable && handleSlotSelect(date, {
+                        slotId: slot.id,
+                        startTime: slot.startTime,
+                        endTime: slot.endTime,
+                        isAvailable,
+                        date: dateKey
+                      })}
+                      disabled={!isAvailable}
+                      className={`
+                        p-3 rounded-lg text-center transition-all text-sm
+                        ${!isAvailable 
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                          : isSelected
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-green-100 hover:bg-green-200 text-green-700'
+                        }
+                      `}
+                    >
+                      <div>{slot.label}</div>
+                      {!isAvailable && <div className="text-xs">予約済</div>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
   const renderStep1 = () => (
-    <div className=\"space-y-6\">
-      <div className=\"text-center mb-6\">
-        <h2 className=\"text-2xl font-bold text-gray-900 mb-2\">📅 希望日時の選択</h2>
-        <p className=\"text-gray-600 text-lg\">
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">希望日時の選択</h2>
+        <p className="text-gray-600 text-lg">
           面談を希望する日と時間帯を選択してください<br />
-          <span className=\"text-sm text-blue-600\">（最大3日まで、時間は複数選択可能）</span>
+          <span className="text-sm text-blue-600">（最大3日まで、時間は複数選択可能）</span>
         </p>
       </div>
 
-      {/* 日付選択 */}
-      <div className=\"bg-blue-50 p-6 rounded-lg border border-blue-200\">
-        <h3 className=\"text-xl font-semibold mb-4 text-blue-800\">🗓️ 希望日を選択</h3>
-        <div className=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4\">
-          {Array.from({ length: 14 }, (_, i) => {
-            const date = new Date(today);
-            date.setDate(today.getDate() + i + 1);
-            const dateKey = formatDateKey(date);
-            const hasSlots = availableSlots[dateKey]?.length > 0;
-            const isSelected = selectedDates.some(d => formatDateKey(d) === dateKey);
-            const isWorkingDayFlag = isWorkingDay(date);
-            
-            if (!isWorkingDayFlag) return null;
-
-            return (
-              <button
-                key={dateKey}
-                onClick={() => handleDateSelect(date)}
-                disabled={!hasSlots}
-                className={`p-4 rounded-lg border-2 text-center transition-all duration-200 ${{
-                  [true]: 'border-blue-500 bg-blue-100 text-blue-800 shadow-md',
-                  [false]: hasSlots 
-                    ? 'border-gray-300 hover:border-blue-300 hover:bg-blue-50' 
-                    : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                }[String(isSelected)]}`}
-              >
-                <div className=\"text-lg font-bold\">
-                  {date.getDate()}日
-                </div>
-                <div className=\"text-sm\">
-                  {formatDisplayDate(date)}
-                </div>
-                <div className=\"text-xs mt-1\">
-                  {hasSlots ? `空き${availableSlots[dateKey]?.length || 0}枠` : '空きなし'}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-        
-        {selectedDates.length > 0 && (
-          <div className=\"mt-4 p-3 bg-white rounded border border-blue-200\">
-            <p className=\"text-sm font-medium text-blue-800\">選択した日程:</p>
-            <div className=\"flex flex-wrap gap-2 mt-2\">
-              {selectedDates.map(date => (
-                <span key={formatDateKey(date)} className=\"px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm\">
-                  {formatDisplayDate(date)}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+      <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
+        <h3 className="font-semibold text-lg mb-4">日付を選択</h3>
+        {renderDatePicker()}
       </div>
 
-      {/* 時間選択 */}
-      <div className=\"bg-green-50 p-6 rounded-lg border border-green-200\">
-        <h3 className=\"text-xl font-semibold mb-4 text-green-800\">🕐 希望時間を選択</h3>
-        <div className=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3\">
-          {[
-            { value: '13:40-14:10', label: '13:40-14:10', icon: '🕐' },
-            { value: '14:20-14:50', label: '14:20-14:50', icon: '🕑' },
-            { value: '15:00-15:30', label: '15:00-15:30', icon: '🕒' },
-            { value: '15:40-16:10', label: '15:40-16:10', icon: '🕓' },
-            { value: '16:20-16:50', label: '16:20-16:50', icon: '🕔' }
-          ].map(slot => {
-            const isSelected = selectedTimeSlots.includes(slot.value);
-            
-            return (
-              <button
-                key={slot.value}
-                onClick={() => handleTimeSlotSelect(slot.value)}
-                className={`p-4 rounded-lg border-2 text-center transition-all duration-200 ${{
-                  [true]: 'border-green-500 bg-green-100 text-green-800 shadow-md',
-                  [false]: 'border-gray-300 hover:border-green-300 hover:bg-green-50'
-                }[String(isSelected)]}`}
-              >
-                <div className=\"text-2xl mb-1\">{slot.icon}</div>
-                <div className=\"font-bold\">{slot.label}</div>
-                <div className=\"text-xs text-gray-600\">30分間</div>
-              </button>
-            );
-          })}
+      {selectedDates.length > 0 && (
+        <div className="bg-green-50 p-6 rounded-lg border border-green-200">
+          <h3 className="font-semibold text-lg mb-4">時間帯を選択</h3>
+          {loading ? (
+            <div className="text-center py-4">読み込み中...</div>
+          ) : (
+            renderTimeSlots()
+          )}
         </div>
-        
-        {selectedTimeSlots.length > 0 && (
-          <div className=\"mt-4 p-3 bg-white rounded border border-green-200\">
-            <p className=\"text-sm font-medium text-green-800\">選択した時間:</p>
-            <div className=\"flex flex-wrap gap-2 mt-2\">
-              {selectedTimeSlots.map(time => (
-                <span key={time} className=\"px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm\">
-                  {time}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+      )}
+
+      <div className="flex justify-between mt-6">
+        <div className="text-sm text-gray-600">
+          選択した日付: {selectedDates.length}日<br />
+          選択した時間帯: {selectedSlots.length}枠
+        </div>
+        <button
+          onClick={() => setCurrentStep(2)}
+          disabled={selectedSlots.length === 0}
+          className={`
+            px-6 py-3 rounded-lg font-medium text-lg transition-all
+            ${selectedSlots.length === 0
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+            }
+          `}
+        >
+          次へ進む
+        </button>
       </div>
     </div>
   );
 
   const renderStep2 = () => (
-    <div className=\"space-y-6\">
-      <div className=\"text-center mb-6\">
-        <h2 className=\"text-2xl font-bold text-gray-900 mb-2\">🎯 面談内容の選択</h2>
-        <p className=\"text-gray-600 text-lg\">
-          どのような面談をご希望ですか？
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">面談内容の選択</h2>
+        <p className="text-gray-600 text-lg">
+          相談したい内容を選択してください
         </p>
       </div>
 
-      {/* 面談の種類選択 */}
-      <div className=\"bg-purple-50 p-6 rounded-lg border border-purple-200\">
-        <h3 className=\"text-xl font-semibold mb-4 text-purple-800\">📋 面談の種類</h3>
-        <div className=\"grid grid-cols-1 md:grid-cols-2 gap-4\">
-          {[
-            { value: 'career', label: 'キャリア相談', icon: '🚀', description: 'キャリアアップや将来の方向性について' },
-            { value: 'concern', label: '悩み相談', icon: '💭', description: '仕事や職場での悩みについて' },
-            { value: 'regular', label: '定期面談', icon: '📅', description: '定期的な状況確認' },
-            { value: 'development', label: '能力開発', icon: '📚', description: 'スキルアップや研修について' },
-            { value: 'evaluation', label: '評価面談', icon: '⭐', description: '人事評価に関する相談' },
-            { value: 'other', label: 'その他', icon: '💬', description: 'その他のご相談' }
-          ].map(type => {
-            const isSelected = interviewRequest.interviewType === type.value;
-            
-            return (
-              <button
-                key={type.value}
-                onClick={() => setInterviewRequest(prev => ({ ...prev, interviewType: type.value as InterviewType }))}
-                className={`p-4 rounded-lg border-2 text-left transition-all duration-200 ${{
-                  [true]: 'border-purple-500 bg-purple-100 text-purple-800 shadow-md',
-                  [false]: 'border-gray-300 hover:border-purple-300 hover:bg-purple-50'
-                }[String(isSelected)]}`}
-              >
-                <div className=\"flex items-center gap-3 mb-2\">
-                  <span className=\"text-2xl\">{type.icon}</span>
-                  <span className=\"font-bold text-lg\">{type.label}</span>
-                </div>
-                <p className=\"text-sm\">{type.description}</p>
-              </button>
-            );
-          })}
+      <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
+        <h3 className="font-semibold text-lg mb-4">面談の種類</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {interviewTypes.map(type => (
+            <button
+              key={type.value}
+              onClick={() => setInterviewType(type.value as InterviewType)}
+              className={`
+                p-4 rounded-lg text-center transition-all
+                ${interviewType === type.value
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-300'
+                }
+              `}
+            >
+              <div className="text-2xl mb-1">{type.icon}</div>
+              <div className="font-medium">{type.label}</div>
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* カテゴリ選択 */}
-      <div className=\"bg-orange-50 p-6 rounded-lg border border-orange-200\">
-        <h3 className=\"text-xl font-semibold mb-4 text-orange-800\">🏷️ 相談カテゴリ</h3>
-        <div className=\"grid grid-cols-1 md:grid-cols-2 gap-3\">
-          {[
-            { value: 'career_path', label: 'キャリアパス', icon: '🛤️' },
-            { value: 'skill_development', label: 'スキル開発', icon: '🎯' },
-            { value: 'work_environment', label: '職場環境', icon: '🏢' },
-            { value: 'workload_balance', label: 'ワークライフバランス', icon: '⚖️' },
-            { value: 'interpersonal', label: '人間関係', icon: '👥' },
-            { value: 'performance', label: 'パフォーマンス', icon: '📊' },
-            { value: 'compensation', label: '給与・待遇', icon: '💰' },
-            { value: 'training', label: '研修・教育', icon: '🎓' }
-          ].map(category => {
-            const isSelected = interviewRequest.interviewCategory === category.value;
-            
-            return (
-              <button
-                key={category.value}
-                onClick={() => setInterviewRequest(prev => ({ ...prev, interviewCategory: category.value as InterviewCategory }))}
-                className={`p-3 rounded-lg border-2 text-left transition-all duration-200 ${{
-                  [true]: 'border-orange-500 bg-orange-100 text-orange-800 shadow-md',
-                  [false]: 'border-gray-300 hover:border-orange-300 hover:bg-orange-50'
-                }[String(isSelected)]}`}
-              >
-                <div className=\"flex items-center gap-2\">
-                  <span className=\"text-xl\">{category.icon}</span>
-                  <span className=\"font-medium\">{category.label}</span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+      <div className="bg-green-50 p-6 rounded-lg border border-green-200">
+        <h3 className="font-semibold text-lg mb-4">詳細カテゴリ</h3>
+        <select
+          value={interviewCategory}
+          onChange={(e) => setInterviewCategory(e.target.value as InterviewCategory)}
+          className="w-full p-3 text-lg border border-gray-300 rounded-lg"
+        >
+          {Object.entries(categoryOptions).map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
       </div>
 
-      {/* 緊急度選択 */}
-      <div className=\"bg-red-50 p-6 rounded-lg border border-red-200\">
-        <h3 className=\"text-xl font-semibold mb-4 text-red-800\">⚡ 緊急度</h3>
-        <div className=\"grid grid-cols-1 md:grid-cols-4 gap-3\">
-          {[
-            { value: 'low', label: '通常', icon: '🟢', description: '1-2週間以内' },
-            { value: 'medium', label: '少し急ぎ', icon: '🟡', description: '1週間以内' },
-            { value: 'high', label: '急ぎ', icon: '🟠', description: '2-3日以内' },
-            { value: 'urgent', label: '緊急', icon: '🔴', description: '至急' }
-          ].map(urgency => {
-            const isSelected = interviewRequest.urgencyLevel === urgency.value;
-            
-            return (
-              <button
-                key={urgency.value}
-                onClick={() => setInterviewRequest(prev => ({ ...prev, urgencyLevel: urgency.value as any }))}
-                className={`p-3 rounded-lg border-2 text-center transition-all duration-200 ${{
-                  [true]: 'border-red-500 bg-red-100 text-red-800 shadow-md',
-                  [false]: 'border-gray-300 hover:border-red-300 hover:bg-red-50'
-                }[String(isSelected)]}`}
-              >
-                <div className=\"text-2xl mb-1\">{urgency.icon}</div>
-                <div className=\"font-bold\">{urgency.label}</div>
-                <div className=\"text-xs\">{urgency.description}</div>
-              </button>
-            );
-          })}
-        </div>
+      <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+        <h3 className="font-semibold text-lg mb-4">相談内容（任意）</h3>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="相談したい内容を簡単に記入してください（任意）"
+          className="w-full p-3 text-lg border border-gray-300 rounded-lg"
+          rows={4}
+        />
+      </div>
+
+      <div className="flex justify-between mt-6">
+        <button
+          onClick={() => setCurrentStep(1)}
+          className="px-6 py-3 rounded-lg font-medium text-lg bg-gray-300 text-gray-700 hover:bg-gray-400 transition-all"
+        >
+          戻る
+        </button>
+        <button
+          onClick={() => setCurrentStep(3)}
+          className="px-6 py-3 rounded-lg font-medium text-lg bg-blue-600 text-white hover:bg-blue-700 transition-all"
+        >
+          確認へ進む
+        </button>
       </div>
     </div>
   );
 
   const renderStep3 = () => (
-    <div className=\"space-y-6\">
-      <div className=\"text-center mb-6\">
-        <h2 className=\"text-2xl font-bold text-gray-900 mb-2\">✅ 内容確認・申請</h2>
-        <p className=\"text-gray-600 text-lg\">
-          以下の内容で面談を申請します
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">予約内容の確認</h2>
+        <p className="text-gray-600 text-lg">
+          以下の内容で予約を申請します
         </p>
       </div>
 
-      {/* 確認内容 */}
-      <div className=\"bg-gray-50 p-6 rounded-lg border border-gray-300\">
-        <h3 className=\"text-xl font-semibold mb-6 text-gray-800\">📋 申請内容</h3>
+      <div className="bg-gray-50 p-6 rounded-lg border border-gray-300">
+        <h3 className="font-semibold text-lg mb-4">予約内容</h3>
         
-        <div className=\"space-y-6\">
-          {/* 希望日時 */}
-          <div className=\"bg-white p-4 rounded border\">
-            <h4 className=\"font-bold text-blue-800 mb-2 flex items-center gap-2\">
-              📅 希望日時
-            </h4>
-            <div className=\"space-y-2\">
-              <div>
-                <span className=\"font-medium\">希望日:</span>
-                <div className=\"flex flex-wrap gap-2 mt-1\">
-                  {selectedDates.map(date => (
-                    <span key={formatDateKey(date)} className=\"px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm\">
-                      {formatDisplayDate(date)}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <span className=\"font-medium\">希望時間:</span>
-                <div className=\"flex flex-wrap gap-2 mt-1\">
-                  {selectedTimeSlots.map(time => (
-                    <span key={time} className=\"px-2 py-1 bg-green-100 text-green-800 rounded text-sm\">
-                      {time}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+        <div className="space-y-3">
+          <div>
+            <span className="font-medium">面談種類:</span>
+            <span className="ml-2">
+              {interviewTypes.find(t => t.value === interviewType)?.label}
+            </span>
           </div>
-
-          {/* 面談内容 */}
-          <div className=\"bg-white p-4 rounded border\">
-            <h4 className=\"font-bold text-purple-800 mb-2 flex items-center gap-2\">
-              🎯 面談内容
-            </h4>
-            <div className=\"space-y-2\">
-              <div><span className=\"font-medium\">種類:</span> {
-                {
-                  'career': 'キャリア相談',
-                  'concern': '悩み相談',
-                  'regular': '定期面談',
-                  'development': '能力開発',
-                  'evaluation': '評価面談',
-                  'other': 'その他'
-                }[interviewRequest.interviewType || 'career']
-              }</div>
-              <div><span className=\"font-medium\">カテゴリ:</span> {
-                {
-                  'career_path': 'キャリアパス',
-                  'skill_development': 'スキル開発',
-                  'work_environment': '職場環境',
-                  'workload_balance': 'ワークライフバランス',
-                  'interpersonal': '人間関係',
-                  'performance': 'パフォーマンス',
-                  'compensation': '給与・待遇',
-                  'training': '研修・教育'
-                }[interviewRequest.interviewCategory || 'career_path']
-              }</div>
-              <div><span className=\"font-medium\">緊急度:</span> {
-                {
-                  'low': '通常',
-                  'medium': '少し急ぎ',
-                  'high': '急ぎ',
-                  'urgent': '緊急'
-                }[interviewRequest.urgencyLevel || 'medium']
-              }</div>
-            </div>
+          
+          <div>
+            <span className="font-medium">カテゴリ:</span>
+            <span className="ml-2">{categoryOptions[interviewCategory]}</span>
           </div>
-
-          {/* 詳細入力 */}
-          <div className=\"bg-white p-4 rounded border\">
-            <h4 className=\"font-bold text-gray-800 mb-2\">💭 詳細・備考（任意）</h4>
-            <textarea
-              className=\"w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base\"
-              rows={4}
-              placeholder=\"相談したい内容や、特別な配慮が必要な場合はご記入ください\"
-              value={interviewRequest.description || ''}
-              onChange={(e) => setInterviewRequest(prev => ({ ...prev, description: e.target.value }))}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* 注意事項 */}
-      <div className=\"bg-yellow-50 p-4 rounded-lg border border-yellow-300\">
-        <h4 className=\"font-bold text-yellow-800 mb-2 flex items-center gap-2\">
-          ⚠️ 申請前の確認事項
-        </h4>
-        <ul className=\"text-sm text-yellow-700 space-y-1\">
-          <li>• 申請後、人財統括本部で内容を確認し、面談者を決定します</li>
-          <li>• 確定通知は申請から2営業日以内にお送りします</li>
-          <li>• 希望日時で調整できない場合、代替案をご提案します</li>
-          <li>• 緊急の場合は直接お電話でもお受けしています</li>
-        </ul>
-      </div>
-    </div>
-  );
-
-  const renderNavigationButtons = () => (
-    <div className=\"flex justify-between pt-6 border-t bg-white sticky bottom-0 z-10\">
-      <div>
-        {currentStep > 1 && (
-          <button
-            type=\"button\"
-            onClick={() => setCurrentStep(currentStep - 1)}
-            className=\"px-8 py-3 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-lg\"
-          >
-            ← 前へ
-          </button>
-        )}
-      </div>
-      
-      <div className=\"flex gap-4\">
-        <button
-          type=\"button\"
-          onClick={onCancel}
-          className=\"px-8 py-3 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-lg\"
-        >
-          キャンセル
-        </button>
-        
-        {currentStep < 3 ? (
-          <button
-            type=\"button\"
-            onClick={handleStepNext}
-            className=\"px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-lg shadow-md\"
-          >
-            次へ →
-          </button>
-        ) : (
-          <button
-            type=\"button\"
-            onClick={handleSubmitBooking}
-            disabled={isLoading}
-            className={`px-8 py-3 rounded-lg font-medium text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
-              isLoading 
-                ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
-                : 'bg-green-600 text-white hover:bg-green-700'
-            }`}
-          >
-            {isLoading ? '申請中...' : '✅ 面談を申請する'}
-          </button>
-        )}
-      </div>
-    </div>
-  );
-
-  const renderProgressIndicator = () => (
-    <div className=\"mb-8\">
-      <div className=\"flex items-center justify-center space-x-4 mb-4\">
-        {[1, 2, 3].map(step => (
-          <div key={step} className=\"flex items-center\">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
-              currentStep >= step ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
-            }`}>
-              {step}
-            </div>
-            {step < 3 && (
-              <div className={`w-16 h-1 mx-2 ${
-                currentStep > step ? 'bg-blue-600' : 'bg-gray-300'
-              }`} />
-            )}
-          </div>
-        ))}
-      </div>
-      <div className=\"text-center text-lg\">
-        <span className=\"font-medium\">
-          {currentStep === 1 && '日時選択'}
-          {currentStep === 2 && '内容選択'}
-          {currentStep === 3 && '確認・申請'}
-        </span>
-        <span className=\"text-gray-500 ml-2\">({currentStep}/3)</span>
-      </div>
-    </div>
-  );
-
-  const renderErrorMessage = () => {
-    if (!errorMessage) return null;
-    
-    return (
-      <div className=\"bg-red-50 border border-red-200 rounded-lg p-4 mb-6\">
-        <div className=\"flex items-center gap-2\">
-          <span className=\"text-red-600 text-xl\">⚠️</span>
-          <span className=\"text-red-800 font-medium\">{errorMessage}</span>
-        </div>
-        
-        {suggestedAlternatives.length > 0 && (
-          <div className=\"mt-3\">
-            <p className=\"text-red-700 font-medium mb-2\">代替案：</p>
-            <div className=\"space-y-1\">
-              {suggestedAlternatives.slice(0, 3).map((slot, index) => (
-                <div key={index} className=\"text-sm text-red-600\">
-                  {formatDisplayDate(slot.date)} {slot.startTime}-{slot.endTime}
+          
+          <div>
+            <span className="font-medium">希望日時:</span>
+            <div className="mt-2 space-y-1">
+              {selectedSlots.map((slot, index) => (
+                <div key={index} className="ml-4 text-sm">
+                  • {new Date(slot.date).toLocaleDateString('ja-JP')} {slot.startTime}-{slot.endTime}
                 </div>
               ))}
             </div>
           </div>
-        )}
+          
+          {description && (
+            <div>
+              <span className="font-medium">相談内容:</span>
+              <div className="mt-1 p-3 bg-white rounded border border-gray-200">
+                {description}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+
+      <div className="flex justify-between mt-6">
+        <button
+          onClick={() => setCurrentStep(2)}
+          className="px-6 py-3 rounded-lg font-medium text-lg bg-gray-300 text-gray-700 hover:bg-gray-400 transition-all"
+        >
+          戻る
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className={`
+            px-6 py-3 rounded-lg font-medium text-lg transition-all
+            ${loading
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-green-600 text-white hover:bg-green-700'
+            }
+          `}
+        >
+          {loading ? '予約中...' : '予約を申請'}
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderExistingBookings = () => {
+    if (existingBookings.length === 0) return null;
+
+    return (
+      <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h3 className="font-semibold text-lg mb-2">現在の予約状況</h3>
+        <div className="space-y-2">
+          {existingBookings.map(booking => (
+            <div key={booking.id} className="text-sm">
+              • {new Date(booking.bookingDate).toLocaleDateString('ja-JP')} 
+              {booking.timeSlot.startTime}-{booking.timeSlot.endTime}
+              （{booking.status === 'confirmed' ? '確定' : '申請中'}）
+            </div>
+          ))}
+        </div>
       </div>
     );
   };
 
-  if (isLoading && Object.keys(availableSlots).length === 0) {
-    return (
-      <div className=\"flex items-center justify-center min-h-96\">
-        <div className=\"text-center\">
-          <div className=\"text-4xl mb-4\">⏳</div>
-          <div className=\"text-xl font-medium text-gray-600\">予約情報を読み込み中...</div>
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      {renderExistingBookings()}
+      
+      <div className="mb-8">
+        <div className="flex justify-center space-x-4">
+          {[1, 2, 3].map(step => (
+            <div
+              key={step}
+              className={`
+                flex items-center justify-center w-12 h-12 rounded-full text-lg font-medium
+                ${currentStep === step
+                  ? 'bg-blue-600 text-white'
+                  : currentStep > step
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-300 text-gray-600'
+                }
+              `}
+            >
+              {currentStep > step ? '✓' : step}
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-center mt-2 space-x-8 text-sm">
+          <span className={currentStep === 1 ? 'font-bold' : ''}>日時選択</span>
+          <span className={currentStep === 2 ? 'font-bold' : ''}>内容選択</span>
+          <span className={currentStep === 3 ? 'font-bold' : ''}>確認</span>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className=\"max-w-4xl mx-auto p-6 bg-white min-h-screen\">
-      <div className=\"mb-8 text-center\">
-        <h1 className=\"text-3xl font-bold text-gray-900 mb-2\">💼 面談予約</h1>
-        <p className=\"text-gray-600 text-lg\">
-          人財統括本部との面談をオンラインで簡単に予約できます
-        </p>
-      </div>
-
-      {renderProgressIndicator()}
-      {renderErrorMessage()}
-
-      <div className=\"bg-white rounded-lg shadow-sm border border-gray-200 p-6\">
-        {currentStep === 1 && renderStep1()}
-        {currentStep === 2 && renderStep2()}
-        {currentStep === 3 && renderStep3()}
-      </div>
-
-      {renderNavigationButtons()}
+      {currentStep === 1 && renderStep1()}
+      {currentStep === 2 && renderStep2()}
+      {currentStep === 3 && renderStep3()}
     </div>
   );
 };
+
+export default InterviewBookingCalendar;
