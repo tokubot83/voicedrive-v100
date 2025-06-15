@@ -19,11 +19,10 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
 
   const getDeadlinePreview = (category: PostCategory): string => {
     const deadlines = {
-      // 改善提案
-      system_improvement: { low: '7日', medium: '3日', high: '1日', critical: '4時間' },
-      process_efficiency: { low: '7日', medium: '3日', high: '1日', critical: '4時間' },
-      business_improvement: { low: '10日', medium: '5日', high: '2日', critical: '12時間' },
-      cost_reduction: { low: '14日', medium: '7日', high: '3日', critical: '1日' },
+      // 改善提案（医療・介護系法人向け）
+      business_improvement: { low: '7日', medium: '3日', high: '1日', critical: '6時間' },
+      communication: { low: '5日', medium: '2日', high: '1日', critical: '4時間' },
+      innovation: { low: '14日', medium: '7日', high: '3日', critical: '1日' },
       // 戦略提案
       new_business: { low: '30日', medium: '21日', high: '14日', critical: '7日' },
       market_strategy: { low: '21日', medium: '14日', high: '7日', critical: '3日' },

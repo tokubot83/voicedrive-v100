@@ -1,9 +1,8 @@
 export type PostCategory = 
   // 改善提案カテゴリ
-  | 'system_improvement'      // システム改善
-  | 'process_efficiency'      // プロセス効率化
   | 'business_improvement'    // 業務改善
-  | 'cost_reduction'         // コスト削減
+  | 'communication'          // コミュニケーション
+  | 'innovation'             // イノベーション
   // 戦略提案カテゴリ
   | 'new_business'           // 新規事業
   | 'market_strategy'        // 市場戦略
@@ -32,38 +31,30 @@ export interface CategoryInfo {
 }
 
 export const POST_CATEGORIES: Record<PostCategory, CategoryInfo> = {
-  // 改善提案カテゴリ
-  system_improvement: {
-    id: 'system_improvement',
-    name: 'システム改善',
-    description: 'ITシステムやツールの改善提案',
-    mainTab: 'improvement',
-    icon: '💻',
-    requiresCarefulConsideration: false
-  },
-  process_efficiency: {
-    id: 'process_efficiency',
-    name: 'プロセス効率化',
-    description: '業務プロセスの効率化・自動化提案',
-    mainTab: 'improvement',
-    icon: '⚡',
-    requiresCarefulConsideration: false
-  },
+  // 改善提案カテゴリ（医療・介護系法人向け）
   business_improvement: {
     id: 'business_improvement',
     name: '業務改善',
-    description: '日常業務の改善・最適化提案',
+    description: '診療業務・介護業務・事務作業の効率化や品質向上の提案',
     mainTab: 'improvement',
-    icon: '📈',
+    icon: '🏥',
     requiresCarefulConsideration: false
   },
-  cost_reduction: {
-    id: 'cost_reduction',
-    name: 'コスト削減',
-    description: '経費削減・コスト最適化の提案',
+  communication: {
+    id: 'communication',
+    name: 'コミュニケーション',
+    description: 'チーム連携・多職種連携・患者様対応の改善提案',
     mainTab: 'improvement',
-    icon: '💰',
-    requiresCarefulConsideration: true // 予算への影響
+    icon: '👥',
+    requiresCarefulConsideration: false
+  },
+  innovation: {
+    id: 'innovation',
+    name: 'イノベーション',
+    description: '新技術導入・新サービス開発・制度改革などの革新的提案',
+    mainTab: 'improvement',
+    icon: '💡',
+    requiresCarefulConsideration: true // 大きな変革のため慎重検討
   },
   
   // 戦略提案カテゴリ（すべて慎重な検討が必要）
@@ -183,7 +174,7 @@ export const POST_CATEGORIES: Record<PostCategory, CategoryInfo> = {
 export const CATEGORY_GROUPS = {
   improvement: {
     name: '改善提案',
-    categories: ['system_improvement', 'process_efficiency', 'business_improvement', 'cost_reduction']
+    categories: ['business_improvement', 'communication', 'innovation']
   },
   strategic: {
     name: '戦略提案（慎重検討）',

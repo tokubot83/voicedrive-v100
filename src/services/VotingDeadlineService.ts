@@ -86,31 +86,24 @@ export class VotingDeadlineService {
    */
   private getBaseDeadline(postType: string, urgencyLevel: string): number {
     const deadlineMap: Record<string, Record<string, number>> = {
-      // === 改善提案カテゴリ ===
-      // システム改善
-      system_improvement: {
-        low: 168,      // 7日
-        medium: 72,    // 3日
-        high: 24,      // 1日
-        critical: 4    // 4時間
-      },
-      // プロセス効率化
-      process_efficiency: {
-        low: 168,      // 7日
-        medium: 72,    // 3日
-        high: 24,      // 1日
-        critical: 4    // 4時間
-      },
+      // === 改善提案カテゴリ（医療・介護系法人向け） ===
       // 業務改善
       business_improvement: {
-        low: 240,      // 10日（業務への影響を考慮）
-        medium: 120,   // 5日
-        high: 48,      // 2日
-        critical: 12   // 12時間
+        low: 168,      // 7日（診療・介護業務の改善）
+        medium: 72,    // 3日
+        high: 24,      // 1日
+        critical: 6    // 6時間（患者様への影響考慮）
       },
-      // コスト削減
-      cost_reduction: {
-        low: 336,      // 14日（予算影響を慎重に検討）
+      // コミュニケーション
+      communication: {
+        low: 120,      // 5日（多職種連携・チーム改善）
+        medium: 48,    // 2日
+        high: 24,      // 1日
+        critical: 4    // 4時間（緊急時対応）
+      },
+      // イノベーション
+      innovation: {
+        low: 336,      // 14日（新技術・制度改革は慎重に）
         medium: 168,   // 7日
         high: 72,      // 3日
         critical: 24   // 1日
