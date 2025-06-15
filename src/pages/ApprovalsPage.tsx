@@ -6,8 +6,16 @@ import { NotificationService, ActionableNotification, NotificationType } from '.
 import { Card } from '../components/ui/Card';
 import { Tabs } from '../components/ui/Tabs';
 import { Clock, AlertTriangle, CheckCircle, XCircle, Users, ClipboardCheck, Vote } from 'lucide-react';
-import { format } from 'date-fns';
-import { ja } from 'date-fns/locale';
+// Simple date formatter (replacing date-fns)
+const formatDate = (date: Date): string => {
+  return date.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
 import { useNavigate } from 'react-router-dom';
 
 export const ApprovalsPage: React.FC = () => {
@@ -231,7 +239,7 @@ export const ApprovalsPage: React.FC = () => {
                         <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
                           <span className="flex items-center gap-1">
                             <Clock className="w-4 h-4" />
-                            {format(notification.createdAt, 'yyyy/MM/dd HH:mm', { locale: ja })}
+                            {formatDate(notification.createdAt)}
                           </span>
                           
                           {notification.dueDate && (
@@ -239,7 +247,7 @@ export const ApprovalsPage: React.FC = () => {
                               notification.dueDate < new Date() ? 'text-red-600 font-semibold' : ''
                             }`}>
                               <AlertTriangle className="w-4 h-4" />
-                              期限: {format(notification.dueDate, 'yyyy/MM/dd HH:mm', { locale: ja })}
+                              期限: {formatDate(notification.dueDate)}
                             </span>
                           )}
                         </div>

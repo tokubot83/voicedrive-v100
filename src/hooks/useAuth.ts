@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import React, { useState, createContext, useContext, ReactNode } from 'react';
 import { HierarchicalUser } from '../data/demo/hierarchicalUsers';
 import { demoUsers } from '../data/demo/users';
 
@@ -10,14 +10,24 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // デモ用: 最初のユーザーをデフォルトとして設定
   const [currentUser, setCurrentUser] = useState<HierarchicalUser | null>(demoUsers[0] as HierarchicalUser);
 
   const isAuthenticated = !!currentUser;
 
+  const contextValue: AuthContextType = {
+    currentUser,
+    setCurrentUser,
+    isAuthenticated
+  };
+
   return (
-    <AuthContext.Provider value={{ currentUser, setCurrentUser, isAuthenticated }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

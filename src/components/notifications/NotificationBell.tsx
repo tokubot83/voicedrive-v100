@@ -2,8 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Bell, BellRing, Check, X, Clock, AlertTriangle } from 'lucide-react';
 import { NotificationService, ActionableNotification, NotificationStats } from '../../services/NotificationService';
 import { useAuth } from '../../hooks/useAuth';
-import { format } from 'date-fns';
-import { ja } from 'date-fns/locale';
+// Simple date formatter (replacing date-fns)
+const formatDate = (date: Date): string => {
+  return date.toLocaleDateString('ja-JP', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
 
 interface NotificationBellProps {
   className?: string;
@@ -193,7 +200,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
                       </p>
                       <div className="flex items-center gap-2 text-xs text-gray-500">
                         <span>
-                          {format(notification.createdAt, 'MM/dd HH:mm', { locale: ja })}
+                          {formatDate(notification.createdAt)}
                         </span>
                         {notification.dueDate && (
                           <>
@@ -201,7 +208,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
                             <span className={
                               notification.dueDate < new Date() ? 'text-red-500 font-semibold' : ''
                             }>
-                              期限: {format(notification.dueDate, 'MM/dd HH:mm', { locale: ja })}
+                              期限: {formatDate(notification.dueDate)}
                             </span>
                           </>
                         )}
