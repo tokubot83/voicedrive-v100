@@ -65,6 +65,10 @@ import ExecutiveDashboard from '../components/analytics/ExecutiveDashboard';
 // Whistleblowing
 import WhistleblowingPage from '../pages/WhistleblowingPage';
 
+// Interview Booking
+import InterviewBookingPage from '../pages/InterviewBookingPage';
+import InterviewManagementPage from '../pages/InterviewManagementPage';
+
 // Approvals & Notifications
 import { ApprovalsPage } from '../pages/ApprovalsPage';
 
@@ -358,6 +362,16 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
         
+        {/* Interview Booking System - All users can access */}
+        <Route path="interview-booking" element={<InterviewBookingPage />} />
+        
+        {/* Interview Management - HR Staff only (Level 5+) */}
+        <Route path="interview-management" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
+            <InterviewManagementPage />
+          </ProtectedRoute>
+        } />
+
         {/* Common pages */}
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="settings" element={<SettingsPage />} />
