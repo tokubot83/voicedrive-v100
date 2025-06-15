@@ -214,7 +214,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
                   key={hobbyId}
                   className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1"
                 >
-                  <span>{hobby.icon}</span>
+                  <span>{hobby?.icon}</span>
                   <span>{hobby.name}</span>
                 </span>
               ) : null;
@@ -245,7 +245,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
                     onChange={() => handleHobbyToggle(hobby.id)}
                     className="hidden"
                   />
-                  <span className="text-lg">{hobby.icon}</span>
+                  <span className="text-lg">{hobby?.icon}</span>
                   <span>{hobby.name}</span>
                 </label>
               ))}

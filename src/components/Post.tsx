@@ -151,7 +151,7 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
             
             {post.type === 'improvement' && post.proposalType && (
               <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${proposalTypeConfigs[post.proposalType].borderColor.replace('border-', 'bg-').replace('500', '500/20')} ${proposalTypeConfigs[post.proposalType].borderColor.replace('border-', 'text-')}`}>
-                {proposalTypeConfigs[post.proposalType].icon} {proposalTypeConfigs[post.proposalType].label}
+                {proposalTypeConfigs[post.proposalType]?.icon || '📝'} {proposalTypeConfigs[post.proposalType]?.label}
               </span>
             )}
             

@@ -142,12 +142,12 @@ export const DemoSystemStats: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">System Overview</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat) => {
-            const Icon = stat.icon;
+            const Icon = stat?.icon;
             return (
               <div key={stat.label} className="bg-white rounded-lg p-4 border border-gray-200">
                 <div className="flex items-center justify-between mb-2">
                   <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                    <Icon className={`w-5 h-5 ${stat.color}`} />
+                    {Icon && <Icon className={`w-5 h-5 ${stat.color}`} />}
                   </div>
                   <span className="text-2xl font-bold text-gray-900">{stat.value}</span>
                 </div>
@@ -166,12 +166,12 @@ export const DemoSystemStats: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Financial Impact</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {financialStats.map((stat) => {
-            const Icon = stat.icon;
+            const Icon = stat?.icon;
             return (
               <div key={stat.label} className="bg-white rounded-lg p-4 border border-gray-200">
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                    <Icon className={`w-5 h-5 ${stat.color}`} />
+                    {Icon && <Icon className={`w-5 h-5 ${stat.color}`} />}
                   </div>
                   <div>
                     <div className="text-lg font-bold text-gray-900">{stat.value}</div>

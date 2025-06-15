@@ -149,7 +149,7 @@ const AuthorityDashboard: React.FC = () => {
                 }
               `}
             >
-              <tab.icon className="w-4 h-4" />
+              {tab.icon && <tab.icon className="w-4 h-4" />}
               <span>{tab.label}</span>
             </button>
           ))}

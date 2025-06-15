@@ -147,7 +147,7 @@ export const EnhancedPostWrapper: React.FC<EnhancedPostWrapperProps> = ({
                 }}
                 className="flex items-center gap-1 px-3 py-1 text-xs font-medium text-red-700 bg-red-100 border border-red-300 rounded hover:bg-red-200 transition-colors"
               >
-                <span>{option.icon}</span>
+                <span>{option?.icon}</span>
                 <span>{option.label}</span>
               </button>
             ))}

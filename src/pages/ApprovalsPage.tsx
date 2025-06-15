@@ -183,7 +183,7 @@ export const ApprovalsPage: React.FC = () => {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                {tab.icon}
+                {tab?.icon}
                 <span>{tab.label}</span>
                 <span className="ml-1 text-sm">
                   ({activeFilter === 'ALL' 

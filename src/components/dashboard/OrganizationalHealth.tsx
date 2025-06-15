@@ -99,7 +99,7 @@ const OrganizationalHealthComponent: React.FC<OrganizationalHealthProps> = ({ he
       {/* 健康度スコア一覧 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {healthMetrics.map((metric) => {
-          const Icon = metric.icon;
+          const Icon = metric?.icon;
           const score = metric.value;
           
           return (
@@ -110,7 +110,7 @@ const OrganizationalHealthComponent: React.FC<OrganizationalHealthProps> = ({ he
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-slate-600/50 flex items-center justify-center">
-                    <Icon className={`w-5 h-5 ${getHealthColor(score)}`} />
+                    {Icon && <Icon className={`w-5 h-5 ${getHealthColor(score)}`} />}
                   </div>
                   <div>
                     <h4 className="text-white font-medium">{metric.label}</h4>

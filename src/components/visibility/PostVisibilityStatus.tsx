@@ -121,7 +121,7 @@ export const PostVisibilityStatus: React.FC<PostVisibilityStatusProps> = ({
                   console.log('Emergency override:', option);
                 }}
               >
-                {option.icon && <span>{option.icon}</span>}
+                {option?.icon && <span>{option.icon}</span>}
                 <span>{option.label || '未設定'}</span>
               </button>
             ))}

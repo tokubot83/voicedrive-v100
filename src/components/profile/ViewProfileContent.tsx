@@ -96,7 +96,7 @@ const ViewProfileContent: React.FC<ViewProfileContentProps> = ({ profileData }) 
                   key={hobbyId}
                   className="bg-blue-900/50 text-blue-300 px-3 py-1 rounded-full text-sm flex items-center gap-2"
                 >
-                  <span>{hobby.icon}</span>
+                  <span>{hobby?.icon}</span>
                   <span>{hobby.name}</span>
                 </span>
               ) : null;

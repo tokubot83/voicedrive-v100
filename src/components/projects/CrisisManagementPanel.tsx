@@ -323,7 +323,7 @@ export const CrisisManagementPanel: React.FC<CrisisManagementPanelProps> = ({
             >
               <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center gap-2">
-                  <span>{getEmergencyTypeDisplay(template.emergency_type).icon}</span>
+                  <span>{getEmergencyTypeDisplay(template.emergency_type)?.icon}</span>
                   <h4 className="font-medium">{template.name}</h4>
                 </div>
                 <div className="text-right text-sm">
@@ -606,7 +606,7 @@ export const CrisisManagementPanel: React.FC<CrisisManagementPanelProps> = ({
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
-              <span>{tab.icon}</span>
+              <span>{tab?.icon}</span>
               {tab.label}
             </button>
           ))}

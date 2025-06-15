@@ -34,7 +34,7 @@ export const DemoUserSwitcher: React.FC<DemoUserSwitcherProps> = ({ currentUser,
   }, {} as Record<number, DemoUser[]>);
 
   const levelInfo = permissionLevelInfo[currentUser.permissionLevel as keyof typeof permissionLevelInfo];
-  const Icon = levelInfo.icon;
+  const Icon = levelInfo?.icon;
 
   return (
     <div className="relative">
@@ -129,13 +129,13 @@ export const DemoUserSwitcher: React.FC<DemoUserSwitcherProps> = ({ currentUser,
                   .map(([level, users]) => {
                   const levelNum = parseInt(level);
                   const info = permissionLevelInfo[levelNum as keyof typeof permissionLevelInfo];
-                  const LevelIcon = info.icon;
+                  const LevelIcon = info?.icon;
                   
                   return (
                     <div key={level} className="mb-4">
                       <div className="flex items-center gap-2 px-3 py-1 bg-gray-50">
                         <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${info.color}`}>
-                          <LevelIcon className="w-3 h-3" />
+                          {LevelIcon && <LevelIcon className="w-3 h-3" />}
                           {info.label}
                         </span>
                         <span className="text-xs text-gray-500">Level {level}</span>
@@ -218,7 +218,7 @@ const HierarchicalUserList: React.FC<HierarchicalUserListProps> = ({ users, curr
   const renderUserNode = (user: DemoUser, level: number = 0) => {
     const directReports = users.filter(u => u.parent_id === user.id);
     const levelInfo = permissionLevelInfo[user.permissionLevel as keyof typeof permissionLevelInfo];
-    const Icon = levelInfo.icon;
+    const Icon = levelInfo?.icon;
     
     return (
       <div key={user.id} style={{ marginLeft: `${level * 20}px` }}>
@@ -237,7 +237,7 @@ const HierarchicalUserList: React.FC<HierarchicalUserListProps> = ({ users, curr
             <div className="flex items-center gap-2">
               <span className="font-medium text-gray-900">{user.name}</span>
               <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${levelInfo.color}`}>
-                <Icon className="w-3 h-3" />
+                {Icon && <Icon className="w-3 h-3" />}
                 {levelInfo.label}
               </span>
             </div>

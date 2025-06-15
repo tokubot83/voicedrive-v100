@@ -317,7 +317,7 @@ const StrategicPostingAnalytics: React.FC = () => {
                   : 'bg-gray-700/50 text-gray-400 hover:text-white hover:bg-gray-700'
               }`}
             >
-              <span>{tab.icon}</span>
+              <span>{tab?.icon}</span>
               <span>{tab.label}</span>
             </button>
           ))}

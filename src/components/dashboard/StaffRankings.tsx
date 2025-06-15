@@ -73,7 +73,7 @@ const StaffRankings: React.FC<StaffRankingsProps> = ({ rankings, scope }) => {
       {/* タブナビゲーション */}
       <div className="flex flex-wrap gap-2 mb-6">
         {tabs.map((tab) => {
-          const Icon = tab.icon;
+          const Icon = tab?.icon;
           const isActive = activeTab === tab.key;
           return (
             <button
@@ -85,7 +85,7 @@ const StaffRankings: React.FC<StaffRankingsProps> = ({ rankings, scope }) => {
                   : 'bg-slate-700/30 text-gray-400 hover:bg-slate-700/50 hover:text-gray-300'
               }`}
             >
-              <Icon className="w-4 h-4" />
+              {Icon && <Icon className="w-4 h-4" />}
               <span className="text-sm font-medium">{tab.label}</span>
             </button>
           );

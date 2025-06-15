@@ -355,7 +355,7 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
                 }
               `}
             >
-              {type.icon && <div className="text-2xl mb-1">{type.icon}</div>}
+              {type?.icon && <div className="text-2xl mb-1">{type.icon}</div>}
               <div className="font-medium">{type.label || '未設定'}</div>
             </button>
           ))}

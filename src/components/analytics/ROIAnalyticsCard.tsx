@@ -154,7 +154,7 @@ const ROITrendIndicator: React.FC<ROITrendIndicatorProps> = ({ trend }) => {
   
   return (
     <div className={`trend-indicator ${config.className}`}>
-      <span className="trend-icon">{config.icon}</span>
+      <span className="trend-icon">{config?.icon}</span>
       <span className="trend-text">{config.text}</span>
     </div>
   );

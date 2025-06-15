@@ -109,7 +109,7 @@ export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) =>
               }
             `}
           >
-            <span className="text-lg">{tab.icon}</span>
+            <span className="text-lg">{tab?.icon}</span>
             <span className="hidden sm:inline font-medium">
               {tab.label}
               {tab.id === 'approvals' && notificationStats?.pending && notificationStats.pending > 0 && (

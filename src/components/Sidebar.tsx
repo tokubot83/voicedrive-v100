@@ -195,7 +195,7 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
               `}
             >
               <span className="mr-4 text-xl drop-shadow-[0_0_5px_rgba(29,155,240,0.5)]">
-                {item.icon}
+                {item?.icon}
               </span>
               <span>{item.label}</span>
             </Link>

@@ -1129,7 +1129,7 @@ export const SelectionSimulationUI: React.FC<SelectionSimulationUIProps> = ({
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
-                <span>{tab.icon}</span>
+                <span>{tab?.icon}</span>
                 {tab.label}
               </button>
             ))}

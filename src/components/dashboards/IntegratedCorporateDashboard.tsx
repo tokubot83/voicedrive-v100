@@ -469,7 +469,7 @@ const IntegratedCorporateDashboard: React.FC = () => {
                     : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
                 }`}
               >
-                <span>{tab.icon}</span>
+                <span>{tab?.icon}</span>
                 <span>{tab.label}</span>
               </button>
             ))}

@@ -74,7 +74,7 @@ const ImpactMeasurementCard: React.FC<ImpactMeasurementCardProps> = ({ data }) =
         <div className="impact-metrics">
           {metrics.map((metric, index) => (
             <div key={index} className="metric-item">
-              <div className="metric-icon">{metric.icon}</div>
+              <div className="metric-icon">{metric?.icon}</div>
               <div className="metric-content">
                 <span className={`metric-value ${metric.trend}`}>
                   {metric.value}

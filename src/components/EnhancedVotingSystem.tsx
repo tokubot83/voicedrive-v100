@@ -90,7 +90,7 @@ const EnhancedVotingSystem = ({
         </h3>
         {proposalType && proposalConfig && (
           <span className={`px-3 py-1 rounded-full text-xs font-bold ${proposalConfig.borderColor.replace('border-', 'bg-').replace('500', '500/20')} ${proposalConfig.borderColor.replace('border-', 'text-')}`}>
-            {proposalConfig.icon} {proposalConfig.label}
+            {proposalConfig?.icon || '📝'} {proposalConfig?.label}
           </span>
         )}
       </div>
