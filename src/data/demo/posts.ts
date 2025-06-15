@@ -409,13 +409,39 @@ export const demoPosts: Post[] = [
     type: 'improvement',
     proposalType: 'communication' as ProposalType,
     content: '半期評価のフィードバック方法について、1on1の時間をもっと増やしてほしいです。現在15分では短すぎて、具体的な改善点について深く話し合えません。',
-    author: demoUsers[0], // Entry-level employee
+    author: demoUsers[0], // Entry-level employee (田中太郎)
     anonymityLevel: 'anonymous',
     priority: 'high',
     timestamp: new Date('2024-09-10T16:00:00'),
-    votes: generateVotes(),
-    comments: [],
-    projectId: 'proj-003'
+    votes: {
+      'strongly-oppose': 2,
+      'oppose': 3,
+      'neutral': 8,
+      'support': 35,
+      'strongly-support': 42
+    }, // 高いスコア（380点相当）で施設プロジェクトレベル
+    comments: [
+      {
+        id: 'comment-6-1',
+        content: '1on1の時間延長は重要な提案です。従業員の成長とエンゲージメント向上に直結します。',
+        author: demoUsers[5],
+        privacyLevel: 'full' as CommentPrivacyLevel,
+        anonymityLevel: 'real' as AnonymityLevel,
+        timestamp: new Date('2024-09-11T09:30:00')
+      },
+      {
+        id: 'comment-6-2',
+        content: '管理職の負担増加も考慮する必要がありますが、効果的なフィードバックには必要な時間だと思います。',
+        author: demoUsers[3],
+        privacyLevel: 'partial' as CommentPrivacyLevel,
+        anonymityLevel: 'department' as AnonymityLevel,
+        timestamp: new Date('2024-09-11T14:20:00')
+      }
+    ],
+    projectId: 'proj-003',
+    status: 'member_selection_phase', // メンバー選出フェーズ
+    deadline: new Date('2024-12-20T23:59:59'), // 期限切迫状態
+    memberSelectionDeadline: new Date('2024-12-22T17:00:00')
   },
   {
     id: 'post-7',

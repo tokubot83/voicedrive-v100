@@ -161,18 +161,20 @@ export const demoProjects: Project[] = [
   },
   {
     id: 'proj-003',
-    title: '人事評価システム改善',
-    description: '1on1時間の拡充と評価プロセスの透明化',
+    title: '人事評価システム改善 - 1on1時間拡充プロジェクト',
+    description: '1on1時間の15分から30分への拡充と効果的なフィードバックプロセスの構築 (施設プロジェクトレベル)',
     category: 'improvement',
     postId: 'post-6',
-    initiator: 'user-1',
+    initiator: 'user-1', // 田中太郎
     status: 'approved',
     priority: 'high',
     createdDate: new Date('2024-09-11T10:00:00'),
-    lastUpdated: new Date('2025-01-04T11:00:00'),
-    estimatedBudget: 2000000,
-    estimatedROI: 200,
-    startDate: new Date('2025-02-01'),
+    lastUpdated: new Date('2024-12-20T15:30:00'),
+    estimatedBudget: 3500000, // 施設レベルの予算規模
+    estimatedROI: 250,
+    startDate: new Date('2024-12-25'),
+    endDate: new Date('2025-06-30'),
+    memberSelectionDeadline: new Date('2024-12-22T17:00:00'), // 期限切迫
     milestones: [
       {
         id: 'ms-003-1',

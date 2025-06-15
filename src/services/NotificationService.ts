@@ -486,6 +486,78 @@ export class NotificationService {
     const template = templates[templateName];
     return template ? template(data) : { subject: '', body: '' };
   }
+
+  // デモ用通知の初期化（田中太郎の1on1プロジェクトメンバー選出緊急通知）
+  async initializeDemoNotifications(): Promise<void> {
+    const now = new Date();
+    const deadline = new Date('2024-12-22T17:00:00');
+    const hoursUntilDeadline = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60));
+
+    // 施設レベルのプロジェクトメンバー選出に関わる可能性のあるユーザーに通知
+    const memberSelectionTargets = [
+      'user-1', // 田中太郎（提案者）
+      'user-5', // 高橋健太（チームリーダー）
+      'user-7', // 渡辺大輔（スーパーバイザー）
+      'user-8', // 中村恵子（HR部門長）
+      'user-12', // 藤田洋平（営業本部長）
+    ];
+
+    await Promise.all(memberSelectionTargets.map(async (userId) => {
+      await this.createActionableNotification(userId, 'MEMBER_SELECTION', {
+        title: '🔥 緊急：施設プロジェクトメンバー選出期限迫る',
+        message: `【1on1時間拡充プロジェクト】のメンバー選出期限まで残り${hoursUntilDeadline}時間です。田中太郎さんの提案が380点を獲得し、施設レベルのプロジェクトとして承認されました。メンバー選出が完了していません。`,
+        dueDate: deadline,
+        actions: [
+          {
+            id: 'participate',
+            label: '参加する',
+            type: 'primary',
+            action: 'participate'
+          },
+          {
+            id: 'recommend',
+            label: 'メンバー推薦',
+            type: 'secondary',
+            action: 'recommend',
+            requiresComment: true
+          },
+          {
+            id: 'view_details',
+            label: '詳細確認',
+            type: 'secondary',
+            action: 'view'
+          }
+        ],
+        metadata: {
+          projectId: 'proj-003',
+          postId: 'post-6',
+          urgencyLevel: 3
+        }
+      });
+    }));
+
+    // さらに緊急性を高めるため、期限間近の投票催促通知も追加
+    await this.createActionableNotification('user-1', 'DEADLINE_REMINDER', {
+      title: '🎯 あなたの提案がプロジェクト化決定！',
+      message: '「1on1時間増加」提案が施設プロジェクトレベル（380点）に到達しました！メンバー選出フェーズに入っています。22日17時までにチーム編成を完了する必要があります。',
+      dueDate: deadline,
+      actions: [
+        {
+          id: 'view_project',
+          label: 'プロジェクト確認',
+          type: 'primary',
+          action: 'view'
+        }
+      ],
+      metadata: {
+        projectId: 'proj-003',
+        postId: 'post-6',
+        urgencyLevel: 4
+      }
+    });
+
+    console.log('✅ デモ通知システム初期化完了 - 田中太郎1on1プロジェクト緊急メンバー選出通知');
+  }
 }
 
 export default NotificationService;
