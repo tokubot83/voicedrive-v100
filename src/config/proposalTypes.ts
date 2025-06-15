@@ -39,6 +39,19 @@ export const proposalTypeConfigs: Record<ProposalType, ProposalTypeConfig> = {
       { category: 'management', weight: 0.2, label: '管理職', description: '導入判断' },
       { category: 'veteran', weight: 0.1, label: 'ベテラン職員', description: '変化への適応性' }
     ]
+  },
+  strategic: {
+    type: 'strategic',
+    label: '戦略提案',
+    icon: '🎯',
+    description: '組織運営・経営戦略・事業展開に関する管理職向け提案',
+    borderColor: 'border-purple-500',
+    weights: [
+      { category: 'management', weight: 0.6, label: '管理職（レベル2-4）', description: '戦略的判断と実行責任' },
+      { category: 'veteran', weight: 0.25, label: 'ベテラン職員', description: '組織理解と経験' },
+      { category: 'frontline', weight: 0.1, label: '現場スタッフ', description: '実行可能性の視点' },
+      { category: 'zGen', weight: 0.05, label: 'Z世代', description: '将来性の観点' }
+    ]
   }
 };
 
@@ -52,7 +65,8 @@ export const proposalTypes = Object.values(proposalTypeConfigs);
 export const commentPrivacyConfig: Record<ProposalType, CommentPrivacyLevel> = {
   operational: 'partial',      // 部分匿名（所属施設・職種・経験年数）
   communication: 'anonymous',  // 完全匿名（職場環境改善のため）
-  innovation: 'partial'        // 部分匿名（技術提案のため）
+  innovation: 'partial',       // 部分匿名（技術提案のため）
+  strategic: 'selective'       // 段階的実名（管理職は実名、その他は部分匿名）
 };
 
 export const getCommentPrivacyLevel = (proposalType: ProposalType): CommentPrivacyLevel => {

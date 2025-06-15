@@ -23,6 +23,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
       business_improvement: { low: '7日', medium: '3日', high: '1日', critical: '6時間' },
       communication: { low: '5日', medium: '2日', high: '1日', critical: '4時間' },
       innovation: { low: '14日', medium: '7日', high: '3日', critical: '1日' },
+      strategic: { low: '21日', medium: '14日', high: '7日', critical: '3日' },
       // 戦略提案
       new_business: { low: '30日', medium: '21日', high: '14日', critical: '7日' },
       market_strategy: { low: '21日', medium: '14日', high: '7日', critical: '3日' },

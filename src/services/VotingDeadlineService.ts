@@ -108,6 +108,13 @@ export class VotingDeadlineService {
         high: 72,      // 3日
         critical: 24   // 1日
       },
+      // 戦略提案（管理職向け）
+      strategic: {
+        low: 504,      // 21日（組織運営・経営戦略は十分検討）
+        medium: 336,   // 14日
+        high: 168,     // 7日
+        critical: 72   // 3日（緊急戦略でも慎重に）
+      },
       
       // === 戦略提案カテゴリ（より慎重に） ===
       // 新規事業
