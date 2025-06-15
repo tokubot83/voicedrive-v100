@@ -61,7 +61,7 @@ const EnhancedVotingSystem = ({
       blue: 'border-blue-500 bg-gradient-to-r from-blue-500 to-blue-600 text-white',
     };
 
-    return isSelected ? selectedStyles[option.color] : baseStyles[option.color];
+    return isSelected ? selectedStyles[option.color] || selectedStyles.gray : baseStyles[option.color] || baseStyles.gray;
   };
 
   const getCountStyle = (color: string) => {
@@ -72,7 +72,7 @@ const EnhancedVotingSystem = ({
       green: 'bg-green-500/20 text-green-400',
       blue: 'bg-blue-500/20 text-blue-400',
     };
-    return styles[color];
+    return styles[color] || styles.gray;
   };
 
   const getStakeholderConsensus = (stakeholderVotes: Record<VoteOption, number>) => {
@@ -123,7 +123,7 @@ const EnhancedVotingSystem = ({
               <div className={`
                 min-w-[50px] h-10 rounded-xl flex items-center justify-center
                 font-bold text-xl transition-all duration-300
-                ${selectedVote === option.id ? 'bg-white/20' : getCountStyle(option.color)}
+                ${selectedVote === option.id ? 'bg-white/20' : getCountStyle(option.color || 'gray')}
               `}>
                 {votes[option.id]}
               </div>
@@ -142,7 +142,7 @@ const EnhancedVotingSystem = ({
               </div>
               <div className="text-center">
                 <div className="text-sm text-gray-500 mb-1">加重合意度</div>
-                <div className={`text-3xl font-bold ${consensusLevel.color}`}>
+                <div className={`text-3xl font-bold ${consensusLevel.color || 'text-gray-400'}`}>
                   {weightedConsensus}%
                 </div>
               </div>

@@ -160,7 +160,7 @@ const TeamLeaderDashboard: React.FC = () => {
                       <p className="text-sm text-gray-400">パフォーマンス</p>
                       <p className="text-lg font-bold text-white">{member.performance}%</p>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-xs ${statusBadge.color}`}>
+                    <span className={`px-2 py-1 rounded-full text-xs ${statusBadge.color || 'bg-gray-500/20 text-gray-400'}`}>
                       {statusBadge.text}
                     </span>
                   </div>

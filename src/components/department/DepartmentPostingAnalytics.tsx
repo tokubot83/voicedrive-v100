@@ -514,7 +514,7 @@ const DepartmentPostingAnalytics: React.FC = () => {
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-3">
                     <div
-                      className={`${item.color} h-3 rounded-full transition-all duration-500`}
+                      className={`${item.color || 'bg-gray-400'} h-3 rounded-full transition-all duration-500`}
                       style={{ width: `${(item.count / 44) * 100}%` }}
                     />
                   </div>

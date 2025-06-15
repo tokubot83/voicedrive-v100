@@ -100,14 +100,14 @@ export const MedicalCategorySelector: React.FC<MedicalCategorySelectorProps> = (
           <button
             onClick={() => setExpandedTab(expandedTab === groupKey ? null : groupKey)}
             className={`w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors ${
-              group.color === 'red' ? 'bg-red-50' : 
-              group.color === 'purple' ? 'bg-purple-50' : 'bg-blue-50'
+              (group.color === 'red' ? 'bg-red-50' : 
+              group.color === 'purple' ? 'bg-purple-50' : 'bg-blue-50')
             }`}
           >
             <div className="flex items-center gap-3">
               <div className={`${
-                group.color === 'red' ? 'text-red-600' : 
-                group.color === 'purple' ? 'text-purple-600' : 'text-blue-600'
+                (group.color === 'red' ? 'text-red-600' : 
+                group.color === 'purple' ? 'text-purple-600' : 'text-blue-600')
               }`}>
                 {group?.icon}
               </div>

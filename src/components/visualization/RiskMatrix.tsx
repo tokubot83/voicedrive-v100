@@ -48,7 +48,7 @@ const RiskAssessmentMatrix: React.FC<RiskAssessmentMatrixProps> = ({ risks = [] 
             {displayRisks.map((risk, index) => (
               <div
                 key={index}
-                className={`${risk.color} rounded p-1 text-xs text-white flex items-center justify-center`}
+                className={`${risk.color || 'bg-gray-500'} rounded p-1 text-xs text-white flex items-center justify-center`}
                 style={{
                   gridColumn: risk.probability,
                   gridRow: 5 - risk.impact

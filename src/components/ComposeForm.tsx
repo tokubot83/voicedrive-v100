@@ -296,7 +296,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
                     className={`
                       flex flex-col items-center p-4 border-2 rounded-xl transition-all duration-300
                       ${priority === option.value 
-                        ? `${option.color} bg-white/10 transform -translate-y-0.5` 
+                        ? `${option.color || 'border-gray-500'} bg-white/10 transform -translate-y-0.5` 
                         : 'border-gray-800/50 hover:border-gray-600'
                       }
                     `}

@@ -51,7 +51,7 @@ export const DemoUserSwitcher: React.FC<DemoUserSwitcherProps> = ({ currentUser,
           <div className="font-medium text-gray-900">{currentUser.name}</div>
           <div className="text-xs text-gray-500">{currentUser.position}</div>
         </div>
-        <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${levelInfo.color}`}>
+        <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${levelInfo.color || 'bg-gray-100 text-gray-700'}`}>
           <Icon className="w-3 h-3" />
           <span>Lv.{currentUser.permissionLevel}</span>
         </div>
@@ -134,7 +134,7 @@ export const DemoUserSwitcher: React.FC<DemoUserSwitcherProps> = ({ currentUser,
                   return (
                     <div key={level} className="mb-4">
                       <div className="flex items-center gap-2 px-3 py-1 bg-gray-50">
-                        <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${info.color}`}>
+                        <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${info.color || 'bg-gray-100 text-gray-700'}`}>
                           {LevelIcon && <LevelIcon className="w-3 h-3" />}
                           {info.label}
                         </span>
@@ -236,7 +236,7 @@ const HierarchicalUserList: React.FC<HierarchicalUserListProps> = ({ users, curr
           <div className="flex-1 text-left">
             <div className="flex items-center gap-2">
               <span className="font-medium text-gray-900">{user.name}</span>
-              <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${levelInfo.color}`}>
+              <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${levelInfo.color || 'bg-gray-100 text-gray-700'}`}>
                 {Icon && <Icon className="w-3 h-3" />}
                 {levelInfo.label}
               </span>

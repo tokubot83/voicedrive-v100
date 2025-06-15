@@ -185,11 +185,11 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
                 // 安全なクラス名の使用（動的クラス名の問題を回避）
                 const bgColorClass = currentScore >= threshold.score 
                   ? 'bg-green-500' 
-                  : threshold.color === 'gray' ? 'bg-gray-500' :
+                  : (threshold.color === 'gray' ? 'bg-gray-500' :
                     threshold.color === 'green' ? 'bg-green-500' :
                     threshold.color === 'blue' ? 'bg-blue-500' :
                     threshold.color === 'purple' ? 'bg-purple-500' :
-                    threshold.color === 'orange' ? 'bg-orange-500' : 'bg-gray-500';
+                    threshold.color === 'orange' ? 'bg-orange-500' : 'bg-gray-500');
                 
                 return (
                   <div

@@ -74,7 +74,7 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
             title={card.title}
             description={card.description}
             features={card.features}
-            color={card.color}
+            color={card.color || 'from-gray-500 to-gray-600'}
             isSelected={selectedPostType === card.type && showForm}
             onClick={() => handleCardClick(card.type)}
             index={index}

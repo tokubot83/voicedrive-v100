@@ -147,7 +147,7 @@ export const DemoSystemStats: React.FC = () => {
               <div key={stat.label} className="bg-white rounded-lg p-4 border border-gray-200">
                 <div className="flex items-center justify-between mb-2">
                   <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                    {Icon && <Icon className={`w-5 h-5 ${stat.color}`} />}
+                    {Icon && <Icon className={`w-5 h-5 ${stat.color || 'text-gray-600'}`} />}
                   </div>
                   <span className="text-2xl font-bold text-gray-900">{stat.value}</span>
                 </div>
@@ -171,7 +171,7 @@ export const DemoSystemStats: React.FC = () => {
               <div key={stat.label} className="bg-white rounded-lg p-4 border border-gray-200">
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                    {Icon && <Icon className={`w-5 h-5 ${stat.color}`} />}
+                    {Icon && <Icon className={`w-5 h-5 ${stat.color || 'text-gray-600'}`} />}
                   </div>
                   <div>
                     <div className="text-lg font-bold text-gray-900">{stat.value}</div>
@@ -194,7 +194,7 @@ export const DemoSystemStats: React.FC = () => {
                 <div className="w-24 text-sm text-gray-600">{item.status}</div>
                 <div className="flex-1 bg-gray-200 rounded-full h-6 relative overflow-hidden">
                   <div 
-                    className={`h-full ${item.color} transition-all duration-500`}
+                    className={`h-full ${item.color || 'bg-gray-500'} transition-all duration-500`}
                     style={{ width: `${(item.count / totalProjects) * 100}%` }}
                   />
                   <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-700">

@@ -70,7 +70,7 @@ const VotingSystem = ({ votes, selectedVote, onVote, postId, proposalType, showS
       blue: 'border-blue-500 bg-gradient-to-r from-blue-500 to-blue-600 text-white',
     };
 
-    return isSelected ? selectedStyles[option.color] : baseStyles[option.color];
+    return isSelected ? selectedStyles[option.color] || selectedStyles.gray : baseStyles[option.color] || baseStyles.gray;
   };
 
   const getCountStyle = (color: string) => {
@@ -81,7 +81,7 @@ const VotingSystem = ({ votes, selectedVote, onVote, postId, proposalType, showS
       green: 'bg-green-500/20 text-green-400',
       blue: 'bg-blue-500/20 text-blue-400',
     };
-    return styles[color];
+    return styles[color] || styles.gray;
   };
 
   return (
@@ -124,7 +124,7 @@ const VotingSystem = ({ votes, selectedVote, onVote, postId, proposalType, showS
               <div className={`
                 min-w-[50px] h-10 rounded-xl flex items-center justify-center
                 font-bold text-xl transition-all duration-300
-                ${selectedVote === option.id ? 'bg-white/20' : getCountStyle(option.color)}
+                ${selectedVote === option.id ? 'bg-white/20' : getCountStyle(option.color || 'gray')}
               `}>
                 {votes[option.id]}
               </div>

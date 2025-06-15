@@ -211,7 +211,7 @@ export const CollaborativeMemberSelection: React.FC<CollaborativeMemberSelection
               <span className="text-xs w-20">{group.label}</span>
               <div className="flex-1 bg-gray-200 rounded-full h-4 relative">
                 <div
-                  className={`${group.color} h-4 rounded-full`}
+                  className={`${group.color || 'bg-gray-500'} h-4 rounded-full`}
                   style={{ width: `${data.percentage}%` }}
                 />
               </div>
@@ -362,7 +362,7 @@ export const CollaborativeMemberSelection: React.FC<CollaborativeMemberSelection
                           )}
                           className={`px-3 py-1 text-xs rounded-full transition-colors ${
                             currentVote === option.value
-                              ? `${option.color} text-white`
+                              ? `${option.color || 'bg-gray-400'} text-white`
                               : 'bg-gray-100 hover:bg-gray-200'
                           }`}
                         >

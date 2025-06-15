@@ -100,7 +100,7 @@ function CommentItem({ comment, currentUser }: CommentItemProps) {
             <span className="font-medium text-gray-900">
               {displayInfo.name}
             </span>
-            <span className={`text-xs px-2 py-1 rounded-full ${privacyBadge.color}`}>
+            <span className={`text-xs px-2 py-1 rounded-full ${privacyBadge.color || 'bg-gray-100 text-gray-700'}`}>
               {privacyBadge.label}
             </span>
             {isOwnComment && (

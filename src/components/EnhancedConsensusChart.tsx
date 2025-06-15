@@ -108,7 +108,7 @@ const EnhancedConsensusChart: React.FC<EnhancedConsensusChartProps> = ({
           cy="120"
           r={radius - (index * 12)}
           fill="none"
-          stroke={isAchieved ? `var(--${threshold.color}-500)` : isNext ? `var(--${threshold.color}-400)` : 'rgba(156, 163, 175, 0.3)'}
+          stroke={isAchieved ? `var(--${threshold.color || 'gray'}-500)` : isNext ? `var(--${threshold.color || 'gray'}-400)` : 'rgba(156, 163, 175, 0.3)'}
           strokeWidth={strokeWidth}
           strokeDasharray={strokeDasharray}
           strokeDashoffset={strokeDashoffset}
@@ -172,7 +172,7 @@ const EnhancedConsensusChart: React.FC<EnhancedConsensusChartProps> = ({
         <path
           key={vote.option}
           d={pathData}
-          fill={vote.color}
+          fill={vote.color || '#6b7280'}
           className="hover:opacity-80 transition-opacity duration-200"
         />
       );
@@ -318,7 +318,7 @@ const EnhancedConsensusChart: React.FC<EnhancedConsensusChartProps> = ({
             <div key={vote.option} className="text-center">
               <div
                 className="w-full h-2 rounded-full mb-1"
-                style={{ backgroundColor: vote.color }}
+                style={{ backgroundColor: vote.color || '#6b7280' }}
               />
               <div className="text-xs text-gray-400">{vote.label}</div>
               <div className="text-sm font-semibold text-white">{vote.count}</div>
