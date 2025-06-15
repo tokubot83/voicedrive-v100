@@ -33,7 +33,7 @@ export const DemoUserSwitcher: React.FC<DemoUserSwitcherProps> = ({ currentUser,
     return acc;
   }, {} as Record<number, DemoUser[]>);
 
-  const levelInfo = permissionLevelInfo[currentUser.permissionLevel as keyof typeof permissionLevelInfo];
+  const levelInfo = permissionLevelInfo[currentUser.permissionLevel as keyof typeof permissionLevelInfo] || permissionLevelInfo[1];
   const Icon = levelInfo?.icon;
 
   return (
@@ -128,7 +128,7 @@ export const DemoUserSwitcher: React.FC<DemoUserSwitcherProps> = ({ currentUser,
                   .sort(([a], [b]) => parseInt(b) - parseInt(a))
                   .map(([level, users]) => {
                   const levelNum = parseInt(level);
-                  const info = permissionLevelInfo[levelNum as keyof typeof permissionLevelInfo];
+                  const info = permissionLevelInfo[levelNum as keyof typeof permissionLevelInfo] || permissionLevelInfo[1];
                   const LevelIcon = info?.icon;
                   
                   return (
@@ -217,7 +217,7 @@ interface HierarchicalUserListProps {
 const HierarchicalUserList: React.FC<HierarchicalUserListProps> = ({ users, currentUser, onUserChange }) => {
   const renderUserNode = (user: DemoUser, level: number = 0) => {
     const directReports = users.filter(u => u.parent_id === user.id);
-    const levelInfo = permissionLevelInfo[user.permissionLevel as keyof typeof permissionLevelInfo];
+    const levelInfo = permissionLevelInfo[user.permissionLevel as keyof typeof permissionLevelInfo] || permissionLevelInfo[1];
     const Icon = levelInfo?.icon;
     
     return (

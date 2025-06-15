@@ -558,18 +558,29 @@ export const ExecutiveOverridePanel: React.FC<ExecutiveOverridePanelProps> = ({
               { label: 'リソース', value: readinessAssessment.resource_availability, color: 'yellow' },
               { label: '変革能力', value: readinessAssessment.change_capability, color: 'purple' },
               { label: 'ステークホルダー', value: readinessAssessment.stakeholder_support, color: 'pink' }
-            ].map(({ label, value, color }) => (
-              <div key={label} className="text-center">
-                <div className={`text-2xl font-bold text-${color}-600 mb-1`}>{value}%</div>
-                <div className="text-sm text-gray-600">{label}</div>
-                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                  <div 
-                    className={`bg-${color}-600 h-2 rounded-full`}
-                    style={{ width: `${value}%` }}
-                  ></div>
+            ].map(({ label, value, color }) => {
+              const colorClasses = {
+                blue: { text: 'text-blue-600', bg: 'bg-blue-600' },
+                green: { text: 'text-green-600', bg: 'bg-green-600' },
+                yellow: { text: 'text-yellow-600', bg: 'bg-yellow-600' },
+                purple: { text: 'text-purple-600', bg: 'bg-purple-600' },
+                pink: { text: 'text-pink-600', bg: 'bg-pink-600' }
+              };
+              const colorClass = colorClasses[color as keyof typeof colorClasses] || colorClasses.blue;
+              
+              return (
+                <div key={label} className="text-center">
+                  <div className={`text-2xl font-bold ${colorClass.text} mb-1`}>{value}%</div>
+                  <div className="text-sm text-gray-600">{label}</div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div 
+                      className={`${colorClass.bg} h-2 rounded-full`}
+                      style={{ width: `${value}%` }}
+                    ></div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

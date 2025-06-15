@@ -251,7 +251,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               className={`
                 flex flex-col items-center p-2 sm:p-3 rounded-lg border-2 transition-all
                 ${selectedVote === vote.type 
-                  ? (vote.color === 'red' ? 'border-red-500 bg-red-500/20' :
+                  ? ((vote.color || 'blue') === 'red' ? 'border-red-500 bg-red-500/20' :
                     vote.color === 'orange' ? 'border-orange-500 bg-orange-500/20' :
                     vote.color === 'gray' ? 'border-gray-500 bg-gray-500/20' :
                     vote.color === 'green' ? 'border-green-500 bg-green-500/20' :
@@ -289,7 +289,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
                 <div
                   key={vote.type}
                   className={`h-full transition-all duration-500 ${
-                    (vote.color === 'red' ? 'bg-red-500' :
+                    ((vote.color || 'blue') === 'red' ? 'bg-red-500' :
                     vote.color === 'orange' ? 'bg-orange-500' :
                     vote.color === 'gray' ? 'bg-gray-500' :
                     vote.color === 'green' ? 'bg-green-500' :
