@@ -7,8 +7,29 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Calendar, Users, CheckCircle, Clock } from 'lucide-react';
-import { format } from 'date-fns';
-import { ja } from 'date-fns/locale';
+
+// 日付フォーマット関数（date-fnsの代替）
+const formatDate = (date: Date, formatStr: string, options?: { locale?: any }): string => {
+  const d = new Date(date);
+  
+  if (formatStr === 'yyyy年MM月dd日') {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}年${month}月${day}日`;
+  }
+  
+  if (formatStr === 'MM/dd HH:mm') {
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${month}/${day} ${hours}:${minutes}`;
+  }
+  
+  // デフォルトフォーマット
+  return d.toLocaleDateString('ja-JP');
+};
 
 interface ProjectDetail {
   id: string;
@@ -268,7 +289,7 @@ export const ProjectDetailPage: React.FC = () => {
             <span>•</span>
             <span>{project.author.name} ({project.author.department})</span>
             <span>•</span>
-            <span>{format(project.createdAt, 'yyyy年MM月dd日', { locale: ja })}</span>
+            <span>{formatDate(project.createdAt, 'yyyy年MM月dd日')}</span>
           </div>
           <p className="text-gray-700 mb-6">{project.content}</p>
 
@@ -353,7 +374,7 @@ export const ProjectDetailPage: React.FC = () => {
                       </Badge>
                       {step.approvedAt && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {format(step.approvedAt, 'MM/dd HH:mm')}
+                          {formatDate(step.approvedAt, 'MM/dd HH:mm')}
                         </p>
                       )}
                     </div>
@@ -414,7 +435,7 @@ export const ProjectDetailPage: React.FC = () => {
                 <span className="text-sm text-gray-600">投票締切</span>
               </div>
               <span className="font-medium">
-                {format(project.timeline.votingDeadline, 'yyyy年MM月dd日', { locale: ja })}
+                {formatDate(project.timeline.votingDeadline, 'yyyy年MM月dd日')}
               </span>
             </div>
             {project.timeline.projectStart && (
@@ -424,7 +445,7 @@ export const ProjectDetailPage: React.FC = () => {
                   <span className="text-sm text-gray-600">プロジェクト開始</span>
                 </div>
                 <span className="font-medium">
-                  {format(project.timeline.projectStart, 'yyyy年MM月dd日', { locale: ja })}
+                  {formatDate(project.timeline.projectStart, 'yyyy年MM月dd日')}
                 </span>
               </div>
             )}
@@ -435,7 +456,7 @@ export const ProjectDetailPage: React.FC = () => {
                   <span className="text-sm text-gray-600">プロジェクト完了予定</span>
                 </div>
                 <span className="font-medium">
-                  {format(project.timeline.projectEnd, 'yyyy年MM月dd日', { locale: ja })}
+                  {formatDate(project.timeline.projectEnd, 'yyyy年MM月dd日')}
                 </span>
               </div>
             )}
