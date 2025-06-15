@@ -6,7 +6,7 @@ import { NotificationService } from '../services/NotificationService';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-import { CalendarIcon, UsersIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { Calendar, Users, CheckCircle, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 
@@ -300,7 +300,7 @@ export const ProjectDetailPage: React.FC = () => {
       <Card>
         <div className="p-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <CheckCircleIcon className="h-5 w-5" />
+            <CheckCircle className="h-5 w-5" />
             合意形成状況
           </h2>
           <div className="space-y-4">
@@ -372,7 +372,7 @@ export const ProjectDetailPage: React.FC = () => {
       <Card>
         <div className="p-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <UsersIcon className="h-5 w-5" />
+            <Users className="h-5 w-5" />
             選定メンバー
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -404,13 +404,13 @@ export const ProjectDetailPage: React.FC = () => {
       <Card>
         <div className="p-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5" />
+            <Calendar className="h-5 w-5" />
             タイムライン
           </h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ClockIcon className="h-4 w-4 text-gray-500" />
+                <Clock className="h-4 w-4 text-gray-500" />
                 <span className="text-sm text-gray-600">投票締切</span>
               </div>
               <span className="font-medium">
@@ -420,7 +420,7 @@ export const ProjectDetailPage: React.FC = () => {
             {project.timeline.projectStart && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CalendarIcon className="h-4 w-4 text-gray-500" />
+                  <Calendar className="h-4 w-4 text-gray-500" />
                   <span className="text-sm text-gray-600">プロジェクト開始</span>
                 </div>
                 <span className="font-medium">
@@ -431,7 +431,7 @@ export const ProjectDetailPage: React.FC = () => {
             {project.timeline.projectEnd && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CalendarIcon className="h-4 w-4 text-gray-500" />
+                  <Calendar className="h-4 w-4 text-gray-500" />
                   <span className="text-sm text-gray-600">プロジェクト完了予定</span>
                 </div>
                 <span className="font-medium">
