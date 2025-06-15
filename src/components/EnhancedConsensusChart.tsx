@@ -219,8 +219,10 @@ const EnhancedConsensusChart: React.FC<EnhancedConsensusChartProps> = ({
 
           {/* 現在のレベル表示 */}
           <div className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30">
-            <currentLevelInfo.icon className="w-5 h-5 text-blue-400" />
-            <span className="text-blue-400 font-medium">{currentLevelInfo.label}</span>
+            {currentLevelInfo?.icon && (
+              <currentLevelInfo.icon className="w-5 h-5 text-blue-400" />
+            )}
+            <span className="text-blue-400 font-medium">{currentLevelInfo?.label || '未設定'}</span>
           </div>
         </div>
 
@@ -231,7 +233,7 @@ const EnhancedConsensusChart: React.FC<EnhancedConsensusChartProps> = ({
           {thresholds.map((threshold, index) => {
             const isAchieved = currentScore >= threshold.score;
             const isNext = nextMilestone?.score === threshold.score;
-            const Icon = threshold.icon;
+            const Icon = threshold.icon || Target; // デフォルトアイコンとしてTargetを使用
             
             return (
               <div
@@ -248,7 +250,7 @@ const EnhancedConsensusChart: React.FC<EnhancedConsensusChartProps> = ({
                   isAchieved ? 'bg-green-500 text-white' : 
                   isNext ? 'bg-blue-500 text-white' : 'bg-gray-600 text-gray-300'
                 }`}>
-                  <Icon className="w-5 h-5" />
+                  {Icon && <Icon className="w-5 h-5" />}
                 </div>
                 
                 <div className="flex-1">

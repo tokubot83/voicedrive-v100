@@ -141,8 +141,8 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
             }
           `}
         >
-          <span className="mr-2">{tab.icon}</span>
-          {tab.label}
+          {tab.icon && <span className="mr-2">{tab.icon}</span>}
+          {tab.label || '未設定'}
         </button>
       ))}
     </div>
