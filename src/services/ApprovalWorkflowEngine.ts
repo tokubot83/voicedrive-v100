@@ -66,34 +66,53 @@ export class ApprovalWorkflowEngine {
       { stage: 'SECTION_CHIEF_APPROVAL', assignee: 'SECTION_CHIEF', requiredLevel: PermissionLevel.LEVEL_4 },
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
     ],
-    // 施設レベルプロジェクト
+    // 施設レベルプロジェクト（10段階権限対応）
     FACILITY: [
       { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
       { stage: 'SECTION_CHIEF_APPROVAL', assignee: 'SECTION_CHIEF', requiredLevel: PermissionLevel.LEVEL_4 },
-      { stage: 'HR_DEPT_HEAD_APPROVAL', assignee: 'HR_DEPT_HEAD', requiredLevel: PermissionLevel.LEVEL_5 },
-      { stage: 'HR_GENERAL_MANAGER_APPROVAL', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_6 },
-      { stage: 'BUDGET_APPROVAL', assignee: 'FINANCE_HEAD', requiredLevel: PermissionLevel.LEVEL_6 },
-      { stage: 'DIRECTOR_APPROVAL', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_7 },
+      { stage: 'HR_DEPT_HEAD_APPROVAL', assignee: 'HR_DEPT_HEAD', requiredLevel: PermissionLevel.LEVEL_7 },
+      { stage: 'HR_GENERAL_MANAGER_APPROVAL', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_8 },
+      { stage: 'BUDGET_APPROVAL', assignee: 'FINANCE_HEAD', requiredLevel: PermissionLevel.LEVEL_8 },
+      { stage: 'DIRECTOR_APPROVAL', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_9 },
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
     ],
-    // 組織全体レベルプロジェクト
+    // 組織全体レベルプロジェクト（10段階権限対応）
     ORGANIZATION: [
       { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
-      { stage: 'HR_DEPT_HEAD_REVIEW', assignee: 'HR_DEPT_HEAD', requiredLevel: PermissionLevel.LEVEL_5 },
-      { stage: 'HR_GENERAL_MANAGER_REVIEW', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_6 },
-      { stage: 'DIRECTOR_APPROVAL', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_7 },
-      { stage: 'EXECUTIVE_APPROVAL', assignee: 'EXECUTIVE', requiredLevel: PermissionLevel.LEVEL_8 },
-      { stage: 'BUDGET_ALLOCATION', assignee: 'CFO', requiredLevel: PermissionLevel.LEVEL_7 },
+      { stage: 'HR_DEPT_HEAD_REVIEW', assignee: 'HR_DEPT_HEAD', requiredLevel: PermissionLevel.LEVEL_7 },
+      { stage: 'HR_GENERAL_MANAGER_REVIEW', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_8 },
+      { stage: 'DIRECTOR_APPROVAL', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_9 },
+      { stage: 'EXECUTIVE_APPROVAL', assignee: 'EXECUTIVE', requiredLevel: PermissionLevel.LEVEL_10 },
+      { stage: 'BUDGET_ALLOCATION', assignee: 'CFO', requiredLevel: PermissionLevel.LEVEL_9 },
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
     ],
-    // 戦略的プロジェクト
+    // 戦略的プロジェクト（10段階権限対応）
     STRATEGIC: [
       { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
-      { stage: 'DIRECTOR_REVIEW', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_7 },
-      { stage: 'EXECUTIVE_APPROVAL', assignee: 'EXECUTIVE', requiredLevel: PermissionLevel.LEVEL_8 },
-      { stage: 'BOARD_APPROVAL', assignee: 'BOARD', requiredLevel: PermissionLevel.LEVEL_8 },
-      { stage: 'STRATEGIC_ALLOCATION', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_8 },
+      { stage: 'DIRECTOR_REVIEW', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_9 },
+      { stage: 'EXECUTIVE_APPROVAL', assignee: 'EXECUTIVE', requiredLevel: PermissionLevel.LEVEL_10 },
+      { stage: 'BOARD_APPROVAL', assignee: 'BOARD', requiredLevel: PermissionLevel.LEVEL_10 },
+      { stage: 'STRATEGIC_ALLOCATION', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_10 },
       { stage: 'IMPLEMENTATION', assignee: 'STRATEGIC_TEAM', autoComplete: false }
+    ],
+    
+    // 面談関連ワークフロー（新規追加）
+    INTERVIEW_POLICY: [
+      { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
+      { stage: 'HR_ADMIN_REVIEW', assignee: 'HR_ADMIN', requiredLevel: PermissionLevel.LEVEL_5 },
+      { stage: 'CAREER_SUPPORT_APPROVAL', assignee: 'CAREER_SUPPORT_HEAD', requiredLevel: PermissionLevel.LEVEL_7 },
+      { stage: 'HR_GENERAL_MANAGER_APPROVAL', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_8 },
+      { stage: 'IMPLEMENTATION', assignee: 'INTERVIEW_TEAM', autoComplete: false }
+    ],
+    
+    // 人事関連プロジェクト（新規追加）
+    HR_INITIATIVE: [
+      { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
+      { stage: 'HR_ADMIN_PREPARATION', assignee: 'HR_ADMIN', requiredLevel: PermissionLevel.LEVEL_5 },
+      { stage: 'CAREER_SUPPORT_REVIEW', assignee: 'CAREER_SUPPORT_STAFF', requiredLevel: PermissionLevel.LEVEL_6 },
+      { stage: 'HR_DEPT_HEAD_APPROVAL', assignee: 'HR_DEPT_HEAD', requiredLevel: PermissionLevel.LEVEL_7 },
+      { stage: 'FINAL_APPROVAL', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_8 },
+      { stage: 'IMPLEMENTATION', assignee: 'HR_TEAM', autoComplete: false }
     ]
   };
 
@@ -151,6 +170,13 @@ export class ApprovalWorkflowEngine {
       SECTION_CHIEF: async () => this.findSectionChief(projectData.department),
       HR_DEPT_HEAD: async () => this.findHRDepartmentHead(projectData.organization),
       HR_GENERAL_MANAGER: async () => this.findHRGeneralManager(projectData.organization),
+      // 新規追加: 面談関連HR役職
+      HR_ADMIN: async () => this.findHRAdmin(projectData.organization),
+      CAREER_SUPPORT_STAFF: async () => this.findCareerSupportStaff(projectData.organization),
+      CAREER_SUPPORT_HEAD: async () => this.findCareerSupportHead(projectData.organization),
+      INTERVIEW_TEAM: async () => this.assembleInterviewTeam(projectData),
+      HR_TEAM: async () => this.assembleHRTeam(projectData),
+      // 既存役職
       DIRECTOR: async () => this.findDirector(projectData.facility),
       EXECUTIVE: async () => this.findExecutive(projectData.organization),
       BOARD: async () => this.findBoardMembers(projectData.organization),
@@ -182,6 +208,12 @@ export class ApprovalWorkflowEngine {
       BUDGET_APPROVAL: 5, // 5日
       BUDGET_ALLOCATION: 7, // 7日
       STRATEGIC_ALLOCATION: 10, // 10日
+      // 新規追加: 面談関連ワークフロー期間
+      HR_ADMIN_REVIEW: 3, // 3日
+      HR_ADMIN_PREPARATION: 2, // 2日
+      CAREER_SUPPORT_APPROVAL: 4, // 4日
+      CAREER_SUPPORT_REVIEW: 3, // 3日
+      FINAL_APPROVAL: 5, // 5日
       IMPLEMENTATION: 30 // 30日
     };
     
@@ -364,6 +396,52 @@ export class ApprovalWorkflowEngine {
     };
   }
   
+  // 新規追加: 面談関連HR役職ファインダー
+  private async findHRAdmin(organization?: string): Promise<AssigneeInfo> {
+    return {
+      id: 'hr_admin',
+      name: '人財統括本部 戦略企画・統括管理部門',
+      type: 'USER',
+      department: '人財統括本部'
+    };
+  }
+  
+  private async findCareerSupportStaff(organization?: string): Promise<AssigneeInfo> {
+    return {
+      id: 'career_support_staff',
+      name: '人財統括本部 キャリア支援部門員',
+      type: 'USER',
+      department: '人財統括本部'
+    };
+  }
+  
+  private async findCareerSupportHead(organization?: string): Promise<AssigneeInfo> {
+    return {
+      id: 'career_support_head',
+      name: '人財統括本部 キャリア支援部門長',
+      type: 'USER',
+      department: '人財統括本部'
+    };
+  }
+  
+  private async assembleInterviewTeam(projectData: any): Promise<AssigneeInfo> {
+    return {
+      id: 'interview_team',
+      name: '面談実施チーム',
+      type: 'GROUP',
+      department: '人財統括本部'
+    };
+  }
+  
+  private async assembleHRTeam(projectData: any): Promise<AssigneeInfo> {
+    return {
+      id: 'hr_team',
+      name: '人財統括本部プロジェクトチーム',
+      type: 'GROUP',
+      department: '人財統括本部'
+    };
+  }
+  
   getStageDisplayName(stage: string): string {
     const displayNames: Record<string, string> = {
       AUTO_PROJECT: '自動プロジェクト化',
@@ -381,6 +459,12 @@ export class ApprovalWorkflowEngine {
       BUDGET_APPROVAL: '予算承認',
       BUDGET_ALLOCATION: '予算配分',
       STRATEGIC_ALLOCATION: '戦略的リソース配分',
+      // 新規追加: 面談関連ワークフロー表示名
+      HR_ADMIN_REVIEW: '人財統括本部戦略企画・統括管理部門レビュー',
+      HR_ADMIN_PREPARATION: '人財統括本部戦略企画・統括管理部門準備',
+      CAREER_SUPPORT_APPROVAL: 'キャリア支援部門長承認',
+      CAREER_SUPPORT_REVIEW: 'キャリア支援部門員レビュー',
+      FINAL_APPROVAL: '最終承認',
       IMPLEMENTATION: 'プロジェクト実行'
     };
     
