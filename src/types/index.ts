@@ -56,16 +56,18 @@ export interface User {
   retirementProcessedDate?: Date;
 }
 
-// Account types mapping to permission levels
+// Account types mapping to 10-level permission system
 export type AccountType = 
-  | 'CHAIRMAN'           // Level 8
-  | 'EXECUTIVE_SECRETARY' // Level 7
-  | 'HR_DIRECTOR'        // Level 6
-  | 'HR_DEPARTMENT_HEAD' // Level 5
-  | 'FACILITY_HEAD'      // Level 4
-  | 'DEPARTMENT_HEAD'    // Level 3
-  | 'SUPERVISOR'         // Level 2
-  | 'STAFF';             // Level 1
+  | 'CHAIRMAN'              // Level 10 - 役員・経営層
+  | 'EXECUTIVE_SECRETARY'   // Level 9 - 部長・本部長級
+  | 'HR_DIRECTOR'           // Level 8 - 人財統括本部 統括管理部門長
+  | 'CAREER_SUPPORT_HEAD'   // Level 7 - 人財統括本部 各部門長
+  | 'CAREER_SUPPORT_STAFF'  // Level 6 - 人財統括本部 キャリア支援部門員（面談実施者）
+  | 'HR_DEPARTMENT_HEAD'    // Level 5 - 人財統括本部 戦略企画・統括管理部門（面談予約窓口）
+  | 'FACILITY_HEAD'         // Level 4 - 課長
+  | 'DEPARTMENT_HEAD'       // Level 3 - 係長・マネージャー
+  | 'SUPERVISOR'            // Level 2 - チーフ・主任
+  | 'STAFF';                // Level 1 - 一般職員
 
 // Hierarchical user interface extending base User
 export interface HierarchicalUser extends User {

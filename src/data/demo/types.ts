@@ -8,15 +8,17 @@ export interface DemoUser extends HierarchicalUser {
   stakeholderCategory: StakeholderCategory;
 }
 
-// Permission levels and account types:
-// 1: STAFF - Entry-level employee
-// 2: SUPERVISOR - Senior employee/Supervisor
-// 3: DEPARTMENT_HEAD - Department head
-// 4: FACILITY_HEAD - Facility head
-// 5: HR_DEPARTMENT_HEAD - HR department head
-// 6: HR_DIRECTOR - HR director
-// 7: EXECUTIVE_SECRETARY - Executive secretary
-// 8: CHAIRMAN - Chairman/Executive
+// 10-level permission system with interview booking functionality:
+// 1: STAFF - 一般職員
+// 2: SUPERVISOR - チーフ・主任
+// 3: DEPARTMENT_HEAD - 係長・マネージャー
+// 4: FACILITY_HEAD - 課長
+// 5: HR_DEPARTMENT_HEAD - 人財統括本部 戦略企画・統括管理部門（面談予約窓口）
+// 6: CAREER_SUPPORT_STAFF - 人財統括本部 キャリア支援部門員（面談実施者）
+// 7: CAREER_SUPPORT_HEAD - 人財統括本部 各部門長
+// 8: HR_DIRECTOR - 人財統括本部 統括管理部門長
+// 9: EXECUTIVE_SECRETARY - 部長・本部長級
+// 10: CHAIRMAN - 役員・経営層
 
 // Account type mapping
 export const ACCOUNT_TYPE_MAPPING: Record<number, AccountType> = {
@@ -25,9 +27,11 @@ export const ACCOUNT_TYPE_MAPPING: Record<number, AccountType> = {
   3: 'DEPARTMENT_HEAD',
   4: 'FACILITY_HEAD',
   5: 'HR_DEPARTMENT_HEAD',
-  6: 'HR_DIRECTOR',
-  7: 'EXECUTIVE_SECRETARY',
-  8: 'CHAIRMAN'
+  6: 'CAREER_SUPPORT_STAFF',
+  7: 'CAREER_SUPPORT_HEAD',
+  8: 'HR_DIRECTOR',
+  9: 'EXECUTIVE_SECRETARY',
+  10: 'CHAIRMAN'
 };
 
 // Budget approval limits (in JPY)
@@ -37,7 +41,9 @@ export const BUDGET_APPROVAL_LIMITS: Record<AccountType, number | null> = {
   'DEPARTMENT_HEAD': 500000,
   'FACILITY_HEAD': 1000000,
   'HR_DEPARTMENT_HEAD': 2000000,
-  'HR_DIRECTOR': 5000000,
-  'EXECUTIVE_SECRETARY': 10000000,
+  'CAREER_SUPPORT_STAFF': 3000000,
+  'CAREER_SUPPORT_HEAD': 5000000,
+  'HR_DIRECTOR': 8000000,
+  'EXECUTIVE_SECRETARY': 15000000,
   'CHAIRMAN': null // Unlimited
 };

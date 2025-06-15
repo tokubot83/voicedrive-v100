@@ -100,6 +100,77 @@ const generateSampleComments = (postId: string, count: number = 2): Comment[] =>
 
 // Seasonal posts based on Japanese fiscal year and seasons
 export const demoPosts: Post[] = [
+  // 面談予約システム関連の提案
+  {
+    id: 'post-interview-improvement',
+    type: 'communication',
+    proposalType: 'operational' as ProposalType,
+    content: '人財統括本部の面談予約システムが運用開始されました。キャリア相談や業務改善について、気軽にご相談ください。予約は13:40-16:50の時間帯で30分単位で可能です。面談を通じて、職場環境の改善や個人のスキルアップについて一緒に考えていきましょう。',
+    author: demoUsers[10], // 加藤真理 (キャリア支援部門員)
+    anonymityLevel: 'real_name',
+    priority: 'high',
+    timestamp: new Date('2025-01-12T09:00:00'),
+    votes: {
+      'strongly-oppose': 0,
+      'oppose': 1,
+      'neutral': 8,
+      'support': 15,
+      'strongly-support': 12,
+    },
+    comments: [
+      {
+        id: 'comment-interview-1',
+        postId: 'post-interview-improvement',
+        content: '面談予約システム、早速利用させていただきました。オンライン予約が便利で、時間も選びやすくて助かります。',
+        author: demoUsers[1],
+        privacyLevel: 'partial' as CommentPrivacyLevel,
+        anonymityLevel: 'department' as AnonymityLevel,
+        timestamp: new Date('2025-01-12T14:30:00'),
+        visibleInfo: {
+          facility: demoUsers[1].department,
+          position: demoUsers[1].position,
+          experienceYears: 2,
+          isManagement: false
+        }
+      },
+      {
+        id: 'comment-interview-2',
+        postId: 'post-interview-improvement',
+        content: '人財統括本部の皆さんが親身に相談に乗ってくださり、キャリアプランが明確になりました。定期的に利用したいと思います。',
+        author: demoUsers[3],
+        privacyLevel: 'full' as CommentPrivacyLevel,
+        anonymityLevel: 'real' as AnonymityLevel,
+        timestamp: new Date('2025-01-13T10:15:00'),
+        visibleInfo: {
+          facility: demoUsers[3].department,
+          position: demoUsers[3].position,
+          experienceYears: 4,
+          isManagement: false
+        }
+      }
+    ]
+  },
+  
+  // 面談フィードバック改善提案
+  {
+    id: 'post-interview-feedback',
+    type: 'improvement',
+    proposalType: 'communication' as ProposalType,
+    content: '面談実施後のフォローアップシステムの改善を提案します。面談で決めたアクションプランの進捗確認や、必要に応じた追加サポートを体系化することで、より効果的なキャリア支援が可能になると考えます。',
+    author: demoUsers[16], // 田村智恵 (キャリア支援部門長)
+    anonymityLevel: 'real_name',
+    priority: 'medium',
+    timestamp: new Date('2025-01-11T16:00:00'),
+    votes: {
+      'strongly-oppose': 0,
+      'oppose': 0,
+      'neutral': 4,
+      'support': 18,
+      'strongly-support': 8,
+    },
+    comments: generateSampleComments('post-interview-feedback', 3),
+  },
+
   // 社内会議効率化の提案
   {
     id: 'post-voting-system-test',
