@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bell, BellRing, Check, X, Clock, AlertTriangle } from 'lucide-react';
 import { NotificationService, ActionableNotification, NotificationStats } from '../../services/NotificationService';
 import { useAuth } from '../../hooks/useAuth';
@@ -18,6 +19,7 @@ interface NotificationBellProps {
 
 export const NotificationBell: React.FC<NotificationBellProps> = ({ className = '' }) => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
   const [notifications, setNotifications] = useState<ActionableNotification[]>([]);
   const [stats, setStats] = useState<NotificationStats | null>(null);
@@ -72,6 +74,16 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
 
   const handleAction = async (notification: ActionableNotification, actionId: string) => {
     if (!currentUser) return;
+
+    // プロジェクト詳細ページへのナビゲーション処理
+    const action = notification.actions?.find(a => a.id === actionId);
+    if (action?.action === 'view' || action?.action === 'view_project') {
+      if (notification.metadata?.projectId) {
+        navigate(`/project/${notification.metadata.projectId}`);
+        setShowDropdown(false);
+        return;
+      }
+    }
 
     const result = await notificationService.executeNotificationAction(
       currentUser.id,

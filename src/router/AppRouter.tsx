@@ -11,6 +11,7 @@ import HomePage from '../pages/HomePage';
 import ProfilePage from '../pages/ProfilePage';
 import ProjectListPage from '../pages/ProjectListPage';
 import EnhancedProjectListPage from '../pages/EnhancedProjectListPage';
+import { ProjectDetailPage } from '../pages/ProjectDetailPage';
 import TeamManagementPage from '../pages/TeamManagementPage';
 import DepartmentOverviewPage from '../pages/DepartmentOverviewPage';
 import BudgetPage from '../pages/BudgetPage';
@@ -91,6 +92,7 @@ const AppRouter: React.FC = () => {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="projects" element={<EnhancedProjectListPage />} />
         <Route path="projects-legacy" element={<ProjectListPage />} />
+        <Route path="project/:projectId" element={<ProjectDetailPage />} />
         
         {/* Role-based dashboard routes with exact level protection */}
         <Route path="dashboard">
