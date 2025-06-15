@@ -43,7 +43,7 @@ export const POST_CATEGORIES: Record<PostCategory, CategoryInfo> = {
   communication: {
     id: 'communication',
     name: 'コミュニケーション',
-    description: 'チーム連携・多職種連携・患者様対応の改善提案',
+    description: '職場環境・福利厚生・人間関係の改善提案',
     mainTab: 'improvement',
     icon: '👥',
     requiresCarefulConsideration: false
@@ -174,7 +174,7 @@ export const POST_CATEGORIES: Record<PostCategory, CategoryInfo> = {
 export const CATEGORY_GROUPS = {
   improvement: {
     name: '改善提案',
-    categories: ['business_improvement', 'communication', 'innovation']
+    categories: ['business_improvement', 'communication', 'innovation'] // ①業務改善 ②コミュニケーション ③イノベーション
   },
   strategic: {
     name: '戦略提案（慎重検討）',

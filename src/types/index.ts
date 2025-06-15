@@ -8,8 +8,8 @@ export type UserRole = 'employee' | 'chief' | 'manager' | 'executive';
 // Stakeholder categories
 export type StakeholderCategory = 'frontline' | 'management' | 'veteran' | 'zGen';
 
-// Proposal types for improvement posts
-export type ProposalType = 'operational' | 'strategic' | 'innovation' | 'riskManagement' | 'communication';
+// Proposal types for improvement posts (医療・介護系法人向け)
+export type ProposalType = 'operational' | 'communication' | 'innovation';
 
 // Project levels for organization hierarchy
 export type ProjectLevel = 'DEPARTMENT' | 'FACILITY' | 'CORPORATE';

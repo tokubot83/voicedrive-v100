@@ -13,7 +13,7 @@ interface ComposeFormProps {
 const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   const [step, setStep] = useState(1);
   const [content, setContent] = useState('');
-  const [proposalType, setProposalType] = useState<ProposalType>('operational');
+  const [proposalType, setProposalType] = useState<ProposalType>('operational'); // ①業務改善を初期値
   const [priority, setPriority] = useState<Priority>('medium');
   const [anonymity, setAnonymity] = useState<AnonymityLevel>('real_name');
   const [currentProposalCount] = useState(7); // TODO: Get from actual data
