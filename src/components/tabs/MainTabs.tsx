@@ -1,22 +1,79 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainTab } from '../../types/tabs';
+import { useAuth } from '../../hooks/useAuth';
+import { usePermissions } from '../../hooks/usePermissions';
+import { NotificationService } from '../../services/NotificationService';
 
 interface MainTabsProps {
   activeTab: string;
   onTabChange: (tabId: string) => void;
 }
 
-// メインタブの定義
-export const mainTabs: MainTab[] = [
+// メインタブの定義（基本タブ）
+const baseTabs: MainTab[] = [
   { id: 'home', label: 'ホーム', icon: '🏠', hasSubFilters: false },
   { id: 'improvement', label: '改善提案', icon: '💡', hasSubFilters: true },
   { id: 'community', label: 'フリースペース', icon: '💬', hasSubFilters: true },
   { id: 'whistleblowing', label: '公益通報', icon: '🚨', hasSubFilters: true }
 ];
 
+// 権限者向け専用タブ
+const authorityTab: MainTab = {
+  id: 'approvals',
+  label: '承認・対応',
+  icon: '📋',
+  hasSubFilters: true,
+  requiresPermission: true
+};
+
 export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) => {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const { hasAnyPermission } = usePermissions();
+  const notificationService = NotificationService.getInstance();
+  
+  // 権限を持っているかチェック
+  const hasApprovalPermissions = hasAnyPermission([
+    'APPROVAL_MANAGEMENT',
+    'EMERGENCY_AUTHORITY',
+    'WEIGHT_ADJUSTMENT',
+    'PROJECT_MANAGEMENT',
+    'MEMBER_SELECTION'
+  ]);
+  
+  // 動的にタブを生成
+  const mainTabs = React.useMemo(() => {
+    const tabs = [...baseTabs];
+    
+    // 権限者のみ承認・対応タブを表示
+    if (hasApprovalPermissions) {
+      tabs.push(authorityTab);
+    }
+    
+    return tabs;
+  }, [hasApprovalPermissions]);
+  
+  // 通知統計を取得
+  const [notificationStats, setNotificationStats] = React.useState<{ pending: number } | null>(null);
+  
+  React.useEffect(() => {
+    if (!currentUser) return;
+    
+    const updateStats = () => {
+      const stats = notificationService.getUserNotificationStats(currentUser.id);
+      setNotificationStats({ pending: stats.pending });
+    };
+    
+    updateStats();
+    const unsubscribe = notificationService.subscribeToNotifications((userId) => {
+      if (userId === currentUser.id) {
+        updateStats();
+      }
+    });
+    
+    return () => unsubscribe();
+  }, [currentUser]);
 
   const handleTabClick = (tabId: string) => {
     if (tabId === 'whistleblowing') {
@@ -25,6 +82,9 @@ export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) =>
     } else if (tabId === 'home') {
       // ホームページに遷移
       navigate('/');
+    } else if (tabId === 'approvals') {
+      // 承認・対応ページに遷移
+      navigate('/approvals');
     } else {
       // その他のタブはホームページのタブ切り替え
       navigate(`/?tab=${tabId}`);
@@ -50,7 +110,14 @@ export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) =>
             `}
           >
             <span className="text-lg">{tab.icon}</span>
-            <span className="hidden sm:inline font-medium">{tab.label}</span>
+            <span className="hidden sm:inline font-medium">
+              {tab.label}
+              {tab.id === 'approvals' && notificationStats?.pending && notificationStats.pending > 0 && (
+                <span className="ml-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                  {notificationStats.pending}
+                </span>
+              )}
+            </span>
             
             {/* アクティブインジケーター */}
             {activeTab === tab.id && (
@@ -70,3 +137,6 @@ export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) =>
     </div>
   );
 };
+
+// エクスポート用にmainTabsを生成（権限チェックなし版）
+export { baseTabs as mainTabs };

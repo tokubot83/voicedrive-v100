@@ -3,6 +3,14 @@ import { ProjectWorkflow, WorkflowStage } from './ApprovalWorkflowEngine';
 
 export type NotificationChannel = 'IN_APP' | 'EMAIL' | 'SLACK' | 'SMS';
 export type NotificationUrgency = 'NORMAL' | 'HIGH' | 'URGENT';
+export type NotificationType = 
+  | 'APPROVAL_REQUIRED' 
+  | 'MEMBER_SELECTION' 
+  | 'VOTE_REQUIRED' 
+  | 'EMERGENCY_ACTION'
+  | 'PROJECT_UPDATE'
+  | 'DEADLINE_REMINDER'
+  | 'ESCALATION';
 
 export interface NotificationRecipient {
   id: string;
@@ -29,8 +37,45 @@ export interface SimpleNotificationData {
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 }
 
+export interface ActionableNotification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  createdAt: Date;
+  dueDate?: Date;
+  isRead: boolean;
+  isActioned: boolean;
+  actions?: NotificationAction[];
+  metadata?: {
+    projectId?: string;
+    postId?: string;
+    workflowStage?: string;
+    urgencyLevel?: number;
+  };
+}
+
+export interface NotificationAction {
+  id: string;
+  label: string;
+  type: 'primary' | 'secondary' | 'danger';
+  action: string; // 'approve' | 'reject' | 'vote' | 'participate' | 'decline' | 'view'
+  requiresComment?: boolean;
+}
+
+export interface NotificationStats {
+  total: number;
+  unread: number;
+  pending: number;
+  overdue: number;
+  byType: Record<NotificationType, number>;
+}
+
 export class NotificationService {
   private static instance: NotificationService;
+  private notifications: Map<string, ActionableNotification[]> = new Map();
+  private notificationListeners: Set<(userId: string) => void> = new Set();
 
   private constructor() {}
 
@@ -39,6 +84,171 @@ export class NotificationService {
       NotificationService.instance = new NotificationService();
     }
     return NotificationService.instance;
+  }
+
+  // 通知リスナー管理
+  subscribeToNotifications(callback: (userId: string) => void): () => void {
+    this.notificationListeners.add(callback);
+    return () => this.notificationListeners.delete(callback);
+  }
+
+  private notifyListeners(userId: string): void {
+    this.notificationListeners.forEach(callback => callback(userId));
+  }
+
+  // アクション可能な通知を作成
+  async createActionableNotification(
+    userId: string,
+    type: NotificationType,
+    data: {
+      title: string;
+      message: string;
+      dueDate?: Date;
+      actions?: NotificationAction[];
+      metadata?: ActionableNotification['metadata'];
+    }
+  ): Promise<ActionableNotification> {
+    const notification: ActionableNotification = {
+      id: `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      userId,
+      type,
+      title: data.title,
+      message: data.message,
+      createdAt: new Date(),
+      dueDate: data.dueDate,
+      isRead: false,
+      isActioned: false,
+      actions: data.actions,
+      metadata: data.metadata
+    };
+
+    // ユーザーの通知リストに追加
+    if (!this.notifications.has(userId)) {
+      this.notifications.set(userId, []);
+    }
+    this.notifications.get(userId)!.push(notification);
+
+    // リスナーに通知
+    this.notifyListeners(userId);
+
+    // 既存の通知システムと統合
+    await this.sendNotification({
+      to: { id: userId, name: userId },
+      template: type,
+      data: notification,
+      urgency: this.determineUrgency(type, data.dueDate),
+      channels: this.selectChannels(this.determineUrgency(type, data.dueDate))
+    });
+
+    return notification;
+  }
+
+  // ユーザーの通知を取得
+  getUserNotifications(userId: string, filter?: {
+    type?: NotificationType;
+    unreadOnly?: boolean;
+    pendingOnly?: boolean;
+  }): ActionableNotification[] {
+    const userNotifications = this.notifications.get(userId) || [];
+    
+    return userNotifications.filter(notification => {
+      if (filter?.type && notification.type !== filter.type) return false;
+      if (filter?.unreadOnly && notification.isRead) return false;
+      if (filter?.pendingOnly && notification.isActioned) return false;
+      return true;
+    }).sort((a, b) => {
+      // 緊急度と期限でソート
+      if (a.dueDate && b.dueDate) {
+        return a.dueDate.getTime() - b.dueDate.getTime();
+      }
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
+  }
+
+  // 通知統計を取得
+  getUserNotificationStats(userId: string): NotificationStats {
+    const userNotifications = this.notifications.get(userId) || [];
+    const now = new Date();
+
+    const stats: NotificationStats = {
+      total: userNotifications.length,
+      unread: userNotifications.filter(n => !n.isRead).length,
+      pending: userNotifications.filter(n => !n.isActioned).length,
+      overdue: userNotifications.filter(n => 
+        n.dueDate && n.dueDate < now && !n.isActioned
+      ).length,
+      byType: {} as Record<NotificationType, number>
+    };
+
+    // タイプ別集計
+    const types: NotificationType[] = [
+      'APPROVAL_REQUIRED', 'MEMBER_SELECTION', 'VOTE_REQUIRED',
+      'EMERGENCY_ACTION', 'PROJECT_UPDATE', 'DEADLINE_REMINDER', 'ESCALATION'
+    ];
+    
+    types.forEach(type => {
+      stats.byType[type] = userNotifications.filter(n => n.type === type && !n.isActioned).length;
+    });
+
+    return stats;
+  }
+
+  // 通知を既読にする
+  markAsRead(userId: string, notificationId: string): void {
+    const userNotifications = this.notifications.get(userId);
+    if (userNotifications) {
+      const notification = userNotifications.find(n => n.id === notificationId);
+      if (notification) {
+        notification.isRead = true;
+        this.notifyListeners(userId);
+      }
+    }
+  }
+
+  // 通知に対してアクションを実行
+  async executeNotificationAction(
+    userId: string,
+    notificationId: string,
+    actionId: string,
+    comment?: string
+  ): Promise<{ success: boolean; message: string }> {
+    const userNotifications = this.notifications.get(userId);
+    if (!userNotifications) {
+      return { success: false, message: '通知が見つかりません' };
+    }
+
+    const notification = userNotifications.find(n => n.id === notificationId);
+    if (!notification) {
+      return { success: false, message: '通知が見つかりません' };
+    }
+
+    const action = notification.actions?.find(a => a.id === actionId);
+    if (!action) {
+      return { success: false, message: 'アクションが見つかりません' };
+    }
+
+    if (action.requiresComment && !comment) {
+      return { success: false, message: 'コメントが必要です' };
+    }
+
+    // アクションを実行（実際の実装では各アクションタイプに応じた処理を行う）
+    notification.isActioned = true;
+    this.notifyListeners(userId);
+
+    return { success: true, message: 'アクションが実行されました' };
+  }
+
+  private determineUrgency(type: NotificationType, dueDate?: Date): NotificationUrgency {
+    if (type === 'EMERGENCY_ACTION') return 'URGENT';
+    if (type === 'ESCALATION') return 'URGENT';
+    
+    if (dueDate) {
+      const hoursUntilDue = (dueDate.getTime() - Date.now()) / (1000 * 60 * 60);
+      if (hoursUntilDue < 2) return 'URGENT';
+      if (hoursUntilDue < 24) return 'HIGH';
+    }
+    
+    return 'NORMAL';
   }
   async sendWorkflowNotification(
     workflow: ProjectWorkflow, 

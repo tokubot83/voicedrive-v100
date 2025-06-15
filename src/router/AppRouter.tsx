@@ -65,6 +65,9 @@ import ExecutiveDashboard from '../components/analytics/ExecutiveDashboard';
 // Whistleblowing
 import WhistleblowingPage from '../pages/WhistleblowingPage';
 
+// Approvals & Notifications
+import { ApprovalsPage } from '../pages/ApprovalsPage';
+
 // Retirement Processing
 import RetirementProcessingPage from '../pages/RetirementProcessingPage';
 import Step1AccountDeactivation from '../components/retirement/Step1AccountDeactivation';
@@ -347,6 +350,13 @@ const AppRouter: React.FC = () => {
         
         {/* Whistleblowing System - All users can access (internal permission handling) */}
         <Route path="whistleblowing" element={<WhistleblowingPage />} />
+        
+        {/* Approvals & Notifications - Permission-based access */}
+        <Route path="approvals" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
+            <ApprovalsPage />
+          </ProtectedRoute>
+        } />
         
         {/* Common pages */}
         <Route path="notifications" element={<NotificationsPage />} />
