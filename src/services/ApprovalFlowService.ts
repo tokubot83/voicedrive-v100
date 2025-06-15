@@ -16,7 +16,7 @@ export class ApprovalFlowService {
   private approvalRequests: Map<string, ApprovalRequest> = new Map();
   private authorityService: AuthorityManagementService;
 
-  // Budget tier configurations with auto-approval and manual approval thresholds
+  // Budget tier configurations with auto-approval and manual approval thresholds（10段階システム対応）
   private readonly APPROVAL_TIERS: ApprovalFlowConfig[] = [
     {
       budgetTier: { min: 0, max: 500000 },
@@ -39,7 +39,7 @@ export class ApprovalFlowService {
       budgetTier: { min: 2000001, max: 5000000 },
       requiredApprovers: [
         { level: PermissionLevel.LEVEL_4, role: 'Facility Head', mandatory: true },
-        { level: PermissionLevel.LEVEL_5, role: 'HR Department Head', mandatory: true }
+        { level: PermissionLevel.LEVEL_7, role: 'HR Department Head', mandatory: true }
       ],
       escalationThreshold: 36,
       deadlineHours: 72
@@ -47,8 +47,8 @@ export class ApprovalFlowService {
     {
       budgetTier: { min: 5000001, max: 10000000 },
       requiredApprovers: [
-        { level: PermissionLevel.LEVEL_5, role: 'HR Department Head', mandatory: true },
-        { level: PermissionLevel.LEVEL_6, role: 'HR Director', mandatory: true }
+        { level: PermissionLevel.LEVEL_7, role: 'HR Department Head', mandatory: true },
+        { level: PermissionLevel.LEVEL_8, role: 'HR General Manager', mandatory: true }
       ],
       escalationThreshold: 24,
       deadlineHours: 72
@@ -56,8 +56,8 @@ export class ApprovalFlowService {
     {
       budgetTier: { min: 10000001, max: 20000000 },
       requiredApprovers: [
-        { level: PermissionLevel.LEVEL_6, role: 'HR Director', mandatory: true },
-        { level: PermissionLevel.LEVEL_7, role: 'Executive Secretary', mandatory: true }
+        { level: PermissionLevel.LEVEL_8, role: 'HR General Manager', mandatory: true },
+        { level: PermissionLevel.LEVEL_9, role: 'Director', mandatory: true }
       ],
       escalationThreshold: 12,
       deadlineHours: 72
@@ -65,8 +65,8 @@ export class ApprovalFlowService {
     {
       budgetTier: { min: 20000001, max: Number.MAX_SAFE_INTEGER },
       requiredApprovers: [
-        { level: PermissionLevel.LEVEL_7, role: 'Executive Secretary', mandatory: true },
-        { level: PermissionLevel.LEVEL_8, role: 'Chairman', mandatory: true }
+        { level: PermissionLevel.LEVEL_9, role: 'Director', mandatory: true },
+        { level: PermissionLevel.LEVEL_10, role: 'Chairman', mandatory: true }
       ],
       escalationThreshold: 12,
       deadlineHours: 72

@@ -97,9 +97,9 @@ const EmergencyAuthorityPanel: React.FC = () => {
     if (!currentUser) return false;
     
     const requiredLevels: Record<EmergencyLevel, PermissionLevel> = {
-      FACILITY: PermissionLevel.LEVEL_4,
-      CORPORATE: PermissionLevel.LEVEL_7,
-      SYSTEM: PermissionLevel.LEVEL_8
+      FACILITY: PermissionLevel.LEVEL_7,  // 人財統括本部 各部門長
+      CORPORATE: PermissionLevel.LEVEL_9, // 部長・本部長級
+      SYSTEM: PermissionLevel.LEVEL_10    // 役員・経営層
     };
 
     return currentUser.permissionLevel >= requiredLevels[level];

@@ -27,11 +27,14 @@ export class PermissionService {
     // 実際の実装では、APIやデータベースから取得
     // デモ用の仮実装
     const userLevelMap: Record<string, PermissionLevel> = {
-      'user-001': PermissionLevel.LEVEL_1,
-      'user-002': PermissionLevel.LEVEL_3,
-      'user-003': PermissionLevel.LEVEL_5,
-      'user-004': PermissionLevel.LEVEL_7,
-      'user-005': PermissionLevel.LEVEL_8
+      'user-001': PermissionLevel.LEVEL_1,  // 一般職員
+      'user-002': PermissionLevel.LEVEL_3,  // 係長・マネージャー
+      'user-003': PermissionLevel.LEVEL_5,  // 人財統括本部 戦略企画・統括管理部門
+      'user-004': PermissionLevel.LEVEL_6,  // 人財統括本部 キャリア支援部門員
+      'user-005': PermissionLevel.LEVEL_7,  // 人財統括本部 各部門長
+      'user-006': PermissionLevel.LEVEL_8,  // 人財統括本部 統括管理部門長
+      'user-007': PermissionLevel.LEVEL_9,  // 部長・本部長級
+      'user-008': PermissionLevel.LEVEL_10  // 役員・経営層
     };
     
     return userLevelMap[userId] || PermissionLevel.LEVEL_1;
@@ -122,14 +125,14 @@ export class PermissionService {
     return managerLevel >= subordinateLevel + 2;
   }
   
-  // プロジェクト承認権限の階層チェック
+  // プロジェクト承認権限の階層チェック（10段階システム対応）
   getApprovalHierarchy(projectScope: ProjectScope): PermissionLevel[] {
     const approvalLevels: Record<ProjectScope, PermissionLevel[]> = {
       [ProjectScope.TEAM]: [PermissionLevel.LEVEL_2, PermissionLevel.LEVEL_3],
       [ProjectScope.DEPARTMENT]: [PermissionLevel.LEVEL_3, PermissionLevel.LEVEL_4],
-      [ProjectScope.FACILITY]: [PermissionLevel.LEVEL_5, PermissionLevel.LEVEL_6, PermissionLevel.LEVEL_7],
-      [ProjectScope.ORGANIZATION]: [PermissionLevel.LEVEL_7, PermissionLevel.LEVEL_8],
-      [ProjectScope.STRATEGIC]: [PermissionLevel.LEVEL_8]
+      [ProjectScope.FACILITY]: [PermissionLevel.LEVEL_4, PermissionLevel.LEVEL_7, PermissionLevel.LEVEL_8, PermissionLevel.LEVEL_9],
+      [ProjectScope.ORGANIZATION]: [PermissionLevel.LEVEL_7, PermissionLevel.LEVEL_8, PermissionLevel.LEVEL_9, PermissionLevel.LEVEL_10],
+      [ProjectScope.STRATEGIC]: [PermissionLevel.LEVEL_9, PermissionLevel.LEVEL_10]
     };
     
     return approvalLevels[projectScope] || [];
@@ -145,7 +148,7 @@ export class PermissionService {
   // 戦略的決定権限のチェック
   hasStrategicDecisionAuthority(userId: string): boolean {
     const userLevel = this.getUserPermissionLevel(userId);
-    // レベル7以上が戦略的決定権を持つ
-    return userLevel >= PermissionLevel.LEVEL_7;
+    // レベル9以上が戦略的決定権を持つ（部長・本部長級以上）
+    return userLevel >= PermissionLevel.LEVEL_9;
   }
 }

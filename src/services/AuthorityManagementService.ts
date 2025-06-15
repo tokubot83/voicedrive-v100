@@ -19,31 +19,31 @@ export class AuthorityManagementService {
   private notifications: Map<string, AuthorityNotification[]> = new Map();
   private emergencyActions: Map<string, EmergencyAction> = new Map();
 
-  // Emergency authority configuration
+  // Emergency authority configuration（10段階システム対応）
   private readonly EMERGENCY_AUTHORITIES: Record<EmergencyLevel, EmergencyAuthority> = {
     FACILITY: {
       level: 'FACILITY',
-      requiredPermission: PermissionLevel.LEVEL_4,
+      requiredPermission: PermissionLevel.LEVEL_7, // 人財統括本部 各部門長
       scope: ['facility_operations', 'local_resources', 'emergency_staffing'],
       reportingRequirements: {
-        reportTo: [PermissionLevel.LEVEL_6, PermissionLevel.LEVEL_7],
+        reportTo: [PermissionLevel.LEVEL_8, PermissionLevel.LEVEL_9], // 統括管理部門長・部長本部長級
         deadlineHours: 24,
         requiredDetails: ['situation', 'actions_taken', 'resources_used', 'outcomes']
       }
     },
     CORPORATE: {
       level: 'CORPORATE',
-      requiredPermission: PermissionLevel.LEVEL_7,
+      requiredPermission: PermissionLevel.LEVEL_9, // 部長・本部長級
       scope: ['cross_facility', 'budget_reallocation', 'policy_override'],
       reportingRequirements: {
-        reportTo: [PermissionLevel.LEVEL_8],
+        reportTo: [PermissionLevel.LEVEL_10], // 役員・経営層
         deadlineHours: 12,
         requiredDetails: ['crisis_description', 'decision_rationale', 'impact_assessment', 'mitigation_plan']
       }
     },
     SYSTEM: {
       level: 'SYSTEM',
-      requiredPermission: PermissionLevel.LEVEL_8,
+      requiredPermission: PermissionLevel.LEVEL_10, // 役員・経営層
       scope: ['system_wide', 'all_resources', 'executive_override'],
       reportingRequirements: {
         reportTo: [], // Board level reporting
@@ -82,7 +82,7 @@ export class AuthorityManagementService {
         return this.checkCrossDepartmentReviewAuthority(user, context);
       
       case 'SYSTEM_OVERRIDE':
-        return user.permissionLevel >= PermissionLevel.LEVEL_8;
+        return user.permissionLevel >= PermissionLevel.LEVEL_10; // 役員・経営層のみ
       
       default:
         return false;
@@ -291,12 +291,17 @@ export class AuthorityManagementService {
   // Authority checking methods
   private checkWeightAdjustmentAuthority(user: HierarchicalUser, context: any): boolean {
     // Department heads can adjust weights in their specialties
-    if (user.permissionLevel >= PermissionLevel.LEVEL_3 && user.permissionLevel <= PermissionLevel.LEVEL_5) {
+    if (user.permissionLevel >= PermissionLevel.LEVEL_3 && user.permissionLevel <= PermissionLevel.LEVEL_4) {
       return context && context.departmentSpecialty === user.department;
     }
     
-    // HR Director supervises all weight adjustments
-    if (user.permissionLevel === PermissionLevel.LEVEL_6) {
+    // HR Admin and Career Support can adjust within their scope
+    if (user.permissionLevel >= PermissionLevel.LEVEL_5 && user.permissionLevel <= PermissionLevel.LEVEL_6) {
+      return context && context.departmentSpecialty === user.department;
+    }
+    
+    // HR Department heads supervise all weight adjustments
+    if (user.permissionLevel >= PermissionLevel.LEVEL_7) {
       return true;
     }
     

@@ -68,7 +68,7 @@ const AuthorityDashboard: React.FC = () => {
     });
   };
 
-  // Check if user has authority management access
+  // Check if user has authority management access（10段階システム対応）
   if (!currentUser || currentUser.permissionLevel < PermissionLevel.LEVEL_3) {
     return (
       <div className="bg-gray-900 rounded-lg p-6 text-center">
@@ -82,9 +82,9 @@ const AuthorityDashboard: React.FC = () => {
     { id: 'overview', label: 'Overview', icon: Shield },
     { id: 'weights', label: 'Weight Adjustments', icon: Scale, minLevel: PermissionLevel.LEVEL_3 },
     { id: 'approvals', label: 'Approval Flow', icon: Clock, minLevel: PermissionLevel.LEVEL_2 },
-    { id: 'emergency', label: 'Emergency Authority', icon: AlertTriangle, minLevel: PermissionLevel.LEVEL_4 },
-    { id: 'audit', label: 'Audit Logs', icon: FileText, minLevel: PermissionLevel.LEVEL_5 },
-    { id: 'grievance', label: 'Grievances', icon: Users, minLevel: PermissionLevel.LEVEL_6 }
+    { id: 'emergency', label: 'Emergency Authority', icon: AlertTriangle, minLevel: PermissionLevel.LEVEL_7 }, // HR部門長以上
+    { id: 'audit', label: 'Audit Logs', icon: FileText, minLevel: PermissionLevel.LEVEL_5 }, // HR管理以上
+    { id: 'grievance', label: 'Grievances', icon: Users, minLevel: PermissionLevel.LEVEL_6 } // キャリア支援以上
   ];
 
   const visibleTabs = tabs.filter(tab => 
@@ -201,7 +201,7 @@ const AuthorityDashboard: React.FC = () => {
             <div className="bg-gray-800 rounded-lg p-4">
               <h3 className="text-sm font-medium text-gray-300 mb-3">Quick Actions</h3>
               <div className="space-y-2">
-                {currentUser.permissionLevel >= PermissionLevel.LEVEL_4 && (
+                {currentUser.permissionLevel >= PermissionLevel.LEVEL_7 && (
                   <button
                     onClick={() => setActiveTab('emergency')}
                     className="w-full text-left px-3 py-2 bg-red-900/20 text-red-400 rounded hover:bg-red-900/30 transition-colors text-sm"
@@ -217,12 +217,14 @@ const AuthorityDashboard: React.FC = () => {
                     Adjust Weights
                   </button>
                 )}
-                <button
-                  onClick={() => setActiveTab('audit')}
-                  className="w-full text-left px-3 py-2 bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors text-sm"
-                >
-                  View Audit Logs
-                </button>
+                {currentUser.permissionLevel >= PermissionLevel.LEVEL_5 && (
+                  <button
+                    onClick={() => setActiveTab('audit')}
+                    className="w-full text-left px-3 py-2 bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors text-sm"
+                  >
+                    View Audit Logs
+                  </button>
+                )}
               </div>
             </div>
           </div>
