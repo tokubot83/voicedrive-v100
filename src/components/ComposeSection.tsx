@@ -40,7 +40,7 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
     },
     {
       type: 'interview' as any, // 面談予約用の特別なタイプ
-      icon: '💼',
+      icon: '🗣️',
       title: '面談予約',
       description: '人財統括本部との 個別面談を予約',
       features: ['キャリア相談', '悩み解決', '能力開発'],

@@ -34,7 +34,7 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
     // 基本機能（全レベルでアクセス可能）
     { id: 'home', path: '/', icon: '🏠', label: 'ホーム', section: 'main' },
     { id: 'profile', path: '/profile', icon: '👤', label: 'プロフィール', section: 'main' },
-    { id: 'interview-booking', path: '/interview-booking', icon: '💬', label: '面談情報', section: 'main' },
+    { id: 'interview-booking', path: '/interview-booking', icon: '🗣️', label: '面談情報', section: 'main' },
     { id: 'my-projects', path: '/my-projects', icon: '⭐', label: 'マイプロジェクト', section: 'main' },
     { id: 'projects', path: '/projects', icon: '📁', label: '全プロジェクト', section: 'main' },
     
@@ -62,7 +62,7 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
     
     // HR関連機能（レベル5以上）
     { id: 'hr_dashboard', path: '/hr-dashboard', icon: '👨‍💼', label: '人事ダッシュボード', section: 'hr', menuKey: 'hr_dashboard' },
-    { id: 'interview_management', path: '/interview-management', icon: '💬', label: '面談管理', section: 'hr', requiredLevel: 5 },
+    { id: 'interview_management', path: '/interview-management', icon: '📅', label: '面談管理', section: 'hr', requiredLevel: 5 },
     { id: 'policy_management', path: '/policy', icon: '📑', label: 'ポリシー管理', section: 'hr', menuKey: 'policy_management' },
     { id: 'talent_analytics', path: '/talent', icon: '🔍', label: 'タレント分析', section: 'hr', menuKey: 'talent_analytics' },
     
