@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MessageCircle, Clock, Users, BarChart3 } from 'lucide-react';
 import { Poll, PollOption, PollVote } from '../types/poll';
 import { Post } from '../types';
+import PollShareModal from './PollShareModal';
 
 interface FreespacePostProps {
   post: Post;
@@ -13,6 +14,7 @@ interface FreespacePostProps {
 
 const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePostProps) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(userVote?.optionId || null);
+  const [showShareModal, setShowShareModal] = useState(false);
   const hasVoted = !!userVote;
 
   const handleVote = (optionId: string) => {
@@ -170,12 +172,25 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
           </button>
         </div>
         {poll && (
-          <button className="flex items-center space-x-2 text-gray-500 hover:text-purple-600 transition-colors">
+          <button 
+            onClick={() => setShowShareModal(true)}
+            className="flex items-center space-x-2 text-gray-500 hover:text-purple-600 transition-colors"
+          >
             <BarChart3 className="w-5 h-5" />
             <span className="text-sm">結果を共有</span>
           </button>
         )}
       </div>
+
+      {/* 共有モーダル */}
+      {poll && (
+        <PollShareModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          post={post}
+          poll={poll}
+        />
+      )}
     </div>
   );
 };
