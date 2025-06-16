@@ -4,6 +4,8 @@ import Post from './Post';
 import { Post as PostType, VoteOption, Comment } from '../types';
 import { demoPosts } from '../data/demo/posts';
 import { useDemoMode } from './demo/DemoModeController';
+import { FreespaceExpirationService } from '../services/FreespaceExpirationService';
+import { useAuth } from '../hooks/useAuth';
 
 interface TimelineProps {
   activeTab?: string;
@@ -12,6 +14,7 @@ interface TimelineProps {
 
 const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
   const { isDemoMode, currentUser } = useDemoMode();
+  const { user } = useAuth();
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   
   // Debug logging
@@ -206,8 +209,18 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
       });
     }
     
+    // Apply expiration filtering for freespace posts
+    const currentUserId = currentUser?.id || user?.id || '';
+    const userPermissionLevel = user?.permissionLevel || currentUser?.permissionLevel || 1;
+    
+    filtered = FreespaceExpirationService.filterVisiblePosts(
+      filtered, 
+      userPermissionLevel, 
+      currentUserId
+    );
+    
     return filtered;
-  }, [posts, activeTab, filterByUser]);
+  }, [posts, activeTab, filterByUser, currentUser, user]);
 
   console.log('Timeline rendering posts:', filteredPosts.length);
   

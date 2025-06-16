@@ -8,6 +8,7 @@ import { proposalTypes } from '../config/proposalTypes';
 import FreespaceOptions, { FreespaceCategory } from './FreespaceOptions';
 import { CreatePollData } from '../types/poll';
 import { CreateEventData } from '../types/event';
+import { FreespaceExpirationService } from '../services/FreespaceExpirationService';
 
 interface ComposeFormProps {
   selectedType: PostType;
@@ -27,6 +28,11 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   const [freespaceScope, setFreespaceScope] = useState<StakeholderGroup>(StakeholderGroup.SAME_DEPARTMENT);
   const [pollData, setPollData] = useState<CreatePollData | null>(null);
   const [eventData, setEventData] = useState<CreateEventData | null>(null);
+  
+  // 有効期限設定用の状態
+  const [useCustomExpiration, setUseCustomExpiration] = useState(false);
+  const [customExpirationDate, setCustomExpirationDate] = useState('');
+  const [customExpirationTime, setCustomExpirationTime] = useState('23:59');
   
   const { 
     currentSeason, 
@@ -84,6 +90,23 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       return;
     }
     
+    // フリースペース投稿の場合、有効期限を計算
+    let expirationDate: Date | undefined;
+    if (selectedType === 'community') {
+      if (useCustomExpiration && customExpirationDate) {
+        const customDate = new Date(`${customExpirationDate}T${customExpirationTime}`);
+        expirationDate = customDate;
+      } else {
+        const categoryKey = freespaceCategory === FreespaceCategory.IDEA_SHARING ? 'idea_sharing' :
+                           freespaceCategory === FreespaceCategory.CASUAL_DISCUSSION ? 'casual_discussion' :
+                           'event_planning';
+        expirationDate = FreespaceExpirationService.getDefaultExpirationDate(
+          categoryKey,
+          eventData?.proposedDates?.[0] ? new Date(eventData.proposedDates[0].date) : undefined
+        );
+      }
+    }
+    
     console.log('Submitting:', { 
       content, 
       priority, 
@@ -94,6 +117,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       freespaceScope: selectedType === 'community' ? freespaceScope : undefined,
       pollData: selectedType === 'community' ? pollData : undefined,
       eventData: selectedType === 'community' ? eventData : undefined,
+      expirationDate: selectedType === 'community' ? expirationDate : undefined,
       season: currentSeason 
     });
     alert('投稿が完了しました！');
@@ -303,6 +327,64 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
                 onCreatePoll={setPollData}
                 onCreateEvent={setEventData}
               />
+              
+              {/* 有効期限設定 */}
+              <div className="mt-6 p-4 bg-white/5 border border-gray-800/30 rounded-xl">
+                <h4 className="text-lg font-bold text-gray-100 mb-3">📅 投稿の有効期限</h4>
+                
+                {/* デフォルト期限の表示 */}
+                <div className="mb-4 p-3 bg-gray-800/50 rounded-lg">
+                  <p className="text-sm text-gray-400 mb-2">デフォルト期限:</p>
+                  <div className="text-sm text-gray-300">
+                    {freespaceCategory === FreespaceCategory.IDEA_SHARING && '💡 アイデア共有: 30日後'}
+                    {freespaceCategory === FreespaceCategory.CASUAL_DISCUSSION && '💬 雑談: 7日後'}
+                    {freespaceCategory === FreespaceCategory.EVENT_PLANNING && '🎉 イベント企画: イベント終了日+1日'}
+                  </div>
+                </div>
+                
+                {/* カスタム期限設定 */}
+                <div className="space-y-3">
+                  <label className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={useCustomExpiration}
+                      onChange={(e) => setUseCustomExpiration(e.target.checked)}
+                      className="w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-gray-300">カスタム期限を設定</span>
+                  </label>
+                  
+                  {useCustomExpiration && (
+                    <div className="grid grid-cols-2 gap-3 mt-3">
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-1">期限日</label>
+                        <input
+                          type="date"
+                          value={customExpirationDate}
+                          onChange={(e) => setCustomExpirationDate(e.target.value)}
+                          min={new Date().toISOString().split('T')[0]}
+                          className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-1">期限時刻</label>
+                        <input
+                          type="time"
+                          value={customExpirationTime}
+                          onChange={(e) => setCustomExpirationTime(e.target.value)}
+                          className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-3 p-2 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                  <p className="text-xs text-blue-400">
+                    💡 期限切れ後も投稿者とHR部門は閲覧可能です。1年後に完全削除されます。
+                  </p>
+                </div>
+              </div>
             </div>
           )}
           

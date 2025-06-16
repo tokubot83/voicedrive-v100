@@ -131,6 +131,15 @@ export interface Post {
   // Poll and Event integration
   poll?: any; // Will be replaced with Poll interface from poll.ts
   event?: any; // Will be replaced with Event interface from event.ts
+  
+  // Freespace expiration properties
+  expirationDate?: Date;
+  isExpired?: boolean;
+  isArchived?: boolean;
+  archivedDate?: Date;
+  extensionRequested?: boolean;
+  extensionReason?: string;
+  extensionRequestedDate?: Date;
 }
 
 export interface ProjectMilestone {

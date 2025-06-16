@@ -461,7 +461,11 @@ export const demoPosts: Post[] = [
     anonymityLevel: 'real_name',
     timestamp: new Date('2024-10-15T11:30:00'),
     votes: generateVotes(),
-    comments: []
+    comments: [],
+    freespaceCategory: 'event_planning',
+    expirationDate: new Date('2024-11-04T23:59:00'), // イベント終了日+1日
+    isExpired: true,
+    isArchived: false
   },
   
   // Winter (December-March) - Year-end, planning for next year
