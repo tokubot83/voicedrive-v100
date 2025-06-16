@@ -515,7 +515,10 @@ export const demoPosts: Post[] = [
     anonymityLevel: 'real_name',
     timestamp: new Date('2025-01-08T11:00:00'),
     votes: generateVotes(),
-    comments: []
+    comments: [],
+    freespaceCategory: 'event_planning',
+    expirationDate: new Date('2025-01-25T23:59:00'), // イベント終了日+1日
+    isExpired: false
   },
   {
     id: 'post-13',
@@ -560,7 +563,10 @@ export const demoPosts: Post[] = [
     anonymityLevel: 'real_name',
     timestamp: new Date('2025-01-05T17:20:00'),
     votes: generateVotes(),
-    comments: []
+    comments: [],
+    freespaceCategory: 'casual_discussion',
+    expirationDate: new Date('2025-01-12T17:20:00'), // 7日後
+    isExpired: false
   },
   {
     id: 'post-17',
