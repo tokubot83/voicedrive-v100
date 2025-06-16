@@ -18,7 +18,17 @@ interface ProjectGroup {
 
 const MyProjectsPage: React.FC = () => {
   const { currentUser } = useAuth();
-  const { currentUser: demoUser } = useDemoMode();
+  
+  // Safe demo mode hook usage
+  let demoUser = null;
+  try {
+    const demoMode = useDemoMode();
+    demoUser = demoMode?.currentUser;
+  } catch (error) {
+    // Demo mode provider not available, use auth user only
+    console.log('Demo mode not available, using auth user');
+  }
+  
   const [projectGroups, setProjectGroups] = useState<ProjectGroup[]>([]);
   const [selectedTab, setSelectedTab] = useState<'all' | 'proposed' | 'approving' | 'participating' | 'provisional'>('all');
   const [searchTerm, setSearchTerm] = useState('');

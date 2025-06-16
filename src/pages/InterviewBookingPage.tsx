@@ -5,24 +5,38 @@ import { InterviewBooking } from '../types/interview';
 import { InterviewBookingService } from '../services/InterviewBookingService';
 import InterviewBookingCalendar from '../components/interview/InterviewBookingCalendar';
 import { useAuth } from '../hooks/useAuth';
+import { useDemoMode } from '../components/demo/DemoModeController';
 
 const InterviewBookingPage: React.FC = () => {
   const { currentUser } = useAuth();
+  
+  // Safe demo mode hook usage
+  let demoUser = null;
+  try {
+    const demoMode = useDemoMode();
+    demoUser = demoMode?.currentUser;
+  } catch (error) {
+    // Demo mode provider not available, use auth user only
+    console.log('Demo mode not available, using auth user');
+  }
+  
   const bookingService = new InterviewBookingService();
   const [existingBookings, setExistingBookings] = useState<InterviewBooking[]>([]);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  const activeUser = demoUser || currentUser;
 
   useEffect(() => {
     loadUserBookings();
-  }, [currentUser]);
+  }, [activeUser]);
 
   const loadUserBookings = async () => {
-    if (!currentUser) return;
+    if (!activeUser) return;
     
     setLoading(true);
     try {
-      const bookings = await bookingService.getEmployeeBookings(currentUser.id);
+      const bookings = await bookingService.getEmployeeBookings(activeUser.id);
       setExistingBookings(bookings);
     } catch (error) {
       console.error('Failed to load bookings:', error);
@@ -302,7 +316,7 @@ const InterviewBookingPage: React.FC = () => {
               </div>
               
               <InterviewBookingCalendar 
-                employeeId={currentUser?.id}
+                employeeId={activeUser?.id}
                 onBookingComplete={handleBookingComplete}
               />
             </div>
