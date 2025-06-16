@@ -38,12 +38,25 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
       features: ['完全匿名', '機密保持', '迅速対応'],
       color: 'from-red-500 to-red-600',
     },
+    {
+      type: 'interview' as any, // 面談予約用の特別なタイプ
+      icon: '💼',
+      title: '面談予約',
+      description: '人財統括本部との 個別面談を予約',
+      features: ['キャリア相談', '悩み解決', '能力開発'],
+      color: 'from-purple-500 to-purple-600',
+    },
   ];
 
-  const handleCardClick = (type: PostType) => {
+  const handleCardClick = (type: PostType | 'interview') => {
     if (type === 'report') {
       // 公益通報の場合は専用ページに遷移
       navigate('/whistleblowing');
+      return;
+    }
+    if (type === 'interview') {
+      // 面談予約の場合は面談予約ページに遷移
+      navigate('/interview-booking');
       return;
     }
     // 改善提案とフリースペースは全幅レイアウトのページに遷移

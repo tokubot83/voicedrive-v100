@@ -39,21 +39,9 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
           <span className="text-xl font-bold gradient-text">VoiceDrive</span>
         </div>
         
-        {/* 通知ベル & 面談予約ボタン */}
+        {/* 通知ベル */}
         <div className="flex items-center space-x-3 pr-4">
           <NotificationBell className="text-white" />
-          
-          {/* 面談予約ボタン（デスクトップのみ表示） */}
-          <div className="hidden md:block">
-            <Link
-              to="/interview-booking"
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
-              title="面談予約"
-            >
-              <span className="mr-2">💬</span>
-              <span>面談予約</span>
-            </Link>
-          </div>
         </div>
       </div>
       
