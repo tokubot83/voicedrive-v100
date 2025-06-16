@@ -100,43 +100,43 @@ const generateSampleComments = (postId: string, count: number = 2): Comment[] =>
 
 // Seasonal posts based on Japanese fiscal year and seasons
 export const demoPosts: Post[] = [
-  // 面談予約システム関連の提案
+  // 更衣時間の勤務時間算入に関する提案（承認フローデモ用）
   {
-    id: 'post-interview-improvement',
+    id: 'post-uniform-time-proposal',
     type: 'communication',
     proposalType: 'operational' as ProposalType,
-    content: '人財統括本部の面談予約システムが運用開始されました。キャリア相談や業務改善について、気軽にご相談ください。予約は13:40-16:50の時間帯で30分単位で可能です。面談を通じて、職場環境の改善や個人のスキルアップについて一緒に考えていきましょう。',
-    author: demoUsers[10], // 加藤真理 (キャリア支援部門員)
+    content: '更衣時間も勤務時間に含めるべきか検討すべき\n\n現在、制服の着替え時間は勤務時間に含まれておらず、多くのスタッフが勤務開始前に早めに出勤しています。労働基準法上も「業務に必要な準備時間」として勤務時間に算入することが妥当と考えられます。\n\n【現状の課題】\n・スタッフの実質的な拘束時間が増加\n・早朝出勤による通勤負担\n・更衣室の混雑による待機時間\n\n【提案内容】\n・更衣時間を勤務時間に算入（10分程度）\n・シフト調整による運用開始時間の見直し\n・段階的な導入で運用面の課題を検証\n\nスタッフの働きやすさ向上と法的コンプライアンスの観点から、ぜひご検討いただければと思います。',
+    author: demoUsers[1], // 佐藤花子 (看護師)
     anonymityLevel: 'real_name',
     priority: 'high',
-    timestamp: new Date('2025-01-12T09:00:00'),
+    timestamp: new Date('2025-01-10T14:30:00'),
     votes: {
-      'strongly-oppose': 0,
-      'oppose': 1,
-      'neutral': 8,
-      'support': 15,
-      'strongly-support': 12,
+      'strongly-oppose': 2,
+      'oppose': 5,
+      'neutral': 12,
+      'support': 28,
+      'strongly-support': 25,
     },
     comments: [
       {
-        id: 'comment-interview-1',
-        postId: 'post-interview-improvement',
-        content: '面談予約システム、早速利用させていただきました。オンライン予約が便利で、時間も選びやすくて助かります。',
-        author: demoUsers[1],
+        id: 'comment-uniform-1',
+        postId: 'post-uniform-time-proposal',
+        content: '本当にその通りです。毎日早めに来て着替えていますが、実質的な拘束時間が長くなっています。労働時間に含めていただけると助かります。',
+        author: demoUsers[2],
         privacyLevel: 'partial' as CommentPrivacyLevel,
         anonymityLevel: 'department' as AnonymityLevel,
-        timestamp: new Date('2025-01-12T14:30:00'),
+        timestamp: new Date('2025-01-10T16:45:00'),
         visibleInfo: {
-          facility: demoUsers[1].department,
-          position: demoUsers[1].position,
-          experienceYears: 2,
+          facility: demoUsers[2].department,
+          position: demoUsers[2].position,
+          experienceYears: 3,
           isManagement: false
         }
       },
       {
-        id: 'comment-interview-2',
-        postId: 'post-interview-improvement',
-        content: '人財統括本部の皆さんが親身に相談に乗ってくださり、キャリアプランが明確になりました。定期的に利用したいと思います。',
+        id: 'comment-uniform-2',
+        postId: 'post-uniform-time-proposal',
+        content: '管理者としても賛成です。スタッフの働きやすさとコンプライアンスを両立できる提案です。運用面での調整は必要ですが、段階的に導入していきましょう。',
         author: demoUsers[3],
         privacyLevel: 'full' as CommentPrivacyLevel,
         anonymityLevel: 'real' as AnonymityLevel,

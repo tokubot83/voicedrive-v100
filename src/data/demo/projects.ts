@@ -1,4 +1,4 @@
-export type ProjectStatus = 'draft' | 'submitted' | 'reviewing' | 'approved' | 'in-progress' | 'completed' | 'rejected';
+export type ProjectStatus = 'draft' | 'submitted' | 'reviewing' | 'approved' | 'in-progress' | 'completed' | 'rejected' | 'member-selection' | 'approval-pending';
 export type ProjectPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type ProjectCategory = 'improvement' | 'cost-reduction' | 'innovation' | 'compliance' | 'employee-welfare';
 
@@ -18,7 +18,7 @@ export interface ProjectWorkflow {
   approver: string;
   approvedDate?: Date;
   comments?: string;
-  status: 'pending' | 'approved' | 'rejected' | 'revision-required';
+  status: 'pending' | 'approved' | 'rejected' | 'revision-required' | 'in-progress';
 }
 
 export interface Project {
@@ -41,10 +41,121 @@ export interface Project {
   milestones: ProjectMilestone[];
   workflows: ProjectWorkflow[];
   teamMembers: string[];
+  provisionalMembers?: string[]; // 仮選出中のメンバー
+  memberSelectionStatus?: 'not-started' | 'in-progress' | 'completed' | 'cancelled';
+  approvalCompletedAt?: Date;
   tags: string[];
 }
 
 export const demoProjects: Project[] = [
+  // 更衣時間勤務時間算入プロジェクト（承認フローデモ用）
+  {
+    id: 'proj-uniform-time',
+    title: '更衣時間の勤務時間算入制度導入',
+    description: '制服着替え時間を勤務時間に算入することで、スタッフの働きやすさ向上と法的コンプライアンスを実現',
+    category: 'employee-welfare',
+    postId: 'post-uniform-time-proposal',
+    initiator: 'user-2', // 佐藤花子（看護師）
+    status: 'member-selection',
+    priority: 'high',
+    createdDate: new Date('2025-01-10T14:30:00'),
+    lastUpdated: new Date('2025-01-16T16:20:00'),
+    estimatedBudget: 2000000,
+    estimatedROI: 120,
+    startDate: new Date('2025-02-01'),
+    endDate: new Date('2025-04-30'),
+    approvalCompletedAt: new Date('2025-01-16T16:20:00'),
+    memberSelectionStatus: 'in-progress',
+    provisionalMembers: ['user-3', 'user-5', 'user-7', 'user-10'],
+    milestones: [
+      {
+        id: 'ms-uniform-1',
+        name: '承認プロセス完了',
+        dueDate: new Date('2025-01-20'),
+        status: 'completed',
+        completedDate: new Date('2025-01-16'),
+        assignee: 'user-6'
+      },
+      {
+        id: 'ms-uniform-2',
+        name: 'プロジェクトメンバー選定',
+        dueDate: new Date('2025-01-25'),
+        status: 'in-progress',
+        assignee: 'user-3'
+      },
+      {
+        id: 'ms-uniform-3',
+        name: '労務規定改定案作成',
+        dueDate: new Date('2025-02-15'),
+        status: 'pending',
+        assignee: 'user-5'
+      },
+      {
+        id: 'ms-uniform-4',
+        name: '試験運用開始',
+        dueDate: new Date('2025-03-01'),
+        status: 'pending',
+        assignee: 'user-7'
+      },
+      {
+        id: 'ms-uniform-5',
+        name: '効果検証・本格運用',
+        dueDate: new Date('2025-04-30'),
+        status: 'pending',
+        assignee: 'user-3'
+      }
+    ],
+    workflows: [
+      {
+        id: 'wf-uniform-1',
+        projectId: 'proj-uniform-time',
+        stage: 'AUTO_PROJECT',
+        approver: 'SYSTEM',
+        approvedDate: new Date('2025-01-10T14:30:00'),
+        comments: 'プロジェクト化基準を達成しました',
+        status: 'approved'
+      },
+      {
+        id: 'wf-uniform-2',
+        projectId: 'proj-uniform-time',
+        stage: 'TEAM_LEAD_APPROVAL',
+        approver: 'user-3', // 田中太郎（チームリーダー）
+        approvedDate: new Date('2025-01-12T11:15:00'),
+        comments: '労働環境改善として非常に重要な提案です。法的観点からも適切と判断します。',
+        status: 'approved'
+      },
+      {
+        id: 'wf-uniform-3',
+        projectId: 'proj-uniform-time',
+        stage: 'MANAGER_APPROVAL',
+        approver: 'user-6', // 高橋一郎（マネージャー）
+        approvedDate: new Date('2025-01-15T14:45:00'),
+        comments: 'コンプライアンス面とスタッフ満足度向上の両面で効果が期待できます。予算承認もOKです。',
+        status: 'approved'
+      },
+      {
+        id: 'wf-uniform-4',
+        projectId: 'proj-uniform-time',
+        stage: 'APPROVAL_COMPLETED',
+        approver: 'SYSTEM',
+        approvedDate: new Date('2025-01-16T16:20:00'),
+        comments: '全承認プロセスが完了しました',
+        status: 'approved'
+      },
+      {
+        id: 'wf-uniform-5',
+        projectId: 'proj-uniform-time',
+        stage: 'MEMBER_SELECTION',
+        approver: 'user-3', // プロジェクトリーダー
+        comments: 'メンバー選出中：労務担当、現場代表、システム担当、HR担当を仮選出',
+        status: 'in-progress'
+      }
+    ],
+    teamMembers: ['user-2'], // 提案者
+    tags: ['労働環境', '法的コンプライアンス', '働き方改革', '勤務時間管理']
+  },
+  
+  // 既存の完了プロジェクト例
   {
     id: 'proj-001',
     title: '新入社員研修プログラム改革',
@@ -52,15 +163,16 @@ export const demoProjects: Project[] = [
     category: 'improvement',
     postId: 'post-1',
     initiator: 'user-3',
-    status: 'in-progress',
+    status: 'completed',
     priority: 'high',
     createdDate: new Date('2024-04-16T10:00:00'),
     lastUpdated: new Date('2025-01-06T14:30:00'),
     estimatedBudget: 5000000,
     actualBudget: 4200000,
     estimatedROI: 180,
+    actualROI: 195,
     startDate: new Date('2024-05-01'),
-    endDate: new Date('2025-03-31'),
+    endDate: new Date('2025-01-31'),
     milestones: [
       {
         id: 'ms-001-1',
@@ -80,17 +192,18 @@ export const demoProjects: Project[] = [
       },
       {
         id: 'ms-001-3',
-        name: '第1期実施・効果測定',
+        name: '実践研修実施',
         dueDate: new Date('2024-09-30'),
         status: 'completed',
         completedDate: new Date('2024-09-28'),
-        assignee: 'user-3'
+        assignee: 'user-5'
       },
       {
         id: 'ms-001-4',
-        name: 'プログラム改善・第2期準備',
-        dueDate: new Date('2025-02-28'),
-        status: 'in-progress',
+        name: '効果測定・改善',
+        dueDate: new Date('2025-01-31'),
+        status: 'completed',
+        completedDate: new Date('2025-01-30'),
         assignee: 'user-3'
       }
     ],
@@ -98,243 +211,67 @@ export const demoProjects: Project[] = [
       {
         id: 'wf-001-1',
         projectId: 'proj-001',
-        stage: '部門承認',
-        approver: 'user-8',
-        approvedDate: new Date('2024-04-20'),
-        status: 'approved',
-        comments: '素晴らしい提案です。予算枠内で進めてください。'
+        stage: 'APPROVAL_COMPLETED',
+        approver: 'SYSTEM',
+        approvedDate: new Date('2024-04-20T10:00:00'),
+        status: 'approved'
       },
       {
         id: 'wf-001-2',
         projectId: 'proj-001',
-        stage: '経営承認',
-        approver: 'user-10',
-        approvedDate: new Date('2024-04-25'),
-        status: 'approved',
-        comments: '人材育成は最重要課題。全面的に支援します。'
+        stage: 'MEMBER_SELECTION',
+        approver: 'user-3',
+        approvedDate: new Date('2024-04-25T15:30:00'),
+        status: 'approved'
       }
     ],
-    teamMembers: ['user-3', 'user-6', 'user-2'],
-    tags: ['人材育成', '研修', '新入社員', 'OJT']
+    teamMembers: ['user-3', 'user-5', 'user-6', 'user-8'],
+    memberSelectionStatus: 'completed',
+    tags: ['人材育成', '教育研修', '新入社員', 'OJT']
   },
+
+  // 承認中のプロジェクト例
   {
-    id: 'proj-002',
-    title: 'オフィス空調最適化プロジェクト',
-    description: 'エリア別空調制御システムの導入により、快適性向上と省エネを両立',
-    category: 'cost-reduction',
-    postId: 'post-3',
-    initiator: 'user-2',
-    status: 'reviewing',
+    id: 'proj-environment',
+    title: 'オフィス環境改善プロジェクト',
+    description: '照明・空調の最適化による作業環境の向上',
+    category: 'improvement',
+    postId: 'post-2',
+    initiator: 'user-4',
+    status: 'approval-pending',
     priority: 'medium',
-    createdDate: new Date('2024-06-21T09:00:00'),
-    lastUpdated: new Date('2025-01-05T16:00:00'),
-    estimatedBudget: 3000000,
+    createdDate: new Date('2025-01-14T09:30:00'),
+    lastUpdated: new Date('2025-01-16T11:00:00'),
+    estimatedBudget: 8000000,
     estimatedROI: 150,
     milestones: [
       {
-        id: 'ms-002-1',
-        name: '現状調査・要件定義',
-        dueDate: new Date('2024-07-15'),
-        status: 'completed',
-        completedDate: new Date('2024-07-10'),
-        assignee: 'user-7'
-      },
-      {
-        id: 'ms-002-2',
-        name: '業者選定・見積取得',
-        dueDate: new Date('2024-08-15'),
+        id: 'ms-env-1',
+        name: '現状調査・分析',
+        dueDate: new Date('2025-02-28'),
         status: 'pending',
-        assignee: 'user-7'
+        assignee: 'user-4'
       }
     ],
     workflows: [
       {
-        id: 'wf-002-1',
-        projectId: 'proj-002',
-        stage: '施設管理承認',
-        approver: 'user-7',
-        status: 'pending'
-      }
-    ],
-    teamMembers: ['user-2', 'user-7'],
-    tags: ['省エネ', '職場環境', '空調', 'SDGs']
-  },
-  {
-    id: 'proj-003',
-    title: '人事評価システム改善 - 1on1時間拡充プロジェクト',
-    description: '1on1時間の15分から30分への拡充と効果的なフィードバックプロセスの構築 (施設プロジェクトレベル)',
-    category: 'improvement',
-    postId: 'post-6',
-    initiator: 'user-1', // 田中太郎
-    status: 'approved',
-    priority: 'high',
-    createdDate: new Date('2024-09-11T10:00:00'),
-    lastUpdated: new Date('2024-12-20T15:30:00'),
-    estimatedBudget: 3500000, // 施設レベルの予算規模
-    estimatedROI: 250,
-    startDate: new Date('2024-12-25'),
-    endDate: new Date('2025-06-30'),
-    memberSelectionDeadline: new Date('2024-12-22T17:00:00'), // 期限切迫
-    milestones: [
-      {
-        id: 'ms-003-1',
-        name: '新評価制度設計',
-        dueDate: new Date('2025-01-31'),
-        status: 'pending',
-        assignee: 'user-2'
-      }
-    ],
-    workflows: [
-      {
-        id: 'wf-003-1',
-        projectId: 'proj-003',
-        stage: 'HR部門承認',
-        approver: 'user-2',
-        approvedDate: new Date('2024-09-20'),
+        id: 'wf-env-1',
+        projectId: 'proj-environment',
+        stage: 'AUTO_PROJECT',
+        approver: 'SYSTEM',
+        approvedDate: new Date('2025-01-14T09:30:00'),
         status: 'approved'
       },
       {
-        id: 'wf-003-2',
-        projectId: 'proj-003',
-        stage: '経営承認',
-        approver: 'user-11',
-        approvedDate: new Date('2024-10-05'),
-        status: 'approved',
-        comments: '従業員満足度向上の重要施策として承認'
+        id: 'wf-env-2',
+        projectId: 'proj-environment',
+        stage: 'TEAM_LEAD_APPROVAL',
+        approver: 'user-3',
+        status: 'in-progress'
       }
     ],
-    teamMembers: ['user-1', 'user-2', 'user-8'],
-    tags: ['人事評価', '1on1', 'フィードバック']
-  },
-  {
-    id: 'proj-004',
-    title: 'AI活用ナレッジ管理システム',
-    description: 'AI検索機能を備えた次世代ナレッジ共有プラットフォームの構築',
-    category: 'innovation',
-    postId: 'post-11',
-    initiator: 'user-9',
-    status: 'submitted',
-    priority: 'high',
-    createdDate: new Date('2025-01-05T10:00:00'),
-    lastUpdated: new Date('2025-01-08T09:00:00'),
-    estimatedBudget: 8000000,
-    estimatedROI: 250,
-    milestones: [
-      {
-        id: 'ms-004-1',
-        name: '要件定義・技術選定',
-        dueDate: new Date('2025-02-28'),
-        status: 'pending',
-        assignee: 'user-9'
-      }
-    ],
-    workflows: [
-      {
-        id: 'wf-004-1',
-        projectId: 'proj-004',
-        stage: 'IT部門レビュー',
-        approver: 'user-9',
-        status: 'pending'
-      }
-    ],
-    teamMembers: ['user-9', 'user-3'],
-    tags: ['AI', 'ナレッジ管理', 'DX', '生産性向上']
-  },
-  {
-    id: 'proj-005',
-    title: '育児支援制度拡充プログラム',
-    description: '時短勤務期間延長と在宅勤務併用による働きやすい環境づくり',
-    category: 'employee-welfare',
-    postId: 'post-17',
-    initiator: 'user-5',
-    status: 'draft',
-    priority: 'high',
-    createdDate: new Date('2025-01-04T12:00:00'),
-    lastUpdated: new Date('2025-01-07T15:00:00'),
-    estimatedBudget: 1000000,
-    estimatedROI: 300,
-    milestones: [],
-    workflows: [],
-    teamMembers: ['user-5', 'user-2'],
-    tags: ['育児支援', 'ワークライフバランス', '在宅勤務', 'D&I']
+    teamMembers: ['user-4'],
+    memberSelectionStatus: 'not-started',
+    tags: ['環境改善', '省エネ', '作業効率']
   }
 ];
-
-// Workflow states configuration
-export const workflowStates = {
-  draft: {
-    name: '下書き',
-    color: 'gray',
-    nextStates: ['submitted'],
-    permissions: [1, 2, 3, 4, 5, 6, 7, 8]
-  },
-  submitted: {
-    name: '申請済み',
-    color: 'blue',
-    nextStates: ['reviewing', 'rejected'],
-    permissions: [3, 4, 5, 6, 7, 8]
-  },
-  reviewing: {
-    name: '審査中',
-    color: 'yellow',
-    nextStates: ['approved', 'rejected', 'revision-required'],
-    permissions: [5, 6, 7, 8]
-  },
-  approved: {
-    name: '承認済み',
-    color: 'green',
-    nextStates: ['in-progress'],
-    permissions: [5, 6, 7, 8]
-  },
-  'in-progress': {
-    name: '実施中',
-    color: 'purple',
-    nextStates: ['completed'],
-    permissions: [3, 4, 5, 6, 7, 8]
-  },
-  completed: {
-    name: '完了',
-    color: 'green',
-    nextStates: [],
-    permissions: [3, 4, 5, 6, 7, 8]
-  },
-  rejected: {
-    name: '却下',
-    color: 'red',
-    nextStates: ['draft'],
-    permissions: [5, 6, 7, 8]
-  },
-  'revision-required': {
-    name: '修正依頼',
-    color: 'orange',
-    nextStates: ['submitted'],
-    permissions: [3, 4, 5, 6, 7, 8]
-  }
-};
-
-// Helper functions
-export const getDemoProjectById = (id: string): Project | undefined => {
-  return demoProjects.find(project => project.id === id);
-};
-
-export const getDemoProjectsByStatus = (status: ProjectStatus): Project[] => {
-  return demoProjects.filter(project => project.status === status);
-};
-
-export const getDemoProjectsByCategory = (category: ProjectCategory): Project[] => {
-  return demoProjects.filter(project => project.category === category);
-};
-
-export const getDemoProjectsByInitiator = (initiatorId: string): Project[] => {
-  return demoProjects.filter(project => project.initiator === initiatorId);
-};
-
-export const canUserTransitionProject = (userPermissionLevel: number, fromStatus: ProjectStatus, toStatus: ProjectStatus): boolean => {
-  const fromState = workflowStates[fromStatus];
-  if (!fromState || !fromState.nextStates.includes(toStatus)) {
-    return false;
-  }
-  
-  const toState = workflowStates[toStatus];
-  return toState.permissions.includes(userPermissionLevel);
-};
