@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { StakeholderGroup } from '../types/visibility';
 import { CreatePollData } from '../types/poll';
+import { CreateEventData } from '../types/event';
 import PollCreator from './PollCreator';
+import EventCreator from './EventCreator';
 
 // フリースペースカテゴリ定義
 export enum FreespaceCategory {
@@ -16,7 +18,9 @@ interface FreespaceOptionsProps {
   onCategoryChange: (category: FreespaceCategory) => void;
   onScopeChange: (scope: StakeholderGroup) => void;
   showPollOption?: boolean;
+  showEventOption?: boolean;
   onCreatePoll?: (pollData: CreatePollData) => void;
+  onCreateEvent?: (eventData: CreateEventData) => void;
 }
 
 const FreespaceOptions = ({
@@ -25,9 +29,12 @@ const FreespaceOptions = ({
   onCategoryChange,
   onScopeChange,
   showPollOption = false,
-  onCreatePoll
+  showEventOption = false,
+  onCreatePoll,
+  onCreateEvent
 }: FreespaceOptionsProps) => {
   const [showPollCreator, setShowPollCreator] = useState(false);
+  const [showEventCreator, setShowEventCreator] = useState(false);
   
   // カテゴリ定義
   const categories = [
@@ -188,30 +195,52 @@ const FreespaceOptions = ({
         </div>
       </div>
 
-      {/* 投票機能オプション */}
-      {showPollOption && (
+      {/* 追加機能オプション */}
+      {(showPollOption || showEventOption) && (
         <div>
           <h3 className="text-lg font-semibold text-gray-800 mb-3">
-            📊 投票機能
+            ✨ 追加機能
           </h3>
           <div className="space-y-3">
-            <div className="p-4 border border-gray-200 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="text-lg">📊</span>
-                  <div>
-                    <h4 className="font-medium text-gray-800">投票を追加</h4>
-                    <p className="text-sm text-gray-600">選択肢から選んでもらう投票を作成</p>
+            {showPollOption && (
+              <div className="p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-lg">📊</span>
+                    <div>
+                      <h4 className="font-medium text-gray-800">投票を追加</h4>
+                      <p className="text-sm text-gray-600">選択肢から選んでもらう投票を作成</p>
+                    </div>
                   </div>
+                  <button
+                    onClick={() => setShowPollCreator(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
+                  >
+                    投票を作成
+                  </button>
                 </div>
-                <button
-                  onClick={() => setShowPollCreator(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
-                >
-                  投票を作成
-                </button>
               </div>
-            </div>
+            )}
+            
+            {showEventOption && (
+              <div className="p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-lg">🎉</span>
+                    <div>
+                      <h4 className="font-medium text-gray-800">イベントを企画</h4>
+                      <p className="text-sm text-gray-600">日程調整・参加者募集ができるイベントを作成</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowEventCreator(true)}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium text-sm"
+                  >
+                    イベント作成
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -228,6 +257,22 @@ const FreespaceOptions = ({
                 setShowPollCreator(false);
               }}
               onCancel={() => setShowPollCreator(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* イベント作成モーダル */}
+      {showEventCreator && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <EventCreator
+              visibility={selectedScope as any}
+              onCreateEvent={(eventData) => {
+                onCreateEvent?.(eventData);
+                setShowEventCreator(false);
+              }}
+              onCancel={() => setShowEventCreator(false)}
             />
           </div>
         </div>

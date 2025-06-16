@@ -93,6 +93,13 @@ const AppRouter: React.FC = () => {
         <Route path="projects" element={<EnhancedProjectListPage />} />
         <Route path="projects-legacy" element={<ProjectListPage />} />
         <Route path="project/:projectId" element={<ProjectDetailPage />} />
+        <Route path="my-projects" element={
+          <React.Suspense fallback={<div>Loading...</div>}>
+            <ErrorBoundary>
+              {React.createElement(React.lazy(() => import('../pages/MyProjectsPage')))}
+            </ErrorBoundary>
+          </React.Suspense>
+        } />
         
         {/* Role-based dashboard routes with exact level protection */}
         <Route path="dashboard">

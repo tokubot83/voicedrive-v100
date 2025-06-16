@@ -7,6 +7,7 @@ import ProposalEchoCard from './ProposalEchoCard';
 import { proposalTypes } from '../config/proposalTypes';
 import FreespaceOptions, { FreespaceCategory } from './FreespaceOptions';
 import { CreatePollData } from '../types/poll';
+import { CreateEventData } from '../types/event';
 
 interface ComposeFormProps {
   selectedType: PostType;
@@ -25,6 +26,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   const [freespaceCategory, setFreespaceCategory] = useState<FreespaceCategory>(FreespaceCategory.CASUAL_DISCUSSION);
   const [freespaceScope, setFreespaceScope] = useState<StakeholderGroup>(StakeholderGroup.SAME_DEPARTMENT);
   const [pollData, setPollData] = useState<CreatePollData | null>(null);
+  const [eventData, setEventData] = useState<CreateEventData | null>(null);
   
   const { 
     currentSeason, 
@@ -91,6 +93,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       freespaceCategory: selectedType === 'community' ? freespaceCategory : undefined,
       freespaceScope: selectedType === 'community' ? freespaceScope : undefined,
       pollData: selectedType === 'community' ? pollData : undefined,
+      eventData: selectedType === 'community' ? eventData : undefined,
       season: currentSeason 
     });
     alert('投稿が完了しました！');
@@ -296,7 +299,9 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
                 onCategoryChange={setFreespaceCategory}
                 onScopeChange={setFreespaceScope}
                 showPollOption={true}
+                showEventOption={freespaceCategory === FreespaceCategory.EVENT_PLANNING}
                 onCreatePoll={setPollData}
+                onCreateEvent={setEventData}
               />
             </div>
           )}
