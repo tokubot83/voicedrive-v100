@@ -33,6 +33,7 @@ const FreespacePostRenderer = ({
     return (
       <RegularPost
         post={post}
+        currentUser={{ id: currentUserId || '', name: '', department: '', role: '' }}
         onVote={onVote}
         onComment={onComment}
       />

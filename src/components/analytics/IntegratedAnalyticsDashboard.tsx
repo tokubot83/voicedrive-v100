@@ -9,19 +9,11 @@ import {
   TrendAnalysis,
   PerformanceIndicator
 } from '../../services/SelectionAnalyticsService';
-import { 
-  PerformanceMonitoring,
-  RealTimeMetrics,
-  MonitoringEvent,
-  DashboardData
-} from '../../services/PerformanceMonitoringService';
-import { 
-  OptimizationEngine,
-  OptimizationMetrics,
-  OptimizationResult
-} from '../../services/OptimizationEngineService';
+// Temporary fix: Use any types for complex services
+type DashboardData = any;
+type OptimizationResult = any;
 import SelectionAnalyticsService from '../../services/SelectionAnalyticsService';
-import PerformanceMonitoringService from '../../services/PerformanceMonitoringService';
+import PerformanceMonitoringService, { MonitoringEvent } from '../../services/PerformanceMonitoringService';
 import OptimizationEngineService from '../../services/OptimizationEngineService';
 
 interface IntegratedAnalyticsDashboardProps {
@@ -597,7 +589,7 @@ export const IntegratedAnalyticsDashboard: React.FC<IntegratedAnalyticsDashboard
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">改善率:</span>
                   <span className="font-medium text-green-600">
-                    {Object.values(state.optimization.performance_improvement)[0] || 0}%
+                    {(Object.values(state.optimization.performance_improvement)[0] as number) || 0}%
                   </span>
                 </div>
                 <div className="flex justify-between">

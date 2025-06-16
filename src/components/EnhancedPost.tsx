@@ -93,7 +93,7 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
             <span className={`px-2 py-1 rounded-xl text-xs font-bold text-white ${getTypeStyle()}`}>
               {post.type === 'improvement' ? '💡 改善提案' : 
                post.type === 'community' ? '💬 フリースペース' : 
-               '🚨 公益通報'}
+               post.type === 'report' ? '🚨 公益通報' : ''}
             </span>
             
             {post.priority && (

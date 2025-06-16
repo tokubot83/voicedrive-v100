@@ -19,7 +19,7 @@ const isRecent = (createdAt: string | Date, days: number = 7): boolean => {
  */
 const getPostType = (post: Post): 'improvement' | 'community' | 'whistleblowing' | null => {
   // typeフィールドがある場合はそれを使用（whistleblowingは特別扱い）
-  if (post.type === 'report' && post.proposalType === 'riskManagement') {
+  if (post.type === 'report' && post.proposalType === 'strategic') {
     return 'whistleblowing';
   }
   

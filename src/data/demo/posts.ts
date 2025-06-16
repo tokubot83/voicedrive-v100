@@ -594,7 +594,7 @@ export const demoPosts: Post[] = [
   {
     id: 'post-19',
     type: 'improvement',
-    proposalType: 'riskManagement' as ProposalType,
+    proposalType: 'strategic',
     content: '駐車場の利用ルールについて、エコカー優先スペースを設けてはどうでしょうか。環境への取り組みをアピールできますし、社員のエコカー購入を促進できると思います。',
     author: demoUsers[6], // Supervisor
     anonymityLevel: 'department_only',

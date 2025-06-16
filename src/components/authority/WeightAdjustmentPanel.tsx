@@ -145,7 +145,7 @@ const WeightAdjustmentPanel: React.FC = () => {
                 <option value="operational">Operational</option>
                 <option value="strategic">Strategic</option>
                 <option value="innovation">Innovation</option>
-                <option value="riskManagement">Risk Management</option>
+                <option value="strategic">Strategic</option>
                 <option value="communication">Communication</option>
               </select>
             </div>

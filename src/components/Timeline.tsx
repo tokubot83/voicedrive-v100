@@ -6,6 +6,7 @@ import { demoPosts } from '../data/demo/posts';
 import { useDemoMode } from './demo/DemoModeController';
 import { FreespaceExpirationService } from '../services/FreespaceExpirationService';
 import { useAuth } from '../hooks/useAuth';
+import FreespaceExpirationNotification from './FreespaceExpirationNotification';
 
 interface TimelineProps {
   activeTab?: string;
@@ -13,8 +14,20 @@ interface TimelineProps {
 }
 
 const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
-  const { isDemoMode, currentUser } = useDemoMode();
-  const { user } = useAuth();
+  // Safe demo mode hook usage with fallback
+  let isDemoMode = false;
+  let currentUser = null;
+  
+  try {
+    const demoModeData = useDemoMode();
+    isDemoMode = demoModeData.isDemoMode;
+    currentUser = demoModeData.currentUser;
+  } catch (error) {
+    // useDemoMode hook is not available, use defaults
+    console.log('DemoMode not available, using defaults');
+  }
+  
+  const { currentUser: authUser } = useAuth();
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   
   // Debug logging
@@ -210,8 +223,8 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
     }
     
     // Apply expiration filtering for freespace posts
-    const currentUserId = currentUser?.id || user?.id || '';
-    const userPermissionLevel = user?.permissionLevel || currentUser?.permissionLevel || 1;
+    const currentUserId = currentUser?.id || authUser?.id || '';
+    const userPermissionLevel = authUser?.permissionLevel || currentUser?.permissionLevel || 1;
     
     filtered = FreespaceExpirationService.filterVisiblePosts(
       filtered, 
@@ -220,12 +233,27 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
     );
     
     return filtered;
-  }, [posts, activeTab, filterByUser, currentUser, user]);
+  }, [posts, activeTab, filterByUser, currentUser, authUser]);
 
   console.log('Timeline rendering posts:', filteredPosts.length);
   
+  const handleExtensionRequest = (postId: string, reason: string) => {
+    console.log('Extension requested for post:', postId, 'Reason:', reason);
+    // TODO: Implement extension request logic
+    alert('延長申請が送信されました。HR部門による承認をお待ちください。');
+  };
+
   return (
     <div className="overflow-y-auto">
+      {/* Freespace Expiration Notifications */}
+      {activeUser && (
+        <FreespaceExpirationNotification
+          posts={posts}
+          currentUserId={activeUser.id}
+          onExtensionRequest={handleExtensionRequest}
+        />
+      )}
+      
       {filteredPosts.map((post) => {
         console.log('Rendering post:', post.id, post.type);
         return (

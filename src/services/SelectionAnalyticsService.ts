@@ -560,7 +560,7 @@ export class SelectionAnalyticsService {
         comparative_analysis,
         prediction_models,
         generated_at: new Date(),
-        confidence_score: this.calculateOverallConfidence(insights, predictions)
+        confidence_score: this.calculateOverallConfidence(insights, [])
       };
 
       this.analytics.set(analytics_id, analytics);

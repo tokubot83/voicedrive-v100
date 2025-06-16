@@ -17,7 +17,7 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
   employeeId = 'EMP001',
   onBookingComplete
 }) => {
-  const bookingService = new InterviewBookingService();
+  const bookingService = InterviewBookingService.getInstance();
   
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
@@ -122,14 +122,14 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
 
   const handleSlotSelect = (date: Date, slot: TimeSlot) => {
     const dateKey = date.toISOString().split('T')[0];
-    const slotKey = `${dateKey}_${slot.slotId}`;
+    const slotKey = `${dateKey}_${slot.id}`;
     
     setSelectedSlots(prev => {
-      const exists = prev.some(s => `${s.date}_${s.slotId}` === slotKey);
+      const exists = prev.some(s => `${s.date.toISOString().split('T')[0]}_${s.id}` === slotKey);
       if (exists) {
-        return prev.filter(s => `${s.date}_${s.slotId}` !== slotKey);
+        return prev.filter(s => `${s.date.toISOString().split('T')[0]}_${s.id}` !== slotKey);
       } else {
-        return [...prev, { ...slot, date: dateKey }];
+        return [...prev, { ...slot, date: date }];
       }
     });
   };
@@ -145,12 +145,14 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
 
     try {
       const request: BookingRequest = {
+        employeeId,
         preferredDates: selectedDates,
-        preferredSlots: selectedSlots,
+        preferredTimes: selectedSlots.map(slot => `${slot.startTime}-${slot.endTime}`),
         interviewType,
-        category: interviewCategory,
+        interviewCategory,
+        requestedTopics: [],
         description,
-        urgency: 'normal'
+        urgencyLevel: 'medium'
       };
 
       const response = await bookingService.requestBooking(employeeId, request);
@@ -250,21 +252,26 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
               
               <div className="grid grid-cols-5 gap-2">
                 {timeSlots.map(slot => {
-                  const availableSlot = dateSlots.find(s => s.slotId === slot.id);
+                  const availableSlot = dateSlots.find(s => s.id === slot.id);
                   const isAvailable = availableSlot?.isAvailable || false;
                   const isSelected = selectedSlots.some(
-                    s => s.date === dateKey && s.slotId === slot.id
+                    s => s.date.toISOString().split('T')[0] === dateKey && s.id === slot.id
                   );
                   
                   return (
                     <button
                       key={slot.id}
                       onClick={() => isAvailable && handleSlotSelect(date, {
-                        slotId: slot.id,
+                        id: slot.id,
+                        date: date,
                         startTime: slot.startTime,
                         endTime: slot.endTime,
                         isAvailable,
-                        date: dateKey
+                        isBlocked: slot.isBlocked || false,
+                        blockedBy: slot.blockedBy,
+                        blockedReason: slot.blockedReason,
+                        bookedBy: slot.bookedBy,
+                        bookingId: slot.bookingId
                       })}
                       disabled={!isAvailable}
                       className={`

@@ -5,6 +5,14 @@ export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 export type VoteOption = 'strongly-oppose' | 'oppose' | 'neutral' | 'support' | 'strongly-support';
 export type UserRole = 'employee' | 'chief' | 'manager' | 'executive';
 
+// Import types from other files
+import { Poll } from './poll';
+import { Event } from './event';
+
+// Export them for use in other modules
+export type { Poll } from './poll';
+export type { Event } from './event';
+
 // Stakeholder categories
 export type StakeholderCategory = 'frontline' | 'management' | 'veteran' | 'zGen';
 
@@ -129,8 +137,8 @@ export interface Post {
   freespaceScope?: 'team' | 'department' | 'facility' | 'organization';
   
   // Poll and Event integration
-  poll?: any; // Will be replaced with Poll interface from poll.ts
-  event?: any; // Will be replaced with Event interface from event.ts
+  poll?: Poll; // Poll from poll.ts
+  event?: Event; // Event from event.ts
   
   // Freespace expiration properties
   expirationDate?: Date;
@@ -140,6 +148,15 @@ export interface Post {
   extensionRequested?: boolean;
   extensionReason?: string;
   extensionRequestedDate?: Date;
+  
+  // Voting deadline properties
+  votingDeadline?: Date;
+  eligibleVoters?: number;
+  voteBreakdown?: {
+    agree: number;
+    disagree: number;
+    hold: number;
+  };
 }
 
 export interface ProjectMilestone {

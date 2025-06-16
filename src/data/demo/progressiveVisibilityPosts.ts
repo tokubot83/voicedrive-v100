@@ -408,7 +408,7 @@ export const progressiveVisibilityDemoPosts: Post[] = [
   {
     id: 'progressive-emergency-001',
     type: 'improvement',
-    proposalType: 'riskManagement',
+    proposalType: 'strategic',
     content: '【緊急エスカレーション】感染症対策強化プロジェクト：新型感染症の流行に備えた緊急体制整備。Level 7権限により施設プロジェクトに緊急昇格されました。全施設での即座な対応が必要です。',
     author: {
       id: 'user-infection-001',

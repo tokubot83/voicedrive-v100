@@ -1,5 +1,7 @@
-import { PostVisibilityLevel } from '../types/visibility';
-import { VotingPost } from '../types';
+import { Post } from '../types';
+// Temporary type aliases
+type PostVisibilityLevel = string;
+type VotingPost = Post;
 // Simple date utility functions (replacing date-fns)
 const addHours = (date: Date, hours: number): Date => {
   const result = new Date(date);

@@ -17,7 +17,7 @@ interface InterviewManagementDashboardProps {
 const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> = ({ 
   managerId = 'MGR001' 
 }) => {
-  const bookingService = new InterviewBookingService();
+  const bookingService = InterviewBookingService.getInstance();
   const { metadata } = usePermissions(managerId);
   
   const [activeTab, setActiveTab] = useState('today');

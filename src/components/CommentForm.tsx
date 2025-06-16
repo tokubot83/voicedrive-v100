@@ -20,7 +20,7 @@ export default function CommentForm({
   const [content, setContent] = useState('');
   const [customAnonymityLevel, setCustomAnonymityLevel] = useState<AnonymityLevel | null>(null);
 
-  const defaultAnonymityLevel: AnonymityLevel = proposalType === 'riskManagement' ? 'real_name' : 
+  const defaultAnonymityLevel: AnonymityLevel = proposalType === 'strategic' ? 'real_name' : 
                                                 proposalType === 'communication' ? 'anonymous' : 'facility_department';
   const effectiveAnonymityLevel = customAnonymityLevel || defaultAnonymityLevel;
 
@@ -87,7 +87,6 @@ export default function CommentForm({
       operational: '業務改善',
       strategic: '戦略提案',
       innovation: 'イノベーション',
-      riskManagement: 'リスク管理',
       communication: 'コミュニケーション'
     };
     return labels[type];

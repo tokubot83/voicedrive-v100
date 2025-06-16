@@ -294,3 +294,44 @@ export interface BookingSearchCriteria {
   interviewerName?: string;
   description?: string;
 }
+
+// 日次スケジュール
+export interface DailySchedule {
+  date: Date;
+  totalSlots: number;
+  bookedSlots: number;
+  availableSlots: number;
+  blockedSlots: number;
+  interviews: InterviewBooking[];
+  interviewerSchedules: Array<{
+    interviewer: Interviewer;
+    slots: TimeSlot[];
+    bookings: InterviewBooking[];
+  }>;
+}
+
+// 週次統計
+export interface WeeklyStatistics {
+  weekStart: Date;
+  weekEnd: Date;
+  totalBookings: number;
+  completedInterviews: number;
+  cancelledBookings: number;
+  noShowCount: number;
+  utilizationRate: number; // 利用率（%）
+  averageRating: number;
+  popularTimeSlots: Array<{
+    timeSlot: string;
+    bookingCount: number;
+  }>;
+  categoryBreakdown: Array<{
+    category: InterviewCategory;
+    count: number;
+    percentage: number;
+  }>;
+  departmentBreakdown: Array<{
+    department: string;
+    count: number;
+    percentage: number;
+  }>;
+}

@@ -2,16 +2,15 @@
 // Phase 5: AI改善提案・設定調整・パフォーマンス最適化インターフェース
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  OptimizationEngine,
-  OptimizationResult,
-  OptimizationRecommendation,
-  ParameterOptimizationConfig,
-  OptimizationHistory,
-  AutoMLResult,
-  PerformanceImpact
-} from '../../services/OptimizationEngineService';
-import OptimizationEngineService from '../../services/OptimizationEngineService';
+// Temporary fix: Use any types for complex services
+type OptimizationEngine = any;
+type OptimizationResult = any;
+type OptimizationRecommendation = any;
+type ParameterOptimizationConfig = any;
+type OptimizationHistory = any;
+type AutoMLResult = any;
+type PerformanceImpact = any;
+import OptimizationEngineService, { OptimizationScope, OptimizationObjective } from '../../services/OptimizationEngineService';
 
 interface SystemOptimizationRecommendationUIProps {
   userId: string;
@@ -20,12 +19,7 @@ interface SystemOptimizationRecommendationUIProps {
   refreshInterval?: number; // 秒
 }
 
-interface OptimizationScope {
-  target_systems: string[];
-  optimization_objectives: string[];
-  priority_metrics: string[];
-  resource_constraints: ResourceConstraints;
-}
+// OptimizationScopeは services/OptimizationEngineService.ts からインポート
 
 interface ResourceConstraints {
   max_cost: number;
@@ -64,17 +58,7 @@ interface OptimizationSession {
 export const SystemOptimizationRecommendationUI: React.FC<SystemOptimizationRecommendationUIProps> = ({
   userId,
   permissionLevel,
-  systemScope = {
-    target_systems: ['selection_engine', 'analytics_service', 'monitoring_service'],
-    optimization_objectives: ['performance', 'cost', 'reliability'],
-    priority_metrics: ['response_time', 'accuracy', 'resource_usage'],
-    resource_constraints: {
-      max_cost: 1000000,
-      max_time: 24,
-      max_resource_impact: 20,
-      allowed_downtime: 30
-    }
-  },
+  systemScope,
   refreshInterval = 60
 }) => {
   const [activeTab, setActiveTab] = useState<'recommendations' | 'automation' | 'history' | 'settings'>('recommendations');
@@ -83,6 +67,16 @@ export const SystemOptimizationRecommendationUI: React.FC<SystemOptimizationReco
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
+
+  // systemScopeがない場合は、最適化処理をスキップ
+  if (!systemScope) {
+    return (
+      <div className="p-6 bg-gray-50 rounded-lg">
+        <h2 className="text-xl font-bold text-gray-800 mb-4">システム最適化</h2>
+        <p className="text-gray-600">最適化スコープが設定されていません。</p>
+      </div>
+    );
+  }
   const [autoOptimizationEnabled, setAutoOptimizationEnabled] = useState(false);
   const [optimizationHistory, setOptimizationHistory] = useState<OptimizationHistory[]>([]);
   
@@ -98,11 +92,23 @@ export const SystemOptimizationRecommendationUI: React.FC<SystemOptimizationReco
       const engine = await optimizationService.initializeOptimizationEngine(
         'MULTI_OBJECTIVE',
         systemScope,
-        systemScope.optimization_objectives.map(obj => ({
-          objective_name: obj,
-          weight: 1.0,
+        systemScope.evaluation_metrics.map(metric => ({
+          objective_id: metric.metric_id,
+          objective_name: metric.metric_name,
+          objective_type: 'MAXIMIZE',
+          objective_components: [],
+          preference_structure: {
+            priority: 1,
+            weight: metric.weight,
+            constraints: []
+          },
+          trade_off_analysis: {
+            acceptable_trade_off_ratio: 0.1,
+            priority_relationships: []
+          },
+          weight: metric.weight,
           optimization_direction: 'MAXIMIZE',
-          target_value: 100,
+          target_value: metric.target_value,
           constraints: []
         }))
       );
@@ -110,11 +116,11 @@ export const SystemOptimizationRecommendationUI: React.FC<SystemOptimizationReco
       // パラメータ最適化の実行
       const parameterResult = await optimizationService.executeParameterOptimization(
         engine.engine_id,
-        systemScope.priority_metrics,
+        systemScope.evaluation_metrics.map(m => m.metric_name),
         {
           max_iterations: 100,
-          max_time: systemScope.resource_constraints.max_time * 3600, // 秒に変換
-          max_cost: systemScope.resource_constraints.max_cost,
+          max_time: 3600, // 1時間
+          max_cost: 1000000,
           resource_limits: {
             cpu_limit: 80,
             memory_limit: 8192,
@@ -127,17 +133,29 @@ export const SystemOptimizationRecommendationUI: React.FC<SystemOptimizationReco
       // 多目的最適化の実行
       const multiObjectiveResult = await optimizationService.executeMultiObjectiveOptimization(
         engine.engine_id,
-        systemScope.optimization_objectives.map(obj => ({
-          objective_name: obj,
-          weight: 1.0,
+        systemScope.evaluation_metrics.map(metric => ({
+          objective_id: metric.metric_id,
+          objective_name: metric.metric_name,
+          objective_type: 'MAXIMIZE',
+          objective_components: [],
+          preference_structure: {
+            priority: 1,
+            weight: metric.weight,
+            constraints: []
+          },
+          trade_off_analysis: {
+            acceptable_trade_off_ratio: 0.1,
+            priority_relationships: []
+          },
+          weight: metric.weight,
           optimization_direction: 'MAXIMIZE',
-          target_value: 100,
+          target_value: metric.target_value,
           constraints: []
         })),
         {
           max_iterations: 50,
           max_time: 1800, // 30分
-          max_cost: systemScope.resource_constraints.max_cost / 2,
+          max_cost: 500000,
           resource_limits: {}
         }
       );

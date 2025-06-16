@@ -56,7 +56,7 @@ interface VariableParameterInput {
   parameter_name: string;
   min_value: number;
   max_value: number;
-  distribution_type: 'UNIFORM' | 'NORMAL' | 'TRIANGULAR';
+  distribution_type: 'UNIFORM' | 'NORMAL' | 'EXPONENTIAL' | 'BETA';
 }
 
 interface SimulationProgress {
@@ -829,7 +829,7 @@ export const SelectionSimulationUI: React.FC<SelectionSimulationUIProps> = ({
                 >
                   <option value="UNIFORM">一様分布</option>
                   <option value="NORMAL">正規分布</option>
-                  <option value="TRIANGULAR">三角分布</option>
+                  <option value="BETA">ベータ分布</option>
                 </select>
               </div>
             </div>
