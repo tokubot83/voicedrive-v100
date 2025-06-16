@@ -6,7 +6,6 @@ import { Project, ProjectStatus } from '../data/demo/projects';
 import { demoProjects } from '../data/demo/projects';
 import { getDemoUserById } from '../data/demo/users';
 import { useDemoMode } from '../components/demo/DemoModeController';
-import DemoModeController from '../components/demo/DemoModeController';
 
 interface ProjectGroup {
   title: string;

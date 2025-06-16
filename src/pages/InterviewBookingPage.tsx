@@ -1,33 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Calendar, Clock, User } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { InterviewBooking } from '../types/interview';
 import { InterviewBookingService } from '../services/InterviewBookingService';
 import InterviewBookingCalendar from '../components/interview/InterviewBookingCalendar';
 import { useAuth } from '../hooks/useAuth';
-import { useDemoMode } from '../components/demo/DemoModeController';
-import DemoModeController from '../components/demo/DemoModeController';
 
 const InterviewBookingPage: React.FC = () => {
   const { currentUser } = useAuth();
-  const { currentUser: demoUser } = useDemoMode();
   const bookingService = new InterviewBookingService();
   const [existingBookings, setExistingBookings] = useState<InterviewBooking[]>([]);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  
-  const activeUser = demoUser || currentUser;
 
   useEffect(() => {
     loadUserBookings();
-  }, [activeUser]);
+  }, [currentUser]);
 
   const loadUserBookings = async () => {
-    if (!activeUser) return;
+    if (!currentUser) return;
     
     setLoading(true);
     try {
-      const bookings = await bookingService.getEmployeeBookings(activeUser.id);
+      const bookings = await bookingService.getEmployeeBookings(currentUser.id);
       setExistingBookings(bookings);
     } catch (error) {
       console.error('Failed to load bookings:', error);
@@ -107,9 +102,6 @@ const InterviewBookingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      {/* Demo Mode Controller */}
-      <DemoModeController />
-      
       {/* Header */}
       <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
         <div className="flex items-center justify-between">
@@ -130,45 +122,7 @@ const InterviewBookingPage: React.FC = () => {
       </header>
       
       <div className="p-6">
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-700/50">
-            <div className="flex items-center gap-3">
-              <Calendar className="w-6 h-6 text-blue-400" />
-              <div>
-                <p className="text-gray-400 text-sm">予約中</p>
-                <p className="text-2xl font-bold text-white">{upcomingBookings.length}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-700/50">
-            <div className="flex items-center gap-3">
-              <Clock className="w-6 h-6 text-green-400" />
-              <div>
-                <p className="text-gray-400 text-sm">完了済み</p>
-                <p className="text-2xl font-bold text-white">{pastBookings.filter(b => b.status === 'completed').length}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-700/50">
-            <div className="flex items-center gap-3">
-              <User className="w-6 h-6 text-purple-400" />
-              <div>
-                <p className="text-gray-400 text-sm">担当者数</p>
-                <p className="text-2xl font-bold text-white">{new Set(existingBookings.map(b => b.interviewer)).size}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-700/50">
-            <div className="flex items-center gap-3">
-              <Calendar className="w-6 h-6 text-yellow-400" />
-              <div>
-                <p className="text-gray-400 text-sm">総面談数</p>
-                <p className="text-2xl font-bold text-white">{existingBookings.length}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div className="max-w-6xl mx-auto">
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* 予約情報確認セクション */}
@@ -191,7 +145,7 @@ const InterviewBookingPage: React.FC = () => {
                     <p className="mt-2 text-gray-400">読み込み中...</p>
                   </div>
                 ) : upcomingBookings.length === 0 ? (
-                  <div className="text-center py-8 bg-slate-700/50 rounded-lg">
+                  <div className="text-center py-8 bg-slate-700/30 rounded-lg">
                     <p className="text-gray-400 mb-4">予約中の面談はありません</p>
                     <button
                       onClick={() => setShowBookingModal(true)}
@@ -203,7 +157,7 @@ const InterviewBookingPage: React.FC = () => {
                 ) : (
                   <div className="space-y-4">
                     {upcomingBookings.map((booking) => (
-                      <div key={booking.id} className="border border-slate-600/50 bg-slate-700/30 rounded-lg p-4 hover:bg-slate-700/50 transition-colors">
+                      <div key={booking.id} className="border border-slate-600/50 bg-slate-700/30 rounded-lg p-4 hover:bg-slate-600/30 transition-colors">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
@@ -218,7 +172,7 @@ const InterviewBookingPage: React.FC = () => {
                               <p>📂 カテゴリ: {getCategoryLabel(booking.category)}</p>
                               <p>👤 担当者: {booking.interviewer}</p>
                               {booking.description && (
-                                <p className="text-gray-200 mt-2">📝 {booking.description}</p>
+                                <p className="text-gray-400 mt-2">📝 {booking.description}</p>
                               )}
                             </div>
                           </div>
@@ -226,7 +180,7 @@ const InterviewBookingPage: React.FC = () => {
                           {booking.status === 'confirmed' && (
                             <button
                               onClick={() => handleCancelBooking(booking.id)}
-                              className="ml-4 px-3 py-1 text-red-600 hover:bg-red-50 rounded border border-red-200 text-sm"
+                              className="ml-4 px-3 py-1 text-red-400 hover:bg-red-900/20 rounded border border-red-700/50 text-sm"
                             >
                               キャンセル
                             </button>
@@ -348,7 +302,7 @@ const InterviewBookingPage: React.FC = () => {
               </div>
               
               <InterviewBookingCalendar 
-                employeeId={activeUser?.id}
+                employeeId={currentUser?.id}
                 onBookingComplete={handleBookingComplete}
               />
             </div>
