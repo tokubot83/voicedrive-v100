@@ -157,8 +157,6 @@ const MyProjectsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      {/* Demo Mode Controller */}
-      <DemoModeController />
       
       {/* Header */}
       <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
