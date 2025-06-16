@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { StakeholderGroup } from '../types/visibility';
+import { CreatePollData } from '../types/poll';
+import PollCreator from './PollCreator';
 
 // フリースペースカテゴリ定義
 export enum FreespaceCategory {
@@ -13,14 +15,19 @@ interface FreespaceOptionsProps {
   selectedScope: StakeholderGroup;
   onCategoryChange: (category: FreespaceCategory) => void;
   onScopeChange: (scope: StakeholderGroup) => void;
+  showPollOption?: boolean;
+  onCreatePoll?: (pollData: CreatePollData) => void;
 }
 
 const FreespaceOptions = ({
   selectedCategory,
   selectedScope,
   onCategoryChange,
-  onScopeChange
+  onScopeChange,
+  showPollOption = false,
+  onCreatePoll
 }: FreespaceOptionsProps) => {
+  const [showPollCreator, setShowPollCreator] = useState(false);
   
   // カテゴリ定義
   const categories = [
@@ -180,6 +187,51 @@ const FreespaceOptions = ({
           })}
         </div>
       </div>
+
+      {/* 投票機能オプション */}
+      {showPollOption && (
+        <div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">
+            📊 投票機能
+          </h3>
+          <div className="space-y-3">
+            <div className="p-4 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <span className="text-lg">📊</span>
+                  <div>
+                    <h4 className="font-medium text-gray-800">投票を追加</h4>
+                    <p className="text-sm text-gray-600">選択肢から選んでもらう投票を作成</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowPollCreator(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
+                >
+                  投票を作成
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 投票作成モーダル */}
+      {showPollCreator && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <PollCreator
+              category={selectedCategory}
+              scope={selectedScope as any}
+              onCreatePoll={(pollData) => {
+                onCreatePoll?.(pollData);
+                setShowPollCreator(false);
+              }}
+              onCancel={() => setShowPollCreator(false)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* 選択内容の確認 */}
       <div className="bg-gray-50 p-4 rounded-lg">

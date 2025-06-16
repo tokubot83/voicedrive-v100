@@ -6,6 +6,7 @@ import SeasonalCapacityIndicator from './SeasonalCapacityIndicator';
 import ProposalEchoCard from './ProposalEchoCard';
 import { proposalTypes } from '../config/proposalTypes';
 import FreespaceOptions, { FreespaceCategory } from './FreespaceOptions';
+import { CreatePollData } from '../types/poll';
 
 interface ComposeFormProps {
   selectedType: PostType;
@@ -23,6 +24,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   // フリースペース用の状態
   const [freespaceCategory, setFreespaceCategory] = useState<FreespaceCategory>(FreespaceCategory.CASUAL_DISCUSSION);
   const [freespaceScope, setFreespaceScope] = useState<StakeholderGroup>(StakeholderGroup.SAME_DEPARTMENT);
+  const [pollData, setPollData] = useState<CreatePollData | null>(null);
   
   const { 
     currentSeason, 
@@ -88,6 +90,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       proposalType: selectedType === 'improvement' ? proposalType : undefined,
       freespaceCategory: selectedType === 'community' ? freespaceCategory : undefined,
       freespaceScope: selectedType === 'community' ? freespaceScope : undefined,
+      pollData: selectedType === 'community' ? pollData : undefined,
       season: currentSeason 
     });
     alert('投稿が完了しました！');
@@ -292,6 +295,8 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
                 selectedScope={freespaceScope}
                 onCategoryChange={setFreespaceCategory}
                 onScopeChange={setFreespaceScope}
+                showPollOption={true}
+                onCreatePoll={setPollData}
               />
             </div>
           )}
