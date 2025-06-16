@@ -2,7 +2,7 @@ import React from 'react';
 import { Post } from '../types';
 import FreespacePost from './FreespacePost';
 import EventPost from './EventPost';
-import Post as RegularPost from './Post';
+import RegularPost from './Post';
 import { Poll, PollVote } from '../types/poll';
 import { Event } from '../types/event';
 

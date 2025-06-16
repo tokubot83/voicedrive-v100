@@ -67,6 +67,20 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
   };
 
 
+  // フリースペース投稿の場合は専用レンダラーを使用
+  if (post.type === 'community') {
+    return (
+      <div className="mb-6">
+        <FreespacePostRenderer
+          post={post}
+          currentUserId={currentUser.id}
+          onVote={onVote}
+          onComment={onComment}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="border-b border-gray-800/30 p-5 transition-all duration-300 hover:bg-white/2 hover:shadow-[inset_0_0_20px_rgba(29,155,240,0.1)]">
       <div className="flex gap-3">
