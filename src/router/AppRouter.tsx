@@ -94,7 +94,6 @@ const AppRouter: React.FC = () => {
         <Route index element={<HomePage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="projects-legacy" element={<ProjectListPage />} />
-        <Route path="project/:projectId" element={<ProjectDetailPage />} />
         
         {/* Role-based dashboard routes with exact level protection */}
         <Route path="dashboard">
@@ -386,6 +385,7 @@ const AppRouter: React.FC = () => {
       
       {/* Full-width pages without sidebar */}
       <Route path="compose/:type" element={<ComposePage />} />
+      <Route path="project/:projectId" element={<ProjectDetailPage />} />
       
       {/* Interview and Project Management - Full width */}
       <Route path="interview-booking" element={<InterviewBookingPage />} />
