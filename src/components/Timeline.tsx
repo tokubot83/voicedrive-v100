@@ -16,12 +16,12 @@ interface TimelineProps {
 const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
   // Safe demo mode hook usage with fallback
   let isDemoMode = false;
-  let currentUser = null;
+  let demoUser = null;
   
   try {
     const demoModeData = useDemoMode();
     isDemoMode = demoModeData.isDemoMode;
-    currentUser = demoModeData.currentUser;
+    demoUser = demoModeData.currentUser;
   } catch (error) {
     // useDemoMode hook is not available, use defaults
     console.log('DemoMode not available, using defaults');
@@ -29,6 +29,22 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
   
   const { currentUser: authUser } = useAuth();
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  
+  // Define activeUser safely with fallback
+  const activeUser = demoUser || authUser || null;
+  const currentUser = activeUser; // For backward compatibility
+  
+  // Early return if no user is available
+  if (!activeUser) {
+    console.log('No user available, rendering empty timeline');
+    return (
+      <div className="overflow-y-auto p-4">
+        <div className="text-center text-gray-500">
+          <p>ユーザー情報を読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
   
   // Debug logging
   console.log('Timeline component rendered', {
@@ -223,8 +239,8 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
     }
     
     // Apply expiration filtering for freespace posts
-    const currentUserId = currentUser?.id || authUser?.id || '';
-    const userPermissionLevel = authUser?.permissionLevel || currentUser?.permissionLevel || 1;
+    const currentUserId = activeUser?.id || '';
+    const userPermissionLevel = activeUser?.permissionLevel || 1;
     
     filtered = FreespaceExpirationService.filterVisiblePosts(
       filtered, 
@@ -233,7 +249,7 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
     );
     
     return filtered;
-  }, [posts, activeTab, filterByUser, currentUser, authUser]);
+  }, [posts, activeTab, filterByUser, activeUser]);
 
   console.log('Timeline rendering posts:', filteredPosts.length);
   
@@ -246,7 +262,7 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
   return (
     <div className="overflow-y-auto">
       {/* Freespace Expiration Notifications */}
-      {activeUser && (
+      {activeUser?.id && (
         <FreespaceExpirationNotification
           posts={posts}
           currentUserId={activeUser.id}
