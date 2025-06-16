@@ -80,6 +80,12 @@ export const ProjectDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // マイプロジェクトページのパスを生成
+  const getMyProjectsPath = () => {
+    // 通常は /my-projects に遷移
+    return '/my-projects';
+  };
+
   // Load project details
   useEffect(() => {
     const loadProjectDetails = async () => {
@@ -282,7 +288,7 @@ export const ProjectDetailPage: React.FC = () => {
               <span className="text-sm">ホーム</span>
             </Link>
             <Link
-              to="/myprojects"
+              to={getMyProjectsPath()}
               className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors text-gray-300 hover:text-white"
             >
               <FolderOpen className="w-4 h-4" />
