@@ -611,7 +611,43 @@ export const demoPosts: Post[] = [
     anonymityLevel: 'real_name',
     timestamp: new Date('2025-01-01T09:00:00'),
     votes: generateVotes(),
-    comments: []
+    comments: [],
+    freespaceCategory: 'idea_sharing',
+    expirationDate: new Date('2025-01-31T23:59:00'), // 30日後
+    isExpired: false
+  },
+  
+  // 期限切れ間近の投稿 (デモ用)
+  {
+    id: 'post-expiring-soon',
+    type: 'community',
+    content: 'オフィスのコーヒーマシンの種類を増やしてみませんか？エスプレッソやカプチーノなど、皆さんの希望を聞かせてください。',
+    author: demoUsers[0], // 一般社員
+    anonymityLevel: 'department_only',
+    timestamp: new Date('2025-01-10T15:00:00'),
+    votes: generateVotes(),
+    comments: [],
+    freespaceCategory: 'casual_discussion',
+    expirationDate: new Date('2025-01-17T15:00:00'), // 7日後 (間もなく期限切れ)
+    isExpired: false
+  },
+  
+  // 延長申請中の投稿 (デモ用)
+  {
+    id: 'post-extension-requested',
+    type: 'community',
+    content: '社内ハッカソンのアイデア募集中！今年のテーマは「業務効率化」です。AIやRPAを活用した新しいツールのアイデアをお待ちしています。',
+    author: demoUsers[2], // ベテラン社員
+    anonymityLevel: 'real_name',
+    timestamp: new Date('2025-01-01T12:00:00'),
+    votes: generateVotes(),
+    comments: [],
+    freespaceCategory: 'idea_sharing',
+    expirationDate: new Date('2025-01-31T23:59:00'), // オリジナル期限
+    extensionRequested: true,
+    extensionReason: 'まだ多くのアイデアが必要で、より多くの意見を集めたいため',
+    extensionRequestedDate: new Date('2025-01-12T09:00:00'),
+    isExpired: false
   },
 
   // フリースペース投票機能デモ投稿
