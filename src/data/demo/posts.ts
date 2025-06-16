@@ -603,6 +603,217 @@ export const demoPosts: Post[] = [
     votes: generateVotes(),
     comments: []
   },
+
+  // フリースペース投票機能デモ投稿
+  {
+    id: 'post-poll-demo-1',
+    type: 'community',
+    content: '年末調整の書類提出方法について、皆さんはどの方法が便利だと思いますか？',
+    author: demoUsers[5], // 人事部職員
+    anonymityLevel: 'real_name',
+    timestamp: new Date('2025-01-16T14:00:00'),
+    votes: generateVotes(),
+    comments: generateSampleComments('post-poll-demo-1', 4),
+    freespaceCategory: 'idea_sharing',
+    freespaceScope: 'organization',
+    poll: {
+      id: 'poll-demo-1',
+      question: '年末調整書類の提出方法はどれが良い？',
+      description: '来年度の年末調整をより効率的にするため、皆さんのご意見をお聞かせください',
+      options: [
+        { id: 'opt-demo-1', text: '紙での提出（従来通り）', emoji: '📄', votes: 23 },
+        { id: 'opt-demo-2', text: 'メール添付での提出', emoji: '📧', votes: 45 },
+        { id: 'opt-demo-3', text: '専用Webサイトでの入力', emoji: '💻', votes: 67 },
+        { id: 'opt-demo-4', text: 'スマホアプリでの提出', emoji: '📱', votes: 34 }
+      ],
+      totalVotes: 169,
+      deadline: new Date('2025-01-25T23:59:59'),
+      isActive: true,
+      showResults: 'afterVote',
+      category: 'idea_sharing',
+      scope: 'organization',
+      createdAt: new Date('2025-01-16T14:00:00'),
+      createdBy: demoUsers[5]
+    }
+  },
+
+  {
+    id: 'post-poll-demo-2',
+    type: 'community',
+    content: '今度の部署懇親会、みんなでゲームをやりませんか？',
+    author: demoUsers[2], // 一般職員
+    anonymityLevel: 'department_only',
+    timestamp: new Date('2025-01-15T16:30:00'),
+    votes: generateVotes(),
+    comments: generateSampleComments('post-poll-demo-2', 3),
+    freespaceCategory: 'casual_discussion',
+    freespaceScope: 'department',
+    poll: {
+      id: 'poll-demo-2',
+      question: '懇親会でやりたいゲームは？',
+      description: '盛り上がること間違いなし！',
+      options: [
+        { id: 'opt-demo-5', text: 'ビンゴゲーム', emoji: '🎯', votes: 28 },
+        { id: 'opt-demo-6', text: 'クイズ大会', emoji: '🧠', votes: 19 },
+        { id: 'opt-demo-7', text: 'じゃんけん大会', emoji: '✊', votes: 15 }
+      ],
+      totalVotes: 62,
+      deadline: new Date('2025-01-20T18:00:00'),
+      isActive: true,
+      showResults: 'afterVote',
+      category: 'casual_discussion',
+      scope: 'department',
+      createdAt: new Date('2025-01-15T16:30:00'),
+      createdBy: demoUsers[2]
+    }
+  },
+
+  // イベント企画機能デモ投稿
+  {
+    id: 'post-event-demo-1',
+    type: 'community',
+    content: '',
+    author: demoUsers[6], // 管理職
+    anonymityLevel: 'real_name',
+    timestamp: new Date('2025-01-14T11:00:00'),
+    votes: generateVotes(),
+    comments: generateSampleComments('post-event-demo-1', 5),
+    freespaceCategory: 'event_planning',
+    freespaceScope: 'facility',
+    event: {
+      id: 'event-demo-1',
+      title: '健康増進ウォーキング大会',
+      description: '新年の健康増進を目的としたウォーキングイベントを企画しました！職員同士の親睦も深められる楽しいイベントにしたいと思います。',
+      type: 'sports',
+      proposedDates: [
+        {
+          id: 'date-demo-1-1',
+          date: new Date('2025-02-15T00:00:00'),
+          startTime: '09:00',
+          endTime: '12:00',
+          votes: [
+            { id: 'vote-demo-1', proposedDateId: 'date-demo-1-1', userId: 'user-1', response: 'available', timestamp: new Date() },
+            { id: 'vote-demo-2', proposedDateId: 'date-demo-1-1', userId: 'user-2', response: 'available', timestamp: new Date() },
+            { id: 'vote-demo-3', proposedDateId: 'date-demo-1-1', userId: 'user-3', response: 'maybe', timestamp: new Date() }
+          ],
+          totalVotes: 23
+        },
+        {
+          id: 'date-demo-1-2',
+          date: new Date('2025-02-22T00:00:00'),
+          startTime: '09:00',
+          endTime: '12:00',
+          votes: [
+            { id: 'vote-demo-4', proposedDateId: 'date-demo-1-2', userId: 'user-1', response: 'maybe', timestamp: new Date() },
+            { id: 'vote-demo-5', proposedDateId: 'date-demo-1-2', userId: 'user-2', response: 'available', timestamp: new Date() }
+          ],
+          totalVotes: 18
+        }
+      ],
+      organizer: demoUsers[6],
+      maxParticipants: 50,
+      participants: [
+        {
+          id: 'participant-demo-1',
+          user: demoUsers[1],
+          status: 'confirmed',
+          joinedAt: new Date('2025-01-14T12:00:00'),
+          note: '運動不足解消に参加します！'
+        },
+        {
+          id: 'participant-demo-2',
+          user: demoUsers[2],
+          status: 'confirmed',
+          joinedAt: new Date('2025-01-14T14:30:00')
+        },
+        {
+          id: 'participant-demo-3',
+          user: demoUsers[4],
+          status: 'confirmed',
+          joinedAt: new Date('2025-01-14T15:45:00'),
+          note: '家族も参加可能でしょうか？'
+        }
+      ],
+      waitlist: [],
+      venue: {
+        name: '〇〇公園ウォーキングコース',
+        address: '〇〇市××町1-1',
+        capacity: 100,
+        amenities: ['駐車場あり', '更衣室', '休憩所']
+      },
+      cost: 0,
+      requirements: ['運動しやすい服装', '飲み物持参', '雨天中止'],
+      status: 'date_voting',
+      visibility: 'facility',
+      allowDateVoting: true,
+      allowParticipantComments: true,
+      sendReminders: true,
+      createdAt: new Date('2025-01-14T11:00:00'),
+      updatedAt: new Date('2025-01-16T09:00:00'),
+      tags: ['健康', 'ウォーキング', '親睦', '運動'],
+      registrationDeadline: new Date('2025-02-10T23:59:59')
+    }
+  },
+
+  {
+    id: 'post-event-demo-2',
+    type: 'community',
+    content: '',
+    author: demoUsers[3], // チームリーダー
+    anonymityLevel: 'real_name',
+    timestamp: new Date('2025-01-13T09:30:00'),
+    votes: generateVotes(),
+    comments: generateSampleComments('post-event-demo-2', 2),
+    freespaceCategory: 'event_planning',
+    freespaceScope: 'department',
+    event: {
+      id: 'event-demo-2',
+      title: 'Excel活用スキルアップ講座',
+      description: '業務効率化のためのExcel活用講座を開催します。基本操作からピボットテーブル、マクロまで実践的に学べます。',
+      type: 'training',
+      proposedDates: [],
+      finalDate: {
+        date: new Date('2025-01-28T00:00:00'),
+        startTime: '14:00',
+        endTime: '16:00',
+        timezone: 'Asia/Tokyo'
+      },
+      organizer: demoUsers[3],
+      maxParticipants: 15,
+      participants: [
+        {
+          id: 'participant-demo-4',
+          user: demoUsers[1],
+          status: 'confirmed',
+          joinedAt: new Date('2025-01-13T10:00:00'),
+          note: 'ピボットテーブルを覚えたいです'
+        },
+        {
+          id: 'participant-demo-5',
+          user: demoUsers[2],
+          status: 'confirmed',
+          joinedAt: new Date('2025-01-13T11:15:00')
+        }
+      ],
+      waitlist: [],
+      venue: {
+        name: '研修室B',
+        capacity: 20,
+        amenities: ['PC完備', 'プロジェクター', 'ホワイトボード']
+      },
+      cost: 0,
+      requirements: ['Excel基本操作ができること', 'ノートPC持参（貸出可）'],
+      status: 'recruiting',
+      visibility: 'department',
+      allowDateVoting: false,
+      allowParticipantComments: true,
+      sendReminders: true,
+      createdAt: new Date('2025-01-13T09:30:00'),
+      updatedAt: new Date('2025-01-13T09:30:00'),
+      tags: ['Excel', 'スキルアップ', '業務効率化', '研修'],
+      registrationDeadline: new Date('2025-01-25T17:00:00')
+    }
+  },
   
   // Add project-level demo posts
   ...projectDemoPosts,

@@ -123,6 +123,14 @@ export interface Post {
   escalatedBy?: string;
   escalatedDate?: string;
   escalationReason?: string;
+  
+  // Freespace-specific properties
+  freespaceCategory?: 'idea_sharing' | 'casual_discussion' | 'event_planning';
+  freespaceScope?: 'team' | 'department' | 'facility' | 'organization';
+  
+  // Poll and Event integration
+  poll?: any; // Will be replaced with Poll interface from poll.ts
+  event?: any; // Will be replaced with Event interface from event.ts
 }
 
 export interface ProjectMilestone {

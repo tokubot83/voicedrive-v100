@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { Project, ProjectStatus } from '../data/demo/projects';
 import { demoProjects } from '../data/demo/projects';
@@ -140,27 +141,41 @@ const MyProjectsPage: React.FC = () => {
   const totalProjects = projectGroups.reduce((sum, group) => sum + group.projects.length, 0);
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">マイプロジェクト</h1>
-        <p className="text-gray-600 mt-1">
-          あなたが関わっているプロジェクトの一覧です
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      {/* Header */}
+      <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm">ホームに戻る</span>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-white">マイプロジェクト</h1>
+              <p className="text-gray-400 text-sm">あなたが関わっているプロジェクトの一覧です</p>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <div className="p-6">
 
-      {/* タブナビゲーション */}
-      <div className="mb-6 border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          <button
-            onClick={() => setSelectedTab('all')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              selectedTab === 'all'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            すべて ({totalProjects})
-          </button>
+        {/* タブナビゲーション */}
+        <div className="mb-6 border-b border-slate-700">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setSelectedTab('all')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                selectedTab === 'all'
+                  ? 'border-blue-500 text-blue-400'
+                  : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600'
+              }`}
+            >
+              すべて ({totalProjects})
+            </button>
           {projectGroups.map(group => (
             <button
               key={group.title}
@@ -175,8 +190,8 @@ const MyProjectsPage: React.FC = () => {
                 (selectedTab === 'approving' && group.title === '承認待ちプロジェクト') ||
                 (selectedTab === 'participating' && group.title === '参加中プロジェクト') ||
                 (selectedTab === 'provisional' && group.title === '仮選出中プロジェクト')
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-blue-500 text-blue-400'
+                  : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600'
               }`}
             >
               {group.title} ({group.projects.length})
@@ -185,65 +200,65 @@ const MyProjectsPage: React.FC = () => {
         </nav>
       </div>
 
-      {/* プロジェクトグループ */}
-      <div className="space-y-6">
-        {filteredGroups.map((group) => (
-          <div key={group.title}>
-            <div className="mb-3 flex items-center gap-2 text-gray-700">
-              {group.icon}
-              <h2 className="text-lg font-semibold">{group.title}</h2>
-              <span className="text-sm text-gray-500">({group.projects.length}件)</span>
-            </div>
-
-            {group.projects.length === 0 ? (
-              <div className={`${group.bgColor} ${group.borderColor} border rounded-lg p-6 text-center`}>
-                <p className="text-gray-500">{group.description}はありません</p>
+        {/* プロジェクトグループ */}
+        <div className="space-y-6">
+          {filteredGroups.map((group) => (
+            <div key={group.title}>
+              <div className="mb-3 flex items-center gap-2 text-gray-300">
+                {group.icon}
+                <h2 className="text-lg font-semibold">{group.title}</h2>
+                <span className="text-sm text-gray-500">({group.projects.length}件)</span>
               </div>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {group.projects.map((project) => {
-                  const initiator = getDemoUserById(project.initiator);
-                  const currentWorkflow = project.workflows.find(w => w.status === 'in-progress');
-                  
-                  return (
-                    <Link
-                      key={project.id}
-                      to={`/projects/${project.id}`}
-                      className={`${group.bgColor} ${group.borderColor} border rounded-lg p-4 hover:shadow-md transition-shadow`}
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-medium text-gray-900 line-clamp-2">
-                          {project.title}
-                        </h3>
-                        {getStatusBadge(project.status)}
-                      </div>
-                      
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                        {project.description}
-                      </p>
-                      
-                      <div className="space-y-1 text-xs text-gray-500">
-                        <p>提案者: {initiator?.name || '不明'}</p>
-                        <p>作成日: {project.createdDate.toLocaleDateString('ja-JP')}</p>
-                        
-                        {currentWorkflow && (
-                          <p className="text-orange-600 font-medium">
-                            現在: {currentWorkflow.stage} 承認待ち
-                          </p>
-                        )}
-                        
-                        {project.memberSelectionStatus === 'in-progress' && (
-                          <p className="text-purple-600 font-medium">
-                            メンバー選出中（仮選出: {project.provisionalMembers?.length || 0}名）
-                          </p>
-                        )}
-                      </div>
 
-                      <div className="mt-3 flex justify-end">
-                        <span className="text-sm text-blue-600 hover:text-blue-800">
-                          詳細を見る →
-                        </span>
-                      </div>
+              {group.projects.length === 0 ? (
+                <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50 text-center">
+                  <p className="text-gray-400">{group.description}はありません</p>
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {group.projects.map((project) => {
+                    const initiator = getDemoUserById(project.initiator);
+                    const currentWorkflow = project.workflows.find(w => w.status === 'in-progress');
+                    
+                    return (
+                      <Link
+                        key={project.id}
+                        to={`/projects/${project.id}`}
+                        className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-700/50 hover:border-slate-600/50 transition-all"
+                    >
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-medium text-white line-clamp-2">
+                            {project.title}
+                          </h3>
+                          {getStatusBadge(project.status)}
+                        </div>
+                        
+                        <p className="text-sm text-gray-400 mb-3 line-clamp-2">
+                          {project.description}
+                        </p>
+                        
+                        <div className="space-y-1 text-xs text-gray-500">
+                          <p>提案者: {initiator?.name || '不明'}</p>
+                          <p>作成日: {project.createdDate.toLocaleDateString('ja-JP')}</p>
+                          
+                          {currentWorkflow && (
+                            <p className="text-orange-400 font-medium">
+                              現在: {currentWorkflow.stage} 承認待ち
+                            </p>
+                          )}
+                          
+                          {project.memberSelectionStatus === 'in-progress' && (
+                            <p className="text-purple-400 font-medium">
+                              メンバー選出中（仮選出: {project.provisionalMembers?.length || 0}名）
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="mt-3 flex justify-end">
+                          <span className="text-sm text-blue-400 hover:text-blue-300">
+                            詳細を見る →
+                          </span>
+                        </div>
                     </Link>
                   );
                 })}
@@ -253,11 +268,12 @@ const MyProjectsPage: React.FC = () => {
         ))}
       </div>
 
-      {filteredGroups.length === 0 || filteredGroups.every(g => g.projects.length === 0) && (
-        <div className="text-center py-12">
-          <p className="text-gray-500">該当するプロジェクトはありません</p>
-        </div>
-      )}
+        {filteredGroups.length === 0 || filteredGroups.every(g => g.projects.length === 0) && (
+          <div className="text-center py-12">
+            <p className="text-gray-400">該当するプロジェクトはありません</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import VotingSection from './VotingSection';
+import FreespacePostRenderer from './FreespacePostRenderer';
 import { Post as PostType, VoteOption, User } from '../types';
 
 interface EnhancedPostProps {
