@@ -109,7 +109,7 @@ export const MedicalCategorySelector: React.FC<MedicalCategorySelectorProps> = (
                 ((group.color || 'blue') === 'red' ? 'text-red-600' : 
                 group.color === 'purple' ? 'text-purple-600' : 'text-blue-600')
               }`}>
-                {group?.icon}
+                {group?.icon || '🏥'}
               </div>
               <span className="font-medium">{group.name}</span>
               <span className="text-sm text-gray-500">
@@ -147,7 +147,7 @@ export const MedicalCategorySelector: React.FC<MedicalCategorySelectorProps> = (
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <span className="text-2xl">{category?.icon}</span>
+                          <span className="text-2xl">{category?.icon || '🏥'}</span>
                           <div>
                             <div className="font-medium">{category.name}</div>
                             <div className="text-sm text-gray-600">{category.description}</div>

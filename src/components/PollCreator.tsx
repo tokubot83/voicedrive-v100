@@ -107,13 +107,13 @@ const PollCreator = ({ onCreatePoll, onCancel, category, scope }: PollCreatorPro
 
       {/* カテゴリと公開範囲の表示 */}
       <div className="flex items-center gap-3 mb-6 p-3 bg-gray-50 rounded-lg">
-        <span className={`px-3 py-1 rounded-full text-xs text-white bg-gradient-to-r ${categoryInfo[category].color}`}>
-          {categoryInfo[category].label}
+        <span className={`px-3 py-1 rounded-full text-xs text-white bg-gradient-to-r ${categoryInfo[category]?.color || 'from-gray-500 to-gray-600'}`}>
+          {categoryInfo[category]?.label || '📊 投票'}
         </span>
         <span className="text-gray-400">•</span>
         <span className="flex items-center gap-1 text-sm text-gray-600">
-          <span>{scopeInfo[scope].icon}</span>
-          <span>{scopeInfo[scope].label}</span>
+          <span>{scopeInfo[scope]?.icon || '👥'}</span>
+          <span>{scopeInfo[scope]?.label || '範囲未設定'}</span>
         </span>
       </div>
 

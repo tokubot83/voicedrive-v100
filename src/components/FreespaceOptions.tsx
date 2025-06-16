@@ -125,7 +125,7 @@ const FreespaceOptions = ({
             >
               <div className="flex items-center space-x-3">
                 <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${category.color} flex items-center justify-center text-white text-lg`}>
-                  {category.icon}
+                  {category?.icon || '💬'}
                 </div>
                 <div className="flex-1">
                   <h4 className="font-medium text-gray-800">{category.title}</h4>
@@ -168,7 +168,7 @@ const FreespaceOptions = ({
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <span className="text-lg">{scope.icon}</span>
+                    <span className="text-lg">{scope?.icon || '👥'}</span>
                     <div>
                       <h4 className="font-medium text-gray-800 flex items-center space-x-1">
                         <span>{scope.title}</span>
@@ -285,13 +285,13 @@ const FreespaceOptions = ({
           <div className="flex items-center space-x-2">
             <span>カテゴリ:</span>
             <span className="font-medium">
-              {categories.find(c => c.id === selectedCategory)?.icon} {categories.find(c => c.id === selectedCategory)?.title}
+              {categories.find(c => c.id === selectedCategory)?.icon || '💬'} {categories.find(c => c.id === selectedCategory)?.title || 'カテゴリ未設定'}
             </span>
           </div>
           <div className="flex items-center space-x-2">
             <span>公開範囲:</span>
             <span className="font-medium">
-              {scopes.find(s => s.id === selectedScope)?.icon} {scopes.find(s => s.id === selectedScope)?.title}
+              {scopes.find(s => s.id === selectedScope)?.icon || '👥'} {scopes.find(s => s.id === selectedScope)?.title || '範囲未設定'}
             </span>
           </div>
         </div>

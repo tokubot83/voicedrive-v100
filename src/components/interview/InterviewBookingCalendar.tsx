@@ -10,10 +10,12 @@ import { InterviewBookingService } from '../../services/InterviewBookingService'
 
 interface InterviewBookingCalendarProps {
   employeeId?: string;
+  onBookingComplete?: () => void;
 }
 
 const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({ 
-  employeeId = 'EMP001' 
+  employeeId = 'EMP001',
+  onBookingComplete
 }) => {
   const bookingService = new InterviewBookingService();
   
@@ -161,6 +163,11 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
         setSelectedSlots([]);
         setDescription('');
         loadExistingBookings();
+        
+        // 予約完了コールバックを呼び出し
+        if (onBookingComplete) {
+          onBookingComplete();
+        }
       } else {
         setError(response.message || '予約に失敗しました');
       }

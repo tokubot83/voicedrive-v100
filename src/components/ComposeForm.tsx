@@ -186,7 +186,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
                 `}
               >
                 <div className="flex items-start gap-4">
-                  <span className="text-3xl">{type?.icon}</span>
+                  <span className="text-3xl">{type?.icon || '📋'}</span>
                   <div className="flex-1 text-left">
                     <h4 className="text-lg font-bold text-gray-100 mb-1">{type.label}</h4>
                     <p className="text-sm text-gray-400 mb-3">{type.description}</p>
@@ -330,7 +330,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
                       }
                     `}
                   >
-                    <span className="text-2xl mb-2">{option?.icon}</span>
+                    <span className="text-2xl mb-2">{option?.icon || '📋'}</span>
                     <span className="font-medium">{option.label}</span>
                   </button>
                 ))}
@@ -391,7 +391,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
                     }
                   `}
                 >
-                  <span className="text-2xl mr-4">{option?.icon}</span>
+                  <span className="text-2xl mr-4">{option?.icon || '📋'}</span>
                   <div className="flex-1 text-left">
                     <div className="font-medium">{option.label}</div>
                     <div className="text-sm text-gray-400">
@@ -437,7 +437,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
               </span>
               {selectedType === 'improvement' && (
                 <span className={`px-2 py-1 rounded-lg text-xs font-bold ${proposalTypes.find(t => t.type === proposalType)?.borderColor.replace('border-', 'bg-').replace('500', '500/20')} ${proposalTypes.find(t => t.type === proposalType)?.borderColor.replace('border-', 'text-')}`}>
-                  {proposalTypes.find(t => t.type === proposalType)?.icon || '📝'} {proposalTypes.find(t => t.type === proposalType)?.label}
+                  {proposalTypes.find(t => t.type === proposalType)?.icon || '📝'} {proposalTypes.find(t => t.type === proposalType)?.label || '提案タイプ'}
                 </span>
               )}
               {selectedType !== 'community' && (

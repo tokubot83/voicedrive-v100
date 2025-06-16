@@ -97,7 +97,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-3 text-left">
-                      <span className="text-2xl">{category?.icon}</span>
+                      <span className="text-2xl">{category?.icon || '📋'}</span>
                       <div>
                         <div className="font-medium">{category.name}</div>
                         <div className="text-sm text-gray-600">{category.description}</div>

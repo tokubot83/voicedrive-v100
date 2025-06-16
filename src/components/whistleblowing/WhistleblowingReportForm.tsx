@@ -88,7 +88,7 @@ const WhistleblowingReportForm: React.FC<WhistleblowingReportFormProps> = ({
                 />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg">{option?.icon}</span>
+                    <span className="text-lg">{option?.icon || '📋'}</span>
                     <span className="text-white font-medium">{option.label}</span>
                   </div>
                   <p className="text-gray-400 text-sm">{option.description}</p>

@@ -117,10 +117,10 @@ const EventPost = ({
         </div>
         <div className="ml-auto flex gap-2">
           <span className={`px-3 py-1 rounded-full text-xs font-medium ${typeConfig.color}`}>
-            {typeConfig.icon} {typeConfig.label}
+            {typeConfig?.icon || '📋'} {typeConfig?.label || 'イベント'}
           </span>
           <span className={`px-3 py-1 rounded-full text-xs font-medium bg-gray-100 ${statusConfig.color}`}>
-            {statusConfig.icon} {statusConfig.label}
+            {statusConfig?.icon || '📝'} {statusConfig?.label || '企画中'}
           </span>
         </div>
       </div>
