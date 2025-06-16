@@ -4,9 +4,11 @@ import Header from '../components/Header';
 import ComposeSection from '../components/ComposeSection';
 import Timeline from '../components/Timeline';
 import { PostType } from '../types';
+import { useDemoMode } from '../components/demo/DemoModeController';
 
 const HomePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { isDemoMode } = useDemoMode();
   const [currentTab, setCurrentTab] = useState('home');
   const [currentFilter, setCurrentFilter] = useState('latest');
   const [selectedPostType, setSelectedPostType] = useState<PostType>('improvement');
@@ -69,7 +71,7 @@ const HomePage = () => {
         toggleSidebar={() => {}} // Not needed in router version
       />
       
-      <div className="overflow-y-auto">
+      <div className={`overflow-y-auto ${isDemoMode ? 'mt-[80px] md:mt-[60px]' : ''}`}>
         {/* Home tab content */}
         {currentTab === 'home' && (
           <>

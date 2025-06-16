@@ -73,55 +73,99 @@ export const DemoModeController: React.FC = () => {
   return (
     <>
       {/* Demo Mode Bar */}
-      <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 z-50 shadow-lg">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="font-medium">Demo Mode Active</span>
+      <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2 md:p-3 z-40 shadow-lg">
+        <div className="max-w-7xl mx-auto">
+          {/* Mobile Layout */}
+          <div className="md:hidden">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                <span className="font-medium text-sm">Demo Mode</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setShowStats(!showStats)}
+                  className="p-1.5 bg-white/20 hover:bg-white/30 rounded transition-colors"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setShowInfo(!showInfo)}
+                  className="p-1.5 bg-white/20 hover:bg-white/30 rounded transition-colors"
+                >
+                  <Info className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="p-1.5 bg-white/20 hover:bg-white/30 rounded transition-colors"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setIsMinimized(true)}
+                  className="p-1.5 hover:bg-white/20 rounded transition-colors"
+                >
+                  <Pause className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            
-            <DemoUserSwitcher currentUser={currentUser} onUserChange={setCurrentUser} />
-            
-            {/* Current user info */}
-            <div className="flex items-center gap-2 px-3 py-1 bg-white/10 rounded-lg">
-              <span className="text-xs">
-                {currentUser.accountType} | Level {currentUser.permissionLevel}
-              </span>
+            <div className="flex flex-col gap-2">
+              <DemoUserSwitcher currentUser={currentUser} onUserChange={setCurrentUser} isMobile={true} />
+              <div className="flex items-center justify-center px-2 py-1 bg-white/10 rounded text-xs">
+                {currentUser.accountType} • Level {currentUser.permissionLevel}
+              </div>
             </div>
           </div>
+          
+          {/* Desktop Layout */}
+          <div className="hidden md:flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                <span className="font-medium">Demo Mode Active</span>
+              </div>
+              
+              <DemoUserSwitcher currentUser={currentUser} onUserChange={setCurrentUser} isMobile={false} />
+              
+              <div className="flex items-center gap-2 px-3 py-1 bg-white/10 rounded-lg">
+                <span className="text-xs">
+                  {currentUser.accountType} | Level {currentUser.permissionLevel}
+                </span>
+              </div>
+            </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowStats(!showStats)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-            >
-              <BarChart3 className="w-4 h-4" />
-              <span className="text-sm">Stats</span>
-            </button>
-            
-            <button
-              onClick={() => setShowInfo(!showInfo)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-            >
-              <Info className="w-4 h-4" />
-              <span className="text-sm">Info</span>
-            </button>
-            
-            <button
-              onClick={() => window.location.reload()}
-              className="flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span className="text-sm">Reset</span>
-            </button>
-            
-            <button
-              onClick={() => setIsMinimized(true)}
-              className="p-1.5 hover:bg-white/20 rounded transition-colors"
-            >
-              <Pause className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowStats(!showStats)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+              >
+                <BarChart3 className="w-4 h-4" />
+                <span className="text-sm">Stats</span>
+              </button>
+              
+              <button
+                onClick={() => setShowInfo(!showInfo)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+              >
+                <Info className="w-4 h-4" />
+                <span className="text-sm">Info</span>
+              </button>
+              
+              <button
+                onClick={() => window.location.reload()}
+                className="flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span className="text-sm">Reset</span>
+              </button>
+              
+              <button
+                onClick={() => setIsMinimized(true)}
+                className="p-1.5 hover:bg-white/20 rounded transition-colors"
+              >
+                <Pause className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

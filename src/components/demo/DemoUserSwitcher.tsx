@@ -7,6 +7,7 @@ import { FACILITIES } from '../../data/medical/facilities';
 interface DemoUserSwitcherProps {
   currentUser: DemoUser;
   onUserChange: (user: DemoUser) => void;
+  isMobile?: boolean;
 }
 
 const permissionLevelInfo = {
@@ -20,7 +21,7 @@ const permissionLevelInfo = {
   8: { label: '理事長', color: 'bg-indigo-100 text-indigo-700', icon: Shield },
 };
 
-export const DemoUserSwitcher: React.FC<DemoUserSwitcherProps> = ({ currentUser, onUserChange }) => {
+export const DemoUserSwitcher: React.FC<DemoUserSwitcherProps> = ({ currentUser, onUserChange, isMobile = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<'level' | 'hierarchy'>('level');
@@ -40,26 +41,28 @@ export const DemoUserSwitcher: React.FC<DemoUserSwitcherProps> = ({ currentUser,
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+        className={`flex items-center gap-2 ${isMobile ? 'px-2 py-1.5' : 'px-4 py-2'} bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-full`}
       >
         <img
           src={currentUser.avatar}
           alt={currentUser.name}
-          className="w-8 h-8 rounded-full"
+          className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full`}
         />
-        <div className="text-left">
-          <div className="font-medium text-gray-900">{currentUser.name}</div>
-          <div className="text-xs text-gray-500">{currentUser.position}</div>
+        <div className="text-left flex-1 min-w-0">
+          <div className={`font-medium text-gray-900 ${isMobile ? 'text-sm' : ''} truncate`}>{currentUser.name}</div>
+          {!isMobile && (
+            <div className="text-xs text-gray-500 truncate">{currentUser.position}</div>
+          )}
         </div>
-        <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${levelInfo.color || 'bg-gray-100 text-gray-700'}`}>
+        <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${levelInfo.color || 'bg-gray-100 text-gray-700'} ${isMobile ? 'flex-shrink-0' : ''}`}>
           <Icon className="w-3 h-3" />
           <span>Lv.{currentUser.permissionLevel}</span>
         </div>
-        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''} flex-shrink-0`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[400px]">
+        <div className={`absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 ${isMobile ? 'min-w-[320px] max-w-[90vw]' : 'min-w-[400px]'}`}>
           <div className="p-2">
             <div className="flex items-center justify-between px-3 py-2">
               <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">

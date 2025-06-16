@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
+import { useDemoMode } from './demo/DemoModeController';
 
 interface BreadcrumbItem {
   path: string;
@@ -47,6 +48,7 @@ const pathNameMap: Record<string, string> = {
 
 const Breadcrumb = () => {
   const location = useLocation();
+  const { isDemoMode } = useDemoMode();
   
   // Don't show breadcrumb on home page
   if (location.pathname === '/') {
@@ -67,7 +69,7 @@ const Breadcrumb = () => {
   });
   
   return (
-    <nav className="px-6 py-3 text-sm border-b border-slate-700/50">
+    <nav className={`px-6 py-3 text-sm border-b border-slate-700/50 ${isDemoMode ? 'mt-[80px] md:mt-[60px]' : ''}`}>
       <ol className="flex items-center space-x-1">
         {breadcrumbItems.map((item, index) => (
           <li key={item.path} className="flex items-center">

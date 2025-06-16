@@ -5,6 +5,7 @@ import { SubFilters } from './tabs/SubFilters';
 import { useTabContext } from './tabs/TabContext';
 import { mainTabs } from './tabs/MainTabs';
 import { NotificationBell } from './notifications/NotificationBell';
+import { useDemoMode } from './demo/DemoModeController';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -13,13 +14,14 @@ interface HeaderProps {
 const Header = ({ toggleSidebar }: HeaderProps) => {
   const { tabState, setActiveMainTab, setActiveSubFilter } = useTabContext();
   const { activeMainTab, activeSubFilter } = tabState;
+  const { isDemoMode } = useDemoMode();
   
   // 現在のタブがサブフィルターを持つかチェック
   const currentTab = mainTabs.find(tab => tab.id === activeMainTab);
   const hasSubFilters = currentTab?.hasSubFilters || false;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur border-b border-gray-800">
+    <header className={`fixed left-0 right-0 z-30 bg-black/80 backdrop-blur border-b border-gray-800 ${isDemoMode ? 'top-[80px] md:top-[60px]' : 'top-0'}`}>
       <div className="flex items-center justify-between">
         {/* モバイルメニューボタン */}
         <div className="flex items-center p-4 md:hidden">

@@ -109,12 +109,12 @@ const Layout: React.FC = () => {
   }, [isSidebarOpen]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 ${isDemoMode ? 'pt-[80px] md:pt-[60px]' : ''}`}>
       {/* モバイルメニューボタン（lg以下で表示、管理画面では非表示） */}
       {!isManagementPage && (
         <button 
           onClick={toggleSidebar}
-          className="lg:hidden fixed top-4 left-4 z-50 bg-slate-800/90 backdrop-blur-lg border border-slate-700/50 rounded-full p-3 shadow-lg hover:bg-slate-700/90 transition-all duration-200"
+          className={`lg:hidden fixed left-4 z-50 bg-slate-800/90 backdrop-blur-lg border border-slate-700/50 rounded-full p-3 shadow-lg hover:bg-slate-700/90 transition-all duration-200 ${isDemoMode ? 'top-[100px] md:top-[80px]' : 'top-4'}`}
         >
           <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
