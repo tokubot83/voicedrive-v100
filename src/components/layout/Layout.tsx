@@ -11,7 +11,7 @@ import { useDemoMode } from '../demo/DemoModeController';
 const Layout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
-  const { currentUser } = useDemoMode();
+  const { currentUser, isDemoMode } = useDemoMode();
   
   // Map demo user role to UserRole type
   const userRole = currentUser.role as UserRole;
