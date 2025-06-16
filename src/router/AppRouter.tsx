@@ -93,7 +93,6 @@ const AppRouter: React.FC = () => {
         {/* Main navigation routes */}
         <Route index element={<HomePage />} />
         <Route path="profile" element={<ProfilePage />} />
-        <Route path="projects" element={<EnhancedProjectListPage />} />
         <Route path="projects-legacy" element={<ProjectListPage />} />
         <Route path="project/:projectId" element={<ProjectDetailPage />} />
         <Route path="my-projects" element={
@@ -374,15 +373,6 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
         
-        {/* Interview Booking System - All users can access */}
-        <Route path="interview-booking" element={<InterviewBookingPage />} />
-        
-        {/* Interview Management - HR Staff only (Level 5+) */}
-        <Route path="interview-management" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-            <InterviewManagementPage />
-          </ProtectedRoute>
-        } />
 
         {/* Common pages */}
         <Route path="notifications" element={<NotificationsPage />} />
@@ -403,6 +393,15 @@ const AppRouter: React.FC = () => {
       
       {/* Full-width pages without sidebar */}
       <Route path="compose/:type" element={<ComposePage />} />
+      
+      {/* Interview and Project Management - Full width */}
+      <Route path="interview-booking" element={<InterviewBookingPage />} />
+      <Route path="interview-management" element={
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
+          <InterviewManagementPage />
+        </ProtectedRoute>
+      } />
+      <Route path="projects" element={<EnhancedProjectListPage />} />
     </Routes>
   );
 };
