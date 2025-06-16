@@ -66,6 +66,9 @@ import ExecutiveDashboard from '../components/analytics/ExecutiveDashboard';
 // Whistleblowing
 import WhistleblowingPage from '../pages/WhistleblowingPage';
 
+// Compose
+import ComposePage from '../pages/ComposePage';
+
 // Interview Booking
 import InterviewBookingPage from '../pages/InterviewBookingPage';
 import InterviewManagementPage from '../pages/InterviewManagementPage';
@@ -397,6 +400,9 @@ const AppRouter: React.FC = () => {
         <Route path="404" element={<NotFoundPage />} />
         <Route path="*" element={<Navigate to="/404" replace />} />
       </Route>
+      
+      {/* Full-width pages without sidebar */}
+      <Route path="compose/:type" element={<ComposePage />} />
     </Routes>
   );
 };

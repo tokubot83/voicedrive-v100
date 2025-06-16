@@ -46,8 +46,8 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
       navigate('/whistleblowing');
       return;
     }
-    // 各投稿タイプに対応するページに遷移（投稿フォーム表示）
-    navigate(`/?tab=${type}&action=compose`);
+    // 改善提案とフリースペースは全幅レイアウトのページに遷移
+    navigate(`/compose/${type}`);
   };
 
   return (

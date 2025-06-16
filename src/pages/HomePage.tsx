@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import ComposeSection from '../components/ComposeSection';
-import ComposeForm from '../components/ComposeForm';
 import Timeline from '../components/Timeline';
 import { PostType } from '../types';
 
@@ -11,13 +10,10 @@ const HomePage = () => {
   const [currentTab, setCurrentTab] = useState('home');
   const [currentFilter, setCurrentFilter] = useState('latest');
   const [selectedPostType, setSelectedPostType] = useState<PostType>('improvement');
-  const [showComposeForm, setShowComposeForm] = useState(false);
-
   // URLパラメータから初期状態を設定
   useEffect(() => {
     const tab = searchParams.get('tab') || 'home';
     const filter = searchParams.get('filter');
-    const action = searchParams.get('action');
 
     setCurrentTab(tab);
     
@@ -32,12 +28,6 @@ const HomePage = () => {
       } else {
         setCurrentFilter('latest');
       }
-    }
-
-    // 投稿フォーム表示の判定
-    if (action === 'compose' && (tab === 'improvement' || tab === 'community')) {
-      setSelectedPostType(tab as PostType);
-      setShowComposeForm(true);
     }
   }, [searchParams]);
   
@@ -80,22 +70,8 @@ const HomePage = () => {
       />
       
       <div className="overflow-y-auto">
-        {/* 投稿フォーム表示 */}
-        {showComposeForm && (
-          <ComposeForm 
-            selectedType={selectedPostType}
-            onCancel={() => {
-              setShowComposeForm(false);
-              // URLパラメータからactionを削除
-              const newParams = new URLSearchParams(searchParams);
-              newParams.delete('action');
-              setSearchParams(newParams);
-            }}
-          />
-        )}
-
         {/* Home tab content */}
-        {currentTab === 'home' && !showComposeForm && (
+        {currentTab === 'home' && (
           <>
             <ComposeSection 
               selectedPostType={selectedPostType}
@@ -106,7 +82,7 @@ const HomePage = () => {
         )}
         
         {/* Improvement tab content with sub-filters */}
-        {currentTab === 'improvement' && !showComposeForm && (
+        {currentTab === 'improvement' && (
           <>
             <ComposeSection 
               selectedPostType="improvement"
@@ -117,7 +93,7 @@ const HomePage = () => {
         )}
         
         {/* Community tab content */}
-        {currentTab === 'community' && !showComposeForm && (
+        {currentTab === 'community' && (
           <>
             <ComposeSection 
               selectedPostType="community"
@@ -128,7 +104,7 @@ const HomePage = () => {
         )}
         
         {/* Urgent tab content */}
-        {currentTab === 'urgent' && !showComposeForm && (
+        {currentTab === 'urgent' && (
           <>
             <Timeline activeTab="urgent" />
           </>

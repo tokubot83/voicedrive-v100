@@ -1,28 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, User } from 'lucide-react';
 import { InterviewBooking } from '../types/interview';
 import { InterviewBookingService } from '../services/InterviewBookingService';
 import InterviewBookingCalendar from '../components/interview/InterviewBookingCalendar';
 import { useAuth } from '../hooks/useAuth';
+import { useDemoMode } from '../components/demo/DemoModeController';
+import DemoModeController from '../components/demo/DemoModeController';
 
 const InterviewBookingPage: React.FC = () => {
   const { currentUser } = useAuth();
+  const { currentUser: demoUser } = useDemoMode();
   const bookingService = new InterviewBookingService();
   const [existingBookings, setExistingBookings] = useState<InterviewBooking[]>([]);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  const activeUser = demoUser || currentUser;
 
   useEffect(() => {
     loadUserBookings();
-  }, [currentUser]);
+  }, [activeUser]);
 
   const loadUserBookings = async () => {
-    if (!currentUser) return;
+    if (!activeUser) return;
     
     setLoading(true);
     try {
-      const bookings = await bookingService.getEmployeeBookings(currentUser.id);
+      const bookings = await bookingService.getEmployeeBookings(activeUser.id);
       setExistingBookings(bookings);
     } catch (error) {
       console.error('Failed to load bookings:', error);
@@ -102,6 +107,9 @@ const InterviewBookingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      {/* Demo Mode Controller */}
+      <DemoModeController />
+      
       {/* Header */}
       <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
         <div className="flex items-center justify-between">
@@ -122,15 +130,53 @@ const InterviewBookingPage: React.FC = () => {
       </header>
       
       <div className="p-6">
-        <div className="max-w-6xl mx-auto">
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-700/50">
+            <div className="flex items-center gap-3">
+              <Calendar className="w-6 h-6 text-blue-400" />
+              <div>
+                <p className="text-gray-400 text-sm">予約中</p>
+                <p className="text-2xl font-bold text-white">{upcomingBookings.length}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-700/50">
+            <div className="flex items-center gap-3">
+              <Clock className="w-6 h-6 text-green-400" />
+              <div>
+                <p className="text-gray-400 text-sm">完了済み</p>
+                <p className="text-2xl font-bold text-white">{pastBookings.filter(b => b.status === 'completed').length}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-700/50">
+            <div className="flex items-center gap-3">
+              <User className="w-6 h-6 text-purple-400" />
+              <div>
+                <p className="text-gray-400 text-sm">担当者数</p>
+                <p className="text-2xl font-bold text-white">{new Set(existingBookings.map(b => b.interviewer)).size}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-700/50">
+            <div className="flex items-center gap-3">
+              <Calendar className="w-6 h-6 text-yellow-400" />
+              <div>
+                <p className="text-gray-400 text-sm">総面談数</p>
+                <p className="text-2xl font-bold text-white">{existingBookings.length}</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* 予約情報確認セクション */}
             <div className="lg:col-span-2 space-y-6">
               {/* 予約中の面談 */}
-              <div className="bg-white rounded-xl shadow-xl p-6">
+              <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">📅 予約中の面談</h2>
+                  <h2 className="text-2xl font-bold text-white">📅 予約中の面談</h2>
                   <button
                     onClick={() => setShowBookingModal(true)}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
@@ -142,11 +188,11 @@ const InterviewBookingPage: React.FC = () => {
                 {loading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-2 text-gray-600">読み込み中...</p>
+                    <p className="mt-2 text-gray-400">読み込み中...</p>
                   </div>
                 ) : upcomingBookings.length === 0 ? (
-                  <div className="text-center py-8 bg-gray-50 rounded-lg">
-                    <p className="text-gray-600 mb-4">予約中の面談はありません</p>
+                  <div className="text-center py-8 bg-slate-700/50 rounded-lg">
+                    <p className="text-gray-400 mb-4">予約中の面談はありません</p>
                     <button
                       onClick={() => setShowBookingModal(true)}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -157,22 +203,22 @@ const InterviewBookingPage: React.FC = () => {
                 ) : (
                   <div className="space-y-4">
                     {upcomingBookings.map((booking) => (
-                      <div key={booking.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                      <div key={booking.id} className="border border-slate-600/50 bg-slate-700/30 rounded-lg p-4 hover:bg-slate-700/50 transition-colors">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
-                              <h3 className="font-semibold text-gray-900">
+                              <h3 className="font-semibold text-white">
                                 {getInterviewTypeLabel(booking.type)}
                               </h3>
                               {getStatusBadge(booking.status)}
                             </div>
                             
-                            <div className="space-y-1 text-sm text-gray-600">
+                            <div className="space-y-1 text-sm text-gray-300">
                               <p>📅 {new Date(booking.scheduledDate).toLocaleDateString('ja-JP')} {booking.timeSlot.label}</p>
                               <p>📂 カテゴリ: {getCategoryLabel(booking.category)}</p>
                               <p>👤 担当者: {booking.interviewer}</p>
                               {booking.description && (
-                                <p className="text-gray-700 mt-2">📝 {booking.description}</p>
+                                <p className="text-gray-200 mt-2">📝 {booking.description}</p>
                               )}
                             </div>
                           </div>
@@ -194,20 +240,20 @@ const InterviewBookingPage: React.FC = () => {
 
               {/* 過去の面談履歴 */}
               {pastBookings.length > 0 && (
-                <div className="bg-white rounded-xl shadow-xl p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">📋 過去の面談履歴</h2>
+                <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                  <h2 className="text-xl font-bold text-white mb-4">📋 過去の面談履歴</h2>
                   <div className="space-y-3 max-h-64 overflow-y-auto">
                     {pastBookings.slice(0, 5).map((booking) => (
-                      <div key={booking.id} className="border border-gray-100 rounded-lg p-3">
+                      <div key={booking.id} className="border border-slate-600/50 bg-slate-700/30 rounded-lg p-3">
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium text-gray-900">
+                              <span className="font-medium text-white">
                                 {getInterviewTypeLabel(booking.type)}
                               </span>
                               {getStatusBadge(booking.status)}
                             </div>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-300">
                               {new Date(booking.scheduledDate).toLocaleDateString('ja-JP')} - {getCategoryLabel(booking.category)}
                             </p>
                           </div>
@@ -221,11 +267,11 @@ const InterviewBookingPage: React.FC = () => {
 
             {/* 利用案内サイドバー */}
             <div className="space-y-6">
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-                <h2 className="text-lg font-semibold text-blue-900 mb-4">
+              <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                <h2 className="text-lg font-semibold text-white mb-4">
                   📋 利用案内
                 </h2>
-                <div className="space-y-4 text-sm text-blue-800">
+                <div className="space-y-4 text-sm text-gray-300">
                   <div>
                     <h3 className="font-semibold mb-2">⏰ 面談時間</h3>
                     <ul className="space-y-1">
@@ -263,20 +309,20 @@ const InterviewBookingPage: React.FC = () => {
               </div>
 
               {/* 月の利用状況 */}
-              <div className="bg-white rounded-xl shadow-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">📊 今月の利用状況</h3>
+              <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                <h3 className="text-lg font-semibold text-white mb-3">📊 今月の利用状況</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">利用回数</span>
-                    <span className="font-medium">{upcomingBookings.length + pastBookings.filter(b => new Date(b.scheduledDate).getMonth() === new Date().getMonth()).length}/2回</span>
+                    <span className="text-gray-300">利用回数</span>
+                    <span className="font-medium text-white">{upcomingBookings.length + pastBookings.filter(b => new Date(b.scheduledDate).getMonth() === new Date().getMonth()).length}/2回</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-slate-700 rounded-full h-2">
                     <div 
                       className="bg-blue-600 h-2 rounded-full" 
                       style={{ width: `${Math.min(((upcomingBookings.length + pastBookings.filter(b => new Date(b.scheduledDate).getMonth() === new Date().getMonth()).length) / 2) * 100, 100)}%` }}
                     ></div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-gray-400 mt-2">
                     月2回までご利用いただけます
                   </p>
                 </div>
@@ -302,7 +348,7 @@ const InterviewBookingPage: React.FC = () => {
               </div>
               
               <InterviewBookingCalendar 
-                employeeId={currentUser?.id}
+                employeeId={activeUser?.id}
                 onBookingComplete={handleBookingComplete}
               />
             </div>
