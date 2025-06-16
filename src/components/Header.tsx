@@ -21,7 +21,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
   const hasSubFilters = currentTab?.hasSubFilters || false;
 
   return (
-    <header className={`fixed md:sticky left-0 right-0 z-30 bg-black/80 backdrop-blur border-b border-gray-800 ${isDemoMode ? 'top-[80px] md:top-[60px]' : 'top-0'} transition-all duration-300`}>
+    <header className={`fixed left-0 right-0 z-30 bg-black/80 backdrop-blur border-b border-gray-800 ${isDemoMode ? 'top-[80px] md:top-[60px]' : 'top-0'} transition-all duration-300`}>
       <div className="flex items-center justify-between">
         {/* モバイルロゴ */}
         <div className="flex items-center p-4 md:hidden">

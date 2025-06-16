@@ -51,6 +51,13 @@ body {
   min-height: 100vh;
 }
 
+/* モバイルデバイスでのベースフォントサイズ調整 */
+@media (max-width: 767px) {
+  html {
+    font-size: 14px; /* デフォルトの16pxから2px小さく */
+  }
+}
+
 /* Animations */
 @keyframes glow {
   from { filter: drop-shadow(0 0 10px rgba(29, 155, 240, 0.5)); }

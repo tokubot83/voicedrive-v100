@@ -231,7 +231,7 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
                 onClick={handleCommentClick}
                 className="flex items-center gap-3 px-6 py-4 bg-gradient-to-br from-blue-500/8 to-purple-500/8 border border-blue-500/20 text-blue-400 rounded-2xl transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-500/15 hover:to-purple-500/15 hover:border-blue-500/40 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(29,155,240,0.2)] group"
               >
-                <span className="text-xl drop-shadow-[0_0_8px_rgba(29,155,240,0.5)] group-hover:animate-float">
+                <span className="text-lg md:text-xl drop-shadow-[0_0_8px_rgba(29,155,240,0.5)] group-hover:animate-float">
                   💬
                 </span>
                 <span className="font-medium">

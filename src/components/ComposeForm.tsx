@@ -192,7 +192,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       {step === 1 && selectedType === 'improvement' && (
         <div>
           <div className="text-center mb-6">
-            <h3 className="text-2xl font-bold text-gray-100 mb-2">💡 提案タイプを選択してください</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-gray-100 mb-2">💡 提案タイプを選択してください</h3>
             <p className="text-gray-400">あなたの改善提案に最も適したカテゴリを選んでください</p>
           </div>
           
@@ -212,7 +212,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
                 <div className="flex items-start gap-4">
                   <span className="text-3xl">{type?.icon || '📋'}</span>
                   <div className="flex-1 text-left">
-                    <h4 className="text-lg font-bold text-gray-100 mb-1">{type.label}</h4>
+                    <h4 className="text-base md:text-lg font-bold text-gray-100 mb-1">{type.label}</h4>
                     <p className="text-sm text-gray-400 mb-3">{type.description}</p>
                     
                     <div className="bg-black/30 rounded-xl p-3">
@@ -256,7 +256,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       {((step === 1 && selectedType !== 'improvement') || (step === 2 && selectedType === 'improvement')) && (
         <div>
           <div className="text-center mb-6">
-            <h3 className="text-2xl font-bold text-gray-100 mb-2">{config.title}</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-gray-100 mb-2">{config.title}</h3>
             <p className="text-gray-400">{config.description}</p>
           </div>
           
@@ -279,7 +279,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
           )}
           
           <div className="flex gap-4 mb-5">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl shadow-[0_4px_15px_rgba(29,155,240,0.4)]">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg md:text-xl shadow-[0_4px_15px_rgba(29,155,240,0.4)]">
               田
             </div>
             <div className="flex-1 relative">
@@ -287,7 +287,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder={config.placeholder}
-                className="w-full h-32 bg-white/5 border-2 border-gray-800/50 rounded-2xl p-5 text-gray-100 text-lg resize-none outline-none transition-all duration-300 focus:border-blue-500 focus:shadow-[0_0_20px_rgba(29,155,240,0.3)] focus:bg-white/8"
+                className="w-full h-32 bg-white/5 border-2 border-gray-800/50 rounded-2xl p-5 text-gray-100 text-base md:text-lg resize-none outline-none transition-all duration-300 focus:border-blue-500 focus:shadow-[0_0_20px_rgba(29,155,240,0.3)] focus:bg-white/8"
               />
               <span className="absolute bottom-4 right-5 text-sm text-gray-500">
                 {content.length}/500
@@ -330,7 +330,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
               
               {/* 有効期限設定 */}
               <div className="mt-6 p-4 bg-white/5 border border-gray-800/30 rounded-xl">
-                <h4 className="text-lg font-bold text-gray-100 mb-3">📅 投稿の有効期限</h4>
+                <h4 className="text-base md:text-lg font-bold text-gray-100 mb-3">📅 投稿の有効期限</h4>
                 
                 {/* デフォルト期限の表示 */}
                 <div className="mb-4 p-3 bg-gray-800/50 rounded-lg">
@@ -391,7 +391,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
           {selectedType !== 'community' && (
             <div className="mb-8">
               <div className="mb-4">
-                <h4 className="text-lg font-bold text-gray-100 mb-2">重要度を選択</h4>
+                <h4 className="text-base md:text-lg font-bold text-gray-100 mb-2">重要度を選択</h4>
                 <p className="text-gray-400 text-sm">提案の緊急性と影響度を考慮して選択してください</p>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -412,7 +412,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
                       }
                     `}
                   >
-                    <span className="text-2xl mb-2">{option?.icon || '📋'}</span>
+                    <span className="text-xl md:text-2xl mb-2">{option?.icon || '📋'}</span>
                     <span className="font-medium">{option.label}</span>
                   </button>
                 ))}
@@ -422,7 +422,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
 
           <div>
             <div className="mb-4">
-              <h4 className="text-lg font-bold text-gray-100 mb-2">匿名性レベル</h4>
+              <h4 className="text-base md:text-lg font-bold text-gray-100 mb-2">匿名性レベル</h4>
               <p className="text-gray-400 text-sm">投稿時の表示名を選択してください</p>
             </div>
             <div className="space-y-3">
@@ -473,7 +473,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
                     }
                   `}
                 >
-                  <span className="text-2xl mr-4">{option?.icon || '📋'}</span>
+                  <span className="text-xl md:text-2xl mr-4">{option?.icon || '📋'}</span>
                   <div className="flex-1 text-left">
                     <div className="font-medium">{option.label}</div>
                     <div className="text-sm text-gray-400">
@@ -508,7 +508,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       {((step === 3 && selectedType !== 'improvement') || (step === 4 && selectedType === 'improvement')) && (
         <div>
           <div className="text-center mb-6">
-            <h3 className="text-2xl font-bold text-gray-100 mb-2">投稿内容の確認</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-gray-100 mb-2">投稿内容の確認</h3>
             <p className="text-gray-400">以下の内容で投稿します</p>
           </div>
 
@@ -561,7 +561,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
               className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-3xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(29,155,240,0.5)]"
             >
               <span>投稿する</span>
-              <span className="text-xl">📤</span>
+              <span className="text-lg md:text-xl">📤</span>
             </button>
           </div>
         </div>
