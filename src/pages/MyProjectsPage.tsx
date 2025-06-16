@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Search, Clock, CheckCircle, Users, AlertCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { Project, ProjectStatus } from '../data/demo/projects';
 import { demoProjects } from '../data/demo/projects';
 import { getDemoUserById } from '../data/demo/users';
+import { useDemoMode } from '../components/demo/DemoModeController';
+import DemoModeController from '../components/demo/DemoModeController';
 
 interface ProjectGroup {
   title: string;
@@ -17,33 +19,37 @@ interface ProjectGroup {
 
 const MyProjectsPage: React.FC = () => {
   const { currentUser } = useAuth();
+  const { currentUser: demoUser } = useDemoMode();
   const [projectGroups, setProjectGroups] = useState<ProjectGroup[]>([]);
   const [selectedTab, setSelectedTab] = useState<'all' | 'proposed' | 'approving' | 'participating' | 'provisional'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const activeUser = demoUser || currentUser;
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!activeUser) return;
 
     // 提案したプロジェクト
-    const proposedProjects = demoProjects.filter(p => p.initiator === currentUser.id);
+    const proposedProjects = demoProjects.filter(p => p.initiator === activeUser.id);
     
     // 承認待ちプロジェクト（自分が承認者）
     const approvingProjects = demoProjects.filter(p => 
       p.workflows.some(w => 
-        w.approver === currentUser.id && 
+        w.approver === activeUser.id && 
         w.status === 'in-progress'
       )
     );
     
     // 参加中プロジェクト
     const participatingProjects = demoProjects.filter(p => 
-      p.teamMembers.includes(currentUser.id) && 
+      p.teamMembers.includes(activeUser.id) && 
       p.status !== 'completed' && 
       p.status !== 'rejected'
     );
     
     // 仮選出中プロジェクト
     const provisionalProjects = demoProjects.filter(p => 
-      p.provisionalMembers?.includes(currentUser.id) && 
+      p.provisionalMembers?.includes(activeUser.id) && 
       p.memberSelectionStatus === 'in-progress'
     );
 
@@ -99,7 +105,7 @@ const MyProjectsPage: React.FC = () => {
     ];
 
     setProjectGroups(groups);
-  }, [currentUser]);
+  }, [activeUser]);
 
   const getStatusBadge = (status: ProjectStatus) => {
     const badges = {
@@ -142,6 +148,9 @@ const MyProjectsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      {/* Demo Mode Controller */}
+      <DemoModeController />
+      
       {/* Header */}
       <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
         <div className="flex items-center justify-between">
@@ -162,6 +171,59 @@ const MyProjectsPage: React.FC = () => {
       </header>
       
       <div className="p-6">
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-700/50">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="w-6 h-6 text-green-400" />
+              <div>
+                <p className="text-gray-400 text-sm">提案済み</p>
+                <p className="text-2xl font-bold text-white">{projectGroups.find(g => g.title === '提案したプロジェクト')?.projects.length || 0}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-700/50">
+            <div className="flex items-center gap-3">
+              <Clock className="w-6 h-6 text-yellow-400" />
+              <div>
+                <p className="text-gray-400 text-sm">承認待ち</p>
+                <p className="text-2xl font-bold text-white">{projectGroups.find(g => g.title === '承認待ちプロジェクト')?.projects.length || 0}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-700/50">
+            <div className="flex items-center gap-3">
+              <Users className="w-6 h-6 text-blue-400" />
+              <div>
+                <p className="text-gray-400 text-sm">参加中</p>
+                <p className="text-2xl font-bold text-white">{projectGroups.find(g => g.title === '参加中プロジェクト')?.projects.length || 0}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-700/50">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-6 h-6 text-purple-400" />
+              <div>
+                <p className="text-gray-400 text-sm">仮選出中</p>
+                <p className="text-2xl font-bold text-white">{projectGroups.find(g => g.title === '仮選出中プロジェクト')?.projects.length || 0}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="プロジェクトを検索..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-slate-800/50 border border-slate-700 rounded-full text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+            />
+          </div>
+        </div>
 
         {/* タブナビゲーション */}
         <div className="mb-6 border-b border-slate-700">
