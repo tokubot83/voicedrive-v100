@@ -108,16 +108,8 @@ export class NotificationService {
       metadata?: ActionableNotification['metadata'];
     }
   ): Promise<ActionableNotification> {
-    // プロジェクト詳細ページへのリンクを含むアクションを追加
+    // プロジェクト詳細ボタンを追加しない
     const enhancedActions = data.actions ? [...data.actions] : [];
-    if (data.metadata?.projectId && !enhancedActions.find(a => a.action === 'view_project')) {
-      enhancedActions.push({
-        id: 'view_project_detail',
-        label: 'プロジェクト詳細',
-        type: 'secondary',
-        action: 'view_project'
-      });
-    }
 
     const notification: ActionableNotification = {
       id: `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -521,7 +513,7 @@ export class NotificationService {
         actions: [
           {
             id: 'participate',
-            label: '参加する',
+            label: '参加',
             type: 'primary',
             action: 'participate'
           },
@@ -534,7 +526,7 @@ export class NotificationService {
           },
           {
             id: 'view_details',
-            label: '詳細確認',
+            label: '詳細',
             type: 'secondary',
             action: 'view'
           }
@@ -555,7 +547,7 @@ export class NotificationService {
       actions: [
         {
           id: 'view_project',
-          label: 'プロジェクト確認',
+          label: '詳細',
           type: 'primary',
           action: 'view'
         }
