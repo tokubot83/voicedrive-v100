@@ -124,24 +124,41 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
   };
 
   return (
-    <div className="border-b border-gray-800/30 p-5 transition-all duration-300 hover:bg-white/2 hover:shadow-[inset_0_0_20px_rgba(29,155,240,0.1)]">
+    <div className="bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-colors mb-4">
       {onClose && (
-        <div className="flex justify-end mb-2">
+        <div className="flex justify-end p-4 pb-0">
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-200 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors"
             aria-label="閉じる"
           >
             ✕
           </button>
         </div>
       )}
-      <div className="flex gap-3">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold flex-shrink-0">
-          {getAvatarInitial()}
+      
+      {/* ヘッダー */}
+      <div className="flex items-center p-4 pb-3">
+        <div className="w-12 h-12 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full flex items-center justify-center">
+          <span className="text-white font-bold text-sm">
+            {getAvatarInitial()}
+          </span>
+        </div>
+        <div className="ml-3 flex-1">
+          <div className="font-bold text-gray-900">
+            {getAuthorDisplay()}
+          </div>
+          <div className="text-gray-500 text-sm">
+            {new Date(post.timestamp).toLocaleString('ja-JP', {
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </div>
         </div>
         
-        <div className="flex-1">
+        <div className="ml-auto flex items-center gap-2">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className={`px-2 py-1 rounded-xl text-xs font-bold text-white ${getTypeStyle()}`}>
               {post.type === 'improvement' ? '💡 改善提案' : 

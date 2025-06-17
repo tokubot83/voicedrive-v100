@@ -23,7 +23,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
   const hasSubFilters = currentTab?.hasSubFilters || false;
 
   return (
-    <header className={`fixed left-0 right-0 z-30 bg-black/80 backdrop-blur border-b border-gray-800 transition-transform duration-300 ${
+    <header className={`fixed left-0 right-0 z-50 bg-black/80 backdrop-blur border-b border-gray-800 transition-transform duration-300 ${
       isVisible ? 'translate-y-0' : '-translate-y-full'
     } ${isDemoMode ? 'top-[80px] md:top-[60px]' : 'top-0'}`}>
       <div className="flex items-center justify-between">

@@ -4,6 +4,7 @@ import Sidebar from '../Sidebar';
 import RightSidebar from '../RightSidebar';
 import MobileOverlay from '../MobileOverlay';
 import Breadcrumb from '../Breadcrumb';
+import Header from '../Header';
 import useSwipe from '../../hooks/useSwipe';
 import { UserRole } from '../../types';
 import { useDemoMode } from '../demo/DemoModeController';
@@ -110,6 +111,8 @@ const Layout: React.FC = () => {
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 ${isDemoMode ? 'pt-[80px] md:pt-[60px]' : ''}`}>
+      {/* ヘッダーを最上部に配置 */}
+      {!isManagementPage && <Header toggleSidebar={toggleSidebar} />}
       {/* モバイルメニューボタン（lg以下で表示、管理画面では非表示） */}
       {!isManagementPage && (
         <button 
@@ -141,7 +144,11 @@ const Layout: React.FC = () => {
           
           {/* メインコンテンツ */}
           <main className={`flex-1 ${isManagementPage ? 'w-full' : 'max-w-main'} min-w-0 ${isManagementPage ? '' : 'border-x-0 lg:border-x border-slate-700/50'}`}>
-            <div className="w-full h-full bg-black/20 backdrop-blur-lg">
+            <div className={`w-full h-full bg-black/20 backdrop-blur-lg ${
+              isManagementPage ? '' : isDemoMode 
+                ? 'pt-[229px] md:pt-[209px]' 
+                : 'pt-[149px]'
+            }`}>
               {!isManagementPage && <Breadcrumb />}
               <Outlet />
             </div>

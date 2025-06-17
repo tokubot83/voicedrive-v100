@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Header from '../components/Header';
 import ComposeSection from '../components/ComposeSection';
 import Timeline from '../components/Timeline';
 import { PostType } from '../types';
@@ -67,11 +66,7 @@ const HomePage = () => {
 
   return (
     <>
-      <Header 
-        toggleSidebar={() => {}} // Not needed in router version
-      />
-      
-      <div className={`overflow-y-auto ${isDemoMode ? 'mt-[80px] md:mt-[60px]' : ''}`}>
+      <div className="overflow-y-auto">
         {/* Home tab content */}
         {currentTab === 'home' && (
           <>
