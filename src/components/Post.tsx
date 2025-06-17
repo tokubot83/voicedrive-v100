@@ -82,11 +82,11 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
   const getTypeStyle = () => {
     switch (post.type) {
       case 'improvement':
-        return 'bg-gradient-to-r from-green-500 to-emerald-500';
+        return 'from-amber-500 to-orange-500';
       case 'community':
-        return 'bg-gradient-to-r from-blue-500 to-blue-600';
+        return 'from-blue-500 to-cyan-500';
       case 'report':
-        return 'bg-gradient-to-r from-red-500 to-red-600';
+        return 'from-rose-500 to-pink-500';
     }
   };
 
@@ -172,11 +172,23 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
         </div>
         
         <div className="ml-auto">
-          <span className={`px-3 py-1 rounded-full text-xs text-white bg-gradient-to-r ${getTypeStyle()}`}>
-            {post.type === 'improvement' ? '💡 改善提案' : 
-             post.type === 'community' ? '💬 フリースペース' : 
-             '🚨 公益通報'}
-          </span>
+          <div className={`
+            px-3 py-1.5 rounded-lg text-xs font-medium text-white
+            bg-gradient-to-r ${getTypeStyle()}
+            shadow-sm border border-white/10
+            flex items-center gap-1.5
+          `}>
+            <span className="text-sm">
+              {post.type === 'improvement' ? '💡' : 
+               post.type === 'community' ? '💬' : 
+               '🚨'}
+            </span>
+            <span>
+              {post.type === 'improvement' ? 'アイデアボイス' : 
+               post.type === 'community' ? 'フリーボイス' : 
+               'コンプライアンス窓口'}
+            </span>
+          </div>
         </div>
       </div>
 

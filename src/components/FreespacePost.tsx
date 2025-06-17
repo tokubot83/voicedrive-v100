@@ -72,9 +72,15 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
           </div>
         </div>
         <div className="ml-auto">
-          <span className={`px-3 py-1 rounded-full text-xs text-white bg-gradient-to-r ${categoryInfo[category]?.color || 'from-gray-500 to-gray-600'}`}>
-            {categoryInfo[category]?.label || '💬 フリーボイス'}
-          </span>
+          <div className={`
+            px-3 py-1.5 rounded-lg text-xs font-medium text-white
+            bg-gradient-to-r from-blue-500 to-cyan-500
+            shadow-sm border border-white/10
+            flex items-center gap-1.5
+          `}>
+            <span className="text-sm">💬</span>
+            <span>フリーボイス</span>
+          </div>
         </div>
       </div>
 
