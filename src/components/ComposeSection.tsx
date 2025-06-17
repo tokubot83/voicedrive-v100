@@ -17,7 +17,7 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
     {
       type: 'improvement' as PostType,
       icon: '💡',
-      title: '改善提案',
+      title: 'アイデアボイス',
       description: '業務効率化・品質向上の アイデアを提案',
       features: ['優先順位設定', '進捗管理', 'ROI分析'],
       color: 'from-green-500 to-emerald-500',
@@ -25,7 +25,7 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
     {
       type: 'community' as PostType,
       icon: '💬',
-      title: 'フリースペース',
+      title: 'フリーボイス',
       description: '情報共有・相談・雑談で チームの絆を深める',
       features: ['カジュアル', '双方向性', 'リアルタイム'],
       color: 'from-blue-500 to-blue-600',
@@ -33,7 +33,7 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
     {
       type: 'report' as PostType,
       icon: '🚨',
-      title: '公益通報',
+      title: 'コンプライアンス窓口',
       description: '安全・法令・倫理の問題を 匿名で報告',
       features: ['完全匿名', '機密保持', '迅速対応'],
       color: 'from-red-500 to-red-600',

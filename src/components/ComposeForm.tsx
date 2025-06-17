@@ -66,17 +66,17 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
 
   const typeConfigs = {
     improvement: {
-      title: '💡 改善提案を入力してください',
+      title: '💡 アイデアボイスを入力してください',
       description: '具体的で実現可能な改善案を分かりやすく記述してください',
       placeholder: '例: 夜勤シフトの負担軽減のため、3交代制から2交代制への移行を提案します。',
     },
     community: {
-      title: '💬 フリースペース投稿を入力してください',
+      title: '💬 フリーボイス投稿を入力してください',
       description: '情報共有・質問・相談など、自由に投稿してください',
       placeholder: '例: 新しい医療機器の使用方法について、皆さんの経験を教えてください。',
     },
     report: {
-      title: '🚨 公益通報を入力してください',
+      title: '🚨 コンプライアンス相談を入力してください',
       description: '安全・法令・倫理に関わる問題を報告してください',
       placeholder: '例: 医療安全に関わる問題を発見しました。適切な対応をお願いします。',
     },
@@ -192,8 +192,8 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       {step === 1 && selectedType === 'improvement' && (
         <div>
           <div className="text-center mb-6">
-            <h3 className="text-xl md:text-2xl font-bold text-gray-100 mb-2">💡 提案タイプを選択してください</h3>
-            <p className="text-gray-400">あなたの改善提案に最も適したカテゴリを選んでください</p>
+            <h3 className="text-xl md:text-2xl font-bold text-gray-100 mb-2">💡 アイデアタイプを選択してください</h3>
+            <p className="text-gray-400">あなたのアイデアボイスに最も適したカテゴリを選んでください</p>
           </div>
           
           <div className="space-y-4">
@@ -515,7 +515,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
           <div className="bg-white/5 border border-gray-800/30 rounded-2xl p-5 mb-6">
             <div className="flex items-center gap-3 mb-4">
               <span className="px-3 py-1 rounded-xl text-xs font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white">
-                {selectedType === 'improvement' ? '💡 改善提案' : selectedType === 'community' ? '💬 フリースペース' : '🚨 公益通報'}
+                {selectedType === 'improvement' ? '💡 アイデアボイス' : selectedType === 'community' ? '💬 フリーボイス' : '🚨 コンプライアンス窓口'}
               </span>
               {selectedType === 'improvement' && (
                 <span className={`px-2 py-1 rounded-lg text-xs font-bold ${proposalTypes.find(t => t.type === proposalType)?.borderColor.replace('border-', 'bg-').replace('500', '500/20')} ${proposalTypes.find(t => t.type === proposalType)?.borderColor.replace('border-', 'text-')}`}>
