@@ -20,13 +20,13 @@ const ComposePage: React.FC = () => {
   const typeConfig = {
     improvement: {
       title: '💡 アイデアボイス',
-      description: '業務効率化・品質向上のアイデアを提案してください',
+      description: '職場の声を形に。あなたのアイデアを聞かせてください',
       bgGradient: 'from-green-500/20 to-emerald-500/20',
       borderGradient: 'from-green-500/50 to-emerald-500/50'
     },
     community: {
       title: '💬 フリーボイス投稿',
-      description: '情報共有・相談・雑談でチームの絆を深めましょう',
+      description: '厚生会職員の交流の場。雑談からイベント告知まで自由にお使いください。',
       bgGradient: 'from-blue-500/20 to-blue-600/20',
       borderGradient: 'from-blue-500/50 to-blue-600/50'
     }
