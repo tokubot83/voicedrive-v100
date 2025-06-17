@@ -314,57 +314,6 @@ const VotingSection: React.FC<VotingSectionProps> = ({
           ))}
         </div>
         
-        {/* 現在の投票分布 */}
-        <div className="mb-4 space-y-2">
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>現在の投票分布</span>
-            <span>計 {Object.values(safeVotes).reduce((sum, count) => sum + count, 0)} 票</span>
-          </div>
-          <div className="flex h-6 rounded-full overflow-hidden bg-gray-200 shadow-inner">
-            {voteOptions.map(vote => {
-              const totalVotes = Object.values(safeVotes).reduce((sum, count) => sum + count, 0);
-              const percentage = totalVotes > 0
-                ? (safeVotes[vote.type] / totalVotes) * 100
-                : 0;
-              
-              if (percentage === 0) return null;
-              
-              return (
-                <div
-                  key={vote.type}
-                  className={`h-full transition-all duration-500 relative group ${
-                    ((vote.color || 'blue') === 'red' ? 'bg-red-500' :
-                    vote.color === 'orange' ? 'bg-orange-500' :
-                    vote.color === 'gray' ? 'bg-gray-500' :
-                    vote.color === 'green' ? 'bg-green-500' :
-                    'bg-blue-500')
-                  }`}
-                  style={{ width: `${percentage}%` }}
-                >
-                  {/* ホバー時のツールチップ */}
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                    {vote.emoji} {vote.label}: {safeVotes[vote.type]}票 ({Math.round(percentage)}%)
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          {/* 色の凡例 */}
-          <div className="flex justify-center gap-4 text-xs text-gray-600 mt-2">
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-blue-500 rounded" />
-              <span>強く賛成</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-green-500 rounded" />
-              <span>賛成</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-orange-500 rounded" />
-              <span>反対</span>
-            </div>
-          </div>
-        </div>
         
         {/* アクションボタン */}
         <div className="flex">
