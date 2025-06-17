@@ -251,20 +251,20 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               className={`
                 flex flex-col items-center p-2 sm:p-3 rounded-lg border-2 transition-all
                 ${selectedVote === vote.type 
-                  ? ((vote.color || 'blue') === 'red' ? 'border-red-500 bg-red-500/20' :
+                  ? ((vote.color || 'emerald') === 'red' ? 'border-red-500 bg-red-500/20' :
                     vote.color === 'orange' ? 'border-orange-500 bg-orange-500/20' :
                     vote.color === 'gray' ? 'border-gray-500 bg-gray-500/20' :
                     vote.color === 'green' ? 'border-green-500 bg-green-500/20' :
-                    'border-blue-500 bg-blue-500/20')
-                  : 'border-gray-700 hover:border-gray-600 bg-gray-800/50'
+                    'border-emerald-500 bg-emerald-500/20')
+                  : 'border-gray-300 hover:border-gray-400 bg-gray-50'
                 }
                 ${userVote !== undefined ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
               `}
             >
               <span className="text-xl sm:text-2xl mb-1">{vote.emoji}</span>
-              <span className="text-xs text-gray-300 text-center leading-tight">{vote.label}</span>
+              <span className="text-xs text-gray-700 text-center leading-tight">{vote.label}</span>
               {userVote === vote.type && (
-                <span className="text-xs text-blue-400 mt-1">投票済み</span>
+                <span className="text-xs text-emerald-600 mt-1">投票済み</span>
               )}
             </button>
           ))}
