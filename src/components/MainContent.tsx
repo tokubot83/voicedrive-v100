@@ -183,7 +183,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
         {/* 他のタブ内容 */}
         {activeMainTab === 'improvement' && (
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-white mb-4">改善提案</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">アイデアボイス</h2>
             <div className="space-y-4">
               {filteredPosts.map((post) => (
                 <VotingSection
@@ -225,7 +225,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
         
         {activeMainTab === 'whistleblowing' && (
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-white mb-4">公益通報</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">コンプライアンス窓口</h2>
             <div className="space-y-4">
               {filteredPosts.map((post) => (
                 <VotingSection
