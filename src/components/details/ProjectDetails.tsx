@@ -26,13 +26,13 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ data }) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle className="w-4 h-4 text-green-400" />;
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'in_progress':
       case 'active':
-        return <Clock className="w-4 h-4 text-yellow-400 animate-pulse" />;
+        return <Clock className="w-4 h-4 text-emerald-600 animate-pulse" />;
       case 'pending':
       case 'upcoming':
-        return <AlertCircle className="w-4 h-4 text-gray-500" />;
+        return <AlertCircle className="w-4 h-4 text-gray-600" />;
       default:
         return null;
     }
@@ -41,11 +41,11 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ data }) => {
   const getProjectLevelBadge = (level: string) => {
     switch (level) {
       case 'DEPARTMENT':
-        return <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded-lg text-xs font-bold">🏢 部署内プロジェクト</span>;
+        return <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold border border-emerald-200">🏢 部署内プロジェクト</span>;
       case 'FACILITY':
-        return <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded-lg text-xs font-bold">🏥 施設内プロジェクト</span>;
+        return <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold border border-emerald-200">🏥 施設内プロジェクト</span>;
       case 'CORPORATE':
-        return <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-lg text-xs font-bold">🏛️ 法人プロジェクト</span>;
+        return <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold border border-emerald-200">🏛️ 法人プロジェクト</span>;
       default:
         return null;
     }
@@ -74,35 +74,35 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ data }) => {
 
         {/* Project Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gray-800/50 rounded-lg p-4">
+          <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
             <div className="flex items-center gap-2 mb-2">
-              <DollarSign className="w-4 h-4 text-green-400" />
-              <span className="text-sm text-gray-400">予算</span>
+              <DollarSign className="w-4 h-4 text-emerald-700" />
+              <span className="text-sm text-gray-600">予算</span>
             </div>
-            <div className="text-lg font-bold text-white">
+            <div className="text-lg font-bold text-emerald-800">
               {formatBudget(projectStatus.budget)}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-600">
               使用率: {budgetUsagePercentage.toFixed(1)}%
             </div>
           </div>
 
-          <div className="bg-gray-800/50 rounded-lg p-4">
+          <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-blue-400" />
-              <span className="text-sm text-gray-400">チーム</span>
+              <Users className="w-4 h-4 text-emerald-700" />
+              <span className="text-sm text-gray-600">チーム</span>
             </div>
-            <div className="text-lg font-bold text-white">
+            <div className="text-lg font-bold text-emerald-800">
               {projectStatus.resources.team_size}名
             </div>
           </div>
 
-          <div className="bg-gray-800/50 rounded-lg p-4">
+          <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
             <div className="flex items-center gap-2 mb-2">
-              <Calendar className="w-4 h-4 text-purple-400" />
-              <span className="text-sm text-gray-400">期間</span>
+              <Calendar className="w-4 h-4 text-emerald-700" />
+              <span className="text-sm text-gray-600">期間</span>
             </div>
-            <div className="text-lg font-bold text-white">
+            <div className="text-lg font-bold text-emerald-800">
               {projectStatus.timeline}
             </div>
           </div>
@@ -111,10 +111,10 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ data }) => {
         {/* Budget Progress Bar */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-400">予算使用状況</span>
-            <span className="text-white">{formatBudget(projectStatus.resources.budget_used)} / {formatBudget(projectStatus.resources.budget_total)}</span>
+            <span className="text-gray-600">予算使用状況</span>
+            <span className="text-emerald-800">{formatBudget(projectStatus.resources.budget_used)} / {formatBudget(projectStatus.resources.budget_total)}</span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-gray-300 rounded-full h-2">
             <div 
               className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full"
               style={{ width: `${Math.min(budgetUsagePercentage, 100)}%` }}
@@ -125,12 +125,12 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ data }) => {
         {/* Project Completion Progress */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-400">プロジェクト進捗</span>
-            <span className="text-white">{projectStatus.resources.completion}%</span>
+            <span className="text-gray-600">プロジェクト進捗</span>
+            <span className="text-emerald-800">{projectStatus.resources.completion}%</span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-gray-300 rounded-full h-2">
             <div 
-              className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
+              className="bg-gradient-to-r from-emerald-500 to-green-500 h-2 rounded-full"
               style={{ width: `${projectStatus.resources.completion}%` }}
             ></div>
           </div>
@@ -138,19 +138,19 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ data }) => {
 
         {/* Milestones */}
         <div className="space-y-3">
-          <h4 className="font-semibold text-white flex items-center gap-2">
+          <h4 className="font-semibold text-emerald-700 flex items-center gap-2">
             <Target className="w-4 h-4" />
             マイルストーン
           </h4>
           {projectStatus.milestones.map((milestone, index) => (
-            <div key={index} className="flex items-center gap-3 p-3 bg-gray-800/30 rounded-lg">
+            <div key={index} className="flex items-center gap-3 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
               {getStatusIcon(milestone.status)}
               <div className="flex-1">
-                <div className="font-medium text-gray-100">{milestone.name}</div>
-                <div className="text-sm text-gray-400">{milestone.date}</div>
+                <div className="font-medium text-emerald-800">{milestone.name}</div>
+                <div className="text-sm text-gray-600">{milestone.date}</div>
               </div>
               {milestone.progress && (
-                <div className="text-sm text-blue-400 font-medium">
+                <div className="text-sm text-emerald-700 font-medium">
                   {milestone.progress}%
                 </div>
               )}
@@ -161,16 +161,16 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ data }) => {
         {/* Approval Flow */}
         {approvalFlow && (
           <div className="space-y-3">
-            <h4 className="font-semibold text-white">承認フロー</h4>
+            <h4 className="font-semibold text-emerald-700">承認フロー</h4>
             {approvalFlow.history.map((approval, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 bg-gray-800/30 rounded-lg">
+              <div key={index} className="flex items-center gap-3 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
                 {getStatusIcon(approval.status)}
                 <div className="flex-1">
-                  <div className="font-medium text-gray-100">{approval.approver}</div>
-                  <div className="text-sm text-gray-400">{approval.level}</div>
+                  <div className="font-medium text-emerald-800">{approval.approver}</div>
+                  <div className="text-sm text-gray-600">{approval.level}</div>
                 </div>
                 {approval.date && (
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-gray-600">
                     {approval.date}
                   </div>
                 )}
@@ -182,12 +182,12 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ data }) => {
         {/* Tags */}
         {tags && tags.length > 0 && (
           <div className="space-y-2">
-            <h4 className="font-semibold text-white text-sm">タグ</h4>
+            <h4 className="font-semibold text-emerald-700 text-sm">タグ</h4>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag, index) => (
                 <span 
                   key={index}
-                  className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded-lg text-xs"
+                  className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs border border-emerald-200"
                 >
                   #{tag}
                 </span>
@@ -204,35 +204,35 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ data }) => {
     <div className="space-y-4">
       {/* プロジェクト概要 */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gray-800/50 rounded-lg p-3">
-          <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
+        <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+          <div className="flex items-center gap-2 text-gray-600 text-xs mb-1">
             <Calendar className="w-3 h-3" />
             期間
           </div>
-          <div className="text-white font-medium">3/6ヶ月</div>
-          <div className="text-xs text-gray-500">50%経過</div>
+          <div className="text-emerald-800 font-medium">3/6ヶ月</div>
+          <div className="text-xs text-gray-600">50%経過</div>
         </div>
-        <div className="bg-gray-800/50 rounded-lg p-3">
-          <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
+        <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+          <div className="flex items-center gap-2 text-gray-600 text-xs mb-1">
             <DollarSign className="w-3 h-3" />
             予算
           </div>
-          <div className="text-white font-medium">280万円</div>
-          <div className="text-xs text-gray-500">70万円使用</div>
+          <div className="text-emerald-800 font-medium">280万円</div>
+          <div className="text-xs text-gray-600">70万円使用</div>
         </div>
       </div>
 
       {/* マイルストーン */}
       <div className="space-y-2">
-        <h4 className="font-medium text-white text-sm flex items-center gap-2">
+        <h4 className="font-medium text-emerald-700 text-sm flex items-center gap-2">
           <Target className="w-4 h-4" />
           マイルストーン
         </h4>
         {defaultMilestones.map((milestone, index) => (
           <div key={index} className="flex items-center gap-2 text-sm">
             {getStatusIcon(milestone.status)}
-            <span className="flex-1 text-gray-200">{milestone.name}</span>
-            <span className="text-gray-500 text-xs">{milestone.date}</span>
+            <span className="flex-1 text-emerald-800">{milestone.name}</span>
+            <span className="text-gray-600 text-xs">{milestone.date}</span>
           </div>
         ))}
       </div>
@@ -240,11 +240,11 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ data }) => {
       {/* 予算使用状況 */}
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-400">予算使用率</span>
-          <span className="text-white">25%</span>
+          <span className="text-gray-600">予算使用率</span>
+          <span className="text-emerald-800">25%</span>
         </div>
-        <div className="w-full bg-gray-700 rounded-full h-2">
-          <div className="bg-green-500 h-2 rounded-full" style={{width: '25%'}}></div>
+        <div className="w-full bg-gray-300 rounded-full h-2">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style={{width: '25%'}}></div>
         </div>
       </div>
     </div>
