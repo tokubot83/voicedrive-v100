@@ -100,6 +100,8 @@ export interface Post {
   timestamp: Date;
   votes: Record<VoteOption, number>;
   votesByStakeholder?: Record<StakeholderCategory, Record<VoteOption, number>>; // Votes broken down by stakeholder category
+  userVote?: VoteOption; // Current user's vote (added by useVoting hook)
+  hasUserVoted?: boolean; // Whether current user has voted (added by useVoting hook)
   comments: Comment[];
   projectId?: string;
   approver?: User;

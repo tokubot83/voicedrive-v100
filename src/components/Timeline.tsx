@@ -10,6 +10,7 @@ import { useAuth } from '../hooks/useAuth';
 import FreespaceExpirationNotification from './FreespaceExpirationNotification';
 import PollExpirationChecker from '../services/PollExpirationChecker';
 import { demoPolls } from '../data/demo/freespacePolls';
+import { useVoting } from '../hooks/useVoting';
 
 interface TimelineProps {
   activeTab?: string;
@@ -214,8 +215,39 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
     ] as PostType[];
   };
 
-  const handleVote = (postId: string, option: VoteOption) => {
-    console.log(`Voted ${option} for post ${postId}`);
+  const { submitVote, hasVoted, getUserVote } = useVoting();
+
+  const handleVote = async (postId: string, option: VoteOption) => {
+    try {
+      // 投票を実行
+      const success = await submitVote(postId, option);
+      
+      if (success) {
+        // 投票が成功した場合、投稿データの投票数を更新
+        setPosts(prevPosts => 
+          prevPosts.map(post => {
+            if (post.id === postId) {
+              return {
+                ...post,
+                votes: {
+                  ...post.votes,
+                  [option]: post.votes[option] + 1
+                }
+              };
+            }
+            return post;
+          })
+        );
+        
+        console.log(`✅ Vote submitted successfully: ${option} for post ${postId}`);
+      } else {
+        console.warn(`⚠️ Vote submission failed: User may have already voted for post ${postId}`);
+        alert('既に投票済みです。');
+      }
+    } catch (error) {
+      console.error('❌ Error submitting vote:', error);
+      alert('投票の送信中にエラーが発生しました。');
+    }
   };
 
   const handleComment = (postId: string) => {
@@ -313,12 +345,19 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
           );
         }
         
+        // ユーザーの投票状態を含むpostオブジェクトを作成
+        const postWithVote = {
+          ...post,
+          userVote: getUserVote(post.id),
+          hasUserVoted: hasVoted(post.id)
+        };
+        
         return (
           <div key={post.id}>
             {selectedPostId === post.id ? (
               <Post
                 key={post.id}
-                post={post}
+                post={postWithVote}
                 currentUser={currentUser}
                 onVote={handleVote}
                 onComment={handleCommentSubmit}
@@ -327,7 +366,7 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
             ) : (
               <EnhancedPost
                 key={post.id}
-                post={post}
+                post={postWithVote}
                 currentUser={currentUser}
                 onVote={handleVote}
                 onComment={handleComment}

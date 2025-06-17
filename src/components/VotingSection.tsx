@@ -19,7 +19,11 @@ const VotingSection: React.FC<VotingSectionProps> = ({
 }) => {
   console.log('🗳️ VotingSection rendering for post:', post.id, 'type:', post.type);
   
-  const [selectedVote, setSelectedVote] = useState<VoteOption | null>(userVote || null);
+  // postオブジェクトからユーザーの投票状態を取得
+  const currentUserVote = post.userVote || userVote;
+  const hasVoted = post.hasUserVoted || !!userVote;
+  
+  const [selectedVote, setSelectedVote] = useState<VoteOption | null>(currentUserVote || null);
   const [isVoting, setIsVoting] = useState(false);
   const { calculateScore, convertVotesToEngagements } = useProjectScoring();
 
@@ -259,7 +263,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
             <button
               key={vote.type}
               onClick={() => setSelectedVote(vote.type)}
-              disabled={userVote !== undefined}
+              disabled={hasVoted}
               className={`
                 relative group overflow-hidden
                 flex flex-col items-center p-3 sm:p-4 rounded-xl
@@ -270,7 +274,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
                     vote.color === 'gray' ? 'from-gray-500 to-gray-600 shadow-lg shadow-gray-500/30 scale-105 -translate-y-1' :
                     vote.color === 'green' ? 'from-green-500 to-green-600 shadow-lg shadow-green-500/30 scale-105 -translate-y-1' :
                     'from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30 scale-105 -translate-y-1')
-                  : userVote === vote.type
+                  : currentUserVote === vote.type
                   ? ((vote.color || 'blue') === 'red' ? 'from-red-400 to-red-500 shadow-md' :
                     vote.color === 'orange' ? 'from-orange-400 to-orange-500 shadow-md' :
                     vote.color === 'gray' ? 'from-gray-400 to-gray-500 shadow-md' :
@@ -278,7 +282,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
                     'from-blue-400 to-blue-500 shadow-md')
                   : 'from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 hover:shadow-md hover:scale-105 hover:-translate-y-0.5'
                 }
-                ${userVote !== undefined ? 'cursor-not-allowed' : 'cursor-pointer'}
+                ${hasVoted ? 'cursor-not-allowed' : 'cursor-pointer'}
                 border border-white/20
               `}
             >
@@ -287,18 +291,18 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               
               {/* コンテンツ */}
               <span className={`text-2xl sm:text-3xl mb-2 transform transition-transform group-hover:scale-110 ${
-                selectedVote === vote.type || userVote === vote.type ? 'text-white drop-shadow-lg' : 'text-gray-700'
+                selectedVote === vote.type || currentUserVote === vote.type ? 'text-white drop-shadow-lg' : 'text-gray-700'
               }`}>
                 {vote.emoji}
               </span>
               <span className={`text-xs font-medium text-center leading-tight ${
-                selectedVote === vote.type || userVote === vote.type ? 'text-white' : 'text-gray-700'
+                selectedVote === vote.type || currentUserVote === vote.type ? 'text-white' : 'text-gray-700'
               }`}>
                 {vote.label}
               </span>
               
               {/* 投票済みバッジ */}
-              {userVote === vote.type && (
+              {currentUserVote === vote.type && (
                 <div className="absolute top-1 right-1 w-5 h-5 bg-white/90 rounded-full flex items-center justify-center">
                   <svg className="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -307,7 +311,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               )}
               
               {/* 選択インジケーター */}
-              {selectedVote === vote.type && userVote === undefined && (
+              {selectedVote === vote.type && !hasVoted && (
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/50" />
               )}
             </button>
@@ -319,18 +323,18 @@ const VotingSection: React.FC<VotingSectionProps> = ({
         <div className="flex">
           <button
             onClick={handleVote}
-            disabled={!selectedVote || userVote !== undefined || isVoting}
+            disabled={!selectedVote || hasVoted || isVoting}
             className={`
               relative w-full px-6 py-4 rounded-xl font-bold text-white
               transition-all duration-300 transform overflow-hidden group
-              ${!selectedVote || userVote !== undefined || isVoting
+              ${!selectedVote || hasVoted || isVoting
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 hover:shadow-lg hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98]'
               }
             `}
           >
             {/* 背景アニメーション */}
-            {!(!selectedVote || userVote !== undefined || isVoting) && (
+            {!(!selectedVote || hasVoted || isVoting) && (
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
             )}
             
@@ -344,7 +348,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
                   </svg>
                   投票中...
                 </>
-              ) : userVote ? (
+              ) : hasVoted ? (
                 <>
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
