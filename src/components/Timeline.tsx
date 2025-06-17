@@ -9,7 +9,7 @@ import { FreespaceExpirationService } from '../services/FreespaceExpirationServi
 import { useAuth } from '../hooks/useAuth';
 import FreespaceExpirationNotification from './FreespaceExpirationNotification';
 import PollExpirationChecker from '../services/PollExpirationChecker';
-import { demoFreespacePolls } from '../data/demo/freespacePolls';
+import { demoPolls } from '../data/demo/freespacePolls';
 
 interface TimelineProps {
   activeTab?: string;
@@ -33,7 +33,7 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
   const { currentUser: authUser } = useAuth();
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [posts, setPosts] = useState<PostType[]>([]);
-  const [polls, setPolls] = useState(demoFreespacePolls);
+  const [polls, setPolls] = useState(demoPolls);
   
   // Define activeUser safely with fallback
   const activeUser = demoUser || authUser || null;
@@ -94,7 +94,6 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
   
   // Use demo posts in demo mode, otherwise use the original posts
   const getOriginalPosts = (): PostType[] => {
-    
     // Original posts for non-demo mode
     return [
       // Post 4: スコア30点（プロジェクト化表示なし）
@@ -213,9 +212,7 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
         comments: [],
       },
     ] as PostType[];
-  }, [isDemoMode]);
-  
-  const [posts, setPosts] = useState<PostType[]>(initialPosts);
+  };
 
   const handleVote = (postId: string, option: VoteOption) => {
     console.log(`Voted ${option} for post ${postId}`);
