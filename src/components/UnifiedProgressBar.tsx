@@ -52,11 +52,11 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
   const getTypeColor = () => {
     switch (type) {
       case 'consensus':
-        return 'text-blue-400 border-blue-400/20';
+        return 'text-emerald-700 border-emerald-300';
       case 'approval':
-        return 'text-green-400 border-green-400/20';
+        return 'text-emerald-700 border-emerald-300';
       case 'project':
-        return 'text-purple-400 border-purple-400/20';
+        return 'text-emerald-700 border-emerald-300';
     }
   };
 
@@ -75,7 +75,7 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
 
 
   return (
-    <div className="w-full bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-all">
+    <div className="w-full bg-white border border-emerald-300 rounded-xl p-4 hover:border-emerald-400 transition-all">
       {/* Header Section */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -83,15 +83,15 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
             {getTypeIcon()}
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">{title}</h3>
+            <h3 className="text-lg font-semibold text-emerald-800">{title}</h3>
             <div className="flex items-center gap-2 mt-1">
               <span className={`inline-block w-2 h-2 rounded-full ${getStatusColor()}`} />
-              <span className="text-sm text-gray-400 capitalize">{status}</span>
+              <span className="text-sm text-gray-600 capitalize">{status}</span>
               {lastUpdated && (
                 <>
                   <span className="text-gray-600">•</span>
                   <Clock className="w-3 h-3 text-gray-500" />
-                  <span className="text-sm text-gray-400">
+                  <span className="text-sm text-gray-600">
                     {new Date(lastUpdated).toLocaleDateString()}
                   </span>
                 </>
@@ -105,7 +105,7 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
           value={percentage}
           size={80}
           strokeWidth={5}
-          color={type === 'consensus' ? 'blue' : type === 'approval' ? 'green' : 'purple'}
+          color="green"
           showPercentage={true}
           className="flex-shrink-0"
         />
@@ -113,7 +113,7 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
 
       {/* Description */}
       {description && (
-        <p className="text-gray-400 text-sm mb-4">{description}</p>
+        <p className="text-gray-600 text-sm mb-4">{description}</p>
       )}
 
       {/* Quick Insights Tags */}
@@ -121,7 +121,7 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
         {quickInsights.map((insight, index) => (
           <span
             key={index}
-            className="px-3 py-1 bg-gray-700/50 text-gray-300 text-sm rounded-full border border-gray-600"
+            className="px-3 py-1 bg-emerald-50 text-emerald-700 text-sm rounded-full border border-emerald-200"
           >
             {insight}
           </span>
@@ -133,7 +133,7 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
         <>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm font-medium"
+            className="flex items-center gap-2 text-gray-600 hover:text-emerald-700 transition-colors text-sm font-medium"
           >
             {isExpanded ? (
               <>
@@ -151,7 +151,7 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
           <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
             isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
           }`}>
-            <div className="mt-4 pt-4 border-t border-gray-700">
+            <div className="mt-4 pt-4 border-t border-emerald-200">
               {detailsData ? (
                 <>
                   {type === 'consensus' && <ConsensusDetails data={detailsData} />}
@@ -162,9 +162,9 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {details.map((detail, index) => (
                     <div key={index} className="flex flex-col">
-                      <span className="text-sm text-gray-500">{detail.label}</span>
+                      <span className="text-sm text-gray-600">{detail.label}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-lg font-semibold text-white">
+                        <span className="text-lg font-semibold text-emerald-800">
                           {detail.value}
                         </span>
                         {detail.trend && (
