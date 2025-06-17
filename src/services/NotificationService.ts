@@ -10,7 +10,9 @@ export type NotificationType =
   | 'EMERGENCY_ACTION'
   | 'PROJECT_UPDATE'
   | 'DEADLINE_REMINDER'
-  | 'ESCALATION';
+  | 'ESCALATION'
+  | 'POLL_RESULT'
+  | 'POLL_EXPIRED';
 
 export interface NotificationRecipient {
   id: string;

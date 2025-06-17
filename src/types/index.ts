@@ -157,6 +157,20 @@ export interface Post {
     disagree: number;
     hold: number;
   };
+  
+  // Poll result properties for auto-generated result posts
+  pollResult?: {
+    totalVotes: number;
+    winnerOption: any;
+    participationRate: number;
+    results: Array<{
+      option: any;
+      votes: number;
+      percentage: number;
+    }>;
+  };
+  originalPollId?: string;
+  originalPostId?: string;
 }
 
 export interface ProjectMilestone {

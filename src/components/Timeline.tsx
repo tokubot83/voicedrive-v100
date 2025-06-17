@@ -1,12 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import EnhancedPost from './EnhancedPost';
 import Post from './Post';
+import PollResultPost from './PollResultPost';
 import { Post as PostType, VoteOption, Comment } from '../types';
 import { demoPosts } from '../data/demo/posts';
 import { useDemoMode } from './demo/DemoModeController';
 import { FreespaceExpirationService } from '../services/FreespaceExpirationService';
 import { useAuth } from '../hooks/useAuth';
 import FreespaceExpirationNotification from './FreespaceExpirationNotification';
+import PollExpirationChecker from '../services/PollExpirationChecker';
+import { demoFreespacePolls } from '../data/demo/freespacePolls';
 
 interface TimelineProps {
   activeTab?: string;
@@ -29,6 +32,8 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
   
   const { currentUser: authUser } = useAuth();
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [posts, setPosts] = useState<PostType[]>([]);
+  const [polls, setPolls] = useState(demoFreespacePolls);
   
   // Define activeUser safely with fallback
   const activeUser = demoUser || authUser || null;
@@ -53,13 +58,42 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
     isDemoMode,
     currentUser
   });
+
+  // 期限チェッカーの初期化と実行
+  useEffect(() => {
+    const pollChecker = PollExpirationChecker.getInstance();
+    
+    // 初期投稿データの設定
+    const initialPostsData = isDemoMode ? 
+      [...demoPosts].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()) :
+      getOriginalPosts();
+    
+    setPosts(initialPostsData);
+    
+    // 期限チェッカーの開始
+    pollChecker.startPeriodicCheck(
+      () => polls,
+      () => posts,
+      (newPosts) => {
+        setPosts(prevPosts => [...newPosts, ...prevPosts]);
+      }
+    );
+    
+    // 初回チェックの実行
+    pollChecker.manualCheck(polls, initialPostsData, (newPosts) => {
+      if (newPosts.length > 0) {
+        setPosts(prevPosts => [...newPosts, ...prevPosts]);
+      }
+    });
+    
+    // クリーンアップ
+    return () => {
+      pollChecker.stopPeriodicCheck();
+    };
+  }, [isDemoMode, polls]);
   
   // Use demo posts in demo mode, otherwise use the original posts
-  const initialPosts = useMemo(() => {
-    if (isDemoMode) {
-      // Sort demo posts by timestamp (newest first)
-      return [...demoPosts].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-    }
+  const getOriginalPosts = (): PostType[] => {
     
     // Original posts for non-demo mode
     return [
@@ -272,6 +306,16 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
       
       {filteredPosts.map((post) => {
         console.log('Rendering post:', post.id, post.type);
+        
+        // 投票結果投稿の場合は専用コンポーネントを使用
+        if (post.pollResult && post.originalPollId) {
+          return (
+            <div key={post.id} className="mb-6">
+              <PollResultPost post={post} />
+            </div>
+          );
+        }
+        
         return (
           <div key={post.id}>
             {selectedPostId === post.id ? (
