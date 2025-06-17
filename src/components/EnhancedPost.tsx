@@ -2,6 +2,8 @@ import { useState } from 'react';
 import VotingSection from './VotingSection';
 import FreespacePostRenderer from './FreespacePostRenderer';
 import { Post as PostType, VoteOption, User } from '../types';
+import { proposalTypeConfigs } from '../config/proposalTypes';
+import { FACILITIES } from '../data/medical/facilities';
 
 interface EnhancedPostProps {
   post: PostType;
@@ -13,13 +15,25 @@ interface EnhancedPostProps {
 const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProps) => {
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(null);
 
+  // 施設名を取得するヘルパー関数
+  const getFacilityName = (facilityId: string) => {
+    return FACILITIES[facilityId as keyof typeof FACILITIES]?.name || '';
+  };
+
   const getAuthorDisplay = () => {
+    const facilityName = post.author.facility_id ? getFacilityName(post.author.facility_id) : '';
     switch (post.anonymityLevel) {
       case 'real_name':
         return post.author.name;
+      case 'facility_department':
+        return `${facilityName} ${post.author.department}職員`;
+      case 'facility_anonymous':
+        return `${facilityName} 匿名職員`;
       case 'department_only':
         return `${post.author.department}職員`;
       case 'anonymous':
+        return '匿名職員';
+      default:
         return '匿名職員';
     }
   };
@@ -28,9 +42,13 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
     switch (post.anonymityLevel) {
       case 'real_name':
         return post.author.name.charAt(0);
+      case 'facility_department':
       case 'department_only':
         return post.author.department.charAt(0);
+      case 'facility_anonymous':
       case 'anonymous':
+        return '?';
+      default:
         return '?';
     }
   };
@@ -82,66 +100,84 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
   }
 
   return (
-    <div className="border-b border-gray-800/30 p-5 transition-all duration-300 hover:bg-white/2 hover:shadow-[inset_0_0_20px_rgba(29,155,240,0.1)]">
-      <div className="flex gap-3">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold flex-shrink-0">
-          {getAvatarInitial()}
+    <div className="bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-colors mb-4">
+      {/* ヘッダー */}
+      <div className="flex items-center p-4 pb-3">
+        <div className="w-12 h-12 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full flex items-center justify-center">
+          <span className="text-white font-bold text-sm">
+            {getAvatarInitial()}
+          </span>
+        </div>
+        <div className="ml-3 flex-1">
+          <div className="font-bold text-gray-900">
+            {getAuthorDisplay()}
+          </div>
+          <div className="text-gray-500 text-sm">
+            {new Date(post.timestamp).toLocaleString('ja-JP', {
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </div>
         </div>
         
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className={`px-2 py-1 rounded-xl text-xs font-bold text-white ${getTypeStyle()}`}>
-              {post.type === 'improvement' ? '💡 改善提案' : 
-               post.type === 'community' ? '💬 フリースペース' : 
-               post.type === 'report' ? '🚨 公益通報' : ''}
-            </span>
+        <div className="ml-auto">
+          <span className={`px-3 py-1 rounded-full text-xs text-white bg-gradient-to-r ${getTypeStyle()}`}>
+            {post.type === 'improvement' ? '💡 改善提案' : 
+             post.type === 'community' ? '💬 フリースペース' : 
+             post.type === 'report' ? '🚨 公益通報' : ''}
+          </span>
+        </div>
+      </div>
+
+      {/* 投稿内容 */}
+      <div className="px-4 pb-3">
+        <p className="text-gray-900 leading-relaxed">{post.content}</p>
+        
+        {/* 提案タイプと優先度のタグ */}
+        {(post.proposalType || post.priority) && (
+          <div className="flex items-center gap-2 mt-3 flex-wrap">
+            {post.type === 'improvement' && post.proposalType && (
+              <span className={`px-2 py-1 rounded-lg text-xs font-medium ${proposalTypeConfigs[post.proposalType].borderColor.replace('border-', 'bg-').replace('500', '500/20')} ${proposalTypeConfigs[post.proposalType].borderColor.replace('border-', 'text-')}`}>
+                {proposalTypeConfigs[post.proposalType]?.icon || '📝'} {proposalTypeConfigs[post.proposalType]?.label}
+              </span>
+            )}
             
             {post.priority && (
-              <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${getPriorityStyle()}`}>
-                {post.priority === 'urgent' ? '緊急' : 
-                 post.priority === 'high' ? '高優先度' : 
-                 post.priority === 'medium' ? '中優先度' : 
-                 '低優先度'}
+              <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getPriorityStyle()}`}>
+                {post.priority === 'urgent' ? '🔴 緊急' : 
+                 post.priority === 'high' ? '🟠 高優先度' : 
+                 post.priority === 'medium' ? '🟡 中優先度' : 
+                 '🟢 低優先度'}
               </span>
             )}
-            
-            <span className="font-bold text-gray-100">{getAuthorDisplay()}</span>
-            {post.anonymityLevel === 'real_name' && (
-              <span className="text-blue-400 text-sm font-medium">@{post.author.role}</span>
-            )}
-            <span className="text-gray-500 text-sm">・5分前</span>
           </div>
-          
-          <div className="text-gray-100 mb-4 leading-relaxed">
-            {post.content}
-          </div>
-          
-          {post.type === 'improvement' && (
-            <>
-              {/* 統一ステータス表示と最適化された投票UI */}
-              <VotingSection
-                post={post}
-                currentUser={currentUser}
-                onVote={onVote}
-                userVote={selectedVote}
-              />
-            </>
-          )}
-          
-          <div className="mt-5">
-            <button
-              onClick={() => onComment(post.id)}
-              className="flex items-center gap-3 px-6 py-4 bg-gradient-to-br from-blue-500/8 to-purple-500/8 border border-blue-500/20 text-blue-400 rounded-2xl transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-500/15 hover:to-purple-500/15 hover:border-blue-500/40 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(29,155,240,0.2)] group"
-            >
-              <span className="text-lg md:text-xl drop-shadow-[0_0_8px_rgba(29,155,240,0.5)] group-hover:animate-float">
-                💬
-              </span>
-              <span className="font-medium">コメントする</span>
-              <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-xl font-bold text-sm">
-                {post.comments.length}
-              </span>
-            </button>
-          </div>
+        )}
+      </div>
+
+      {/* 投票・合意システム */}
+      {post.type === 'improvement' && (
+        <div className="px-4 pb-4">
+          <VotingSection
+            post={post}
+            currentUser={currentUser}
+            onVote={onVote}
+            userVote={selectedVote}
+          />
+        </div>
+      )}
+
+      {/* アクションボタン */}
+      <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
+        <div className="flex space-x-6">
+          <button 
+            onClick={() => onComment(post.id)}
+            className="flex items-center space-x-2 text-gray-500 hover:text-blue-600 transition-colors"
+          >
+            <span className="text-lg">💬</span>
+            <span>{post.comments?.length || 0}</span>
+          </button>
         </div>
       </div>
     </div>
