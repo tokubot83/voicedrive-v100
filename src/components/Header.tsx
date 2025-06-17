@@ -6,6 +6,7 @@ import { useTabContext } from './tabs/TabContext';
 import { mainTabs } from './tabs/MainTabs';
 import { NotificationBell } from './notifications/NotificationBell';
 import { useDemoMode } from './demo/DemoModeController';
+import { useScrollDirection } from '../hooks/useScrollDirection';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -15,13 +16,16 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
   const { tabState, setActiveMainTab, setActiveSubFilter } = useTabContext();
   const { activeMainTab, activeSubFilter } = tabState;
   const { isDemoMode } = useDemoMode();
+  const { isVisible } = useScrollDirection();
   
   // 現在のタブがサブフィルターを持つかチェック
   const currentTab = mainTabs.find(tab => tab.id === activeMainTab);
   const hasSubFilters = currentTab?.hasSubFilters || false;
 
   return (
-    <header className={`fixed md:sticky left-0 right-0 z-30 bg-black/80 backdrop-blur border-b border-gray-800 ${isDemoMode ? 'top-[80px] md:top-[60px]' : 'top-0'} transition-all duration-300`}>
+    <header className={`fixed left-0 right-0 z-30 bg-black/80 backdrop-blur border-b border-gray-800 transition-transform duration-300 ${
+      isVisible ? 'translate-y-0' : '-translate-y-full'
+    } ${isDemoMode ? 'top-[80px] md:top-[60px]' : 'top-0'}`}>
       <div className="flex items-center justify-between">
         {/* モバイルロゴ */}
         <div className="flex items-center p-4 md:hidden">

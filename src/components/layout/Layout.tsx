@@ -161,7 +161,7 @@ const Layout: React.FC = () => {
       {/* モバイル用サイドバー（管理画面では非表示） */}
       {!isManagementPage && (
         <>
-          <div className={`lg:hidden fixed inset-y-0 left-0 z-40 w-sidebar-left transform transition-transform duration-300 ease-in-out ${
+          <div className={`lg:hidden fixed inset-y-0 left-0 z-50 w-sidebar-left transform transition-transform duration-300 ease-in-out ${
             isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}>
             <div className="h-full bg-black/95 backdrop-blur-xl border-r border-slate-700/50">
