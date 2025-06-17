@@ -18,33 +18,45 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
       type: 'improvement' as PostType,
       icon: '💡',
       title: 'アイデアボイス',
-      description: '職場の声を形に。あなたのアイデアを聞かせてください',
+      description: '職場の声を形に',
       features: [],
-      color: 'from-green-500 to-emerald-500',
+      gradient: 'from-amber-500 to-orange-500',
+      shadow: 'shadow-amber-500/30',
+      hover: 'hover:shadow-amber-500/50',
+      ring: 'ring-amber-500/50',
     },
     {
       type: 'community' as PostType,
       icon: '💬',
       title: 'フリーボイス',
-      description: '厚生会職員の交流の場。雑談からイベント告知まで自由にお使いください。',
+      description: '自由な交流の場',
       features: [],
-      color: 'from-blue-500 to-blue-600',
+      gradient: 'from-blue-500 to-cyan-500',
+      shadow: 'shadow-blue-500/30',
+      hover: 'hover:shadow-blue-500/50',
+      ring: 'ring-blue-500/50',
     },
     {
       type: 'report' as PostType,
       icon: '🚨',
       title: 'コンプライアンス窓口',
-      description: '法令・倫理の問題を完全匿名で報告',
+      description: '匿名で安全に報告',
       features: [],
-      color: 'from-red-500 to-red-600',
+      gradient: 'from-rose-500 to-pink-500',
+      shadow: 'shadow-rose-500/30',
+      hover: 'hover:shadow-rose-500/50',
+      ring: 'ring-rose-500/50',
     },
     {
       type: 'interview' as any, // 面談予約用の特別なタイプ
       icon: '🗣️',
       title: '面談予約',
-      description: '人財統括本部との個別面談を予約',
+      description: '個別相談の申込み',
       features: [],
-      color: 'from-purple-500 to-purple-600',
+      gradient: 'from-violet-500 to-purple-500',
+      shadow: 'shadow-violet-500/30',
+      hover: 'hover:shadow-violet-500/50',
+      ring: 'ring-purple-500/50',
     },
   ];
 
@@ -87,7 +99,10 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
             title={card.title}
             description={card.description}
             features={card.features}
-            color={card.color || 'from-gray-500 to-gray-600'}
+            gradient={card.gradient}
+            shadow={card.shadow}
+            hover={card.hover}
+            ring={card.ring}
             isSelected={selectedPostType === card.type && showForm}
             onClick={() => handleCardClick(card.type)}
             index={index}
