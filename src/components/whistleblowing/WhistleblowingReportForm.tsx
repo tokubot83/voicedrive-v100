@@ -49,14 +49,14 @@ const WhistleblowingReportForm: React.FC<WhistleblowingReportFormProps> = ({
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-white mb-4 flex items-center gap-3">
           <span className="text-4xl">🚨</span>
-          公益通報
+          コンプライアンス相談
         </h2>
         <div className="bg-red-900/30 border border-red-500/50 rounded-lg p-4 mb-6">
           <h3 className="text-red-300 font-bold mb-2">⚠️ 重要な注意事項</h3>
           <ul className="text-red-200 text-sm space-y-1">
-            <li>• この通報は専門調査チームが厳重に取り扱います</li>
+            <li>• この相談は専門調査チームが厳重に取り扱います</li>
             <li>• 匿名性は最高レベルで保護されます</li>
-            <li>• 虚偽の通報は処分の対象となる場合があります</li>
+            <li>• 虚偽の相談は処分の対象となる場合があります</li>
             <li>• 緊急の場合は直接関係部署または外部機関にもご連絡ください</li>
           </ul>
         </div>

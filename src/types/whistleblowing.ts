@@ -1,4 +1,4 @@
-// 公益通報システム用型定義
+// コンプライアンス窓口システム用型定義
 
 export type ReportCategory = 
   | 'harassment'      // ハラスメント

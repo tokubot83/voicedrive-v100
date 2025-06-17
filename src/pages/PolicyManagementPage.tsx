@@ -15,7 +15,7 @@ const PolicyManagementPage = () => {
               className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-xl transition-colors"
             >
               <span className="text-xl">←</span>
-              <span>ホームに戻る</span>
+              <span>← ホーム</span>
             </button>
             <div>
               <h1 className="text-2xl font-bold text-white">

@@ -22,7 +22,7 @@ const RetirementProcessingPage = () => {
             onClick={() => navigate('/')}
             className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
           >
-            ホームに戻る
+            ← ホーム
           </button>
         </div>
       </div>
@@ -40,7 +40,7 @@ const RetirementProcessingPage = () => {
               className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-xl transition-colors"
             >
               <span className="text-xl">←</span>
-              <span>ホームに戻る</span>
+              <span>← ホーム</span>
             </button>
             <div>
               <h1 className="text-2xl font-bold text-white flex items-center gap-2">

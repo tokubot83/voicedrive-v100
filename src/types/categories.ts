@@ -1,5 +1,5 @@
 export type PostCategory = 
-  // 改善提案カテゴリ（proposalTypes.tsと統一）
+  // アイデアボイスカテゴリ（proposalTypes.tsと統一）
   | 'operational'            // 業務改善
   | 'communication'          // コミュニケーション
   | 'innovation'             // イノベーション
@@ -32,7 +32,7 @@ export interface CategoryInfo {
 }
 
 export const POST_CATEGORIES: Record<PostCategory, CategoryInfo> = {
-  // 改善提案カテゴリ（医療・介護系法人向け）- proposalTypes.tsと統一
+  // アイデアボイスカテゴリ（医療・介護系法人向け）- proposalTypes.tsと統一
   operational: {
     id: 'operational',
     name: '業務改善',
@@ -142,7 +142,7 @@ export const POST_CATEGORIES: Record<PostCategory, CategoryInfo> = {
     requiresCarefulConsideration: false
   },
   
-  // フリースペースカテゴリ
+  // フリーボイスカテゴリ
   idea_sharing: {
     id: 'idea_sharing',
     name: 'アイデア共有',
@@ -182,7 +182,7 @@ export const POST_CATEGORIES: Record<PostCategory, CategoryInfo> = {
 // カテゴリ選択用のグループ定義
 export const CATEGORY_GROUPS = {
   improvement: {
-    name: '改善提案',
+    name: 'アイデアボイス',
     categories: ['operational', 'communication', 'innovation', 'strategic'] // ①業務改善 ②コミュニケーション ③イノベーション ④戦略提案
   },
   strategic: {
@@ -194,7 +194,7 @@ export const CATEGORY_GROUPS = {
     categories: ['recruitment_placement', 'evaluation_promotion', 'welfare_benefits', 'labor_issues', 'team_building']
   },
   community: {
-    name: 'フリースペース',
+    name: 'フリーボイス',
     categories: ['idea_sharing', 'casual_discussion', 'event_planning']
   }
 };
