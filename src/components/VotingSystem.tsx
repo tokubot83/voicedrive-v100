@@ -85,9 +85,9 @@ const VotingSystem = ({ votes, selectedVote, onVote, postId, proposalType, showS
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-500/8 to-purple-500/8 border border-blue-500/20 rounded-3xl p-6 mt-5 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+    <div className="bg-white border border-emerald-300 rounded-3xl p-6 mt-5 shadow-lg">
       <div className="flex items-center justify-between mb-5">
-        <h3 className="text-xl font-bold text-blue-400 drop-shadow-[0_0_10px_rgba(29,155,240,0.5)]">
+        <h3 className="text-xl font-bold text-emerald-700">
           🗳️ 合意形成投票
         </h3>
         {consensusScore >= 70 && (
@@ -136,15 +136,15 @@ const VotingSystem = ({ votes, selectedVote, onVote, postId, proposalType, showS
           {/* スコア情報表示（改善提案の場合のみ） */}
           {showScore && (
             <div className="w-full mb-4">
-              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-4">
+              <div className="bg-white border border-emerald-300 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-blue-400" />
-                    <span className="text-sm font-medium text-blue-400">プロジェクト進捗</span>
+                    <TrendingUp className="w-4 h-4 text-emerald-700" />
+                    <span className="text-sm font-medium text-emerald-700">プロジェクト進捗</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-white">{Math.round(currentScore)}点</div>
-                    <div className="text-xs text-gray-400">現在スコア</div>
+                    <div className="text-2xl font-bold text-emerald-800">{Math.round(currentScore)}点</div>
+                    <div className="text-xs text-gray-600">現在スコア</div>
                   </div>
                 </div>
                 
@@ -190,7 +190,7 @@ const VotingSystem = ({ votes, selectedVote, onVote, postId, proposalType, showS
             </div>
           </div>
           
-          <div className="text-center p-5 bg-gradient-to-br from-blue-500/10 to-green-500/10 rounded-2xl border border-blue-500/20 w-full max-w-[280px]">
+          <div className="text-center p-5 bg-white rounded-2xl border border-emerald-300 w-full max-w-[280px]">
             <div className="text-3xl font-bold text-green-400 mb-2 drop-shadow-[0_0_15px_rgba(0,186,124,0.6)]">
               {consensusScore}%
             </div>

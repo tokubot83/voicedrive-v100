@@ -83,9 +83,9 @@ const EnhancedVotingSystem = ({
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-500/8 to-purple-500/8 border border-blue-500/20 rounded-3xl p-6 mt-5 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+    <div className="bg-white border border-emerald-300 rounded-3xl p-6 mt-5 shadow-lg">
       <div className="flex items-center justify-between mb-5">
-        <h3 className="text-xl font-bold text-blue-400 drop-shadow-[0_0_10px_rgba(29,155,240,0.5)]">
+        <h3 className="text-xl font-bold text-emerald-700">
           🗳️ 合意形成投票
         </h3>
         {proposalType && proposalConfig && (
@@ -141,8 +141,8 @@ const EnhancedVotingSystem = ({
                 <div className="text-2xl font-bold text-gray-400">{rawConsensus}%</div>
               </div>
               <div className="text-center">
-                <div className="text-sm text-gray-500 mb-1">加重合意度</div>
-                <div className={`text-3xl font-bold ${consensusLevel.color || 'text-gray-400'}`}>
+                <div className="text-sm text-gray-600 mb-1">加重合意度</div>
+                <div className={`text-3xl font-bold ${consensusLevel.color || 'text-emerald-700'}`}>
                   {weightedConsensus}%
                 </div>
               </div>
@@ -150,10 +150,10 @@ const EnhancedVotingSystem = ({
             
             <div className="text-center">
               <span className={`px-4 py-2 rounded-full text-sm font-bold ${
-                consensusLevel.level === 'strong' ? 'bg-green-500/20 text-green-400' :
-                consensusLevel.level === 'high' ? 'bg-blue-500/20 text-blue-400' :
-                consensusLevel.level === 'moderate' ? 'bg-yellow-500/20 text-yellow-400' :
-                'bg-red-500/20 text-red-400'
+                consensusLevel.level === 'strong' ? 'bg-green-500/20 text-green-600' :
+                consensusLevel.level === 'high' ? 'bg-emerald-500/20 text-emerald-600' :
+                consensusLevel.level === 'moderate' ? 'bg-yellow-500/20 text-yellow-600' :
+                'bg-red-500/20 text-red-600'
               }`}>
                 {consensusLevel.label}
               </span>

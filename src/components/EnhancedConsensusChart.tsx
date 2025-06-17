@@ -180,15 +180,15 @@ const EnhancedConsensusChart: React.FC<EnhancedConsensusChartProps> = ({
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-500/8 to-purple-500/8 border border-blue-500/20 rounded-3xl p-6 backdrop-blur-xl">
+    <div className="bg-white border border-emerald-300 rounded-3xl p-6 shadow-lg">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-blue-400 flex items-center gap-2">
+        <h3 className="text-xl font-bold text-emerald-700 flex items-center gap-2">
           <TrendingUp className="w-5 h-5" />
           プロジェクト進捗 & 合意形成
         </h3>
         <div className="text-right">
-          <div className="text-sm text-gray-400">現在のスコア</div>
-          <div className="text-2xl font-bold text-blue-400">{currentScore}点</div>
+          <div className="text-sm text-gray-600">現在のスコア</div>
+          <div className="text-2xl font-bold text-emerald-700">{currentScore}点</div>
         </div>
       </div>
 
@@ -218,17 +218,17 @@ const EnhancedConsensusChart: React.FC<EnhancedConsensusChartProps> = ({
           </div>
 
           {/* 現在のレベル表示 */}
-          <div className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30">
+          <div className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-50 border border-emerald-200">
             {currentLevelInfo?.icon && (
-              <currentLevelInfo.icon className="w-5 h-5 text-blue-400" />
+              <currentLevelInfo.icon className="w-5 h-5 text-emerald-700" />
             )}
-            <span className="text-blue-400 font-medium">{currentLevelInfo?.label || '未設定'}</span>
+            <span className="text-emerald-700 font-medium">{currentLevelInfo?.label || '未設定'}</span>
           </div>
         </div>
 
         {/* マイルストーン一覧 */}
         <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-white mb-4">プロジェクトマイルストーン</h4>
+          <h4 className="text-lg font-semibold text-gray-800 mb-4">プロジェクトマイルストーン</h4>
           
           {thresholds.map((threshold, index) => {
             const isAchieved = currentScore >= threshold.score;

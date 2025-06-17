@@ -6,6 +6,7 @@ import MobileOverlay from '../MobileOverlay';
 import Breadcrumb from '../Breadcrumb';
 import Header from '../Header';
 import useSwipe from '../../hooks/useSwipe';
+import { useScrollDirection } from '../../hooks/useScrollDirection';
 import { UserRole } from '../../types';
 import { useDemoMode } from '../demo/DemoModeController';
 
@@ -13,6 +14,7 @@ const Layout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   const { currentUser, isDemoMode } = useDemoMode();
+  const { isVisible } = useScrollDirection();
   
   // Map demo user role to UserRole type
   const userRole = currentUser.role as UserRole;
@@ -117,7 +119,9 @@ const Layout: React.FC = () => {
       {!isManagementPage && (
         <button 
           onClick={toggleSidebar}
-          className={`lg:hidden fixed left-4 z-50 bg-slate-800/90 backdrop-blur-lg border border-slate-700/50 rounded-full p-3 shadow-lg hover:bg-slate-700/90 transition-all duration-200 ${isDemoMode ? 'top-[100px] md:top-[80px]' : 'top-4'}`}
+          className={`lg:hidden fixed left-4 top-4 z-50 bg-slate-800/90 backdrop-blur-lg border border-slate-700/50 rounded-full p-3 shadow-lg hover:bg-slate-700/90 transition-all duration-300 ${
+            isVisible ? 'translate-y-0' : '-translate-y-full'
+          }`}
         >
           <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
