@@ -263,11 +263,11 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               className={`
                 flex flex-col items-center p-2 sm:p-3 rounded-lg border-2 transition-all
                 ${selectedVote === vote.type 
-                  ? ((vote.color || 'emerald') === 'red' ? 'border-red-500 bg-red-500/20' :
+                  ? ((vote.color || 'blue') === 'red' ? 'border-red-500 bg-red-500/20' :
                     vote.color === 'orange' ? 'border-orange-500 bg-orange-500/20' :
                     vote.color === 'gray' ? 'border-gray-500 bg-gray-500/20' :
                     vote.color === 'green' ? 'border-green-500 bg-green-500/20' :
-                    'border-emerald-500 bg-emerald-500/20')
+                    'border-blue-500 bg-blue-500/20')
                   : 'border-gray-300 hover:border-gray-400 bg-gray-50'
                 }
                 ${userVote !== undefined ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
@@ -288,7 +288,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
             <span>現在の投票分布</span>
             <span>計 {Object.values(safeVotes).reduce((sum, count) => sum + count, 0)} 票</span>
           </div>
-          <div className="flex h-4 rounded-full overflow-hidden bg-gray-200">
+          <div className="flex h-6 rounded-full overflow-hidden bg-gray-200 shadow-inner">
             {voteOptions.map(vote => {
               const totalVotes = Object.values(safeVotes).reduce((sum, count) => sum + count, 0);
               const percentage = totalVotes > 0
@@ -300,7 +300,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               return (
                 <div
                   key={vote.type}
-                  className={`h-full transition-all duration-500 ${
+                  className={`h-full transition-all duration-500 relative group ${
                     ((vote.color || 'blue') === 'red' ? 'bg-red-500' :
                     vote.color === 'orange' ? 'bg-orange-500' :
                     vote.color === 'gray' ? 'bg-gray-500' :
@@ -308,10 +308,29 @@ const VotingSection: React.FC<VotingSectionProps> = ({
                     'bg-blue-500')
                   }`}
                   style={{ width: `${percentage}%` }}
-                  title={`${vote.label}: ${safeVotes[vote.type]}票 (${Math.round(percentage)}%)`}
-                />
+                >
+                  {/* ホバー時のツールチップ */}
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                    {vote.emoji} {vote.label}: {safeVotes[vote.type]}票 ({Math.round(percentage)}%)
+                  </div>
+                </div>
               );
             })}
+          </div>
+          {/* 色の凡例 */}
+          <div className="flex justify-center gap-4 text-xs text-gray-600 mt-2">
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-blue-500 rounded" />
+              <span>強く賛成</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-green-500 rounded" />
+              <span>賛成</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-orange-500 rounded" />
+              <span>反対</span>
+            </div>
           </div>
         </div>
         

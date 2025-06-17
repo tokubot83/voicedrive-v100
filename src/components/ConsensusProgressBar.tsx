@@ -12,12 +12,12 @@ const ConsensusProgressBar: React.FC<ConsensusProgressBarProps> = ({
   percentage,
   showLabels = false 
 }) => {
-  // 投票オプションの定義（順番と色を設定）
+  // 投票オプションの定義（VotingSectionと統一）
   const voteOptions = [
-    { type: 'strongly-support' as VoteOption, label: '強く賛成', color: 'bg-emerald-600', emoji: '😍' },
-    { type: 'support' as VoteOption, label: '賛成', color: 'bg-emerald-400', emoji: '😊' },
-    { type: 'neutral' as VoteOption, label: '中立', color: 'bg-gray-400', emoji: '😐' },
-    { type: 'oppose' as VoteOption, label: '反対', color: 'bg-orange-400', emoji: '😕' },
+    { type: 'strongly-support' as VoteOption, label: '強く賛成', color: 'bg-blue-500', emoji: '😍' },
+    { type: 'support' as VoteOption, label: '賛成', color: 'bg-green-500', emoji: '😊' },
+    { type: 'neutral' as VoteOption, label: '中立', color: 'bg-gray-500', emoji: '😐' },
+    { type: 'oppose' as VoteOption, label: '反対', color: 'bg-orange-500', emoji: '😕' },
     { type: 'strongly-oppose' as VoteOption, label: '強く反対', color: 'bg-red-500', emoji: '😠' }
   ];
 
