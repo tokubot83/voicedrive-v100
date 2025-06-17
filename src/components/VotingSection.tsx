@@ -87,60 +87,72 @@ const VotingSection: React.FC<VotingSectionProps> = ({
     <div className="space-y-6">
       {/* 改善提案用スコア表示パネル */}
       {post.type === 'improvement' && (
-        <div className="bg-white border border-emerald-300 rounded-xl p-4 mb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-emerald-600 text-lg">🎯</span>
-              <span className="text-emerald-700 font-medium">プロジェクトスコア</span>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-emerald-800">{Math.round(currentScore)}点</div>
-              <div className="text-xs text-gray-600">
-                {currentScore >= 600 ? '🏢 法人レベル' :
-                 currentScore >= 300 ? '🏥 施設レベル' :
-                 currentScore >= 100 ? '🏢 部署レベル' :
-                 currentScore >= 50 ? '👥 チームレベル' : '💭 議論段階'}
+        <div className="bg-white border border-emerald-300 rounded-xl p-4 mb-4 hover:border-emerald-400 transition-all">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg border border-emerald-300 text-emerald-700">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
               </div>
+              <div>
+                <h3 className="text-lg font-semibold text-emerald-800">プロジェクトスコア</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="inline-block w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="text-sm text-gray-600 capitalize">active</span>
+                </div>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-emerald-800">{Math.round(currentScore)}</div>
+              <div className="text-sm text-gray-600">点</div>
             </div>
           </div>
-          {currentScore < 600 && (
-            <div className="mt-3">
-              <div className="text-sm text-gray-400 mb-1">
-                次の目標: {currentScore >= 300 ? '法人レベル(600点)' :
-                          currentScore >= 100 ? '施設レベル(300点)' :
-                          currentScore >= 50 ? '部署レベル(100点)' : 'チームレベル(50点)'}
-                まで残り{currentScore >= 300 ? 600 - currentScore :
-                        currentScore >= 100 ? 300 - currentScore :
-                        currentScore >= 50 ? 100 - currentScore : 50 - currentScore}点
-              </div>
-              <div className="w-full bg-gray-300 rounded-full h-2">
-                <div
-                  className="bg-gradient-to-r from-emerald-500 to-green-500 h-2 rounded-full transition-all duration-500"
-                  style={{ 
-                    width: `${Math.min(100, (currentScore / (
-                      currentScore >= 300 ? 600 :
-                      currentScore >= 100 ? 300 :
-                      currentScore >= 50 ? 100 : 50
-                    )) * 100)}%` 
-                  }}
-                />
-              </div>
-            </div>
-          )}
+          
+          {/* レベル表示 */}
+          <div className="mt-4 mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">
+              {currentScore >= 600 ? '🏢 法人レベル' :
+               currentScore >= 300 ? '🏥 施設レベル' :
+               currentScore >= 100 ? '🏢 部署レベル' :
+               currentScore >= 50 ? '👥 チームレベル' : '💭 議論段階'}
+            </span>
+            {currentScore < 600 && (
+              <span className="text-sm text-gray-500">
+                次の目標まで{currentScore >= 300 ? 600 - currentScore :
+                           currentScore >= 100 ? 300 - currentScore :
+                           currentScore >= 50 ? 100 - currentScore : 50 - currentScore}点
+              </span>
+            )}
+          </div>
+          
+          {/* プログレスバー */}
+          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-emerald-500 to-green-500 h-2 rounded-full transition-all duration-500"
+              style={{ 
+                width: `${Math.min(100, (currentScore / (
+                  currentScore >= 300 ? 600 :
+                  currentScore >= 100 ? 300 :
+                  currentScore >= 50 ? 100 : 50
+                )) * 100)}%` 
+              }}
+            />
+          </div>
         </div>
       )}
 
       {/* 統一ステータス表示（縦積みレイアウト） */}
       <div className="space-y-4">
-        {/* 合意形成（常に表示） */}
+        {/* みんなの納得率（常に表示） */}
         <UnifiedProgressBar
           type="consensus"
-          title="合意形成状況"
+          title="みんなの納得率"
           percentage={consensusData.percentage}
           status="active"
           quickInsights={insights}
           details={details}
-          detailsData={consensusData}
+          detailsData={{ ...consensusData, votes: safeVotes }}
           description={`${consensusData.level} (${consensusData.percentage}%)`}
         />
         

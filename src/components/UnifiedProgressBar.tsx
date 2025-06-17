@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Users, CheckCircle, Briefcase, TrendingUp, Clock, AlertCircle } from 'lucide-react';
 import CircularProgress from './CircularProgress';
+import ConsensusProgressBar from './ConsensusProgressBar';
 import ConsensusDetails from './details/ConsensusDetails';
 import ProjectDetails from './details/ProjectDetails';
 import ApprovalProcessInlineDetails from './approval/ApprovalProcessInlineDetails';
@@ -100,19 +101,32 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
           </div>
         </div>
 
-        {/* Circular Progress Indicator */}
-        <CircularProgress
-          value={percentage}
-          size={80}
-          strokeWidth={5}
-          color="green"
-          showPercentage={true}
-          className="flex-shrink-0"
-        />
+        {/* Progress Indicator - プログレスバーまたは円形 */}
+        {type !== 'consensus' && (
+          <CircularProgress
+            value={percentage}
+            size={80}
+            strokeWidth={5}
+            color="green"
+            showPercentage={true}
+            className="flex-shrink-0"
+          />
+        )}
       </div>
 
+      {/* Consensus Progress Bar for consensus type */}
+      {type === 'consensus' && detailsData?.votes && (
+        <div className="mb-4">
+          <ConsensusProgressBar
+            votes={detailsData.votes}
+            percentage={percentage}
+            showLabels={true}
+          />
+        </div>
+      )}
+
       {/* Description */}
-      {description && (
+      {description && type !== 'consensus' && (
         <p className="text-gray-600 text-sm mb-4">{description}</p>
       )}
 
