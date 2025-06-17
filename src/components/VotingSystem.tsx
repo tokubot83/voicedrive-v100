@@ -191,10 +191,10 @@ const VotingSystem = ({ votes, selectedVote, onVote, postId, proposalType, showS
           </div>
           
           <div className="text-center p-5 bg-white rounded-2xl border border-emerald-300 w-full max-w-[280px]">
-            <div className="text-3xl font-bold text-green-400 mb-2 drop-shadow-[0_0_15px_rgba(0,186,124,0.6)]">
+            <div className="text-3xl font-bold text-emerald-800 mb-2">
               {consensusScore}%
             </div>
-            <div className="text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 font-semibold">
+            <div className="text-sm px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 font-semibold">
               {consensusScore >= 70 ? '合意形成進行中' : '議論継続中'}
             </div>
           </div>

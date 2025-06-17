@@ -113,9 +113,9 @@ const VotingSection: React.FC<VotingSectionProps> = ({
                         currentScore >= 100 ? 300 - currentScore :
                         currentScore >= 50 ? 100 - currentScore : 50 - currentScore}点
               </div>
-              <div className="w-full bg-gray-700/50 rounded-full h-2">
+              <div className="w-full bg-gray-300 rounded-full h-2">
                 <div
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                  className="bg-gradient-to-r from-emerald-500 to-green-500 h-2 rounded-full transition-all duration-500"
                   style={{ 
                     width: `${Math.min(100, (currentScore / (
                       currentScore >= 300 ? 600 :
@@ -236,8 +236,8 @@ const VotingSection: React.FC<VotingSectionProps> = ({
       </div>
       
       {/* 投票エリア */}
-      <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl p-6">
-        <h3 className="text-white font-medium mb-4 flex items-center gap-2">
+      <div className="bg-white border border-emerald-300 rounded-xl p-6">
+        <h3 className="text-emerald-700 font-medium mb-4 flex items-center gap-2">
           💬 あなたの意見をお聞かせください
         </h3>
         
@@ -272,11 +272,11 @@ const VotingSection: React.FC<VotingSectionProps> = ({
         
         {/* 現在の投票分布 */}
         <div className="mb-4 space-y-2">
-          <div className="flex justify-between text-sm text-gray-400">
+          <div className="flex justify-between text-sm text-gray-600">
             <span>現在の投票分布</span>
             <span>計 {Object.values(safeVotes).reduce((sum, count) => sum + count, 0)} 票</span>
           </div>
-          <div className="flex h-4 rounded-full overflow-hidden bg-gray-800">
+          <div className="flex h-4 rounded-full overflow-hidden bg-gray-200">
             {voteOptions.map(vote => {
               const totalVotes = Object.values(safeVotes).reduce((sum, count) => sum + count, 0);
               const percentage = totalVotes > 0
@@ -308,7 +308,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
           <button
             onClick={handleVote}
             disabled={!selectedVote || userVote !== undefined || isVoting}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:cursor-not-allowed"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:text-gray-200 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:cursor-not-allowed"
           >
             {isVoting ? '投票中...' : userVote ? '投票済み' : '投票する'}
           </button>

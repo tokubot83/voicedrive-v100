@@ -134,15 +134,15 @@ const EnhancedVotingSystem = ({
         {/* Consensus Display and Stakeholder Breakdown */}
         <div className="space-y-6">
           {/* Consensus Scores */}
-          <div className="bg-black/30 rounded-2xl p-6">
+          <div className="bg-white border border-emerald-300 rounded-2xl p-6">
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="text-center">
-                <div className="text-sm text-gray-500 mb-1">通常合意度</div>
-                <div className="text-2xl font-bold text-gray-400">{rawConsensus}%</div>
+                <div className="text-sm text-gray-600 mb-1">通常合意度</div>
+                <div className="text-2xl font-bold text-emerald-700">{rawConsensus}%</div>
               </div>
               <div className="text-center">
                 <div className="text-sm text-gray-600 mb-1">加重合意度</div>
-                <div className={`text-3xl font-bold ${consensusLevel.color || 'text-emerald-700'}`}>
+                <div className="text-3xl font-bold text-emerald-800">
                   {weightedConsensus}%
                 </div>
               </div>
@@ -150,10 +150,10 @@ const EnhancedVotingSystem = ({
             
             <div className="text-center">
               <span className={`px-4 py-2 rounded-full text-sm font-bold ${
-                consensusLevel.level === 'strong' ? 'bg-green-500/20 text-green-600' :
-                consensusLevel.level === 'high' ? 'bg-emerald-500/20 text-emerald-600' :
-                consensusLevel.level === 'moderate' ? 'bg-yellow-500/20 text-yellow-600' :
-                'bg-red-500/20 text-red-600'
+                consensusLevel.level === 'strong' ? 'bg-green-500/20 text-green-700' :
+                consensusLevel.level === 'high' ? 'bg-emerald-500/20 text-emerald-700' :
+                consensusLevel.level === 'moderate' ? 'bg-yellow-500/20 text-yellow-700' :
+                'bg-red-500/20 text-red-700'
               }`}>
                 {consensusLevel.label}
               </span>
@@ -162,8 +162,8 @@ const EnhancedVotingSystem = ({
 
           {/* Stakeholder Breakdown */}
           {proposalConfig && stakeholderBreakdown.length > 0 && (
-            <div className="bg-black/30 rounded-2xl p-6">
-              <h4 className="text-sm font-bold text-gray-400 mb-4">ステークホルダー別投票状況</h4>
+            <div className="bg-white border border-emerald-300 rounded-2xl p-6">
+              <h4 className="text-sm font-bold text-emerald-700 mb-4">ステークホルダー別投票状況</h4>
               <div className="space-y-3">
                 {proposalConfig.weights.map((weight) => {
                   const stakeholder = stakeholderBreakdown.find(s => s.category === weight.category);

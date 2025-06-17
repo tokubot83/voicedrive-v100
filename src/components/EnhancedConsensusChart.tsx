@@ -208,17 +208,17 @@ const EnhancedConsensusChart: React.FC<EnhancedConsensusChartProps> = ({
             
             {/* 中央の情報表示 */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-center bg-black/60 rounded-full p-6 backdrop-blur-sm border border-white/10">
-                <div className="text-3xl font-bold text-white mb-1">{consensusScore}%</div>
-                <div className="text-xs text-gray-300">合意度</div>
-                <div className="text-lg font-semibold text-blue-400 mt-2">{totalVotes}</div>
-                <div className="text-xs text-gray-400">投票数</div>
+              <div className="text-center bg-white rounded-full p-6 border border-emerald-300 shadow-lg">
+                <div className="text-3xl font-bold text-emerald-800 mb-1">{consensusScore}%</div>
+                <div className="text-xs text-gray-600">合意度</div>
+                <div className="text-lg font-semibold text-emerald-700 mt-2">{totalVotes}</div>
+                <div className="text-xs text-gray-600">投票数</div>
               </div>
             </div>
           </div>
 
           {/* 現在のレベル表示 */}
-          <div className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-50 border border-emerald-200">
+          <div className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-emerald-300">
             {currentLevelInfo?.icon && (
               <currentLevelInfo.icon className="w-5 h-5 text-emerald-700" />
             )}
