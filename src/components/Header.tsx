@@ -26,19 +26,17 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
     <header className={`fixed left-0 right-0 top-0 z-50 bg-black/80 backdrop-blur border-b border-gray-800 transition-transform duration-300 ${
       isVisible ? 'translate-y-0' : '-translate-y-full'
     }`}>
-      <div className="flex items-center justify-between">
-        {/* モバイルロゴ */}
-        <div className="flex items-center p-4 md:hidden">
-          <span className="text-xl font-bold gradient-text">VoiceDrive</span>
+      <div className="flex items-center justify-between relative">
+        {/* 中央ロゴ（モバイル・デスクトップ共通） */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+          <div className="flex flex-col items-center">
+            <span className="text-xl md:text-2xl font-bold gradient-text">VoiceDrive</span>
+            <span className="text-xs md:text-sm text-gray-400 mt-1">厚生会 人材統括本部</span>
+          </div>
         </div>
         
-        {/* デスクトップロゴ */}
-        <div className="hidden md:flex items-center p-4">
-          <span className="text-xl font-bold gradient-text">VoiceDrive</span>
-        </div>
-        
-        {/* 通知ベル */}
-        <div className="flex items-center space-x-3 pr-4">
+        {/* 通知ベル（右側に配置） */}
+        <div className="ml-auto flex items-center space-x-3 p-4">
           <NotificationBell className="text-white" />
         </div>
       </div>
