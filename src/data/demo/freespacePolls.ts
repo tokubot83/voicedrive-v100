@@ -3,6 +3,50 @@ import { demoUsers } from './users';
 
 // デモ用投票データ
 export const demoPolls: Poll[] = [
+  // 期限切れの投票（結果投稿の対象）
+  {
+    id: 'poll-expired-1',
+    question: '新人研修プログラムに追加したい内容は？',
+    description: '来年度の新人研修プログラムを見直しています。現場で必要だと感じるスキルや知識について教えてください。',
+    options: [
+      { id: 'exp-opt-1', text: 'デジタル基礎スキル（Excel、PowerPoint等）', emoji: '💻', votes: 85 },
+      { id: 'exp-opt-2', text: 'コミュニケーション研修', emoji: '💬', votes: 67 },
+      { id: 'exp-opt-3', text: '業界特有の専門知識', emoji: '📚', votes: 102 },
+      { id: 'exp-opt-4', text: 'チームワーク・協調性研修', emoji: '🤝', votes: 43 },
+      { id: 'exp-opt-5', text: 'ビジネスマナー研修', emoji: '👔', votes: 28 }
+    ],
+    totalVotes: 325,
+    deadline: new Date('2025-01-10T23:59:59'), // 期限切れ
+    isActive: false,
+    showResults: 'afterDeadline',
+    category: 'idea_sharing',
+    scope: 'organization',
+    createdAt: new Date('2025-01-03T09:00:00'),
+    createdBy: demoUsers[5], // 人事部職員
+    postId: 'freespace-post-expired-1'
+  },
+  
+  // 期限切れの投票その2（接戦の例）
+  {
+    id: 'poll-expired-2',
+    question: '社内カフェの営業時間、どうしたい？',
+    description: '社内カフェの営業時間について、皆さんの希望をお聞かせください。現在は9:00-17:00ですが、より利用しやすくするための改善案を検討中です。',
+    options: [
+      { id: 'cafe-opt-1', text: '現状維持（9:00-17:00）', emoji: '⏰', votes: 89 },
+      { id: 'cafe-opt-2', text: '朝を早めに（8:00-17:00）', emoji: '🌅', votes: 94 },
+      { id: 'cafe-opt-3', text: '夜を遅めに（9:00-19:00）', emoji: '🌆', votes: 87 },
+      { id: 'cafe-opt-4', text: '朝夜両方延長（8:00-19:00）', emoji: '🕐', votes: 82 }
+    ],
+    totalVotes: 352,
+    deadline: new Date('2025-01-08T23:59:59'), // 期限切れ
+    isActive: false,
+    showResults: 'afterDeadline',
+    category: 'casual_discussion',
+    scope: 'facility',
+    createdAt: new Date('2025-01-01T10:00:00'),
+    createdBy: demoUsers[7], // 事務職員
+    postId: 'freespace-post-expired-2'
+  },
   {
     id: 'poll-1',
     question: '今年の忘年会、どこでやりたい？',
