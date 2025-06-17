@@ -4,7 +4,11 @@ interface ComposeCardProps {
   title: string;
   description: string;
   features: string[];
-  color: string;
+  gradient?: string;
+  shadow?: string;
+  hover?: string;
+  ring?: string;
+  color?: string; // 後方互換性のため残す
   isSelected: boolean;
   onClick: () => void;
   index?: number;
@@ -12,7 +16,22 @@ interface ComposeCardProps {
   onKeyDown?: (e: React.KeyboardEvent) => void;
 }
 
-const ComposeCard = ({ type, icon, title, description, features, color, isSelected, onClick, index, onKeyDown }: ComposeCardProps) => {
+const ComposeCard = ({ 
+  type, 
+  icon, 
+  title, 
+  description, 
+  features, 
+  gradient, 
+  shadow, 
+  hover, 
+  ring,
+  color, 
+  isSelected, 
+  onClick, 
+  index, 
+  onKeyDown 
+}: ComposeCardProps) => {
   const getSelectedStyle = (cardType: string) => {
     switch (cardType) {
       case 'improvement':
@@ -34,38 +53,63 @@ const ComposeCard = ({ type, icon, title, description, features, color, isSelect
       aria-checked={isSelected}
       tabIndex={isSelected ? 0 : -1}
       className={`
-        w-full p-4 rounded-lg border transition-all duration-200 text-left cursor-pointer
-        transform hover:scale-[1.02] hover:shadow-lg
-        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900
-        ${isSelected 
-          ? getSelectedStyle(type)
-          : 'border-gray-700 bg-gray-800/30 text-gray-300 hover:border-gray-600 hover:bg-gray-800/50'
-        }
+        relative overflow-hidden group
+        w-full p-5 rounded-2xl
+        bg-gradient-to-br ${gradient || color || 'from-gray-500 to-gray-600'}
+        ${shadow} shadow-lg
+        ${hover}
+        transform transition-all duration-300
+        hover:scale-[1.02] hover:-translate-y-0.5
+        cursor-pointer
+        border border-white/10
+        focus:outline-none focus:ring-2 focus:${ring || 'ring-blue-500'} focus:ring-offset-2 focus:ring-offset-gray-900
       `}
     >
-      <div className="flex items-center gap-3">
-        <div className="text-2xl flex-shrink-0">{icon}</div>
-        <div className="flex-1">
-          <div className="font-medium mb-1">{title}</div>
-          <div className="text-sm opacity-80 leading-tight mb-2">{description}</div>
-          <div className="flex gap-2 flex-wrap">
-            {features.map((feature, index) => (
-              <span
-                key={index}
-                className="text-xs px-2 py-1 rounded-full bg-current/20 opacity-70"
-              >
-                {feature}
-              </span>
-            ))}
+      {/* グラデーションオーバーレイ */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
+      {/* パーティクルエフェクト */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-2 -right-2 w-20 h-20 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500" />
+        <div className="absolute -bottom-2 -left-2 w-16 h-16 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500" />
+      </div>
+
+      <div className="relative z-10 flex items-center gap-4">
+        {/* アイコンコンテナ */}
+        <div className="flex-shrink-0">
+          <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
+            {icon}
           </div>
         </div>
-        {isSelected && (
-          <div className="flex-shrink-0">
-            <div className="w-5 h-5 rounded-full bg-current opacity-60 flex items-center justify-center">
-              <div className="w-2 h-2 bg-white rounded-full"></div>
-            </div>
+        
+        {/* テキストコンテンツ */}
+        <div className="flex-1 text-left">
+          <div className="font-bold text-lg text-white mb-1 group-hover:text-white/90 transition-colors">
+            {title}
           </div>
-        )}
+          <div className="text-sm text-white/70 leading-tight group-hover:text-white/80 transition-colors">
+            {description}
+          </div>
+          {features.length > 0 && (
+            <div className="flex gap-2 flex-wrap mt-2">
+              {features.map((feature, index) => (
+                <span
+                  key={index}
+                  className="text-xs px-2 py-1 rounded-full bg-white/10 text-white/60"
+                >
+                  {feature}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        {/* 矢印アイコン */}
+        <div className="flex-shrink-0 text-white/50 group-hover:text-white/80 transition-colors">
+          <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
       </div>
     </button>
   );
