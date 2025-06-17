@@ -90,6 +90,19 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
     }
   };
 
+  const getBackgroundStyle = () => {
+    switch (post.type) {
+      case 'improvement':
+        return 'bg-green-50 border-green-200 hover:border-green-300';
+      case 'community':
+        return 'bg-white border-gray-200 hover:border-gray-300';
+      case 'report':
+        return 'bg-red-50 border-red-200 hover:border-red-300';
+      default:
+        return 'bg-white border-gray-200 hover:border-gray-300';
+    }
+  };
+
   const getPriorityStyle = () => {
     switch (post.priority) {
       case 'urgent':
@@ -124,7 +137,7 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-colors mb-4">
+    <div className={`rounded-xl border transition-colors mb-4 ${getBackgroundStyle()}`}>
       {onClose && (
         <div className="flex justify-end p-4 pb-0">
           <button

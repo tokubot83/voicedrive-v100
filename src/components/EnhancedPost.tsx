@@ -64,6 +64,19 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
     }
   };
 
+  const getBackgroundStyle = () => {
+    switch (post.type) {
+      case 'improvement':
+        return 'bg-green-50 border-green-200 hover:border-green-300';
+      case 'community':
+        return 'bg-white border-gray-200 hover:border-gray-300';
+      case 'report':
+        return 'bg-red-50 border-red-200 hover:border-red-300';
+      default:
+        return 'bg-white border-gray-200 hover:border-gray-300';
+    }
+  };
+
   const getPriorityStyle = () => {
     switch (post.priority) {
       case 'urgent':
@@ -100,7 +113,7 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-colors mb-4">
+    <div className={`rounded-xl border transition-colors mb-4 ${getBackgroundStyle()}`}>
       {/* ヘッダー */}
       <div className="flex items-center p-4 pb-3">
         <div className="w-12 h-12 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full flex items-center justify-center">
