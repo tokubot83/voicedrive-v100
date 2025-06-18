@@ -148,8 +148,8 @@ const Layout: React.FC = () => {
           
           {/* メインコンテンツ */}
           <main className={`flex-1 ${isManagementPage ? 'w-full' : 'max-w-main'} min-w-0 ${isManagementPage ? '' : 'border-x-0 lg:border-x border-slate-700/50'}`}>
-            <div className={`w-full h-full bg-black/20 backdrop-blur-lg ${
-              isManagementPage ? '' : 'pt-[149px]'
+            <div className={`w-full h-full bg-black/80 backdrop-blur-lg ${
+              isManagementPage ? '' : 'pt-20 md:pt-24'
             }`}>
               {!isManagementPage && <Breadcrumb />}
               <Outlet />
