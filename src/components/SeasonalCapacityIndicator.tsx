@@ -68,7 +68,7 @@ const SeasonalCapacityIndicator: React.FC<SeasonalCapacityIndicatorProps> = ({
       </div>
 
       <div className="mt-3">
-        <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+        <div className="w-full bg-gray-700 rounded-full h-8 overflow-hidden">
           <div 
             className={`h-full transition-all duration-500 ${getProgressBarColor()}`}
             style={{ width: `${getProgressPercentage()}%` }}

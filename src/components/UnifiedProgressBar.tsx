@@ -91,7 +91,7 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
               {lastUpdated && (
                 <>
                   <span className="text-gray-600">•</span>
-                  <Clock className="w-3 h-3 text-gray-500" />
+                  <Clock className="w-5 h-5 text-gray-500" />
                   <span className="text-sm text-gray-600">
                     {new Date(lastUpdated).toLocaleDateString()}
                   </span>
@@ -151,12 +151,12 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
           >
             {isExpanded ? (
               <>
-                <ChevronUp className="w-4 h-4" />
+                <ChevronUp className="w-5 h-5" />
                 詳細を隠す
               </>
             ) : (
               <>
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown className="w-5 h-5" />
                 詳細を見る
               </>
             )}
@@ -183,7 +183,7 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
                         </span>
                         {detail.trend && (
                           <TrendingUp
-                            className={`w-4 h-4 ${
+                            className={`w-5 h-5 ${
                               detail.trend === 'up'
                                 ? 'text-green-400'
                                 : detail.trend === 'down'
@@ -205,7 +205,7 @@ const UnifiedProgressBar: React.FC<UnifiedProgressBarProps> = ({
       {/* Critical Status Alert */}
       {status === 'critical' && (
         <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-red-400" />
+          <AlertCircle className="w-5 h-5 text-red-400" />
           <span className="text-sm text-red-400">Requires immediate attention</span>
         </div>
       )}

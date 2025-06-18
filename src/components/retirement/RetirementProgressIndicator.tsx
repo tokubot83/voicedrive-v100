@@ -80,9 +80,9 @@ const RetirementProgressIndicator: React.FC<RetirementProgressIndicatorProps> = 
           <span className="text-sm font-medium text-gray-300">進行状況</span>
           <span className="text-sm text-gray-400">{Math.round(calculateProgress())}%</span>
         </div>
-        <div className="w-full bg-gray-700/50 rounded-full h-2 mb-3">
+        <div className="w-full bg-gray-700/50 rounded-full h-8 mb-3">
           <div
-            className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+            className="bg-gradient-to-r from-blue-500 to-purple-500 h-8 rounded-full transition-all duration-500"
             style={{ width: `${calculateProgress()}%` }}
           />
         </div>
@@ -117,12 +117,12 @@ const RetirementProgressIndicator: React.FC<RetirementProgressIndicatorProps> = 
           <span className="text-sm font-medium text-gray-300">全体進捗</span>
           <span className="text-sm text-gray-400">{Math.round(calculateProgress())}% 完了</span>
         </div>
-        <div className="w-full bg-gray-700/50 rounded-full h-3">
+        <div className="w-full bg-gray-700/50 rounded-full h-8">
           <div
-            className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500 relative"
+            className="bg-gradient-to-r from-blue-500 to-purple-500 h-8 rounded-full transition-all duration-500 relative"
             style={{ width: `${calculateProgress()}%` }}
           >
-            <div className="absolute right-0 top-0 w-3 h-3 bg-white rounded-full animate-pulse" />
+            <div className="absolute right-0 top-0 w-8 h-8 bg-white rounded-full animate-pulse" />
           </div>
         </div>
       </div>
