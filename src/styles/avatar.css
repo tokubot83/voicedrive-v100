@@ -108,3 +108,79 @@
 .avatar-3d:hover {
   transform: perspective(1000px) rotateY(10deg);
 }
+
+/* プロフィールカバー関連のスタイル */
+
+/* カバー画像のシマー効果 */
+@keyframes cover-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.cover-shimmer {
+  background-size: 200% 100%;
+  animation: cover-shimmer 3s infinite;
+}
+
+/* プロフィールカードのホバー効果 */
+.profile-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* パターン固有のアニメーション */
+.pattern-wave {
+  background-size: 100px 100px;
+  animation: wave-flow 8s ease-in-out infinite;
+}
+
+@keyframes wave-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.pattern-geometric {
+  background-size: 60px 60px;
+  animation: geometric-rotate 12s linear infinite;
+}
+
+@keyframes geometric-rotate {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 60px 60px;
+  }
+}
+
+.pattern-abstract {
+  background-size: 80px 80px;
+  animation: abstract-float 10s ease-in-out infinite;
+}
+
+@keyframes abstract-float {
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
+}
