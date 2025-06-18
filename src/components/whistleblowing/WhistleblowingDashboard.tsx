@@ -115,7 +115,7 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
             onClick={onNewReport}
             className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-lg"
           >
-            新しい通報を作成
+            新しい相談を開始
           </button>
           <div className="mt-8 p-4 bg-blue-900/30 border border-blue-500/50 rounded-lg">
             <h3 className="text-blue-300 font-bold mb-2">📞 緊急時の連絡先</h3>
@@ -145,7 +145,7 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
             onClick={onNewReport}
             className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
           >
-            新しい通報
+            新しい相談
           </button>
         </div>
       </div>
@@ -155,7 +155,7 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-400">総通報数</span>
+              <span className="text-gray-400">総相談数</span>
               <span className="text-2xl">📊</span>
             </div>
             <div className="text-3xl font-bold text-white">{demoReportStatistics.totalReports}</div>
@@ -195,7 +195,7 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
       {permissions.canView && (
         <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-white">通報一覧</h2>
+            <h2 className="text-xl font-bold text-white">相談一覧</h2>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as ReportStatus | 'all')}
@@ -250,7 +250,7 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
           {visibleReports.length === 0 && (
             <div className="text-center py-8">
               <div className="text-4xl mb-4">📭</div>
-              <p className="text-gray-400">該当する通報はありません。</p>
+              <p className="text-gray-400">該当する相談はありません。</p>
             </div>
           )}
         </div>
@@ -261,7 +261,7 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
         <div className="fixed inset-0 bg-black/70 backdrop-blur flex items-center justify-center z-50 p-4">
           <div className="bg-gray-800 rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-white">通報詳細</h3>
+              <h3 className="text-2xl font-bold text-white">相談詳細</h3>
               <button
                 onClick={() => setSelectedReport(null)}
                 className="text-gray-400 hover:text-white text-2xl"
@@ -294,7 +294,7 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
                   </div>
                 </div>
                 <div>
-                  <label className="block text-gray-400 text-sm mb-1">通報日時</label>
+                  <label className="block text-gray-400 text-sm mb-1">相談日時</label>
                   <span className="text-white">{selectedReport.submittedAt.toLocaleString('ja-JP')}</span>
                 </div>
               </div>
