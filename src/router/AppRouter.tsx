@@ -82,6 +82,9 @@ import Step1AccountDeactivation from '../components/retirement/Step1AccountDeact
 import Step2PermissionRevocation from '../components/retirement/Step2PermissionRevocation';
 import Step4CompletionNotification from '../components/retirement/Step4CompletionNotification';
 
+// Generational Analysis
+import GenerationalAnalysisPage from '../pages/GenerationalAnalysisPage';
+
 // Error pages
 import NotFoundPage from '../pages/NotFoundPage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
@@ -352,6 +355,13 @@ const AppRouter: React.FC = () => {
         <Route path="analytics" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
             <ExecutiveDashboard />
+          </ProtectedRoute>
+        } />
+        
+        {/* Generational Analysis (Level 7+) */}
+        <Route path="generational-analysis" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
+            <GenerationalAnalysisPage />
           </ProtectedRoute>
         } />
         
