@@ -40,20 +40,6 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
     post.author
   );
 
-  const getAvatarInitial = () => {
-    switch (post.anonymityLevel) {
-      case 'real_name':
-        return post.author.name.charAt(0);
-      case 'facility_department':
-      case 'department_only':
-        return post.author.department.charAt(0);
-      case 'facility_anonymous':
-      case 'anonymous':
-        return '?';
-      default:
-        return '?';
-    }
-  };
 
   const getTypeStyle = () => {
     switch (post.type) {
@@ -118,14 +104,14 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
     <div className={`rounded-xl border transition-colors mb-4 ${getBackgroundStyle()}`}>
       {/* ヘッダー */}
       <div className="flex items-center p-4 pb-3">
-        <div className="w-12 h-12 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full flex items-center justify-center">
-          <span className="text-white font-bold text-sm">
-            {getAvatarInitial()}
-          </span>
-        </div>
+        <Avatar 
+          avatarData={avatarData}
+          size="md"
+          className="shadow-md"
+        />
         <div className="ml-3 flex-1">
           <div className="font-bold text-gray-900">
-            {getAuthorDisplay()}
+            {displayName}
           </div>
           <div className="text-gray-500 text-sm">
             {new Date(post.timestamp).toLocaleString('ja-JP', {
