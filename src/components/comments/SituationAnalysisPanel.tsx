@@ -44,7 +44,7 @@ const SituationAnalysisPanel: React.FC<SituationAnalysisPanelProps> = ({ post })
   const generateAutoComment = () => {
     const insights: string[] = [];
     
-    // スコア関連の分析
+    // スコア関連の分析（アイデアボイス用）
     if (post.type === 'improvement') {
       if (currentScore >= 100) {
         insights.push(`スコア${Math.round(currentScore)}点により${projectLevel.level}の取り組みとして実現可能性があります`);
@@ -52,6 +52,19 @@ const SituationAnalysisPanel: React.FC<SituationAnalysisPanelProps> = ({ post })
         insights.push(`スコア${Math.round(currentScore)}点でチームレベルの検討段階です。より多くの支持を得ることで部署レベルの取り組みに発展する可能性があります`);
       } else {
         insights.push(`現在は議論段階です。具体的な実装案や効果の説明により、さらなる支持を得ることが期待できます`);
+      }
+    }
+    
+    // フリーボイス用の分析
+    if (post.type === 'community') {
+      if (totalVotes >= 50) {
+        insights.push(`投票数${totalVotes}票で活発な議論が行われています`);
+      } else if (totalVotes >= 20) {
+        insights.push(`投票数${totalVotes}票で関心を集めています。さらに多くの職員の参加で議論が深まる可能性があります`);
+      } else if (totalVotes >= 5) {
+        insights.push(`初期段階の議論です。より多くの職員の参加により多様な視点が期待できます`);
+      } else {
+        insights.push(`まだ参加者が少ない状況です。関心のある職員の参加をお待ちしています`);
       }
     }
 
@@ -92,6 +105,19 @@ const SituationAnalysisPanel: React.FC<SituationAnalysisPanelProps> = ({ post })
       }
     }
     
+    if (post.type === 'community') {
+      points.push('この話題についてあなたの経験や意見は？');
+      points.push('他の職員にとって参考になる情報はありますか？');
+      
+      if (totalVotes >= 20) {
+        points.push('議論を発展させるための具体的な提案は？');
+      }
+      
+      if (supportPercentage > 60) {
+        points.push('この考えを実際の職場で活かすにはどうすれば良いか？');
+      }
+    }
+    
     if (opposePercentage > 15) {
       points.push('反対意見の背景にある具体的な問題点は何か？');
     }
@@ -117,8 +143,8 @@ const SituationAnalysisPanel: React.FC<SituationAnalysisPanelProps> = ({ post })
       </div>
 
       {/* メトリクス表示 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        {/* プロジェクトスコア */}
+      <div className={`grid grid-cols-1 ${post.type === 'improvement' ? 'md:grid-cols-2' : 'md:grid-cols-2'} gap-4 mb-4`}>
+        {/* プロジェクトスコア（アイデアボイス専用） */}
         {post.type === 'improvement' && (
           <div className="bg-white rounded-lg p-3 border border-blue-100">
             <div className="flex items-center gap-2 mb-1">
@@ -130,6 +156,22 @@ const SituationAnalysisPanel: React.FC<SituationAnalysisPanelProps> = ({ post })
               <span className={`text-sm ${projectLevel.color} flex items-center gap-1`}>
                 <span>{projectLevel.icon}</span>
                 {projectLevel.level}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* 参加度（フリーボイス専用） */}
+        {post.type === 'community' && (
+          <div className="bg-white rounded-lg p-3 border border-blue-100">
+            <div className="flex items-center gap-2 mb-1">
+              <MessageCircle className="w-4 h-4 text-gray-600" />
+              <span className="text-sm font-medium text-gray-700">参加度</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-gray-800">{totalVotes}票</span>
+              <span className="text-sm text-gray-600">
+                {totalVotes >= 50 ? '活発' : totalVotes >= 20 ? '活動中' : totalVotes >= 5 ? '初期段階' : '開始'}
               </span>
             </div>
           </div>

@@ -192,9 +192,9 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
 
       {/* コメントシステム */}
       {showComments && (
-        <div className="px-4 pb-4 border-t border-gray-200">
+        <div className="px-4 pb-4 border-t border-gray-200 bg-gray-50">
           <ThreadedCommentSystem
-            postId={post.id}
+            post={post}
             comments={post.comments || []}
             currentUser={currentUser}
             onComment={onComment || (() => {})}
