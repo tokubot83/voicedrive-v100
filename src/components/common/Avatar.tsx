@@ -4,7 +4,6 @@ interface AvatarData {
   gradient: string;
   shadowClass?: string;
   primaryText: string;
-  secondaryText: string;
   icon: string;
   borderColor: string;
   textColor: string;
@@ -119,23 +118,6 @@ const Avatar: React.FC<AvatarProps> = ({
       {!avatarData.primaryText && avatarData.icon && (
         <span className={iconSizes[size]}>
           {avatarData.icon}
-        </span>
-      )}
-      
-      {/* セカンダリテキスト（小さいサイズ時は非表示） */}
-      {avatarData.secondaryText && size !== 'xs' && size !== 'sm' && (
-        <span 
-          className={`
-            absolute -bottom-1 -right-1 
-            bg-white text-gray-700 
-            text-xs font-medium 
-            px-1 py-0.5 
-            rounded-full 
-            border border-gray-200
-            ${size === 'md' ? 'text-xs' : 'text-sm'}
-          `}
-        >
-          {avatarData.secondaryText}
         </span>
       )}
       

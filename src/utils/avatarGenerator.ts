@@ -1,19 +1,5 @@
 import { User, AnonymityLevel, CommentPrivacyLevel } from '../types';
 
-// アバター生成のための定数
-const AVATAR_COLORS = [
-  'from-blue-400 via-blue-500 to-purple-600',
-  'from-green-400 via-emerald-500 to-teal-600',
-  'from-purple-400 via-pink-500 to-rose-600',
-  'from-pink-400 via-rose-500 to-orange-600',
-  'from-indigo-400 via-purple-500 to-pink-600',
-  'from-teal-400 via-cyan-500 to-blue-600',
-  'from-orange-400 via-amber-500 to-red-600',
-  'from-red-400 via-rose-500 to-pink-600',
-  'from-cyan-400 via-blue-500 to-indigo-600',
-  'from-emerald-400 via-green-500 to-cyan-600'
-];
-
 // リッチグラデーションカラー（多色展開）
 const RICH_GRADIENTS = [
   { colors: 'from-[#667eea] via-[#764ba2] to-[#f093fb]', shadow: 'shadow-purple-500/50' },
@@ -78,7 +64,6 @@ export const generatePersonalAvatar = (user: User) => {
     gradient: departmentData?.gradient || defaultGradient.colors,
     shadowClass: departmentData?.shadow || defaultGradient.shadow,
     primaryText: user.name.charAt(0),
-    secondaryText: user.department.slice(0, 2),
     icon: departmentIcon,
     borderColor: 'border-white',
     textColor: 'text-white',
@@ -97,7 +82,6 @@ export const generateDepartmentAvatar = (department: string, userId?: string) =>
     gradient: departmentData?.gradient || defaultGradient.colors,
     shadowClass: departmentData?.shadow || defaultGradient.shadow,
     primaryText: department.slice(0, 2),
-    secondaryText: '',
     icon: departmentIcon,
     borderColor: 'border-gray-300',
     textColor: 'text-white',
@@ -128,7 +112,6 @@ export const generateFacilityAvatar = (facility: string, userId?: string) => {
     gradient: colorData?.gradient || defaultGradient.colors,
     shadowClass: colorData?.shadow || defaultGradient.shadow,
     primaryText: facility.slice(0, 2),
-    secondaryText: '',
     icon: icon,
     borderColor: 'border-gray-300',
     textColor: 'text-white',
@@ -153,7 +136,6 @@ export const generateAnonymousAvatar = (postId: string) => {
     gradient: colorData.gradient,
     shadowClass: colorData.shadow,
     primaryText: '',
-    secondaryText: '',
     icon: icon,
     borderColor: 'border-gray-400',
     textColor: 'text-white',

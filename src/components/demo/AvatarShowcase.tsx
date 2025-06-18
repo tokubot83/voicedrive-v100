@@ -5,11 +5,11 @@ import { generatePersonalAvatar, generateDepartmentAvatar, generateFacilityAvata
 const AvatarShowcase: React.FC = () => {
   // デモ用のユーザーデータ
   const demoUsers = [
-    { id: '1', name: '山田太郎', department: '医局', position: '主任医師', facility: '小原病院' },
-    { id: '2', name: '佐藤花子', department: '看護部', position: '看護師長', facility: '小原病院' },
-    { id: '3', name: '田中一郎', department: 'リハビリテーション科', position: 'PT主任', facility: '立神リハ温泉病院' },
-    { id: '4', name: '鈴木美咲', department: '事務部', position: '係長', facility: '小原病院' },
-    { id: '5', name: '高橋健', department: '経営企画部', position: '部長', facility: '本部' }
+    { id: '1', name: '山田太郎', department: '医局', position: '主任医師' },
+    { id: '2', name: '佐藤花子', department: '看護部', position: '看護師長' },
+    { id: '3', name: '田中一郎', department: 'リハビリテーション科', position: 'PT主任' },
+    { id: '4', name: '鈴木美咲', department: '事務部', position: '係長' },
+    { id: '5', name: '高橋健', department: '経営企画部', position: '部長' }
   ];
 
   const sizes: ('xs' | 'sm' | 'md' | 'lg' | 'xl')[] = ['xs', 'sm', 'md', 'lg', 'xl'];
