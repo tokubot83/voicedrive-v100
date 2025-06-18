@@ -16,6 +16,9 @@
 /* 役職別ダッシュボード関連のスタイルをインポート */
 @import './styles/dashboards.css';
 
+/* アバターシステム関連のスタイルをインポート */
+@import './styles/avatar.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

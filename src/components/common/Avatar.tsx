@@ -2,11 +2,13 @@ import React from 'react';
 
 interface AvatarData {
   gradient: string;
+  shadowClass?: string;
   primaryText: string;
   secondaryText: string;
   icon: string;
   borderColor: string;
   textColor: string;
+  isRichGradient?: boolean;
 }
 
 interface AvatarProps {
@@ -28,6 +30,18 @@ const Avatar: React.FC<AvatarProps> = ({
     xl: 'w-24 h-24 text-2xl'
   };
 
+  // サイズ別のシャドウ強度
+  const shadowIntensity = {
+    xs: '',
+    sm: 'shadow-md',
+    md: 'shadow-lg',
+    lg: 'shadow-xl',
+    xl: 'shadow-2xl'
+  };
+
+  // サイズ別のハイライト表示
+  const showHighlight = size === 'lg' || size === 'xl';
+
   const iconSizes = {
     xs: 'text-xs',
     sm: 'text-sm',
@@ -44,11 +58,56 @@ const Avatar: React.FC<AvatarProps> = ({
         rounded-full 
         flex items-center justify-center 
         border-2 ${avatarData.borderColor}
-        shadow-lg 
+        ${shadowIntensity[size]} ${avatarData.shadowClass || ''}
         relative 
+        overflow-hidden
+        transition-all duration-300 ease-in-out
+        hover:transform hover:scale-105 hover:-translate-y-0.5
+        hover:shadow-2xl
+        cursor-pointer
         ${className}
       `}
+      style={{
+        boxShadow: avatarData.isRichGradient && (size === 'lg' || size === 'xl') 
+          ? `
+            0 10px 25px rgba(0,0,0,0.15),
+            0 5px 10px rgba(0,0,0,0.1),
+            inset 0 2px 4px rgba(255,255,255,0.3)
+          `
+          : undefined
+      }}
     >
+      {/* 内側のハイライト効果 */}
+      {showHighlight && avatarData.isRichGradient && (
+        <>
+          <div 
+            className="absolute top-[10%] left-[10%] w-[30%] h-[30%] rounded-full opacity-80"
+            style={{
+              background: 'radial-gradient(circle, rgba(255,255,255,0.8), transparent)',
+              filter: 'blur(2px)'
+            }}
+          />
+          {size === 'xl' && (
+            <div 
+              className="absolute top-[60%] right-[10%] w-[20%] h-[20%] rounded-full opacity-60"
+              style={{
+                background: 'radial-gradient(circle, rgba(255,255,255,0.6), transparent)',
+                filter: 'blur(3px)'
+              }}
+            />
+          )}
+        </>
+      )}
+      
+      {/* 小サイズ用の簡易グラデーションオーバーレイ */}
+      {(size === 'xs' || size === 'sm') && avatarData.isRichGradient && (
+        <div 
+          className="absolute inset-0 rounded-full opacity-10"
+          style={{
+            background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.2))'
+          }}
+        />
+      )}
       {/* メインテキスト（イニシャルまたは部署略称） */}
       {avatarData.primaryText && (
         <span className={`${avatarData.textColor} font-bold ${sizeClasses[size]}`}>
@@ -85,12 +144,15 @@ const Avatar: React.FC<AvatarProps> = ({
         <span 
           className={`
             absolute -top-1 -right-1 
-            bg-white 
+            bg-gradient-to-br from-white to-gray-100
             w-6 h-6 
             rounded-full 
             flex items-center justify-center 
             border border-gray-200
             text-sm
+            shadow-md
+            transition-all duration-300
+            group-hover:scale-110
           `}
         >
           {avatarData.icon}
