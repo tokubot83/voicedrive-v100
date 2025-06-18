@@ -72,7 +72,7 @@ const WhistleblowingPage: React.FC = () => {
             <WhistleblowingDashboard onNewReport={handleNewReport} />
           )}
         </div>
-      </main>
+      </div>
     </div>
   );
 };
