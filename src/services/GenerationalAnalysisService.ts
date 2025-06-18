@@ -75,9 +75,15 @@ export class GenerationalAnalysisService {
   private static filterUsersByScope(users: any[], scope: AnalysisScope): any[] {
     switch (scope.type) {
       case 'facility':
-        return users.filter(user => user.facilityId === scope.facilityId);
+        return users.filter(user => 
+          user.facility_id === scope.facilityId || 
+          user.facilityId === scope.facilityId
+        );
       case 'department':
-        return users.filter(user => user.departmentId === scope.departmentId);
+        return users.filter(user => 
+          user.department_id === scope.departmentId || 
+          user.departmentId === scope.departmentId
+        );
       case 'corporate':
         return users;
       default:
@@ -170,7 +176,8 @@ export class GenerationalAnalysisService {
     const userGenerations: { [key: string]: string } = {};
 
     filteredUsers.forEach(user => {
-      const hireYear = user.hireDate ? new Date(user.hireDate).getFullYear() : 2020;
+      const hireYear = user.hireDate || user.joinDate ? 
+        new Date(user.hireDate || user.joinDate).getFullYear() : 2020;
       const generation = this.classifyGeneration(user.experienceYears || 0, hireYear);
       generationCounts[generation] = (generationCounts[generation] || 0) + 1;
       userGenerations[user.id] = generation;
@@ -236,7 +243,8 @@ export class GenerationalAnalysisService {
   static async getGenerationDetail(generationName: string, scope: AnalysisScope): Promise<any> {
     const filteredUsers = this.filterUsersByScope(demoUsers, scope);
     const generationUsers = filteredUsers.filter(user => {
-      const hireYear = user.hireDate ? new Date(user.hireDate).getFullYear() : 2020;
+      const hireYear = user.hireDate || user.joinDate ? 
+        new Date(user.hireDate || user.joinDate).getFullYear() : 2020;
       const generation = this.classifyGeneration(user.experienceYears || 0, hireYear);
       return generation === generationName;
     });

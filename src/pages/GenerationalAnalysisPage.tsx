@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
 import { GenerationalAnalysisService } from '../services/GenerationalAnalysisService';
 import { useDemoMode } from '../components/demo/DemoModeController';
+import { facilities } from '../data/medical/facilities';
+import { departments } from '../data/medical/departments';
 
 interface AnalysisScope {
   type: 'facility' | 'department' | 'corporate';
@@ -39,10 +39,15 @@ interface AnalysisResult {
 const GenerationalAnalysisPage: React.FC = () => {
   const { isDemoMode, currentUser } = useDemoMode();
   const navigate = useNavigate();
-  const [analysisScope, setAnalysisScope] = useState<AnalysisScope>({ type: 'facility' });
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'facilities' | 'departments' | 'analytics'>('overview');
+  const [analysisScope, setAnalysisScope] = useState<AnalysisScope>({ type: 'corporate' });
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<'engagement' | 'participation' | 'collaboration'>('engagement');
+  const [selectedFacilityId, setSelectedFacilityId] = useState<string | 'all'>('all');
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState<string | 'all'>('all');
+  const [facilityAnalysisResults, setFacilityAnalysisResults] = useState<{[key: string]: AnalysisResult}>({});
+  const [departmentAnalysisResults, setDepartmentAnalysisResults] = useState<{[key: string]: AnalysisResult}>({});
 
   // レベル7以上のみアクセス可能
   if (!currentUser || currentUser.permissionLevel < 7) {
@@ -68,6 +73,15 @@ const GenerationalAnalysisPage: React.FC = () => {
     loadAnalysis();
   }, [analysisScope]);
 
+  useEffect(() => {
+    // 初回ロード時に全施設のデータも取得
+    if (selectedTab === 'facilities') {
+      facilities.forEach(facility => {
+        loadFacilityAnalysis(facility.id);
+      });
+    }
+  }, [selectedTab]);
+
   const loadAnalysis = async () => {
     setLoading(true);
     try {
@@ -77,6 +91,36 @@ const GenerationalAnalysisPage: React.FC = () => {
       console.error('Failed to load generational analysis:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadFacilityAnalysis = async (facilityId: string) => {
+    try {
+      const result = await GenerationalAnalysisService.getGenerationalAnalysis({
+        type: 'facility',
+        facilityId
+      });
+      setFacilityAnalysisResults(prev => ({
+        ...prev,
+        [facilityId]: result
+      }));
+    } catch (error) {
+      console.error('Failed to load facility analysis:', error);
+    }
+  };
+
+  const loadDepartmentAnalysis = async (departmentId: string) => {
+    try {
+      const result = await GenerationalAnalysisService.getGenerationalAnalysis({
+        type: 'department',
+        departmentId
+      });
+      setDepartmentAnalysisResults(prev => ({
+        ...prev,
+        [departmentId]: result
+      }));
+    } catch (error) {
+      console.error('Failed to load department analysis:', error);
     }
   };
 
@@ -111,11 +155,28 @@ const GenerationalAnalysisPage: React.FC = () => {
     }
   };
 
+  const renderAnalysisResult = (result: AnalysisResult) => (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {result.generations.map((gen, index) => (
+          <div key={index} className="bg-gray-700/30 rounded-lg p-4">
+            <h4 className="font-bold text-white mb-2">{gen.name}</h4>
+            <div className="text-2xl font-bold text-blue-400 mb-1">{gen.count}名</div>
+            <div className="text-sm text-gray-400">{gen.percentage}%</div>
+          </div>
+        ))}
+      </div>
+      <div className="prose prose-invert max-w-none">
+        <p className="text-gray-300">{result.insights.summary}</p>
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-        <div className="w-full h-full">
-          <div className="text-center py-20">
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
             <p className="text-gray-400">世代間分析を実行中...</p>
           </div>
@@ -126,96 +187,154 @@ const GenerationalAnalysisPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      <div className="w-full h-full">
-        {/* ヘッダー */}
-        <div className="bg-black/30 backdrop-blur-sm border-b border-gray-700/50">
-          <div className="px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => navigate(-1)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-xl text-gray-300 hover:text-white transition-all duration-200 backdrop-blur-sm border border-gray-700/30"
-                >
-                  <ArrowLeft size={18} />
-                  戻る
-                </button>
-                <div>
-                  <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                    <span className="text-4xl">👥</span>
-                    世代間分析（全体）
-                  </h1>
-                  <p className="text-gray-400 mt-1">
-                    ユーザーの投票行動・投稿・コメント・プロジェクト参加データに基づく世代間特性分析
-                  </p>
-                </div>
+      {/* カスタムヘッダー（法人統合ダッシュボードと同じ構造） */}
+      <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm">ホーム</span>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-white">世代間分析ダッシュボード</h1>
+              <p className="text-gray-400 text-sm">全施設・全部門の世代間特性分析</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className="text-sm text-gray-400">権限レベル</div>
+              <div className="text-2xl font-bold text-blue-400">Lv.{currentUser?.permissionLevel || 1}</div>
+              <div className="text-sm text-gray-500">{currentUser?.name || 'ゲスト'}</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
+
+          {/* 統計カードレイアウト（法人統合ダッシュボードと同じ） */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* 分析対象カード */}
+            <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
+              <div className="text-4xl mb-3">👥</div>
+              <h4 className="font-bold text-white mb-2">分析対象</h4>
+              <div className="text-3xl font-bold text-blue-400 mb-1">{analysisResult?.generations.reduce((sum, g) => sum + g.count, 0) || 0}</div>
+              <p className="text-sm text-gray-400">総ユーザー数</p>
+              <div className="mt-3 text-xs text-gray-500">
+                全施設・全部門
               </div>
-              <div className="text-right">
-                <div className="text-sm text-gray-400">権限レベル</div>
-                <div className="text-xl font-bold text-blue-400">Level {currentUser.permissionLevel}</div>
+            </div>
+
+            {/* 世代構成カード */}
+            <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
+              <div className="text-4xl mb-3">📊</div>
+              <h4 className="font-bold text-white mb-2">世代数</h4>
+              <div className="text-3xl font-bold text-green-400 mb-1">{analysisResult?.generations.length || 0}</div>
+              <p className="text-sm text-gray-400">世代区分</p>
+              <div className="mt-3 text-xs text-gray-500">
+                Z世代～ベビーブーマー
+              </div>
+            </div>
+
+            {/* エンゲージメントカード */}
+            <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
+              <div className="text-4xl mb-3">💡</div>
+              <h4 className="font-bold text-white mb-2">エンゲージメント</h4>
+              <div className="text-3xl font-bold text-cyan-400 mb-1">
+                {analysisResult ? Math.max(...Object.values(analysisResult.metrics.engagement)).toFixed(1) : '0.0'}
+              </div>
+              <p className="text-sm text-gray-400">最高スコア</p>
+              <div className="mt-3 text-xs text-gray-500">
+                世代別最高値
+              </div>
+            </div>
+
+            {/* 参加率カード */}
+            <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
+              <div className="text-4xl mb-3">🎯</div>
+              <h4 className="font-bold text-white mb-2">参加率</h4>
+              <div className="text-3xl font-bold text-yellow-400 mb-1">
+                {analysisResult ? Math.max(...Object.values(analysisResult.metrics.participation)).toFixed(1) : '0.0'}%
+              </div>
+              <p className="text-sm text-gray-400">最高参加率</p>
+              <div className="mt-3 text-xs text-gray-500">
+                投票・プロジェクト
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="p-6">
-
-          {/* スコープ選択 */}
-          <div className="bg-black/30 backdrop-blur-xl rounded-3xl border border-gray-700/30 shadow-2xl mb-6">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">分析範囲</h2>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => handleScopeChange({ type: 'facility', facilityId: currentUser.facilityId })}
-                  className={`px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 font-medium ${
-                    analysisScope.type === 'facility'
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-                      : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 hover:text-white border border-gray-700/30'
-                  }`}
-                >
-                  🏥 施設全体
-                </button>
-                <button
-                  onClick={() => handleScopeChange({ type: 'department', departmentId: currentUser.departmentId })}
-                  className={`px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 font-medium ${
-                    analysisScope.type === 'department'
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-                      : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 hover:text-white border border-gray-700/30'
-                  }`}
-                >
-                  📊 部署別
-                </button>
-                <button
-                  onClick={() => handleScopeChange({ type: 'corporate' })}
-                  className={`px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 font-medium ${
-                    analysisScope.type === 'corporate'
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-                      : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 hover:text-white border border-gray-700/30'
-                  }`}
-                >
-                  🏢 法人全体
-                </button>
-              </div>
-            </div>
+      {/* タブナビゲーション */}
+      <div className="bg-gray-800/50 p-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex space-x-1 bg-gray-900/50 rounded-xl p-1">
+            {[
+              { id: 'overview', label: '概要', icon: '📊' },
+              { id: 'facilities', label: '施設別', icon: '🏥' },
+              { id: 'departments', label: '部門別', icon: '👥' },
+              { id: 'analytics', label: '詳細分析', icon: '📈' }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedTab(tab.id as any)}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all ${
+                  selectedTab === tab.id
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                }`}
+              >
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+              </button>
+            ))}
           </div>
+        </div>
+      </div>
 
-        {analysisResult && (
-          <>
-            {/* 世代構成 */}
-            <div className="bg-black/30 backdrop-blur-xl rounded-3xl border border-gray-700/30 shadow-2xl mb-6">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold text-white mb-4">世代構成</h2>
+      {/* タブコンテンツ */}
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
+          {selectedTab === 'overview' && analysisResult && (
+            <div className="space-y-6">
+              {/* 世代構成グリッド */}
+              <div className="bg-gray-800/50 rounded-xl p-6">
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="text-2xl">👥</span>
+                  世代構成（法人全体）
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {analysisResult.generations.map((gen, index) => (
-                    <div key={index} className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30">
-                      <h3 className="font-semibold text-white mb-2">{gen.name}</h3>
-                      <p className="text-sm text-gray-400 mb-2">{gen.ageRange}</p>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-2xl font-bold text-blue-400">{gen.count}</span>
-                        <span className="text-sm text-gray-300">{gen.percentage}%</span>
+                    <div key={index} className="bg-gray-700/30 rounded-lg p-4 hover:bg-gray-700/40 transition-all duration-300 hover:scale-105">
+                      <div className="text-2xl mb-2">👤</div>
+                      <h4 className="font-bold text-white mb-2 text-sm">{gen.name}</h4>
+                      <div className="space-y-1 mb-3">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-400">年齢</span>
+                          <span className="text-blue-400 font-medium">{gen.ageRange}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-400">人数</span>
+                          <span className="text-cyan-400 font-medium">{gen.count}名</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-400">割合</span>
+                          <span className="text-yellow-400 font-medium">{gen.percentage}%</span>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        {gen.characteristics.map((char, charIndex) => (
-                          <div key={charIndex} className="text-xs text-gray-400 bg-gray-700/50 rounded px-2 py-1">
+                      <div className="w-full bg-gray-700/50 rounded-full h-2">
+                        <div 
+                          className="bg-blue-400 h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${gen.percentage}%` }}
+                        />
+                      </div>
+                      <div className="mt-3 space-y-1">
+                        {gen.characteristics.slice(0, 2).map((char, charIndex) => (
+                          <div key={charIndex} className="text-xs text-gray-400 bg-gray-600/50 rounded px-2 py-1">
                             {char}
                           </div>
                         ))}
@@ -224,13 +343,11 @@ const GenerationalAnalysisPage: React.FC = () => {
                   ))}
                 </div>
               </div>
-            </div>
 
-            {/* メトリクス可視化 */}
-            <div className="bg-black/30 backdrop-blur-xl rounded-3xl border border-gray-700/30 shadow-2xl mb-6">
-              <div className="p-6">
+              {/* メトリクス可視化 */}
+              <div className="bg-gray-800/50 rounded-xl p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-white">世代別メトリクス</h2>
+                  <h2 className="text-xl font-bold text-white">世代別メトリクス</h2>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setSelectedMetric('engagement')}
@@ -284,14 +401,11 @@ const GenerationalAnalysisPage: React.FC = () => {
                 </div>
                 <p className="text-xs text-gray-500 mt-2">{getMetricLabel()}</p>
               </div>
-            </div>
 
-            {/* 分析結果 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* サマリー */}
-              <div className="bg-black/30 backdrop-blur-xl rounded-3xl border border-gray-700/30 shadow-2xl">
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+              {/* 分析サマリー */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-gray-800/50 rounded-xl p-6">
+                  <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                     <span>📋</span>
                     分析概要
                   </h2>
@@ -299,12 +413,9 @@ const GenerationalAnalysisPage: React.FC = () => {
                     <p className="text-gray-300 leading-relaxed">{analysisResult.insights.summary}</p>
                   </div>
                 </div>
-              </div>
 
-              {/* 詳細分析 */}
-              <div className="bg-black/30 backdrop-blur-xl rounded-3xl border border-gray-700/30 shadow-2xl">
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                <div className="bg-gray-800/50 rounded-xl p-6">
+                  <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                     <span>🔍</span>
                     詳細分析
                   </h2>
@@ -313,19 +424,17 @@ const GenerationalAnalysisPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* 推奨事項 */}
-            <div className="bg-black/30 backdrop-blur-xl rounded-3xl border border-gray-700/30 shadow-2xl mt-6">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+              {/* 推奨事項 */}
+              <div className="bg-gray-800/50 rounded-xl p-6">
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <span>💡</span>
                   推奨事項
                 </h2>
                 <div className="space-y-3">
                   {analysisResult.insights.recommendations.map((rec, index) => (
                     <div key={index} className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 text-sm font-semibold mt-0.5 backdrop-blur-sm">
+                      <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 text-sm font-semibold mt-0.5">
                         {index + 1}
                       </div>
                       <p className="text-gray-300 leading-relaxed">{rec}</p>
@@ -334,8 +443,176 @@ const GenerationalAnalysisPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </>
-        )}
+          )}
+
+          {selectedTab === 'facilities' && (
+            <div className="space-y-6">
+              {/* 施設フィルター */}
+              <div className="bg-gray-800/50 rounded-xl p-4">
+                <div className="flex items-center gap-4">
+                  <label className="text-white font-medium">施設選択:</label>
+                  <select 
+                    value={selectedFacilityId}
+                    onChange={(e) => {
+                      setSelectedFacilityId(e.target.value);
+                      if (e.target.value !== 'all') {
+                        loadFacilityAnalysis(e.target.value);
+                      }
+                    }}
+                    className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                  >
+                    <option value="all">全施設比較</option>
+                    {facilities.map(facility => (
+                      <option key={facility.id} value={facility.id}>{facility.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {selectedFacilityId === 'all' ? (
+                /* 全施設比較ビュー */
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {facilities.map(facility => {
+                    const facilityResult = facilityAnalysisResults[facility.id];
+                    return (
+                      <div key={facility.id} className="bg-gray-800/50 rounded-xl p-6">
+                        <h3 className="text-lg font-bold text-white mb-4">{facility.name}</h3>
+                        {facilityResult ? (
+                          <div className="space-y-3">
+                            <div className="text-sm">
+                              <span className="text-gray-400">総人数:</span>
+                              <span className="text-white ml-2">{facilityResult.generations.reduce((sum, g) => sum + g.count, 0)}名</span>
+                            </div>
+                            <div className="space-y-2">
+                              {facilityResult.generations.map((gen, idx) => (
+                                <div key={idx} className="flex justify-between text-xs">
+                                  <span className="text-gray-400">{gen.name}</span>
+                                  <span className="text-cyan-400">{gen.percentage}%</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-gray-400 text-sm">データ読み込み中...</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                /* 個別施設詳細ビュー */
+                facilityAnalysisResults[selectedFacilityId] && (
+                  <div className="space-y-6">
+                    <div className="bg-gray-800/50 rounded-xl p-6">
+                      <h2 className="text-xl font-bold text-white mb-4">
+                        {facilities.find(f => f.id === selectedFacilityId)?.name} - 世代間分析
+                      </h2>
+                      {renderAnalysisResult(facilityAnalysisResults[selectedFacilityId])}
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
+          )}
+
+          {selectedTab === 'departments' && (
+            <div className="space-y-6">
+              {/* 部署フィルター */}
+              <div className="bg-gray-800/50 rounded-xl p-4">
+                <div className="flex items-center gap-4">
+                  <label className="text-white font-medium">部署選択:</label>
+                  <select 
+                    value={selectedDepartmentId}
+                    onChange={(e) => {
+                      setSelectedDepartmentId(e.target.value);
+                      if (e.target.value !== 'all') {
+                        loadDepartmentAnalysis(e.target.value);
+                      }
+                    }}
+                    className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                  >
+                    <option value="all">全部署比較</option>
+                    {departments.map(dept => (
+                      <option key={dept.id} value={dept.id}>
+                        {dept.name} ({facilities.find(f => f.id === dept.facility)?.name})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* 部署別分析結果表示 */}
+              {selectedDepartmentId !== 'all' && departmentAnalysisResults[selectedDepartmentId] && (
+                <div className="bg-gray-800/50 rounded-xl p-6">
+                  <h2 className="text-xl font-bold text-white mb-4">
+                    {departments.find(d => d.id === selectedDepartmentId)?.name} - 世代間分析
+                  </h2>
+                  {renderAnalysisResult(departmentAnalysisResults[selectedDepartmentId])}
+                </div>
+              )}
+            </div>
+          )}
+
+          {selectedTab === 'analytics' && analysisResult && (
+            <div className="space-y-6">
+              {/* 世代間コラボレーション分析 */}
+              <div className="bg-gray-800/50 rounded-xl p-6">
+                <h2 className="text-xl font-bold text-white mb-4">世代間コラボレーション分析</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {analysisResult.generations.map((gen, index) => (
+                    <div key={index} className="bg-gray-700/30 rounded-xl p-4">
+                      <h3 className="text-lg font-medium text-white mb-2">{gen.name}</h3>
+                      <div className="text-3xl font-bold text-purple-400 mb-2">
+                        {analysisResult.metrics.collaborationIndex[gen.name]?.toFixed(1) || '0.0'}%
+                      </div>
+                      <div className="w-full bg-gray-700/50 rounded-full h-2">
+                        <div 
+                          className="bg-purple-400 h-2 rounded-full"
+                          style={{ width: `${analysisResult.metrics.collaborationIndex[gen.name] || 0}%` }}
+                        />
+                      </div>
+                      <p className="text-sm text-gray-400 mt-2">部門横断プロジェクト参加率</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 世代別投票パターン分析 */}
+              <div className="bg-gray-800/50 rounded-xl p-6">
+                <h2 className="text-xl font-bold text-white mb-4">世代別投票パターン</h2>
+                <div className="space-y-4">
+                  {analysisResult.generations.map((gen, index) => {
+                    const votingPattern = analysisResult.metrics.votingPatterns[gen.name];
+                    return (
+                      <div key={index} className="bg-gray-700/30 rounded-lg p-4">
+                        <h3 className="text-lg font-medium text-white mb-3">{gen.name}</h3>
+                        <div className="grid grid-cols-3 gap-4">
+                          <div>
+                            <div className="text-sm text-gray-400">賛成率</div>
+                            <div className="text-xl font-bold text-green-400">
+                              {votingPattern?.supportRate?.toFixed(1) || '0.0'}%
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-sm text-gray-400">中立率</div>
+                            <div className="text-xl font-bold text-yellow-400">
+                              {votingPattern?.neutralRate?.toFixed(1) || '0.0'}%
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-sm text-gray-400">反対率</div>
+                            <div className="text-xl font-bold text-red-400">
+                              {votingPattern?.opposeRate?.toFixed(1) || '0.0'}%
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
