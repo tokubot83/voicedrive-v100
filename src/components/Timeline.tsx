@@ -32,7 +32,6 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
   }
   
   const { currentUser: authUser } = useAuth();
-  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [posts, setPosts] = useState<PostType[]>([]);
   const [polls, setPolls] = useState(demoPolls);
   
@@ -250,8 +249,8 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
     }
   };
 
-  const handleComment = (postId: string) => {
-    setSelectedPostId(postId);
+  const handleComment = (postId: string, comment: Omit<Comment, 'id' | 'timestamp'>) => {
+    handleCommentSubmit(postId, comment);
   };
 
   const handleCommentSubmit = (postId: string, comment: Omit<Comment, 'id' | 'timestamp'>) => {
@@ -354,24 +353,13 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
         
         return (
           <div key={post.id}>
-            {selectedPostId === post.id ? (
-              <Post
-                key={post.id}
-                post={postWithVote}
-                currentUser={currentUser}
-                onVote={handleVote}
-                onComment={handleCommentSubmit}
-                onClose={() => setSelectedPostId(null)}
-              />
-            ) : (
-              <EnhancedPost
-                key={post.id}
-                post={postWithVote}
-                currentUser={currentUser}
-                onVote={handleVote}
-                onComment={handleComment}
-              />
-            )}
+            <EnhancedPost
+              key={post.id}
+              post={postWithVote}
+              currentUser={currentUser}
+              onVote={handleVote}
+              onComment={handleComment}
+            />
           </div>
         );
       })}

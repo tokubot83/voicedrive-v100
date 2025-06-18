@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import VotingSection from './VotingSection';
 import FreespacePostRenderer from './FreespacePostRenderer';
-import { Post as PostType, VoteOption, User } from '../types';
+import ThreadedCommentSystem from './comments/ThreadedCommentSystem';
+import { Post as PostType, VoteOption, User, Comment } from '../types';
 import { proposalTypeConfigs } from '../config/proposalTypes';
 import { FACILITIES } from '../data/medical/facilities';
 
@@ -9,11 +10,21 @@ interface EnhancedPostProps {
   post: PostType;
   currentUser: User;
   onVote: (postId: string, option: VoteOption) => void;
-  onComment: (postId: string) => void;
+  onComment: (postId: string, comment: Omit<Comment, 'id' | 'timestamp'>) => void;
 }
 
 const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProps) => {
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(null);
+  const [showComments, setShowComments] = useState(false);
+
+  // コメント関連の処理
+  const handleCommentClick = () => {
+    setShowComments(!showComments);
+  };
+
+  const handleCommentSubmit = (postId: string, comment: Partial<Comment>) => {
+    onComment(postId, comment as Omit<Comment, 'id' | 'timestamp'>);
+  };
 
   // 施設名を取得するヘルパー関数
   const getFacilityName = (facilityId: string) => {
@@ -197,7 +208,7 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
       <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
         <div className="flex space-x-6">
           <button 
-            onClick={() => onComment(post.id)}
+            onClick={handleCommentClick}
             className="flex items-center space-x-2 text-gray-500 hover:text-blue-600 transition-colors"
           >
             <span className="text-lg">💬</span>
@@ -205,6 +216,18 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
           </button>
         </div>
       </div>
+
+      {/* コメントセクション - X方式のスレッド形式 */}
+      {showComments && (
+        <div className="px-4 pb-4 border-t border-gray-200 bg-gray-50">
+          <ThreadedCommentSystem
+            post={post}
+            comments={post.comments}
+            currentUser={currentUser}
+            onComment={handleCommentSubmit}
+          />
+        </div>
+      )}
     </div>
   );
 };
