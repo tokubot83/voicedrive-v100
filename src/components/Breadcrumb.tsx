@@ -69,7 +69,7 @@ const Breadcrumb = () => {
   });
   
   return (
-    <nav className={`px-6 py-3 text-sm border-b border-slate-700/50 ${isDemoMode ? 'mt-[120px] md:mt-[60px]' : ''}`}>
+    <nav className={`px-6 py-3 text-sm border-b border-slate-700/50 ${isDemoMode ? 'mt-[120px] md:mt-[60px]' : 'mt-8 md:mt-0'}`}>
       <ol className="flex items-center space-x-1">
         {breadcrumbItems.map((item, index) => (
           <li key={item.path} className="flex items-center">
