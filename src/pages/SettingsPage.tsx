@@ -1,18 +1,33 @@
-import Header from '../components/Header';
+import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useDemoMode } from '../components/demo/DemoModeController';
 
 const SettingsPage = () => {
   const { currentUser } = useDemoMode();
   
   return (
-    <>
-      <Header 
-        toggleSidebar={() => {}}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      {/* Custom Header with Back Button */}
+      <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm">ホーム</span>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-white">設定</h1>
+              <p className="text-gray-400 text-sm">アカウント設定を管理</p>
+            </div>
+          </div>
+        </div>
+      </header>
       
-      <div className="overflow-y-auto">
-        <div className="p-6">
-          <h1 className="text-3xl font-bold mb-6 gradient-text">設定</h1>
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
           
           <div className="space-y-6">
             {/* Profile Settings */}
@@ -85,7 +100,7 @@ const SettingsPage = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
