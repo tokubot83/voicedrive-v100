@@ -22,7 +22,7 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
     return (
       <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-blue-400/20 rounded animate-pulse" />
+          <div className="w-5 h-5 bg-blue-400/20 rounded animate-pulse" />
           <span className="text-sm font-medium text-blue-400">プロジェクト進捗読み込み中...</span>
         </div>
       </div>
@@ -47,7 +47,7 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
       <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-xl p-4 mb-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-orange-400" />
+            <AlertCircle className="w-5 h-5 text-orange-400" />
             <span className="text-sm font-medium text-orange-400">スコア計算エラー（強制表示）</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
@@ -65,7 +65,7 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
     return (
       <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/30 rounded-xl p-4 mb-4">
         <div className="flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-red-400" />
+          <AlertCircle className="w-5 h-5 text-red-400" />
           <span className="text-sm font-medium text-red-400">投票データエラー</span>
         </div>
       </div>
@@ -136,7 +136,7 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
         <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-blue-400" />
+            <TrendingUp className="w-5 h-5 text-blue-400" />
             <span className="text-sm font-medium text-blue-400">プロジェクト進捗</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
@@ -241,7 +241,7 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
       return (
         <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/30 rounded-xl p-4 mb-4">
           <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-red-400" />
+            <AlertCircle className="w-5 h-5 text-red-400" />
             <span className="text-sm font-medium text-red-400">
               プロジェクト進捗の表示中にエラーが発生しました
             </span>

@@ -131,9 +131,9 @@ const VotingSection: React.FC<VotingSectionProps> = ({
           </div>
           
           {/* プログレスバー */}
-          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-gray-200 rounded-full h-8 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-emerald-500 to-green-500 h-2 rounded-full transition-all duration-500"
+              className="bg-gradient-to-r from-emerald-500 to-green-500 h-8 rounded-full transition-all duration-500"
               style={{ 
                 width: `${Math.min(100, (currentScore / (
                   currentScore >= 300 ? 600 :
