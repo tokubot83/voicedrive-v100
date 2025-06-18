@@ -157,13 +157,13 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
           </div>
           
           <div className="relative">
-            <div className="w-full bg-gray-700/50 rounded-full h-3">
+            <div className="w-full bg-gray-700/50 rounded-full h-8">
               <div
-                className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500 relative"
+                className="bg-gradient-to-r from-blue-500 to-purple-500 h-8 rounded-full transition-all duration-500 relative"
                 style={{ width: `${Math.min(progressToNext, 100)}%` }}
               >
                 {progressToNext >= 90 && (
-                  <div className="absolute right-1 top-0.5 text-xs text-white">
+                  <div className="absolute right-2 top-1.5 text-sm text-white">
                     🔥
                   </div>
                 )}
@@ -194,10 +194,10 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
                 return (
                   <div
                     key={threshold.level}
-                    className="absolute top-0 transform -translate-x-1/2"
+                    className="absolute top-1 transform -translate-x-1/2"
                     style={{ left: `${Math.min(position, 95)}%` }}
                   >
-                    <div className={`w-3 h-3 rounded-full border-2 border-white ${bgColorClass}`} />
+                    <div className={`w-6 h-6 rounded-full border-2 border-white ${bgColorClass}`} />
                   </div>
                 );
               }

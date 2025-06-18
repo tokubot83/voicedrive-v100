@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useDemoMode } from '../demo/DemoModeController';
 import { demoUsers, getDemoUsersByFacility } from '../../data/demo/users';
@@ -328,35 +328,35 @@ const IntegratedCorporateDashboard: React.FC = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-      {/* ヘッダー */}
-      <div className="bg-gray-900/50 backdrop-blur-md border-b border-gray-800/50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate('/')}
-                className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm">ホーム</span>
-              </button>
-              <div>
-                <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                  <span className="text-4xl">🏢</span>
-                  法人統合ダッシュボード
-                </h1>
-                <p className="text-gray-400 mt-2">全8施設・25部門の統合管理ビュー</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className="text-sm text-gray-400">権限レベル</div>
-                <div className="text-2xl font-bold text-blue-400">Lv.{currentUser?.permissionLevel || 1}</div>
-                <div className="text-sm text-gray-500">{currentUser?.name || 'ゲスト'}</div>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      {/* Custom Header with Back Button */}
+      <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm">ホーム</span>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-white">法人統合ダッシュボード</h1>
+              <p className="text-gray-400 text-sm">全8施設・25部門の統合管理ビュー</p>
             </div>
           </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className="text-sm text-gray-400">権限レベル</div>
+              <div className="text-2xl font-bold text-blue-400">Lv.{currentUser?.permissionLevel || 1}</div>
+              <div className="text-sm text-gray-500">{currentUser?.name || 'ゲスト'}</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
 
           {/* 退職処理画面風の水平4カードレイアウト */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1355,6 +1355,7 @@ const IntegratedCorporateDashboard: React.FC = () => {
               </div>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>

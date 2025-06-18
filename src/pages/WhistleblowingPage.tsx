@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { usePermissions } from '../permissions/hooks/usePermissions';
 import WhistleblowingReportForm from '../components/whistleblowing/WhistleblowingReportForm';
 import WhistleblowingDashboard from '../components/whistleblowing/WhistleblowingDashboard';
 import { ReportSubmissionForm } from '../types/whistleblowing';
 import { useDemoMode } from '../components/demo/DemoModeController';
+import { ArrowLeft } from 'lucide-react';
 
 const WhistleblowingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -32,26 +33,21 @@ const WhistleblowingPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen text-white">
-      {/* 管理画面ヘッダー */}
-      <div className="bg-gray-900/50 backdrop-blur-md border-b border-gray-800/50 p-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      {/* Custom Header with Back Button */}
+      <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-xl transition-colors"
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors"
             >
-              <span className="text-xl">←</span>
-              <span>ホーム</span>
-            </button>
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm">ホーム</span>
+            </Link>
             <div>
-              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                <span className="text-3xl">🚨</span>
-                コンプライアンス窓口
-              </h1>
-              <p className="text-gray-400 text-sm">
-                安全で匿名性を保護した相談窓口
-              </p>
+              <h1 className="text-2xl font-bold text-white">コンプライアンス窓口</h1>
+              <p className="text-gray-400 text-sm">安全で匿名性を保護した相談窓口</p>
             </div>
           </div>
           {currentUser && (
@@ -63,9 +59,9 @@ const WhistleblowingPage: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
+      </header>
 
-      <main className="p-4 md:p-8">
+      <div className="p-6">
         <div className="max-w-7xl mx-auto">
           {showReportForm ? (
             <WhistleblowingReportForm 
