@@ -63,10 +63,8 @@ export const generatePersonalAvatar = (user: User) => {
   return {
     gradient: departmentData?.gradient || defaultGradient.colors,
     shadowClass: departmentData?.shadow || defaultGradient.shadow,
-    primaryText: user.name.charAt(0),
     icon: departmentIcon,
     borderColor: 'border-white',
-    textColor: 'text-white',
     isRichGradient: true
   };
 };
@@ -81,10 +79,8 @@ export const generateDepartmentAvatar = (department: string, userId?: string) =>
   return {
     gradient: departmentData?.gradient || defaultGradient.colors,
     shadowClass: departmentData?.shadow || defaultGradient.shadow,
-    primaryText: department.slice(0, 2),
     icon: departmentIcon,
     borderColor: 'border-gray-300',
-    textColor: 'text-white',
     isRichGradient: true
   };
 };
@@ -111,10 +107,8 @@ export const generateFacilityAvatar = (facility: string, userId?: string) => {
   return {
     gradient: colorData?.gradient || defaultGradient.colors,
     shadowClass: colorData?.shadow || defaultGradient.shadow,
-    primaryText: facility.slice(0, 2),
     icon: icon,
     borderColor: 'border-gray-300',
-    textColor: 'text-white',
     isRichGradient: true
   };
 };
@@ -135,10 +129,8 @@ export const generateAnonymousAvatar = (postId: string) => {
   return {
     gradient: colorData.gradient,
     shadowClass: colorData.shadow,
-    primaryText: '',
     icon: icon,
     borderColor: 'border-gray-400',
-    textColor: 'text-white',
     isRichGradient: false
   };
 };

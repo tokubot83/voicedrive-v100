@@ -3,10 +3,8 @@ import React from 'react';
 interface AvatarData {
   gradient: string;
   shadowClass?: string;
-  primaryText: string;
   icon: string;
   borderColor: string;
-  textColor: string;
   isRichGradient?: boolean;
 }
 
@@ -42,11 +40,11 @@ const Avatar: React.FC<AvatarProps> = ({
   const showHighlight = size === 'lg' || size === 'xl';
 
   const iconSizes = {
-    xs: 'text-xs',
-    sm: 'text-sm',
-    md: 'text-lg',
-    lg: 'text-xl',
-    xl: 'text-3xl'
+    xs: 'text-sm',
+    sm: 'text-base',
+    md: 'text-xl',
+    lg: 'text-2xl',
+    xl: 'text-4xl'
   };
 
   return (
@@ -107,39 +105,11 @@ const Avatar: React.FC<AvatarProps> = ({
           }}
         />
       )}
-      {/* メインテキスト（イニシャルまたは部署略称） */}
-      {avatarData.primaryText && (
-        <span className={`${avatarData.textColor} font-bold ${sizeClasses[size]}`}>
-          {avatarData.primaryText}
-        </span>
-      )}
+      {/* アイコンを中央に表示 */}
+      <span className={`${iconSizes[size]} flex items-center justify-center`}>
+        {avatarData.icon}
+      </span>
       
-      {/* アイコン表示（テキストがない場合） */}
-      {!avatarData.primaryText && avatarData.icon && (
-        <span className={iconSizes[size]}>
-          {avatarData.icon}
-        </span>
-      )}
-      
-      {/* アイコンバッジ（大きいサイズ時） */}
-      {avatarData.icon && avatarData.primaryText && (size === 'lg' || size === 'xl') && (
-        <span 
-          className={`
-            absolute -top-1 -right-1 
-            bg-gradient-to-br from-white to-gray-100
-            w-6 h-6 
-            rounded-full 
-            flex items-center justify-center 
-            border border-gray-200
-            text-sm
-            shadow-md
-            transition-all duration-300
-            group-hover:scale-110
-          `}
-        >
-          {avatarData.icon}
-        </span>
-      )}
     </div>
   );
 };
