@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
 import { MessageCircle, Clock, Users, Vote } from 'lucide-react';
 import { Poll, PollOption, PollVote } from '../types/poll';
-import { Post } from '../types';
+import { Post, Comment } from '../types';
+import ThreadedCommentSystem from './comments/ThreadedCommentSystem';
+import { useDemoMode } from './demo/DemoModeController';
 
 interface FreespacePostProps {
   post: Post;
   poll?: Poll;
   userVote?: PollVote;
   onVote?: (optionId: string) => void;
-  onComment?: () => void;
+  onComment?: (postId: string, comment: Partial<Comment>) => void;
 }
 
 const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePostProps) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(userVote?.optionId || null);
+  const [showComments, setShowComments] = useState(false);
   const hasVoted = !!userVote;
+  const { currentUser } = useDemoMode();
 
   const handleVote = (optionId: string) => {
     if (hasVoted || !poll?.isActive) return;
@@ -168,7 +172,7 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
       <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
         <div className="flex space-x-6">
           <button 
-            onClick={onComment}
+            onClick={() => setShowComments(!showComments)}
             className="flex items-center space-x-2 text-gray-500 hover:text-blue-600 transition-colors"
           >
             <MessageCircle className="w-5 h-5" />

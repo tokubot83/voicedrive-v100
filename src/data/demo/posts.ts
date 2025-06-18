@@ -1,4 +1,4 @@
-import { Post, PostType, AnonymityLevel, Priority, VoteOption, ProposalType, StakeholderCategory, Comment, CommentPrivacyLevel } from '../../types';
+import { Post, PostType, AnonymityLevel, Priority, VoteOption, ProposalType, StakeholderCategory, Comment, CommentPrivacyLevel, CommentType } from '../../types';
 import { demoUsers } from './users';
 import { generateSampleVotesByStakeholder } from '../../utils/votingCalculations';
 import { projectDemoPosts } from './projectDemoData';
@@ -182,30 +182,69 @@ export const demoPosts: Post[] = [
         postId: 'freespace-post-expired-1',
         content: '業界特有の専門知識は確実に必要ですね。現場に配属されてから戸惑うことが多いので。',
         author: demoUsers[1],
+        commentType: 'support' as CommentType,
         privacyLevel: 'partial' as CommentPrivacyLevel,
         anonymityLevel: 'department' as AnonymityLevel,
         timestamp: new Date('2025-01-05T14:20:00'),
+        likes: 5,
+        hasLiked: false,
         visibleInfo: {
           facility: demoUsers[1].department,
           position: demoUsers[1].position,
           experienceYears: 2,
           isManagement: false
-        }
+        },
+        replies: [
+          {
+            id: 'comment-training-1-reply-1',
+            postId: 'freespace-post-expired-1',
+            parentId: 'comment-training-1',
+            content: '具体的にはどのような専門知識が必要でしょうか？カリキュラムの参考にしたいです。',
+            author: demoUsers[3],
+            commentType: 'question' as CommentType,
+            privacyLevel: 'full' as CommentPrivacyLevel,
+            anonymityLevel: 'full' as AnonymityLevel,
+            timestamp: new Date('2025-01-05T15:30:00'),
+            likes: 2,
+            hasLiked: false,
+            visibleInfo: {
+              facility: demoUsers[3].department,
+              position: demoUsers[3].position,
+              experienceYears: 5,
+              isManagement: true
+            }
+          }
+        ]
       },
       {
         id: 'comment-training-2',
         postId: 'freespace-post-expired-1',
         content: 'Excel などのデジタルスキルも重要です。データ集計や資料作成で必ず使うので、基礎をしっかり教えてもらえると助かります。',
         author: demoUsers[2],
+        commentType: 'proposal' as CommentType,
         privacyLevel: 'partial' as CommentPrivacyLevel,
         anonymityLevel: 'department' as AnonymityLevel,
         timestamp: new Date('2025-01-07T10:15:00'),
+        likes: 8,
+        hasLiked: true,
         visibleInfo: {
           facility: demoUsers[2].department,
           position: demoUsers[2].position,
           experienceYears: 3,
           isManagement: false
         }
+      },
+      {
+        id: 'comment-training-3',
+        postId: 'freespace-post-expired-1',
+        content: '新人研修の期間が短すぎるのではないでしょうか。実務に必要なスキルを身につけるには、もう少し時間が必要かもしれません。',
+        author: demoUsers[4],
+        commentType: 'concern' as CommentType,
+        privacyLevel: 'anonymous' as CommentPrivacyLevel,
+        anonymityLevel: 'anonymous' as AnonymityLevel,
+        timestamp: new Date('2025-01-07T16:45:00'),
+        likes: 3,
+        hasLiked: false
       }
     ]
   },

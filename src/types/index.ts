@@ -226,14 +226,21 @@ export interface VotingData {
   participation: number;
 }
 
+export type CommentType = 'proposal' | 'question' | 'support' | 'concern';
+
 export interface Comment {
   id: string;
   postId: string;
+  parentId?: string; // 返信の場合、親コメントのID
   content: string;
   author: User;
+  commentType: CommentType;
   anonymityLevel: AnonymityLevel;
   privacyLevel?: CommentPrivacyLevel;
   timestamp: Date;
+  likes: number;
+  hasLiked?: boolean;
+  replies?: Comment[]; // ネストされた返信
   visibleInfo?: {
     facility?: string;
     position?: string;

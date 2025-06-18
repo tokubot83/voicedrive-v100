@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import VotingSystem from './VotingSystem';
 import EnhancedVotingSystem from './EnhancedVotingSystem';
 import EnhancedConsensusChart from './EnhancedConsensusChart';
-import CommentForm from './CommentForm';
-import CommentList from './CommentList';
+import ThreadedCommentSystem from './comments/ThreadedCommentSystem';
 import { Post as PostType, VoteOption, Comment, User } from '../types';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 import { generateSampleVotesByStakeholder } from '../utils/votingCalculations';
@@ -22,7 +21,6 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
   console.log('🎯 Post component rendering:', post.id, post.type, post.content.slice(0, 50));
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(null);
   const [showWorkflow, setShowWorkflow] = useState(false);
-  const [showCommentForm, setShowCommentForm] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const { calculateScore, getStatusConfig, convertVotesToEngagements } = useProjectScoring();
   
@@ -123,17 +121,17 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
     onVote(post.id, option);
   };
 
-  const handleCommentSubmit = (comment: Omit<Comment, 'id' | 'timestamp'>) => {
-    onComment(post.id, comment);
-    setShowCommentForm(false);
+  const handleCommentSubmit = (postId: string, comment: Partial<Comment>) => {
+    onComment(postId, comment as Omit<Comment, 'id' | 'timestamp'>);
+  };
+
+  const handleCommentLike = (commentId: string) => {
+    // TODO: Implement comment like functionality
+    console.log('Like comment:', commentId);
   };
 
   const handleCommentClick = () => {
-    if (post.comments.length > 0) {
-      setShowComments(!showComments);
-    } else {
-      setShowCommentForm(true);
-    }
+    setShowComments(!showComments);
   };
 
   return (
@@ -260,34 +258,17 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
             <span>{post.comments?.length || 0}</span>
           </button>
         </div>
-        {post.comments.length > 0 && !showCommentForm && (
-          <button
-            onClick={() => setShowCommentForm(true)}
-            className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
-          >
-            + 新しいコメント
-          </button>
-        )}
       </div>
 
-      {/* コメントセクション */}
-      {showCommentForm && (
-        <div className="px-4 pb-4 border-t border-gray-200">
-          <CommentForm
+      {/* コメントセクション - X方式のスレッド形式 */}
+      {showComments && (
+        <div className="px-4 pb-4 border-t border-gray-200 bg-gray-50">
+          <ThreadedCommentSystem
             postId={post.id}
-            proposalType={post.proposalType}
-            currentUser={currentUser}
-            onSubmit={handleCommentSubmit}
-            onCancel={() => setShowCommentForm(false)}
-          />
-        </div>
-      )}
-
-      {showComments && post.comments.length > 0 && (
-        <div className="px-4 pb-4 border-t border-gray-200">
-          <CommentList
             comments={post.comments}
             currentUser={currentUser}
+            onComment={handleCommentSubmit}
+            onLike={handleCommentLike}
           />
         </div>
       )}
