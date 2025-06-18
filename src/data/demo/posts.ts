@@ -907,6 +907,62 @@ export const demoPosts: Post[] = [
     isExpired: false
   },
 
+  // コメントのみのフリーボイス投稿 (デモ用)
+  {
+    id: 'post-comment-only-demo',
+    type: 'community',
+    content: '最近、リモートワークで集中力を保つコツについて悩んでいます。在宅勤務の際に、皆さんはどのような工夫をされていますか？\n\n自分なりに試してみていることはありますが、他の方の経験談や効果的だった方法があれば、ぜひ教えてください。働き方の参考にしたいと思います。',
+    author: demoUsers[1], // 一般職員
+    anonymityLevel: 'partial',
+    timestamp: new Date('2025-01-18T10:30:00'),
+    votes: {
+      'strongly-oppose': 0,
+      'oppose': 0,
+      'neutral': 0,
+      'support': 0,
+      'strongly-support': 0
+    },
+    comments: [
+      {
+        id: 'comment-only-demo-1',
+        postId: 'post-comment-only-demo',
+        content: '私は作業用BGMを流すことで集中力を保っています。特にクラシック音楽やアンビエント系の音楽が効果的でした。',
+        author: demoUsers[3],
+        commentType: 'proposal' as CommentType,
+        privacyLevel: 'partial' as CommentPrivacyLevel,
+        anonymityLevel: 'partial' as AnonymityLevel,
+        timestamp: new Date('2025-01-18T11:15:00'),
+        likes: 4,
+        hasLiked: false,
+        visibleInfo: {
+          position: demoUsers[3].position,
+          experienceYears: 3,
+          isManagement: false
+        }
+      },
+      {
+        id: 'comment-only-demo-2',
+        postId: 'post-comment-only-demo',
+        content: 'ポモドーロテクニック（25分集中→5分休憩）を試してみてはいかがでしょうか？時間を区切ることで集中力が続きやすくなります。',
+        author: demoUsers[4],
+        commentType: 'proposal' as CommentType,
+        privacyLevel: 'selective' as CommentPrivacyLevel,
+        anonymityLevel: 'selective' as AnonymityLevel,
+        timestamp: new Date('2025-01-18T14:20:00'),
+        likes: 7,
+        hasLiked: true,
+        visibleInfo: {
+          facility: '小原病院',
+          position: demoUsers[4].position,
+          experienceYears: 5,
+          isManagement: false
+        }
+      }
+    ],
+    freespaceCategory: 'casual_discussion',
+    freespaceScope: 'organization'
+  },
+
   // フリースペース投票機能デモ投稿
   {
     id: 'post-poll-demo-1',

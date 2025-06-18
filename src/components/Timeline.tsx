@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import EnhancedPost from './EnhancedPost';
 import Post from './Post';
+import FreespacePost from './FreespacePost';
 import PollResultPost from './PollResultPost';
 import { Post as PostType, VoteOption, Comment } from '../types';
 import { demoPosts } from '../data/demo/posts';
@@ -253,6 +254,10 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
     handleCommentSubmit(postId, comment);
   };
 
+  const handleFreespaceComment = (postId: string, comment: Partial<Comment>) => {
+    handleCommentSubmit(postId, comment as Omit<Comment, 'id' | 'timestamp'>);
+  };
+
   const handleCommentSubmit = (postId: string, comment: Omit<Comment, 'id' | 'timestamp'>) => {
     setPosts(prevPosts => 
       prevPosts.map(post => {
@@ -353,13 +358,24 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
         
         return (
           <div key={post.id}>
-            <EnhancedPost
-              key={post.id}
-              post={postWithVote}
-              currentUser={currentUser}
-              onVote={handleVote}
-              onComment={handleComment}
-            />
+            {post.type === 'community' ? (
+              <FreespacePost
+                key={post.id}
+                post={postWithVote}
+                poll={post.poll}
+                userVote={post.poll ? { optionId: getUserVote(post.id) || '', userId: currentUser?.id || '' } : undefined}
+                onVote={(optionId) => handleVote(post.id, optionId as VoteOption)}
+                onComment={handleFreespaceComment}
+              />
+            ) : (
+              <EnhancedPost
+                key={post.id}
+                post={postWithVote}
+                currentUser={currentUser}
+                onVote={handleVote}
+                onComment={handleComment}
+              />
+            )}
           </div>
         );
       })}

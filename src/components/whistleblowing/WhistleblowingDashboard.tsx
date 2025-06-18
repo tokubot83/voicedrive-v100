@@ -106,10 +106,10 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
       <div className="max-w-4xl mx-auto">
         <div className="bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 text-center">
           <div className="text-6xl mb-4">🚨</div>
-          <h2 className="text-2xl font-bold text-white mb-4">公益通報システム</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">コンプライアンス窓口</h2>
           <p className="text-gray-300 mb-6">
-            重要な問題を安全に報告するためのシステムです。<br />
-            あなたの通報は専門チームが適切に処理し、匿名性を最高レベルで保護します。
+            組織内の問題やコンプライアンスに関する相談を安全に行える窓口です。<br />
+            あなたの相談は専門チームが適切に対応し、匿名性を最高レベルで保護します。
           </p>
           <button
             onClick={onNewReport}
@@ -137,7 +137,7 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
           <div>
             <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
               <span className="text-4xl">🚨</span>
-              公益通報管理システム
+              コンプライアンス窓口
             </h1>
             <p className="text-gray-300">レベル{userLevel}管理者画面</p>
           </div>
