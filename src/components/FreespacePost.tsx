@@ -3,6 +3,8 @@ import { MessageCircle, Clock, Users, Vote } from 'lucide-react';
 import { Poll, PollOption, PollVote } from '../types/poll';
 import { Post, Comment } from '../types';
 import ThreadedCommentSystem from './comments/ThreadedCommentSystem';
+import Avatar from './common/Avatar';
+import { generateAvatarByAnonymity, getDisplayName } from '../utils/avatarGenerator';
 import { useDemoMode } from './demo/DemoModeController';
 
 interface FreespacePostProps {
@@ -18,6 +20,18 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
   const [showComments, setShowComments] = useState(false);
   const hasVoted = !!userVote;
   const { currentUser } = useDemoMode();
+
+  // Generate avatar based on anonymity level
+  const avatarData = generateAvatarByAnonymity(
+    post.anonymityLevel || 'full',
+    post.author,
+    post.id
+  );
+  
+  const displayName = getDisplayName(
+    post.anonymityLevel || 'full',
+    post.author
+  );
 
   const handleVote = (optionId: string) => {
     if (hasVoted || !poll?.isActive) return;
@@ -57,14 +71,14 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
     <div className="bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-colors mb-4">
       {/* ヘッダー */}
       <div className="flex items-center p-4 pb-3">
-        <div className="w-12 h-12 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full flex items-center justify-center">
-          <span className="text-white font-bold text-sm">
-            {post.author.department?.slice(0, 2) || '部署'}
-          </span>
-        </div>
+        <Avatar 
+          avatarData={avatarData}
+          size="md"
+          className="shadow-md"
+        />
         <div className="ml-3 flex-1">
           <div className="font-bold text-gray-900">
-            {post.anonymityLevel === 'real_name' ? post.author.name : `${post.author.department} 職員`}
+            {displayName}
           </div>
           <div className="text-gray-500 text-sm">
             {new Date(post.timestamp).toLocaleString('ja-JP', {

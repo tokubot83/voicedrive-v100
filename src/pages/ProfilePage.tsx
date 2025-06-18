@@ -3,6 +3,8 @@ import { useDemoMode } from '../components/demo/DemoModeController';
 import { MedicalProfile } from '../types/profile';
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 import Timeline from '../components/Timeline';
+import Avatar from '../components/common/Avatar';
+import { generatePersonalAvatar } from '../utils/avatarGenerator';
 import { User, Calendar, Building2, Briefcase, Award, Activity, FileText, TrendingUp } from 'lucide-react';
 
 const ProfilePage: React.FC = () => {
@@ -38,6 +40,9 @@ const ProfilePage: React.FC = () => {
     profileCompleteRate: 85
   };
 
+  // Generate avatar for current user
+  const avatarData = generatePersonalAvatar(currentUser);
+
   // Mock stats for activity section
   const stats = {
     totalPosts: 24,
@@ -63,14 +68,15 @@ const ProfilePage: React.FC = () => {
       {/* Profile Header */}
       <div className="px-6 pb-6 -mt-20 relative">
         <div className="flex items-end gap-6">
-          <img
-            src={profile.profileImage}
-            alt={profile.name}
-            className="w-32 h-32 rounded-full border-4 border-slate-800 bg-slate-700"
-            onError={(e) => {
-              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=random&size=128`;
-            }}
-          />
+          <div className="relative">
+            <Avatar 
+              avatarData={avatarData}
+              size="xl"
+              className="border-4 border-slate-800 shadow-2xl"
+            />
+            {/* オンライン状態インジケーター */}
+            <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 border-2 border-slate-800 rounded-full"></div>
+          </div>
           <div className="flex-1 pb-2">
             <h1 className="text-3xl font-bold text-white">{profile.name}</h1>
             <p className="text-gray-400 mt-1">{profile.position} • {profile.department}</p>

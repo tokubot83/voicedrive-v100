@@ -2,6 +2,8 @@ import { useState } from 'react';
 import VotingSection from './VotingSection';
 import FreespacePostRenderer from './FreespacePostRenderer';
 import ThreadedCommentSystem from './comments/ThreadedCommentSystem';
+import Avatar from './common/Avatar';
+import { generateAvatarByAnonymity, getDisplayName } from '../utils/avatarGenerator';
 import { Post as PostType, VoteOption, User, Comment } from '../types';
 import { proposalTypeConfigs } from '../config/proposalTypes';
 import { FACILITIES } from '../data/medical/facilities';
@@ -26,28 +28,17 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
     onComment(postId, comment as Omit<Comment, 'id' | 'timestamp'>);
   };
 
-  // 施設名を取得するヘルパー関数
-  const getFacilityName = (facilityId: string) => {
-    return FACILITIES[facilityId as keyof typeof FACILITIES]?.name || '';
-  };
-
-  const getAuthorDisplay = () => {
-    const facilityName = post.author.facility_id ? getFacilityName(post.author.facility_id) : '';
-    switch (post.anonymityLevel) {
-      case 'real_name':
-        return post.author.name;
-      case 'facility_department':
-        return `${facilityName} ${post.author.department}職員`;
-      case 'facility_anonymous':
-        return `${facilityName} 匿名職員`;
-      case 'department_only':
-        return `${post.author.department}職員`;
-      case 'anonymous':
-        return '匿名職員';
-      default:
-        return '匿名職員';
-    }
-  };
+  // Generate avatar based on anonymity level
+  const avatarData = generateAvatarByAnonymity(
+    post.anonymityLevel || 'full',
+    post.author,
+    post.id
+  );
+  
+  const displayName = getDisplayName(
+    post.anonymityLevel || 'full',
+    post.author
+  );
 
   const getAvatarInitial = () => {
     switch (post.anonymityLevel) {
