@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Comment, CommentType, User, AnonymityLevel } from '../../types';
+import { Comment, CommentType, User, AnonymityLevel, Post } from '../../types';
 import { MessageCircle, AlertCircle } from 'lucide-react';
 import { formatDate } from '../../utils/dateUtils';
+import SituationAnalysisPanel from './SituationAnalysisPanel';
 
 interface ThreadedCommentSystemProps {
-  postId: string;
+  post: Post;
   comments: Comment[];
   currentUser?: User;
   onComment: (postId: string, comment: Partial<Comment>) => void;
@@ -19,7 +20,7 @@ const commentTypes = [
 ];
 
 const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
-  postId,
+  post,
   comments,
   currentUser,
   onComment
@@ -37,7 +38,7 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
     if (!commentContent.trim() || !currentUser) return;
 
     const newComment: Partial<Comment> = {
-      postId,
+      postId: post.id,
       parentId,
       content: commentContent,
       commentType: selectedCommentType,
@@ -46,7 +47,7 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
       timestamp: new Date()
     };
 
-    onComment(postId, newComment);
+    onComment(post.id, newComment);
     setCommentContent('');
     setShowCommentForm(false);
     setReplyingTo(null);
@@ -201,6 +202,9 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
 
   return (
     <div className="space-y-4">
+      {/* 現在の状況分析パネル */}
+      <SituationAnalysisPanel post={post} />
+
       {/* コメント投稿ボタン */}
       {!showCommentForm && (
         <button

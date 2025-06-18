@@ -264,11 +264,10 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
       {showComments && (
         <div className="px-4 pb-4 border-t border-gray-200 bg-gray-50">
           <ThreadedCommentSystem
-            postId={post.id}
+            post={post}
             comments={post.comments}
             currentUser={currentUser}
             onComment={handleCommentSubmit}
-            onLike={handleCommentLike}
           />
         </div>
       )}
