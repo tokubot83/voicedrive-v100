@@ -1,6 +1,6 @@
 import { demoUsers } from '../data/demo/users';
-import { posts } from '../data/demo/posts';
-import { projects } from '../data/demo/projects';
+import { demoPosts } from '../data/demo/posts';
+import { demoProjects } from '../data/demo/projects';
 
 interface AnalysisScope {
   type: 'facility' | 'department' | 'corporate';
@@ -88,17 +88,17 @@ export class GenerationalAnalysisService {
   // 投票参加率計算
   private static calculateVotingParticipation(userId: string): number {
     // デモデータから投票履歴を取得（実際の実装では投票履歴データベースから取得）
-    const userPosts = posts.filter(post => post.userId === userId);
-    const totalPosts = posts.length;
+    const userPosts = demoPosts.filter(post => post.author?.id === userId);
+    const totalPosts = demoPosts.length;
     return totalPosts > 0 ? (userPosts.length / totalPosts) * 100 : 0;
   }
 
   // エンゲージメント指数計算
   private static calculateEngagementIndex(userId: string): number {
-    const userPosts = posts.filter(post => post.userId === userId);
-    const userComments = posts.reduce((count, post) => count + (post.comments?.length || 0), 0);
-    const userProjects = projects.filter(project => 
-      project.members?.some(member => member.userId === userId)
+    const userPosts = demoPosts.filter(post => post.author?.id === userId);
+    const userComments = demoPosts.reduce((count, post) => count + (post.comments?.length || 0), 0);
+    const userProjects = demoProjects.filter(project => 
+      project.teamMembers?.includes(userId)
     );
 
     // エンゲージメント指数 = (投稿数 * 3 + コメント数 * 2 + プロジェクト参加数 * 5) / 10
@@ -107,13 +107,13 @@ export class GenerationalAnalysisService {
 
   // コラボレーション指数計算
   private static calculateCollaborationIndex(userId: string): number {
-    const userProjects = projects.filter(project => 
-      project.members?.some(member => member.userId === userId)
+    const userProjects = demoProjects.filter(project => 
+      project.teamMembers?.includes(userId)
     );
     
     const crossDepartmentProjects = userProjects.filter(project => {
-      const departments = new Set(project.members?.map(member => {
-        const user = demoUsers.find(u => u.id === member.userId);
+      const departments = new Set(project.teamMembers?.map(memberId => {
+        const user = demoUsers.find(u => u.id === memberId);
         return user?.department;
       }));
       return departments.size > 1;
@@ -246,8 +246,8 @@ export class GenerationalAnalysisService {
       averageExperience: generationUsers.reduce((sum, user) => sum + (user.experienceYears || 0), 0) / generationUsers.length,
       topPerformers: generationUsers.slice(0, 5), // 上位5名
       commonDepartments: [...new Set(generationUsers.map(user => user.department))],
-      projectInvolvement: projects.filter(project => 
-        project.members?.some(member => generationUsers.some(user => user.id === member.userId))
+      projectInvolvement: demoProjects.filter(project => 
+        project.teamMembers?.some(memberId => generationUsers.some(user => user.id === memberId))
       ).length
     };
   }
