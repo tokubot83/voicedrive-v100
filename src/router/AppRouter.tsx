@@ -359,11 +359,6 @@ const AppRouter: React.FC = () => {
         } />
         
         {/* Generational Analysis (Level 7+) */}
-        <Route path="generational-analysis" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
-            <GenerationalAnalysisPage />
-          </ProtectedRoute>
-        } />
         
         {/* Whistleblowing System - All users can access (internal permission handling) */}
         <Route path="whistleblowing" element={<WhistleblowingPage />} />
@@ -411,6 +406,13 @@ const AppRouter: React.FC = () => {
             {React.createElement(React.lazy(() => import('../pages/MyProjectsPage')))}
           </ErrorBoundary>
         </React.Suspense>
+      } />
+      
+      {/* Generational Analysis - Full width without sidebar */}
+      <Route path="generational-analysis" element={
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
+          <GenerationalAnalysisPage />
+        </ProtectedRoute>
       } />
     </Routes>
   );
