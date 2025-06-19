@@ -14,12 +14,8 @@ const SituationAnalysisPanel: React.FC<SituationAnalysisPanelProps> = ({ post })
   // 投票の詳細分析
   const totalVotes = Object.values(post.votes).reduce((sum, count) => sum + count, 0);
   
-  // コメントのみの投稿かどうかを判定
-  // フリーボイスで投票機能・イベント機能がない場合はコメントのみとみなす
-  const isCommentOnlyPost = post.type === 'community' && !post.poll && !post.event;
-  
-  // コメントのみの投稿の場合は何も表示しない
-  if (isCommentOnlyPost) {
+  // フリーボイス投稿の場合は専用パネルを使用するため表示しない
+  if (post.type === 'community') {
     return null;
   }
   
