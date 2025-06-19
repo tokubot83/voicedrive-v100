@@ -113,8 +113,10 @@ const InterviewBookingPage: React.FC = () => {
     if (!confirm('この予約をキャンセルしますか？')) return;
     
     try {
-      await bookingService.cancelBooking(bookingId);
-      loadUserBookings();
+      // TODO: cancelBookingメソッドを実装
+      // await bookingService.cancelBooking(bookingId);
+      alert('キャンセル機能は準備中です');
+      // loadUserBookings();
     } catch (error) {
       alert('キャンセルに失敗しました');
     }
@@ -230,12 +232,12 @@ const InterviewBookingPage: React.FC = () => {
                           <div>
                             <div className="flex items-center gap-2 mb-1">
                               <span className="font-medium text-white">
-                                {getInterviewTypeLabel(booking.type)}
+                                {getInterviewTypeLabel(booking.interviewType)}
                               </span>
                               {getStatusBadge(booking.status)}
                             </div>
                             <p className="text-sm text-gray-300">
-                              {new Date(booking.scheduledDate).toLocaleDateString('ja-JP')} - {getCategoryLabel(booking.category)}
+                              {new Date(booking.bookingDate).toLocaleDateString('ja-JP')} - {getCategoryLabel(booking.interviewCategory)}
                             </p>
                           </div>
                         </div>
@@ -297,12 +299,12 @@ const InterviewBookingPage: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-300">利用回数</span>
-                    <span className="font-medium text-white">{upcomingBookings.length + pastBookings.filter(b => new Date(b.scheduledDate).getMonth() === new Date().getMonth()).length}/2回</span>
+                    <span className="font-medium text-white">{upcomingBookings.length + pastBookings.filter(b => new Date(b.bookingDate).getMonth() === new Date().getMonth()).length}/2回</span>
                   </div>
                   <div className="w-full bg-slate-700 rounded-full h-2">
                     <div 
                       className="bg-blue-600 h-2 rounded-full" 
-                      style={{ width: `${Math.min(((upcomingBookings.length + pastBookings.filter(b => new Date(b.scheduledDate).getMonth() === new Date().getMonth()).length) / 2) * 100, 100)}%` }}
+                      style={{ width: `${Math.min(((upcomingBookings.length + pastBookings.filter(b => new Date(b.bookingDate).getMonth() === new Date().getMonth()).length) / 2) * 100, 100)}%` }}
                     ></div>
                   </div>
                   <p className="text-xs text-gray-400 mt-2">

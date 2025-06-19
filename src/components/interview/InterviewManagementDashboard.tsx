@@ -4,9 +4,12 @@ import {
   TimeSlot,
   InterviewStatus,
   DailySchedule,
-  WeeklyStatistics
+  WeeklyStatistics,
+  MedicalEmployeeProfile,
+  ReminderSchedule
 } from '../../types/interview';
 import { InterviewBookingService } from '../../services/InterviewBookingService';
+import InterviewReminderService from '../../services/InterviewReminderService';
 import { usePermissions } from '../../hooks/usePermissions';
 import { PermissionLevel } from '../../permissions/types/PermissionTypes';
 
@@ -18,6 +21,7 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
   managerId = 'MGR001' 
 }) => {
   const bookingService = InterviewBookingService.getInstance();
+  const reminderService = InterviewReminderService.getInstance();
   const { metadata } = usePermissions(managerId);
   
   const [activeTab, setActiveTab] = useState('today');
@@ -26,6 +30,10 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStatistics | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<InterviewBooking | null>(null);
+  
+  // 新機能: リマインダー管理
+  const [reminderSchedules, setReminderSchedules] = useState<ReminderSchedule[]>([]);
+  const [todaysReminders, setTodaysReminders] = useState<any[]>([]);
 
   // 権限レベルによる機能制限
   const canManageSchedule = metadata?.level && metadata.level >= PermissionLevel.LEVEL_5;
@@ -55,6 +63,9 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
           break;
         case 'statistics':
           await loadStatistics();
+          break;
+        case 'reminders':
+          await loadReminderManagement();
           break;
       }
     } catch (error) {
@@ -96,6 +107,35 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
     setWeeklyStats(stats);
   };
 
+  const loadReminderManagement = async () => {
+    try {
+      // 全職員のリマインダースケジュールを取得
+      const allReminders = await reminderService.checkAllPendingReminders();
+      setReminderSchedules(allReminders);
+      
+      // 今日送信すべきリマインダーを取得
+      const todaysReminders = await bookingService.getTodaysReminders();
+      setTodaysReminders(todaysReminders);
+    } catch (error) {
+      console.error('Failed to load reminder data:', error);
+    }
+  };
+
+  const handleRunDailyBatch = async () => {
+    if (!confirm('今日のリマインダーバッチ処理を実行しますか？')) return;
+    
+    setLoading(true);
+    try {
+      await bookingService.runDailyReminderBatch();
+      await loadReminderManagement(); // データを再読み込み
+      alert('バッチ処理が完了しました');
+    } catch (error) {
+      alert('バッチ処理でエラーが発生しました');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleStatusUpdate = async (bookingId: string, newStatus: InterviewStatus) => {
     try {
       await bookingService.updateBookingStatus(bookingId, newStatus, managerId);
@@ -128,6 +168,7 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
         { key: 'weekly', label: '週間スケジュール', icon: '📆' },
         { key: 'pending', label: '承認待ち', icon: '⏳' },
         canManageSchedule && { key: 'schedule', label: 'スケジュール管理', icon: '⚙️' },
+        canManageSchedule && { key: 'reminders', label: 'リマインダー管理', icon: '🔔' },
         canViewStatistics && { key: 'statistics', label: '統計', icon: '📊' }
       ].filter(Boolean).map((tab: any) => (
         <button
@@ -425,6 +466,144 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
     </div>
   );
 
+  const renderReminderManagement = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">リマインダー管理</h2>
+        <button
+          onClick={handleRunDailyBatch}
+          disabled={loading}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+        >
+          {loading ? '実行中...' : '今日のリマインダー送信'}
+        </button>
+      </div>
+
+      {/* 今日のリマインダー一覧 */}
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <h3 className="font-semibold mb-4 text-yellow-800">🔔 本日送信予定のリマインダー</h3>
+        {todaysReminders.length === 0 ? (
+          <p className="text-gray-600">本日送信予定のリマインダーはありません</p>
+        ) : (
+          <div className="space-y-3">
+            {todaysReminders.map((reminder, index) => (
+              <div key={index} className="bg-white border border-yellow-300 rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-medium text-gray-900">
+                      {reminder.employeeName} ({reminder.employeeId})
+                    </h4>
+                    <p className="text-sm text-gray-600 mt-1">
+                      面談種別: {reminder.interviewType}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      次回面談予定: {new Date(reminder.nextInterviewDate).toLocaleDateString('ja-JP')}
+                    </p>
+                  </div>
+                  <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                    {reminder.reminderType}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 全体のリマインダースケジュール */}
+      <div className="bg-white border rounded-lg p-6">
+        <h3 className="font-semibold mb-4">📅 全職員リマインダースケジュール</h3>
+        
+        <div className="mb-4">
+          <p className="text-sm text-gray-600">
+            合計: {reminderSchedules.length}件のリマインダーが設定されています
+          </p>
+        </div>
+
+        {reminderSchedules.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">
+            リマインダースケジュールが設定されていません
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-2 px-3">職員名</th>
+                  <th className="text-left py-2 px-3">雇用状況</th>
+                  <th className="text-left py-2 px-3">面談種別</th>
+                  <th className="text-left py-2 px-3">次回面談日</th>
+                  <th className="text-left py-2 px-3">リマインダー状況</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reminderSchedules.slice(0, 20).map((schedule, index) => (
+                  <tr key={index} className="border-b hover:bg-gray-50">
+                    <td className="py-2 px-3">
+                      <div>
+                        <div className="font-medium">{schedule.employeeName}</div>
+                        <div className="text-sm text-gray-500">{schedule.employeeId}</div>
+                      </div>
+                    </td>
+                    <td className="py-2 px-3">
+                      <span className={`
+                        px-2 py-1 rounded-full text-xs font-medium
+                        ${schedule.employmentStatus === 'new_employee' 
+                          ? 'bg-green-100 text-green-800'
+                          : schedule.employmentStatus === 'regular' 
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-purple-100 text-purple-800'
+                        }
+                      `}>
+                        {schedule.employmentStatus === 'new_employee' ? '新入職員' :
+                         schedule.employmentStatus === 'regular' ? '一般職員' : '管理職'}
+                      </span>
+                    </td>
+                    <td className="py-2 px-3 text-sm">
+                      {schedule.nextInterviewType}
+                    </td>
+                    <td className="py-2 px-3 text-sm">
+                      {new Date(schedule.nextInterviewDate).toLocaleDateString('ja-JP')}
+                    </td>
+                    <td className="py-2 px-3">
+                      <span className={`
+                        px-2 py-1 rounded-full text-xs font-medium
+                        ${schedule.reminderSent 
+                          ? 'bg-gray-100 text-gray-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                        }
+                      `}>
+                        {schedule.reminderSent ? '送信済み' : '未送信'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            
+            {reminderSchedules.length > 20 && (
+              <div className="mt-4 text-center">
+                <p className="text-sm text-gray-500">
+                  {reminderSchedules.length - 20}件の追加データがあります
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* バッチ処理ステータス */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="font-semibold mb-2 text-blue-800">⚙️ バッチ処理情報</h3>
+        <div className="space-y-2 text-sm text-blue-700">
+          <p>• 自動リマインダーは毎日9:00に実行されます</p>
+          <p>• 手動実行は管理者権限（Level 5以上）が必要です</p>
+          <p>• 処理結果は監査ログに記録されます</p>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="max-w-7xl mx-auto p-6">
       {/* 権限表示 */}
@@ -446,6 +625,7 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
           {activeTab === 'weekly' && renderWeeklySchedule()}
           {activeTab === 'pending' && renderPendingBookings()}
           {activeTab === 'schedule' && canManageSchedule && renderScheduleManagement()}
+          {activeTab === 'reminders' && canManageSchedule && renderReminderManagement()}
           {activeTab === 'statistics' && canViewStatistics && renderStatistics()}
         </div>
       )}

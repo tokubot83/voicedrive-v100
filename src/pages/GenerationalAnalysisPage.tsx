@@ -214,7 +214,6 @@ const GenerationalAnalysisPage: React.FC = () => {
       </header>
 
       <div className="p-6">
-        <div className="max-w-7xl mx-auto">
 
           {/* 統計カードレイアウト（法人統合ダッシュボードと同じ） */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
