@@ -84,6 +84,17 @@ const HomePage = () => {
           </>
         )}
         
+        {/* Freevoice tab content */}
+        {currentTab === 'freevoice' && (
+          <>
+            <ComposeSection 
+              selectedPostType="community"
+              setSelectedPostType={setSelectedPostType}
+            />
+            <Timeline activeTab="freevoice" />
+          </>
+        )}
+        
         {/* Urgent tab content */}
         {currentTab === 'urgent' && (
           <>

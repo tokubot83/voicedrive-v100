@@ -271,6 +271,8 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
             return post.type === 'improvement';
           case 'community':
             return post.type === 'community';
+          case 'freevoice':
+            return post.type === 'community'; // フリーボイス投稿はtype='community'
           case 'report':
             return post.type === 'report';
           case 'urgent':
