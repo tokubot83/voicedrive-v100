@@ -91,6 +91,9 @@ import HierarchicalAnalysisPage from '../pages/HierarchicalAnalysisPage';
 // User Analysis
 import UserAnalysisPage from '../pages/UserAnalysisPage';
 
+// Professional Analysis
+import ProfessionalAnalysisPage from '../pages/ProfessionalAnalysisPage';
+
 // Error pages
 import NotFoundPage from '../pages/NotFoundPage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
@@ -427,6 +430,11 @@ const AppRouter: React.FC = () => {
       <Route path="user-analysis" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
           <UserAnalysisPage />
+        </ProtectedRoute>
+      } />
+      <Route path="professional-analysis" element={
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
+          <ProfessionalAnalysisPage />
         </ProtectedRoute>
       } />
     </Routes>
