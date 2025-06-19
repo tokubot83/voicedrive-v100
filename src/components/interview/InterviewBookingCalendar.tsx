@@ -21,6 +21,7 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
   onBookingComplete
 }) => {
   const bookingService = InterviewBookingService.getInstance();
+  const reminderService = InterviewReminderService.getInstance();
   
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
@@ -32,6 +33,11 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [existingBookings, setExistingBookings] = useState<InterviewBooking[]>([]);
+  
+  // 新機能: 雇用状況管理
+  const [employeeProfile, setEmployeeProfile] = useState<MedicalEmployeeProfile | null>(null);
+  const [availableInterviewTypes, setAvailableInterviewTypes] = useState<InterviewType[]>([]);
+  const [reminderStatus, setReminderStatus] = useState<any>(null);
 
   // 時間枠の定義
   const timeSlots = [
