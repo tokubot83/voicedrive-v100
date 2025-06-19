@@ -17,10 +17,14 @@ const isRecent = (createdAt: string | Date, days: number = 7): boolean => {
 /**
  * 投稿タイプの判定（type フィールドがない場合の推定）
  */
-const getPostType = (post: Post): 'improvement' | 'community' | 'whistleblowing' | null => {
+const getPostType = (post: Post): 'improvement' | 'freevoice' | 'whistleblowing' | null => {
   // typeフィールドがある場合はそれを使用（whistleblowingは特別扱い）
   if (post.type === 'report' && post.proposalType === 'strategic') {
     return 'whistleblowing';
+  }
+  
+  if (post.type === 'community') {
+    return 'freevoice';
   }
   
   if (post.type) {
@@ -38,11 +42,31 @@ const getPostType = (post: Post): 'improvement' | 'community' | 'whistleblowing'
   }
   
   if (post.tags && (post.tags.includes('コミュニティ') || post.tags.includes('交流'))) {
-    return 'community';
+    return 'freevoice';
   }
   
   // デフォルトは改善提案
   return 'improvement';
+};
+
+/**
+ * フリーボイス投稿のサブタイプ判定
+ */
+const getFreevoiceSubType = (post: Post): 'voting' | 'event' | 'other' => {
+  // 投票関連
+  if (post.pollOptions || post.pollResult || post.votingDeadline || 
+      (post.tags && (post.tags.includes('投票') || post.tags.includes('アンケート') || post.tags.includes('投票結果')))) {
+    return 'voting';
+  }
+  
+  // イベント関連
+  if (post.eventDetails || 
+      (post.tags && (post.tags.includes('イベント') || post.tags.includes('開催') || post.tags.includes('参加募集')))) {
+    return 'event';
+  }
+  
+  // その他
+  return 'other';
 };
 
 /**
@@ -82,8 +106,8 @@ export const filterPostsByTab = (posts: Post[], tabState: TabState): Post[] => {
       case 'improvement':
         return getPostType(post) === 'improvement';
         
-      case 'community':
-        return getPostType(post) === 'community';
+      case 'freevoice':
+        return getPostType(post) === 'freevoice';
         
       case 'whistleblowing':
         return getPostType(post) === 'whistleblowing';
@@ -115,6 +139,16 @@ export const filterPostsByTab = (posts: Post[], tabState: TabState): Post[] => {
           // 合意レベルが80%以上をプロジェクト化間近とする
           const agreementLevel = post.votingData?.consensus || 0;
           return agreementLevel > 80;
+          
+        // フリーボイス専用フィルター
+        case 'voting':
+          return getPostType(post) === 'freevoice' && getFreevoiceSubType(post) === 'voting';
+          
+        case 'event':
+          return getPostType(post) === 'freevoice' && getFreevoiceSubType(post) === 'event';
+          
+        case 'other':
+          return getPostType(post) === 'freevoice' && getFreevoiceSubType(post) === 'other';
           
         case 'urgent-improvement':
         case 'urgent-community':
@@ -160,7 +194,7 @@ export const getPostCountsByTab = (posts: Post[]) => {
   return {
     home: posts.length,
     improvement: posts.filter(p => getPostType(p) === 'improvement').length,
-    community: posts.filter(p => getPostType(p) === 'community').length,
+    freevoice: posts.filter(p => getPostType(p) === 'freevoice').length,
     whistleblowing: posts.filter(p => getPostType(p) === 'whistleblowing').length,
     urgent: posts.filter(p => isUrgent(p)).length,
     projects: posts.filter(p => !!p.enhancedProjectStatus).length

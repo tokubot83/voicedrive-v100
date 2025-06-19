@@ -13,7 +13,7 @@ interface MainTabsProps {
 // メインタブの定義（基本タブ）
 const baseTabs: MainTab[] = [
   { id: 'improvement', label: 'アイデアボイス', icon: '💡', hasSubFilters: true },
-  { id: 'community', label: 'フリーボイス', icon: '💬', hasSubFilters: true },
+  { id: 'freevoice', label: 'フリーボイス', icon: '💬', hasSubFilters: true },
   { id: 'whistleblowing', label: 'コンプライアンス窓口', icon: '🚨', hasSubFilters: true }
 ];
 

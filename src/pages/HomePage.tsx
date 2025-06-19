@@ -24,7 +24,7 @@ const HomePage = () => {
       // タブに応じたデフォルトフィルターを設定
       if (tab === 'improvement') {
         setCurrentFilter('new');
-      } else if (tab === 'community') {
+      } else if (tab === 'freevoice') {
         setCurrentFilter('new');
       } else {
         setCurrentFilter('latest');
@@ -43,7 +43,7 @@ const HomePage = () => {
     // Set appropriate default filter for each tab
     if (tab === 'improvement') {
       setCurrentFilter('new');
-    } else if (tab === 'community') {
+    } else if (tab === 'freevoice') {
       setCurrentFilter('new');
     } else {
       setCurrentFilter('all');

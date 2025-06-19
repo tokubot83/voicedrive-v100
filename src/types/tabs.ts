@@ -20,8 +20,8 @@ export interface TabState {
   activeSubFilter: string | null;
 }
 
-export type MainTabId = 'home' | 'improvement' | 'community' | 'whistleblowing' | 'urgent';
-export type SubFilterId = 'new' | 'trending' | 'near-project' | 'urgent-improvement' | 'urgent-community' | 'urgent-whistleblowing';
+export type MainTabId = 'home' | 'improvement' | 'freevoice' | 'whistleblowing' | 'urgent';
+export type SubFilterId = 'new' | 'trending' | 'near-project' | 'urgent-improvement' | 'urgent-community' | 'urgent-whistleblowing' | 'voting' | 'event' | 'other';
 
 export interface TabContextValue {
   tabState: TabState;
