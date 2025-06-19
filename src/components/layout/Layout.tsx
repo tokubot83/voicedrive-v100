@@ -82,10 +82,17 @@ const Layout: React.FC = () => {
     setIsSidebarOpen(true);
   };
 
-  // スワイプ機能の追加
+  // スワイプ機能の追加（画面端からのスワイプのみ）
   useSwipe({
     onSwipeLeft: closeSidebar,
-    onSwipeRight: openSidebar,
+    onSwipeRight: () => {
+      // 右スワイプは画面左端からのみ有効
+      if (window.innerWidth <= 768) {
+        openSidebar();
+      }
+    },
+    minSwipeDistance: 50,
+    edgeSwipeThreshold: 30, // 画面端30px以内からのスワイプのみ有効
   });
 
   // ESCキーでサイドバーを閉じる

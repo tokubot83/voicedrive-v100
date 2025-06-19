@@ -3,6 +3,7 @@ import { demoUsers } from './users';
 import { generateSampleVotesByStakeholder } from '../../utils/votingCalculations';
 import { projectDemoPosts } from './projectDemoData';
 import { progressiveVisibilityDemoPosts } from './progressiveVisibilityPosts';
+import { freevoiceDemoPosts } from './freevoicePosts';
 
 // Helper function to generate random votes
 const generateVotes = (): Record<VoteOption, number> => {
@@ -100,68 +101,6 @@ const generateSampleComments = (postId: string, count: number = 2): Comment[] =>
 
 // Seasonal posts based on Japanese fiscal year and seasons
 export const demoPosts: Post[] = [
-  // 📊 投票結果の自動投稿（最新）
-  {
-    id: 'poll-result-newbie-training',
-    type: 'community',
-    category: 'idea_sharing',
-    title: '📊 投票結果: 新人研修プログラムに追加したい内容は？',
-    content: `## 🏆 投票結果発表
-
-**元の投稿**: 新人研修プログラムに追加したい内容は？
-**投票期間**: 2025/1/3 ～ 2025/1/10
-
-### 🥇 最多得票
-**業界特有の専門知識** (102票 - 31.4%)
-
-### 📈 詳細結果
-
-🥇 **業界特有の専門知識**: 102票 (31.4%)
-🥈 **デジタル基礎スキル（Excel、PowerPoint等）**: 85票 (26.2%)
-🥉 **コミュニケーション研修**: 67票 (20.6%)
-📊 **チームワーク・協調性研修**: 43票 (13.2%)
-📊 **ビジネスマナー研修**: 28票 (8.6%)
-
-### 📊 投票統計
-- **総投票数**: 325票
-- **参加率**: 81.3%
-- **投票方式**: 単一選択
-
-### 💭 分析コメント
-
-✅ **高い参加率**: 81.3%の参加率で、組織の意見が十分に反映された投票となりました。
-
-📈 **バランスの取れた結果**: 適度な差で1位が決定しました。組織内での健全な議論が行われた証拠です。
-
-**業界特有の専門知識**が最多票を獲得したことから、新入社員に対する現場で即戦力となる実践的なスキル習得への期待が高いことが分かります。一方で、**デジタル基礎スキル**も僅差で2位となっており、現代の業務環境に必要な基礎的なIT リテラシーの重要性も認識されています。
-
-**コミュニケーション研修**が3位に入ったことは、チーム連携を重視する職場文化の表れと言えるでしょう。総じて、実践的なスキルと基礎的な能力のバランスを重視する組織の姿勢が見て取れます。
-
----
-*この結果は投票期限終了時に自動生成されました*`,
-    author: 'system',
-    timestamp: new Date('2025-01-11T00:01:00'), // 期限終了直後
-    createdDate: new Date('2025-01-11T00:01:00'),
-    votingDeadline: null,
-    isUrgent: false,
-    visibility: 'organization',
-    tags: ['投票結果', '自動生成', '新人研修', '人材育成'],
-    comments: [],
-    pollResult: {
-      totalVotes: 325,
-      winnerOption: { id: 'exp-opt-3', text: '業界特有の専門知識', emoji: '📚', votes: 102 },
-      participationRate: 81.3,
-      results: [
-        { option: { id: 'exp-opt-3', text: '業界特有の専門知識', emoji: '📚', votes: 102 }, votes: 102, percentage: 31.4 },
-        { option: { id: 'exp-opt-1', text: 'デジタル基礎スキル（Excel、PowerPoint等）', emoji: '💻', votes: 85 }, votes: 85, percentage: 26.2 },
-        { option: { id: 'exp-opt-2', text: 'コミュニケーション研修', emoji: '💬', votes: 67 }, votes: 67, percentage: 20.6 },
-        { option: { id: 'exp-opt-4', text: 'チームワーク・協調性研修', emoji: '🤝', votes: 43 }, votes: 43, percentage: 13.2 },
-        { option: { id: 'exp-opt-5', text: 'ビジネスマナー研修', emoji: '👔', votes: 28 }, votes: 28, percentage: 8.6 }
-      ]
-    },
-    originalPollId: 'poll-expired-1',
-    originalPostId: 'freespace-post-expired-1'
-  },
   
   // 元の投稿（期限切れ）
   {
@@ -1173,6 +1112,9 @@ export const demoPosts: Post[] = [
       registrationDeadline: new Date('2025-01-25T17:00:00')
     }
   },
+  
+  // Add freevoice demo posts (医療介護系法人向け)
+  ...freevoiceDemoPosts,
   
   // Add project-level demo posts
   ...projectDemoPosts,
