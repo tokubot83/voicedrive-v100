@@ -644,6 +644,56 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
     </div>
   );
 
+  const renderReminderStatus = () => {
+    if (!reminderStatus || !employeeProfile) return null;
+
+    const { reminderSchedule, nextInterviewDue, isOverdue } = reminderStatus;
+
+    return (
+      <div className={`mb-6 p-4 rounded-lg border ${
+        isOverdue 
+          ? 'bg-red-50 border-red-200' 
+          : nextInterviewDue 
+            ? 'bg-blue-50 border-blue-200'
+            : 'bg-green-50 border-green-200'
+      }`}>
+        <h3 className="font-semibold text-lg mb-2 flex items-center">
+          {isOverdue ? '⚠️' : nextInterviewDue ? '📅' : '✅'} 面談スケジュール状況
+        </h3>
+        
+        {isOverdue && (
+          <div className="text-red-700 font-medium mb-2">
+            面談期限が{reminderSchedule?.daysSinceOverdue}日超過しています！
+          </div>
+        )}
+        
+        {nextInterviewDue && (
+          <div className="space-y-1">
+            <div className="text-sm">
+              <strong>次回面談予定:</strong> {new Date(nextInterviewDue).toLocaleDateString('ja-JP')}
+            </div>
+            {employeeProfile.employmentStatus === 'new_employee' && (
+              <div className="text-xs text-blue-600">
+                新入職員月次面談（入職から{Math.floor((Date.now() - employeeProfile.hireDate.getTime()) / (1000 * 60 * 60 * 24))}日経過）
+              </div>
+            )}
+            {employeeProfile.employmentStatus === 'regular_employee' && (
+              <div className="text-xs text-blue-600">
+                年次定期面談
+              </div>
+            )}
+          </div>
+        )}
+
+        {!nextInterviewDue && !isOverdue && (
+          <div className="text-green-700 text-sm">
+            現在、定期面談の予定はありません
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderExistingBookings = () => {
     if (existingBookings.length === 0) return null;
 
@@ -656,6 +706,9 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
               • {new Date(booking.bookingDate).toLocaleDateString('ja-JP')} 
               {booking.timeSlot.startTime}-{booking.timeSlot.endTime}
               （{booking.status === 'confirmed' ? '確定' : '申請中'}）
+              <span className="ml-2 text-xs text-gray-500">
+                {interviewTypes.find(t => t.value === booking.interviewType)?.label}
+              </span>
             </div>
           ))}
         </div>
@@ -665,6 +718,7 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      {renderReminderStatus()}
       {renderExistingBookings()}
       
       <div className="mb-8">

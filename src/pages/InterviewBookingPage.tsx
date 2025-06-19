@@ -20,7 +20,7 @@ const InterviewBookingPage: React.FC = () => {
     console.log('Demo mode not available, using auth user');
   }
   
-  const bookingService = new InterviewBookingService();
+  const bookingService = InterviewBookingService.getInstance();
   const [existingBookings, setExistingBookings] = useState<InterviewBooking[]>([]);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -36,7 +36,7 @@ const InterviewBookingPage: React.FC = () => {
     
     setLoading(true);
     try {
-      const bookings = await bookingService.getEmployeeBookings(activeUser.id);
+      const bookings = await bookingService.getEmployeeInterviewHistory(activeUser.id);
       setExistingBookings(bookings);
     } catch (error) {
       console.error('Failed to load bookings:', error);
@@ -68,6 +68,19 @@ const InterviewBookingPage: React.FC = () => {
 
   const getInterviewTypeLabel = (type: string) => {
     const typeLabels: Record<string, string> = {
+      // 新しい医療介護系面談種別
+      new_employee_monthly: '新入職員月次面談',
+      regular_annual: '年次定期面談',
+      management_biannual: '管理職面談',
+      ad_hoc: '随時面談',
+      incident_followup: 'インシデント後面談',
+      return_to_work: '復職面談',
+      career_development: 'キャリア開発面談',
+      stress_care: 'ストレスケア面談',
+      performance_review: '人事評価面談',
+      grievance: '苦情・相談面談',
+      exit_interview: '退職面談',
+      // 旧システム互換
       regular: '定期面談',
       career: 'キャリア相談',
       concern: '悩み相談',
@@ -176,15 +189,15 @@ const InterviewBookingPage: React.FC = () => {
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
                               <h3 className="font-semibold text-white">
-                                {getInterviewTypeLabel(booking.type)}
+                                {getInterviewTypeLabel(booking.interviewType)}
                               </h3>
                               {getStatusBadge(booking.status)}
                             </div>
                             
                             <div className="space-y-1 text-sm text-gray-300">
-                              <p>📅 {new Date(booking.scheduledDate).toLocaleDateString('ja-JP')} {booking.timeSlot.label}</p>
-                              <p>📂 カテゴリ: {getCategoryLabel(booking.category)}</p>
-                              <p>👤 担当者: {booking.interviewer}</p>
+                              <p>📅 {new Date(booking.bookingDate).toLocaleDateString('ja-JP')} {booking.timeSlot.startTime}-{booking.timeSlot.endTime}</p>
+                              <p>📂 カテゴリ: {getCategoryLabel(booking.interviewCategory)}</p>
+                              <p>👤 担当者: {booking.interviewerName || '調整中'}</p>
                               {booking.description && (
                                 <p className="text-gray-400 mt-2">📝 {booking.description}</p>
                               )}
@@ -246,23 +259,25 @@ const InterviewBookingPage: React.FC = () => {
                       <li>• 平日 13:40〜16:50</li>
                       <li>• 1回30分間</li>
                       <li>• 5枠/日（最大）</li>
+                      <li>• 夜勤者：午前中も対応可</li>
                     </ul>
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-2">📅 予約制限</h3>
+                    <h3 className="font-semibold mb-2">📅 予約制限（雇用状況別）</h3>
                     <ul className="space-y-1">
-                      <li>• 最大30日先まで予約可能</li>
-                      <li>• 月2回まで</li>
-                      <li>• 前回面談から7日以上空ける</li>
+                      <li>• 新入職員：月1回必須</li>
+                      <li>• 一般職員：年1回定期</li>
+                      <li>• 管理職：半年1回</li>
+                      <li>• 随時面談：四半期2回まで</li>
                     </ul>
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-2">💡 面談内容例</h3>
+                    <h3 className="font-semibold mb-2">🩺 医療従事者向け面談</h3>
                     <ul className="space-y-1">
-                      <li>• キャリア相談</li>
-                      <li>• 職場の悩み</li>
-                      <li>• スキル開発</li>
-                      <li>• 人間関係</li>
+                      <li>• ストレスケア相談</li>
+                      <li>• インシデント後フォロー</li>
+                      <li>• キャリア開発支援</li>
+                      <li>• 復職時面談</li>
                     </ul>
                   </div>
                   <div>

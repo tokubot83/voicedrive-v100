@@ -199,7 +199,7 @@ const GenerationalAnalysisPage: React.FC = () => {
               <span className="text-sm">ホーム</span>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-white">世代間分析ダッシュボード</h1>
+              <h1 className="text-2xl font-bold text-white">世代間分析（全体）</h1>
               <p className="text-gray-400 text-sm">全施設・全部門の世代間特性分析</p>
             </div>
           </div>
