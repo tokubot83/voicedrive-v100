@@ -4,18 +4,19 @@ import AutoPollResultService from './AutoPollResultService';
 
 export class PollExpirationChecker {
   private static instance: PollExpirationChecker;
-  private autoPollResultService: AutoPollResultService;
+  private autoPollResultService: any = null; // 一時的に無効化
   private checkInterval: number = 60000; // 1分間隔でチェック
   private intervalId: NodeJS.Timeout | null = null;
 
   private constructor() {
-    try {
-      this.autoPollResultService = AutoPollResultService.getInstance();
-    } catch (error) {
-      console.error('Failed to initialize AutoPollResultService:', error);
-      // フォールバック実装
-      this.autoPollResultService = new (AutoPollResultService as any)();
-    }
+    // AutoPollResultService の初期化を一時的に無効化
+    // try {
+    //   this.autoPollResultService = AutoPollResultService.getInstance();
+    // } catch (error) {
+    //   console.error('Failed to initialize AutoPollResultService:', error);
+    //   // フォールバック実装
+    //   this.autoPollResultService = new (AutoPollResultService as any)();
+    // }
   }
 
   public static getInstance(): PollExpirationChecker {
@@ -63,19 +64,21 @@ export class PollExpirationChecker {
     posts: Post[],
     addPosts: (newPosts: Post[]) => void
   ): void {
-    const newResultPosts = this.autoPollResultService.checkAndProcessExpiredPolls(polls, posts);
+    // 一時的に無効化
+    // const newResultPosts = this.autoPollResultService.checkAndProcessExpiredPolls(polls, posts);
     
-    if (newResultPosts.length > 0) {
-      console.log(`Generated ${newResultPosts.length} poll result posts`);
-      addPosts(newResultPosts);
+    // if (newResultPosts.length > 0) {
+    //   console.log(`Generated ${newResultPosts.length} poll result posts`);
+    //   addPosts(newResultPosts);
       
-      // アーカイブ処理
-      polls.forEach(poll => {
-        if (!poll.isActive && new Date(poll.deadline) <= new Date()) {
-          this.autoPollResultService.archiveExpiredPoll(poll);
-        }
-      });
-    }
+    //   // アーカイブ処理
+    //   polls.forEach(poll => {
+    //     if (!poll.isActive && new Date(poll.deadline) <= new Date()) {
+    //       this.autoPollResultService.archiveExpiredPoll(poll);
+    //     }
+    //   });
+    // }
+    console.log('PollExpirationChecker: checkExpiredPolls temporarily disabled');
   }
 
   /**
@@ -86,13 +89,16 @@ export class PollExpirationChecker {
     posts: Post[],
     addPosts: (newPosts: Post[]) => void
   ): number {
-    const newResultPosts = this.autoPollResultService.checkAndProcessExpiredPolls(polls, posts);
+    // 一時的に無効化
+    // const newResultPosts = this.autoPollResultService.checkAndProcessExpiredPolls(polls, posts);
     
-    if (newResultPosts.length > 0) {
-      addPosts(newResultPosts);
-    }
+    // if (newResultPosts.length > 0) {
+    //   addPosts(newResultPosts);
+    // }
     
-    return newResultPosts.length;
+    // return newResultPosts.length;
+    console.log('PollExpirationChecker: manualCheck temporarily disabled');
+    return 0;
   }
 
   /**
