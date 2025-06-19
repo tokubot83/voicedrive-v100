@@ -9,7 +9,13 @@ export class PollExpirationChecker {
   private intervalId: NodeJS.Timeout | null = null;
 
   private constructor() {
-    this.autoPollResultService = AutoPollResultService.getInstance();
+    try {
+      this.autoPollResultService = AutoPollResultService.getInstance();
+    } catch (error) {
+      console.error('Failed to initialize AutoPollResultService:', error);
+      // フォールバック実装
+      this.autoPollResultService = new (AutoPollResultService as any)();
+    }
   }
 
   public static getInstance(): PollExpirationChecker {

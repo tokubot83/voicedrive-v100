@@ -62,7 +62,13 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
 
   // 期限チェッカーの初期化と実行
   useEffect(() => {
-    const pollChecker = PollExpirationChecker.getInstance();
+    let pollChecker;
+    try {
+      pollChecker = PollExpirationChecker.getInstance();
+    } catch (error) {
+      console.error('Failed to initialize PollExpirationChecker:', error);
+      return; // エラーの場合は早期リターン
+    }
     
     // 初期投稿データの設定
     const initialPostsData = isDemoMode ? 
@@ -89,7 +95,9 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
     
     // クリーンアップ
     return () => {
-      pollChecker.stopPeriodicCheck();
+      if (pollChecker && typeof pollChecker.stopPeriodicCheck === 'function') {
+        pollChecker.stopPeriodicCheck();
+      }
     };
   }, [isDemoMode, polls]);
   
