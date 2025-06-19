@@ -10,8 +10,14 @@ import {
   BookingManagementData,
   BookingFilter,
   InterviewNotification,
-  NotificationType
+  NotificationType,
+  MedicalEmployeeProfile,
+  InterviewReminderConfig,
+  EmploymentStatus,
+  InterviewType
 } from '../types/interview';
+import InterviewReminderService from './InterviewReminderService';
+import NotificationService from './NotificationService';
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 
 export class InterviewBookingService {
@@ -23,10 +29,18 @@ export class InterviewBookingService {
   private interviewers: Map<string, Interviewer> = new Map();
   private scheduleConfig: InterviewScheduleConfig;
   
+  // 新機能：リマインダーサービスとの連携
+  private reminderService: InterviewReminderService;
+  private notificationService: NotificationService;
+  
   private constructor() {
     this.initializeDefaultConfig();
     this.initializeDefaultInterviewers();
     this.generateDefaultTimeSlots();
+    
+    // 新機能サービスを初期化
+    this.reminderService = InterviewReminderService.getInstance();
+    this.notificationService = NotificationService.getInstance();
   }
   
   public static getInstance(): InterviewBookingService {
@@ -270,7 +284,7 @@ export class InterviewBookingService {
     };
   }
   
-  async completeInterview(
+  async conductInterview(
     bookingId: string,
     interviewerId: string,
     outcome: any,
@@ -365,14 +379,129 @@ export class InterviewBookingService {
     );
   }
   
+  // 予約制限チェック（医療従事者向け拡張版）
   private async checkBookingLimits(employeeId: string, request: BookingRequest): Promise<{
     allowed: boolean;
     reason?: string;
   }> {
+    // 職員プロフィールを取得
+    const employeeProfile = this.reminderService.getEmployeeProfile(employeeId);
+    
     const userBookings = Array.from(this.bookings.values()).filter(
-      b => b.employeeId === employeeId
+      booking => booking.employeeId === employeeId
     );
     
+    if (employeeProfile) {
+      // 医療従事者向けの詳細なルールチェック
+      return this.checkMedicalStaffBookingLimits(employeeProfile, request, userBookings);
+    } else {
+      // 従来のルールチェック（後方互換性）
+      return this.checkLegacyBookingLimits(userBookings, request);
+    }
+  }
+
+  // 医療従事者向けの予約制限チェック
+  private async checkMedicalStaffBookingLimits(
+    profile: MedicalEmployeeProfile, 
+    request: BookingRequest, 
+    userBookings: InterviewBooking[]
+  ): Promise<{ allowed: boolean; reason?: string }> {
+    // 除外条件チェック
+    if (profile.specialCircumstances.isOnLeave) {
+      return { allowed: false, reason: '休職中のため面談予約はできません' };
+    }
+    
+    if (profile.specialCircumstances.isRetiring) {
+      return { allowed: false, reason: '退職手続き中のため新たな面談予約はできません' };
+    }
+    
+    // 産休・育休中のチェック
+    if (profile.specialCircumstances.isOnMaternityLeave) {
+      if (profile.specialCircumstances.returnToWorkDate) {
+        const oneMonthBeforeReturn = new Date(profile.specialCircumstances.returnToWorkDate);
+        oneMonthBeforeReturn.setMonth(oneMonthBeforeReturn.getMonth() - 1);
+        if (new Date() < oneMonthBeforeReturn) {
+          return { allowed: false, reason: '復職1ヶ月前まで面談予約はできません' };
+        }
+      } else {
+        return { allowed: false, reason: '産休・育休中のため面談予約はできません' };
+      }
+    }
+
+    // 雇用状況別のルールチェック
+    const now = new Date();
+    
+    if (profile.employmentStatus === 'new_employee') {
+      // 新入職員のルール
+      const thisMonth = now.getMonth();
+      const thisYear = now.getFullYear();
+      const thisMonthBookings = userBookings.filter(booking => {
+        const bookingMonth = booking.bookingDate.getMonth();
+        const bookingYear = booking.bookingDate.getFullYear();
+        return bookingMonth === thisMonth && bookingYear === thisYear;
+      });
+      
+      // 必須面談タイプかチェック
+      if (request.interviewType === 'new_employee_monthly') {
+        if (thisMonthBookings.some(b => b.interviewType === 'new_employee_monthly')) {
+          return { allowed: false, reason: '今月の必須面談は既に予約済みです' };
+        }
+      } else {
+        // 随時面談の制限
+        const adhocBookings = thisMonthBookings.filter(b => b.interviewType === 'ad_hoc');
+        if (adhocBookings.length >= 1) {
+          return { allowed: false, reason: '新入職員の随時面談は月1回までです' };
+        }
+      }
+    } else if (profile.employmentStatus === 'regular_employee') {
+      // 一般職員のルール
+      if (request.interviewType === 'regular_annual') {
+        const thisYear = now.getFullYear();
+        const thisYearBookings = userBookings.filter(booking => 
+          booking.bookingDate.getFullYear() === thisYear && 
+          booking.interviewType === 'regular_annual'
+        );
+        
+        if (thisYearBookings.length >= 1) {
+          return { allowed: false, reason: '年次定期面談は年1回までです' };
+        }
+      } else {
+        // 随時面談の制限（四半期2回まで）
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+        
+        const recentAdhocBookings = userBookings.filter(booking => 
+          booking.bookingDate >= threeMonthsAgo && 
+          booking.interviewType === 'ad_hoc'
+        );
+        
+        if (recentAdhocBookings.length >= 2) {
+          return { allowed: false, reason: '随時面談は四半期2回までです' };
+        }
+      }
+    } else if (profile.employmentStatus === 'management') {
+      // 管理職のルール（半年に1回）
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      
+      const recentManagementBookings = userBookings.filter(booking => 
+        booking.bookingDate >= sixMonthsAgo && 
+        booking.interviewType === 'management_biannual'
+      );
+      
+      if (request.interviewType === 'management_biannual' && recentManagementBookings.length >= 1) {
+        return { allowed: false, reason: '管理職面談は半年に1回までです' };
+      }
+    }
+    
+    return { allowed: true };
+  }
+
+  // 従来の予約制限チェック（後方互換性）
+  private async checkLegacyBookingLimits(
+    userBookings: InterviewBooking[], 
+    request: BookingRequest
+  ): Promise<{ allowed: boolean; reason?: string }> {
     // 月の予約上限チェック
     const thisMonthBookings = userBookings.filter(b => 
       this.isSameMonth(b.createdAt, new Date())
@@ -669,5 +798,137 @@ export class InterviewBookingService {
   private async scheduleFollowUpReminder(booking: InterviewBooking, followUpDate: Date): Promise<void> {
     // フォローアップリマインダーの実装（簡略化）
     console.log(`Scheduling follow-up reminder for booking ${booking.id} on ${followUpDate}`);
+  }
+
+  // === 新機能：医療従事者向け面談管理 ===
+  
+  // 面談完了処理（拡張版）
+  async completeInterview(
+    bookingId: string, 
+    outcome: any, 
+    adminId: string, 
+    adminLevel: PermissionLevel
+  ): Promise<BookingResponse> {
+    if (adminLevel < PermissionLevel.LEVEL_6) {
+      return { success: false, message: '面談完了処理の権限がありません' };
+    }
+    
+    const booking = this.bookings.get(bookingId);
+    if (!booking) {
+      return { success: false, message: '予約が見つかりません' };
+    }
+    
+    // 面談完了処理
+    booking.status = 'completed';
+    booking.conductedAt = new Date();
+    booking.outcome = outcome;
+    booking.lastModified = new Date();
+    booking.modifiedBy = adminId;
+    
+    // リマインダーサービスに面談完了を通知
+    await this.reminderService.onInterviewCompleted(
+      booking.employeeId, 
+      booking.interviewType, 
+      booking.conductedAt
+    );
+    
+    return {
+      success: true,
+      message: '面談が完了しました',
+      bookingId
+    };
+  }
+
+  // 職員プロフィール管理
+  async updateEmployeeProfile(profile: MedicalEmployeeProfile): Promise<void> {
+    await this.reminderService.updateEmployeeProfile(profile);
+  }
+
+  // 職員の面談履歴取得
+  async getEmployeeInterviewHistory(employeeId: string): Promise<InterviewBooking[]> {
+    return Array.from(this.bookings.values())
+      .filter(booking => booking.employeeId === employeeId)
+      .sort((a, b) => b.bookingDate.getTime() - a.bookingDate.getTime());
+  }
+
+  // 職員の次回面談予定日取得
+  async getNextInterviewSchedule(employeeId: string): Promise<Date | null> {
+    return this.reminderService.calculateNextInterviewDate(employeeId);
+  }
+
+  // リマインダー状況取得
+  async getReminderStatus(employeeId: string): Promise<any> {
+    const reminderSchedule = await this.reminderService.generateReminderSchedule(employeeId);
+    const profile = this.reminderService.getEmployeeProfile(employeeId);
+    
+    return {
+      profile,
+      reminderSchedule,
+      nextInterviewDue: reminderSchedule?.nextInterviewDue,
+      isOverdue: reminderSchedule?.isOverdue
+    };
+  }
+
+  // 今日送信すべきリマインダー取得
+  async getTodaysReminders(): Promise<any[]> {
+    const reminders = await this.reminderService.getTodaysReminders();
+    
+    // 通知サービスに送信
+    const notificationPromises = reminders.map(async (reminder) => {
+      const profile = this.reminderService.getEmployeeProfile(reminder.employeeId);
+      if (!profile) return;
+
+      for (const reminderDate of reminder.reminderDates) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayEnd = new Date(today);
+        todayEnd.setHours(23, 59, 59, 999);
+        
+        if (reminderDate.date >= today && reminderDate.date <= todayEnd) {
+          await this.notificationService.sendInterviewReminder(
+            reminder.employeeId,
+            reminderDate.type as any,
+            {
+              employeeName: profile.employeeName,
+              interviewType: this.getInterviewTypeDisplayName(reminderDate.type),
+              dueDate: reminder.nextInterviewDue,
+              daysBefore: Math.ceil((reminder.nextInterviewDue.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+              daysOverdue: reminder.daysSinceOverdue
+            }
+          );
+        }
+      }
+    });
+
+    await Promise.all(notificationPromises);
+    return reminders;
+  }
+
+  // 面談タイプの表示名を取得
+  private getInterviewTypeDisplayName(type: string): string {
+    const typeNames: Record<string, string> = {
+      'INTERVIEW_REMINDER_FIRST': '初回面談',
+      'INTERVIEW_REMINDER_MONTHLY': '月次面談', 
+      'INTERVIEW_REMINDER_ANNUAL': '年次面談',
+      'INTERVIEW_OVERDUE': '期限超過面談'
+    };
+    return typeNames[type] || '面談';
+  }
+
+  // 部署別カスタマイズ適用
+  async applyDepartmentCustomizations(department: string): Promise<void> {
+    this.reminderService.applyDepartmentCustomizations(department);
+  }
+
+  // 一括リマインダー送信（日次バッチ処理）
+  async runDailyReminderBatch(): Promise<void> {
+    console.log('🔄 日次リマインダーバッチ処理を開始...');
+    
+    try {
+      const todaysReminders = await this.getTodaysReminders();
+      console.log(`✅ 本日のリマインダー処理完了: ${todaysReminders.length}件`);
+    } catch (error) {
+      console.error('❌ 日次リマインダーバッチ処理でエラーが発生:', error);
+    }
   }
 }

@@ -88,6 +88,9 @@ import GenerationalAnalysisPage from '../pages/GenerationalAnalysisPage';
 // Hierarchical Analysis
 import HierarchicalAnalysisPage from '../pages/HierarchicalAnalysisPage';
 
+// User Analysis
+import UserAnalysisPage from '../pages/UserAnalysisPage';
+
 // Error pages
 import NotFoundPage from '../pages/NotFoundPage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
