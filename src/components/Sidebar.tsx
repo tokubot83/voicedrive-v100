@@ -77,6 +77,7 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
     { id: 'strategic_overview', path: '/strategic-overview', icon: '🏛️', label: '戦略概要', section: 'facility', menuKey: 'strategic_dashboard' },
     { id: 'budget_planning', path: '/budget-planning', icon: '💸', label: '予算計画', section: 'facility', menuKey: 'budget_planning' },
     { id: 'analytics', path: '/analytics', icon: '📊', label: '分析', section: 'facility', menuKey: 'analytics' },
+    { id: 'user_analysis', path: '/user-analysis', icon: '👤', label: 'ユーザー分析', section: 'facility', requiredLevel: 7 },
     { id: 'generational_analysis', path: '/generational-analysis', icon: '👥', label: '世代間分析（全体）', section: 'facility', requiredLevel: 7 },
     { id: 'hierarchical_analysis', path: '/hierarchical-analysis', icon: '🏢', label: '階層間分析（全体）', section: 'facility', requiredLevel: 7 },
     { id: 'executive_reports', path: '/executive-reports', icon: '📄', label: 'エグゼクティブレポート', section: 'facility', menuKey: 'executive_reports' },

@@ -378,9 +378,9 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
         
-        {/* User Analysis (Level 5+) */}
+        {/* User Analysis (Level 7+) */}
         <Route path="user-analysis" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
             <UserAnalysisPage />
           </ProtectedRoute>
         } />

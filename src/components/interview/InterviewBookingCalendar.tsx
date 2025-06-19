@@ -88,6 +88,8 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
 
   useEffect(() => {
     loadExistingBookings();
+    loadEmployeeProfile();
+    loadReminderStatus();
   }, [employeeId]);
 
   useEffect(() => {
@@ -96,12 +98,103 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
     }
   }, [selectedDates]);
 
+  useEffect(() => {
+    if (employeeProfile) {
+      updateAvailableInterviewTypes();
+    }
+  }, [employeeProfile]);
+
   const loadExistingBookings = async () => {
     try {
-      const bookings = await bookingService.getEmployeeBookings(employeeId);
+      const bookings = await bookingService.getEmployeeInterviewHistory(employeeId);
       setExistingBookings(bookings);
     } catch (err) {
       console.error('Failed to load existing bookings:', err);
+    }
+  };
+
+  const loadEmployeeProfile = async () => {
+    try {
+      const profile = reminderService.getEmployeeProfile(employeeId);
+      if (!profile) {
+        // プロフィールが存在しない場合、デモ用のプロフィールを作成
+        const demoProfile: MedicalEmployeeProfile = {
+          employeeId,
+          employeeName: `職員${employeeId}`,
+          hireDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000), // 1年前入職と仮定
+          employmentStatus: await reminderService.determineEmploymentStatus(employeeId, new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)),
+          department: '内科',
+          position: '看護師',
+          workPattern: 'day_shift',
+          specialCircumstances: {
+            isOnLeave: false,
+            isRetiring: false,
+            isOnMaternityLeave: false
+          },
+          interviewHistory: {
+            totalInterviews: 0,
+            mandatoryInterviewsCompleted: 0,
+            overdueCount: 0
+          }
+        };
+        await reminderService.updateEmployeeProfile(demoProfile);
+        setEmployeeProfile(demoProfile);
+      } else {
+        setEmployeeProfile(profile);
+      }
+    } catch (err) {
+      console.error('Failed to load employee profile:', err);
+    }
+  };
+
+  const loadReminderStatus = async () => {
+    try {
+      const status = await bookingService.getReminderStatus(employeeId);
+      setReminderStatus(status);
+    } catch (err) {
+      console.error('Failed to load reminder status:', err);
+    }
+  };
+
+  const updateAvailableInterviewTypes = () => {
+    if (!employeeProfile) return;
+
+    // 雇用状況に応じて利用可能な面談種別を決定
+    let available: InterviewType[] = ['ad_hoc', 'other']; // 基本的に随時面談は常に可能
+
+    switch (employeeProfile.employmentStatus) {
+      case 'new_employee':
+        available = ['new_employee_monthly', 'ad_hoc', 'stress_care', 'career_development', 'other'];
+        break;
+      case 'regular_employee':
+        available = ['regular_annual', 'ad_hoc', 'career_development', 'stress_care', 'performance_review', 'grievance', 'other'];
+        break;
+      case 'management':
+        available = ['management_biannual', 'ad_hoc', 'career_development', 'performance_review', 'other'];
+        break;
+      case 'on_leave':
+        available = ['return_to_work']; // 休職中は復職面談のみ
+        break;
+      case 'retiring':
+        available = ['exit_interview']; // 退職手続き中は退職面談のみ
+        break;
+    }
+
+    // 特別面談は状況に応じて追加
+    if (employeeProfile.specialCircumstances.isOnMaternityLeave && 
+        employeeProfile.specialCircumstances.returnToWorkDate) {
+      const oneMonthBefore = new Date(employeeProfile.specialCircumstances.returnToWorkDate);
+      oneMonthBefore.setMonth(oneMonthBefore.getMonth() - 1);
+      if (new Date() >= oneMonthBefore) {
+        available.push('return_to_work');
+      }
+    }
+
+    setAvailableInterviewTypes(available);
+
+    // デフォルトの面談種別を設定
+    if (available.length > 0 && !available.includes(interviewType)) {
+      setInterviewType(available[0]);
     }
   };
 
@@ -199,6 +292,17 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const getEmploymentStatusLabel = (status: EmploymentStatus): string => {
+    const labels: Record<EmploymentStatus, string> = {
+      'new_employee': '新入職員（1年未満）',
+      'regular_employee': '一般職員（1年以上）',
+      'management': '管理職・リーダー職',
+      'on_leave': '休職中',
+      'retiring': '退職手続き中'
+    };
+    return labels[status] || status;
   };
 
   const renderDatePicker = () => {
@@ -378,7 +482,9 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
       <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
         <h3 className="font-semibold text-lg mb-4">面談の種類</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {interviewTypes.map(type => (
+          {interviewTypes
+            .filter(type => availableInterviewTypes.includes(type.value as InterviewType))
+            .map(type => (
             <button
               key={type.value}
               onClick={() => setInterviewType(type.value as InterviewType)}
@@ -404,6 +510,20 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
             </button>
           ))}
         </div>
+        
+        {/* 雇用状況による制限の説明 */}
+        {employeeProfile && (
+          <div className="mt-4 p-3 bg-blue-100 rounded-lg">
+            <div className="text-sm text-blue-800">
+              <strong>あなたの雇用状況:</strong> {getEmploymentStatusLabel(employeeProfile.employmentStatus)}
+              {employeeProfile.employmentStatus === 'new_employee' && (
+                <div className="mt-1 text-xs">
+                  入職から{Math.floor((Date.now() - employeeProfile.hireDate.getTime()) / (1000 * 60 * 60 * 24))}日経過
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="bg-green-50 p-6 rounded-lg border border-green-200">
