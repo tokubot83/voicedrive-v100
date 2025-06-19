@@ -1,5 +1,6 @@
 import React from 'react';
 import InterviewManagementDashboard from '../components/interview/InterviewManagementDashboard';
+import { MobileFooter } from '../components/layout/MobileFooter';
 
 const InterviewManagementPage: React.FC = () => {
   return (
@@ -22,6 +23,9 @@ const InterviewManagementPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Mobile Footer */}
+      <MobileFooter />
     </div>
   );
 };

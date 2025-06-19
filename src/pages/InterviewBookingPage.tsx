@@ -4,6 +4,7 @@ import { InterviewBookingService } from '../services/InterviewBookingService';
 import InterviewBookingCalendar from '../components/interview/InterviewBookingCalendar';
 import { useAuth } from '../hooks/useAuth';
 import { useDemoMode } from '../components/demo/DemoModeController';
+import { MobileFooter } from '../components/layout/MobileFooter';
 
 const InterviewBookingPage: React.FC = () => {
   const { currentUser } = useAuth();
@@ -329,6 +330,9 @@ const InterviewBookingPage: React.FC = () => {
           </div>
         </div>
       )}
+      
+      {/* Mobile Footer */}
+      <MobileFooter />
     </div>
   );
 };

@@ -11,8 +11,8 @@ interface TabProviderProps {
 
 export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
   const [tabState, setTabState] = useState<TabState>({
-    activeMainTab: 'home',
-    activeSubFilter: null
+    activeMainTab: 'improvement',
+    activeSubFilter: 'new'
   });
 
   // メインタブの変更ハンドラー

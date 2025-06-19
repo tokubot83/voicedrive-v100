@@ -12,7 +12,6 @@ interface MainTabsProps {
 
 // メインタブの定義（基本タブ）
 const baseTabs: MainTab[] = [
-  { id: 'home', label: 'ホーム', icon: '🏠', hasSubFilters: false },
   { id: 'improvement', label: 'アイデアボイス', icon: '💡', hasSubFilters: true },
   { id: 'community', label: 'フリーボイス', icon: '💬', hasSubFilters: true },
   { id: 'whistleblowing', label: 'コンプライアンス窓口', icon: '🚨', hasSubFilters: true }
@@ -79,9 +78,6 @@ export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) =>
     if (tabId === 'whistleblowing') {
       // コンプライアンス窓口は専用ページに遷移
       navigate('/whistleblowing');
-    } else if (tabId === 'home') {
-      // ホームページに遷移
-      navigate('/');
     } else if (tabId === 'approvals') {
       // 承認・対応ページに遷移
       navigate('/approvals');
