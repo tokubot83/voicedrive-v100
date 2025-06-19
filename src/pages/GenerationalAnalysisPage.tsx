@@ -213,10 +213,9 @@ const GenerationalAnalysisPage: React.FC = () => {
         </div>
       </header>
 
+      {/* 統計カードレイアウト（法人統合ダッシュボードと同じ） */}
       <div className="p-6">
-
-          {/* 統計カードレイアウト（法人統合ダッシュボードと同じ） */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* 分析対象カード */}
             <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
               <div className="text-4xl mb-3">👥</div>
@@ -265,12 +264,9 @@ const GenerationalAnalysisPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
       {/* タブナビゲーション */}
       <div className="bg-gray-800/50 p-4">
-        <div className="max-w-7xl mx-auto">
           <div className="flex space-x-1 bg-gray-900/50 rounded-xl p-1">
             {[
               { id: 'overview', label: '概要', icon: '📊' },

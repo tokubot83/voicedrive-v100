@@ -219,7 +219,6 @@ const HierarchicalAnalysisPage: React.FC = () => {
       </header>
 
       <div className="p-6">
-        <div className="max-w-7xl mx-auto">
 
           {/* 統計カードレイアウト（法人統合ダッシュボードと同じ） */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -271,12 +270,9 @@ const HierarchicalAnalysisPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
       {/* タブナビゲーション */}
       <div className="bg-gray-800/50 p-4">
-        <div className="max-w-7xl mx-auto">
           <div className="flex space-x-1 bg-gray-900/50 rounded-xl p-1">
             {[
               { id: 'overview', label: '概要', icon: '📊' },
@@ -298,12 +294,10 @@ const HierarchicalAnalysisPage: React.FC = () => {
               </button>
             ))}
           </div>
-        </div>
       </div>
 
       {/* タブコンテンツ */}
       <div className="p-6">
-        <div className="max-w-7xl mx-auto">
           {selectedTab === 'overview' && analysisResult && (
             <div className="space-y-6">
               {/* 階層構成グリッド */}
@@ -636,7 +630,6 @@ const HierarchicalAnalysisPage: React.FC = () => {
               </div>
             </div>
           )}
-        </div>
       </div>
     </div>
   );
