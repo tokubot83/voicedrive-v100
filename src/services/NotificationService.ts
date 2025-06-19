@@ -12,7 +12,12 @@ export type NotificationType =
   | 'DEADLINE_REMINDER'
   | 'ESCALATION'
   | 'POLL_RESULT'
-  | 'POLL_EXPIRED';
+  | 'POLL_EXPIRED'
+  | 'INTERVIEW_REMINDER_FIRST'      // 新入職員初回面談リマインダー
+  | 'INTERVIEW_REMINDER_MONTHLY'    // 新入職員月次面談リマインダー
+  | 'INTERVIEW_REMINDER_ANNUAL'     // 一般職員年次面談リマインダー
+  | 'INTERVIEW_OVERDUE'             // 面談期限超過通知
+  | 'INTERVIEW_AUTO_SCHEDULED';     // 自動スケジュール面談通知
 
 export interface NotificationRecipient {
   id: string;
@@ -188,7 +193,9 @@ export class NotificationService {
     // タイプ別集計
     const types: NotificationType[] = [
       'APPROVAL_REQUIRED', 'MEMBER_SELECTION', 'VOTE_REQUIRED',
-      'EMERGENCY_ACTION', 'PROJECT_UPDATE', 'DEADLINE_REMINDER', 'ESCALATION'
+      'EMERGENCY_ACTION', 'PROJECT_UPDATE', 'DEADLINE_REMINDER', 'ESCALATION',
+      'INTERVIEW_REMINDER_FIRST', 'INTERVIEW_REMINDER_MONTHLY', 
+      'INTERVIEW_REMINDER_ANNUAL', 'INTERVIEW_OVERDUE', 'INTERVIEW_AUTO_SCHEDULED'
     ];
     
     types.forEach(type => {
@@ -246,6 +253,10 @@ export class NotificationService {
   private determineUrgency(type: NotificationType, dueDate?: Date): NotificationUrgency {
     if (type === 'EMERGENCY_ACTION') return 'URGENT';
     if (type === 'ESCALATION') return 'URGENT';
+    if (type === 'INTERVIEW_OVERDUE') return 'URGENT';
+    
+    if (type === 'INTERVIEW_REMINDER_FIRST') return 'HIGH';
+    if (type === 'INTERVIEW_AUTO_SCHEDULED') return 'HIGH';
     
     if (dueDate) {
       const hoursUntilDue = (dueDate.getTime() - Date.now()) / (1000 * 60 * 60);
@@ -485,6 +496,27 @@ export class NotificationService {
       project_rejected: (data) => ({
         subject: 'プロジェクトが却下されました',
         body: `プロジェクトID: ${data.workflow.projectId}が却下されました。理由: ${data.stage.comments}`
+      }),
+      // 面談リマインダー用テンプレート
+      interview_reminder_first: (data) => ({
+        subject: '🩺 新入職員初回面談のご案内',
+        body: `入職おめでとうございます。${data.daysBefore}日後に初回面談が予定されています。人事部までご連絡ください。`
+      }),
+      interview_reminder_monthly: (data) => ({
+        subject: '📅 月次面談のリマインダー',
+        body: `新入職員月次面談が${data.daysBefore}日後に予定されています。忘れずに予約してください。`
+      }),
+      interview_reminder_annual: (data) => ({
+        subject: '📋 年次面談のお知らせ',
+        body: `年次定期面談の時期になりました。${data.daysBefore}日以内に人事部までご連絡ください。`
+      }),
+      interview_overdue: (data) => ({
+        subject: '⚠️ 面談期限超過のお知らせ',
+        body: `面談の期限が${data.daysOverdue}日過ぎています。至急人事部までご連絡ください。`
+      }),
+      interview_auto_scheduled: (data) => ({
+        subject: '🔔 面談が自動スケジュールされました',
+        body: `${data.interviewType}が${data.scheduledDate}に自動スケジュールされました。詳細は人事部までお問い合わせください。`
       })
     };
     
@@ -562,6 +594,126 @@ export class NotificationService {
     });
 
     console.log('✅ デモ通知システム初期化完了 - 田中太郎1on1プロジェクト緊急メンバー選出通知');
+  }
+
+  // 面談リマインダー送信メソッド
+  async sendInterviewReminder(
+    employeeId: string, 
+    reminderType: 'INTERVIEW_REMINDER_FIRST' | 'INTERVIEW_REMINDER_MONTHLY' | 'INTERVIEW_REMINDER_ANNUAL' | 'INTERVIEW_OVERDUE',
+    data: {
+      employeeName: string;
+      interviewType: string;
+      dueDate: Date;
+      daysBefore?: number;
+      daysOverdue?: number;
+      additionalInfo?: string;
+    }
+  ): Promise<void> {
+    const actions = this.getInterviewReminderActions(reminderType);
+    
+    const notification = await this.createActionableNotification(employeeId, reminderType, {
+      title: this.getInterviewReminderTitle(reminderType, data),
+      message: this.getInterviewReminderMessage(reminderType, data),
+      dueDate: data.dueDate,
+      actions,
+      metadata: {
+        urgencyLevel: reminderType === 'INTERVIEW_OVERDUE' ? 4 : 2
+      }
+    });
+
+    console.log(`✅ 面談リマインダー送信完了: ${employeeId} - ${reminderType}`);
+  }
+
+  private getInterviewReminderTitle(
+    type: 'INTERVIEW_REMINDER_FIRST' | 'INTERVIEW_REMINDER_MONTHLY' | 'INTERVIEW_REMINDER_ANNUAL' | 'INTERVIEW_OVERDUE',
+    data: any
+  ): string {
+    switch (type) {
+      case 'INTERVIEW_REMINDER_FIRST':
+        return '🩺 新入職員初回面談のご案内';
+      case 'INTERVIEW_REMINDER_MONTHLY':
+        return '📅 月次面談のリマインダー';
+      case 'INTERVIEW_REMINDER_ANNUAL':
+        return '📋 年次面談のお知らせ';
+      case 'INTERVIEW_OVERDUE':
+        return '⚠️ 面談期限超過のお知らせ';
+      default:
+        return '面談のお知らせ';
+    }
+  }
+
+  private getInterviewReminderMessage(
+    type: 'INTERVIEW_REMINDER_FIRST' | 'INTERVIEW_REMINDER_MONTHLY' | 'INTERVIEW_REMINDER_ANNUAL' | 'INTERVIEW_OVERDUE',
+    data: any
+  ): string {
+    const dayText = data.daysBefore === 1 ? '明日' : `${data.daysBefore}日後`;
+    
+    switch (type) {
+      case 'INTERVIEW_REMINDER_FIRST':
+        return `${data.employeeName}さん、入職おめでとうございます。${dayText}に初回面談が予定されています。人事部までご連絡ください。`;
+      case 'INTERVIEW_REMINDER_MONTHLY':
+        return `新入職員月次面談が${dayText}に予定されています。忘れずに予約してください。`;
+      case 'INTERVIEW_REMINDER_ANNUAL':
+        return `年次定期面談の時期になりました。${data.daysBefore}日以内に人事部までご連絡ください。`;
+      case 'INTERVIEW_OVERDUE':
+        return `面談の期限が${data.daysOverdue}日過ぎています。至急人事部までご連絡ください。`;
+      default:
+        return '面談についてのお知らせです。';
+    }
+  }
+
+  private getInterviewReminderActions(
+    type: 'INTERVIEW_REMINDER_FIRST' | 'INTERVIEW_REMINDER_MONTHLY' | 'INTERVIEW_REMINDER_ANNUAL' | 'INTERVIEW_OVERDUE'
+  ): NotificationAction[] {
+    const commonActions: NotificationAction[] = [
+      {
+        id: 'book_interview',
+        label: '面談予約',
+        type: 'primary',
+        action: 'book_interview'
+      },
+      {
+        id: 'view_details',
+        label: '詳細確認',
+        type: 'secondary',
+        action: 'view'
+      }
+    ];
+
+    if (type === 'INTERVIEW_OVERDUE') {
+      commonActions.unshift({
+        id: 'urgent_contact',
+        label: '至急連絡',
+        type: 'danger',
+        action: 'urgent_contact'
+      });
+    }
+
+    return commonActions;
+  }
+
+  // 一括面談リマインダー送信（日次バッチ処理用）
+  async sendBatchInterviewReminders(reminders: Array<{
+    employeeId: string;
+    employeeName: string;
+    reminderType: 'INTERVIEW_REMINDER_FIRST' | 'INTERVIEW_REMINDER_MONTHLY' | 'INTERVIEW_REMINDER_ANNUAL' | 'INTERVIEW_OVERDUE';
+    interviewType: string;
+    dueDate: Date;
+    daysBefore?: number;
+    daysOverdue?: number;
+  }>): Promise<void> {
+    const promises = reminders.map(reminder => 
+      this.sendInterviewReminder(reminder.employeeId, reminder.reminderType, {
+        employeeName: reminder.employeeName,
+        interviewType: reminder.interviewType,
+        dueDate: reminder.dueDate,
+        daysBefore: reminder.daysBefore,
+        daysOverdue: reminder.daysOverdue
+      })
+    );
+
+    await Promise.all(promises);
+    console.log(`✅ 一括面談リマインダー送信完了: ${reminders.length}件`);
   }
 }
 

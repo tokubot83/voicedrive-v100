@@ -85,6 +85,9 @@ import Step4CompletionNotification from '../components/retirement/Step4Completio
 // Generational Analysis
 import GenerationalAnalysisPage from '../pages/GenerationalAnalysisPage';
 
+// Hierarchical Analysis
+import HierarchicalAnalysisPage from '../pages/HierarchicalAnalysisPage';
+
 // Error pages
 import NotFoundPage from '../pages/NotFoundPage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
@@ -359,6 +362,18 @@ const AppRouter: React.FC = () => {
         } />
         
         {/* Generational Analysis (Level 7+) */}
+        <Route path="generational-analysis" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
+            <GenerationalAnalysisPage />
+          </ProtectedRoute>
+        } />
+        
+        {/* Hierarchical Analysis (Level 7+) */}
+        <Route path="hierarchical-analysis" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
+            <HierarchicalAnalysisPage />
+          </ProtectedRoute>
+        } />
         
         {/* Whistleblowing System - All users can access (internal permission handling) */}
         <Route path="whistleblowing" element={<WhistleblowingPage />} />

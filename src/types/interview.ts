@@ -61,14 +61,24 @@ export interface InterviewBooking {
 }
 
 export type InterviewType = 
-  | 'regular'        // 定期面談
-  | 'career'         // キャリア相談
-  | 'concern'        // 悩み相談
-  | 'evaluation'     // 評価面談
-  | 'development'    // 能力開発
-  | 'grievance'      // 苦情・不満
-  | 'exit'           // 退職面談
-  | 'other';         // その他
+  | 'new_employee_monthly'    // 新入職員月次面談
+  | 'regular_annual'          // 一般職員年次面談
+  | 'management_biannual'     // 管理職半年面談
+  | 'ad_hoc'                  // 随時面談
+  | 'incident_followup'       // インシデント後面談
+  | 'return_to_work'          // 復職面談
+  | 'career_development'      // キャリア開発面談
+  | 'stress_care'             // ストレスケア面談
+  | 'performance_review'      // 人事評価面談
+  | 'grievance'               // 苦情・相談面談
+  | 'exit_interview'          // 退職面談
+  | 'regular'                 // 定期面談（旧）
+  | 'career'                  // キャリア相談（旧）
+  | 'concern'                 // 悩み相談（旧）
+  | 'evaluation'              // 評価面談（旧）
+  | 'development'             // 能力開発（旧）
+  | 'exit'                    // 退職面談（旧）
+  | 'other';                  // その他
 
 export type InterviewCategory = 
   | 'career_path'           // キャリアパス
@@ -270,7 +280,12 @@ export type NotificationType =
   | 'booking_cancelled'
   | 'booking_rescheduled'
   | 'interviewer_assigned'
-  | 'follow_up_required';
+  | 'follow_up_required'
+  | 'interview_reminder_first'      // 新入職員初回面談リマインダー
+  | 'interview_reminder_monthly'    // 新入職員月次面談リマインダー
+  | 'interview_reminder_annual'     // 一般職員年次面談リマインダー
+  | 'interview_overdue'             // 面談期限超過通知
+  | 'interview_auto_scheduled';     // 自動スケジュール面談通知
 
 // フィルター・検索
 export interface BookingFilter {
@@ -334,4 +349,82 @@ export interface WeeklyStatistics {
     count: number;
     percentage: number;
   }>;
+}
+
+// 医療従事者の雇用状況と面談履歴
+export interface MedicalEmployeeProfile {
+  employeeId: string;
+  employeeName: string;
+  hireDate: Date;
+  employmentStatus: EmploymentStatus;
+  department: string;
+  position: string;
+  workPattern: WorkPattern;
+  
+  // 特別な状況
+  specialCircumstances: {
+    isOnLeave: boolean;           // 休職中
+    isRetiring: boolean;          // 退職手続き中
+    isOnMaternityLeave: boolean;  // 産休・育休中
+    returnToWorkDate?: Date;      // 復職予定日
+    leaveStartDate?: Date;        // 休職開始日
+  };
+  
+  // 面談履歴
+  interviewHistory: {
+    firstInterviewDate?: Date;      // このシステムでの初回面談日
+    lastInterviewDate?: Date;       // 最終面談日
+    nextScheduledDate?: Date;       // 次回予定面談日
+    totalInterviews: number;        // 総面談回数
+    mandatoryInterviewsCompleted: number; // 必須面談完了数
+    lastReminderSent?: Date;        // 最終リマインダー送信日
+    overdueCount: number;           // 期限超過回数
+  };
+}
+
+export type EmploymentStatus = 
+  | 'new_employee'      // 新入職員（1年未満）
+  | 'regular_employee'  // 一般職員（1年以上）
+  | 'management'        // 管理職・リーダー職
+  | 'on_leave'          // 休職中
+  | 'retiring';         // 退職手続き中
+
+export type WorkPattern = 
+  | 'day_shift'         // 日勤
+  | 'night_shift'       // 夜勤
+  | 'rotating_shift'    // 交代勤務
+  | 'on_call';          // オンコール
+
+// 面談リマインダー設定
+export interface InterviewReminderConfig {
+  employmentStatus: EmploymentStatus;
+  department: string;
+  workPattern: WorkPattern;
+  
+  // 面談頻度ルール
+  frequencyRules: {
+    mandatoryInterviewType: InterviewType;
+    intervalDays: number;           // 面談間隔（日）
+    reminderSchedule: number[];     // リマインダー送信日（面談日の何日前）
+    overdueReminderSchedule: number[]; // 期限超過後のリマインダー（何日後）
+    maxOverdueReminders: number;    // 最大督促回数
+  };
+  
+  // 除外条件
+  excludeFromReminders: boolean;
+  excludeReason?: string;
+  excludeUntil?: Date;
+}
+
+// 自動リマインダーのスケジュール計算結果
+export interface ReminderSchedule {
+  employeeId: string;
+  nextInterviewDue: Date;
+  reminderDates: Array<{
+    date: Date;
+    type: NotificationType;
+    message: string;
+  }>;
+  isOverdue: boolean;
+  daysSinceOverdue?: number;
 }
