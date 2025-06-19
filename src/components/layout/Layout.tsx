@@ -5,6 +5,7 @@ import RightSidebar from '../RightSidebar';
 import MobileOverlay from '../MobileOverlay';
 import Breadcrumb from '../Breadcrumb';
 import Header from '../Header';
+import { MobileFooter } from './MobileFooter';
 import useSwipe from '../../hooks/useSwipe';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 import { UserRole } from '../../types';
@@ -112,7 +113,7 @@ const Layout: React.FC = () => {
   }, [isSidebarOpen]);
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 ${isDemoMode ? 'pt-[80px] md:pt-[60px]' : ''}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 ${isDemoMode ? 'pt-[80px] md:pt-[60px]' : ''} pb-16 md:pb-0`}>
       {/* ヘッダーを最上部に配置 */}
       {!isManagementPage && <Header toggleSidebar={toggleSidebar} />}
       {/* モバイルメニューボタン（lg以下で表示、管理画面では非表示） */}
@@ -190,6 +191,9 @@ const Layout: React.FC = () => {
           />
         </>
       )}
+      
+      {/* モバイルフッター */}
+      <MobileFooter />
     </div>
   );
 };
