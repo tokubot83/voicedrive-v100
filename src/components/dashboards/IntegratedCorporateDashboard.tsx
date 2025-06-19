@@ -7,7 +7,7 @@ import { demoUsers, getDemoUsersByFacility } from '../../data/demo/users';
 const IntegratedCorporateDashboard: React.FC = () => {
   const { currentUser } = useDemoMode();
   const navigate = useNavigate();
-  const [selectedTab, setSelectedTab] = useState<'overview' | 'facilities' | 'departments' | 'analytics' | 'users'>('overview');
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'facilities' | 'departments' | 'analytics' | 'financials'>('overview');
   
   // 権限レベルに応じた表示制御
   const canViewFinancials = currentUser?.permissionLevel >= 6;
@@ -216,48 +216,12 @@ const IntegratedCorporateDashboard: React.FC = () => {
 
   // 部門別タブのフィルター状態
   const [selectedFacilityForDept, setSelectedFacilityForDept] = useState<number | 'all'>('all');
-  
-  // ユーザーランキングのフィルター状態
-  const [selectedFacilityForUsers, setSelectedFacilityForUsers] = useState<string | 'all'>('all');
-  const [selectedDepartmentForUsers, setSelectedDepartmentForUsers] = useState<string | 'all'>('all');
 
   // 集計データ
   const totalStaff = facilities.reduce((sum, f) => sum + f.staff, 0);
   const avgOccupancy = facilities.reduce((sum, f) => sum + f.occupancy, 0) / facilities.length;
   const avgBudget = facilities.reduce((sum, f) => sum + f.budget, 0) / facilities.length;
   const avgQuality = facilities.reduce((sum, f) => sum + f.quality, 0) / facilities.length;
-
-  // ユーザーデータ処理
-  const facilityMap = {
-    'kohara_hospital': '小原病院',
-    'tategami_hospital': '立神リハ温泉病院',
-    'espoir_tategami': 'エスポワール立神',
-    'nursing_care_medical_institution': '介護医療院',
-    'hojuan': '宝寿庵',
-    'visiting_nursing_station': '訪問看護ステーション',
-    'home_care_service': '訪問介護事業所',
-    'home_care_support': '居宅介護支援事業所'
-  };
-
-  const departmentMap = {
-    'regional_comprehensive_care_ward': '地域包括医療病棟',
-    'regional_comprehensive_medical_ward': '地域包括ケア病棟',
-    'recovery_rehabilitation_ward': '回復期リハビリ病棟',
-    'outpatient': '外来',
-    'other_kohara': 'その他',
-    'medical_therapy_ward': '医療療養病棟',
-    'rehabilitation_department': 'リハビリテーション部',
-    'hot_spring_therapy': '温泉療法部',
-    'other_tategami': 'その他'
-  };
-
-  // ユーザーにランキングスコアを追加
-  const usersWithRanking = demoUsers.map(user => ({
-    ...user,
-    rankingScore: calculateUserRankingScore(user),
-    facilityName: facilityMap[user.facility_id as keyof typeof facilityMap] || '不明',
-    departmentName: departmentMap[user.department_id as keyof typeof departmentMap] || user.department
-  }));
 
   // currentUserのnullチェック
   if (!currentUser) {
@@ -271,61 +235,6 @@ const IntegratedCorporateDashboard: React.FC = () => {
       </div>
     );
   }
-
-  // ランキングスコア計算関数
-  function calculateUserRankingScore(user: any) {
-    let score = 0;
-    
-    // 権限レベル (30点満点)
-    score += (user.permissionLevel || 1) * 5;
-    
-    // 在籍期間 (25点満点)
-    const joinDate = user.joinDate ? new Date(user.joinDate) : new Date();
-    const yearsOfService = new Date().getFullYear() - joinDate.getFullYear();
-    score += Math.min(yearsOfService * 3, 25);
-    
-    // 直属部下数 (20点満点) 
-    if (user.directReports || user.children_ids?.length) {
-      const reportCount = user.directReports || user.children_ids?.length || 0;
-      score += Math.min(reportCount * 2, 20);
-    }
-    
-    // 予算承認権限 (15点満点)
-    if (user.budgetApprovalLimit) {
-      score += Math.min(user.budgetApprovalLimit / 100000, 15);
-    }
-    
-    // ボーナスポイント (10点満点)
-    if (user.accountType === 'CHAIRMAN') score += 10;
-    else if (user.accountType === 'EXECUTIVE_SECRETARY') score += 8;
-    else if (user.accountType === 'HR_DIRECTOR') score += 6;
-    else if (user.accountType === 'HR_DEPARTMENT_HEAD') score += 4;
-    else if (user.accountType === 'FACILITY_HEAD') score += 3;
-    else if (user.accountType === 'DEPARTMENT_HEAD') score += 2;
-    
-    return Math.round(score);
-  }
-
-  // フィルタリングされたユーザー
-  const filteredUsers = usersWithRanking.filter(user => {
-    if (selectedFacilityForUsers !== 'all' && user.facility_id !== selectedFacilityForUsers) {
-      return false;
-    }
-    if (selectedDepartmentForUsers !== 'all' && user.department_id !== selectedDepartmentForUsers) {
-      return false;
-    }
-    return true;
-  });
-
-  // ランキング順にソート
-  const rankedUsers = [...filteredUsers].sort((a, b) => b.rankingScore - a.rankingScore);
-
-  // 部署リスト取得
-  const uniqueDepartments = [...new Set(demoUsers.map(user => user.department_id))].filter(Boolean);
-  const departmentOptions = uniqueDepartments.map(deptId => ({
-    id: deptId,
-    name: departmentMap[deptId as keyof typeof departmentMap] || deptId
-  }));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -341,8 +250,8 @@ const IntegratedCorporateDashboard: React.FC = () => {
               <span className="text-sm">ホーム</span>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-white">法人統合ダッシュボード</h1>
-              <p className="text-gray-400 text-sm">全8施設・25部門の統合管理ビュー</p>
+              <h1 className="text-2xl font-bold text-white">運営分析ダッシュボード</h1>
+              <p className="text-gray-400 text-sm">施設運営・予算・品質・稼働率の総合分析</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -358,27 +267,16 @@ const IntegratedCorporateDashboard: React.FC = () => {
       <div className="p-6">
         <div className="max-w-7xl mx-auto">
 
-          {/* 退職処理画面風の水平4カードレイアウト */}
+          {/* 運営分析統計カードレイアウト */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* 施設管理カード */}
+            {/* 施設数カード */}
             <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
               <div className="text-4xl mb-3">🏢</div>
-              <h4 className="font-bold text-white mb-2">施設管理</h4>
+              <h4 className="font-bold text-white mb-2">施設数</h4>
               <div className="text-3xl font-bold text-blue-400 mb-1">8</div>
-              <p className="text-sm text-gray-400">施設数</p>
+              <p className="text-sm text-gray-400">運営施設</p>
               <div className="mt-3 text-xs text-gray-500">
-                全8施設を統合管理
-              </div>
-            </div>
-
-            {/* 人事統計カード */}
-            <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
-              <div className="text-4xl mb-3">👥</div>
-              <h4 className="font-bold text-white mb-2">人事統計</h4>
-              <div className="text-3xl font-bold text-green-400 mb-1">{totalStaff.toLocaleString()}</div>
-              <p className="text-sm text-gray-400">総職員数</p>
-              <div className="mt-3 text-xs text-gray-500">
-                25部門に配属
+                病院・介護・訪問事業
               </div>
             </div>
 
@@ -393,58 +291,57 @@ const IntegratedCorporateDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* 予算執行/品質管理カード（権限レベル別） */}
-            {canViewFinancials ? (
-              <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
-                <div className="text-4xl mb-3">💰</div>
-                <h4 className="font-bold text-white mb-2">予算執行</h4>
-                <div className="text-3xl font-bold text-yellow-400 mb-1">{avgBudget.toFixed(1)}%</div>
-                <p className="text-sm text-gray-400">予算執行率</p>
-                <div className="mt-3 text-xs text-gray-500">
-                  適正範囲: 80-95%
-                </div>
+            {/* 予算執行カード */}
+            <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105">
+              <div className="text-4xl mb-3">💰</div>
+              <h4 className="font-bold text-white mb-2">予算執行</h4>
+              <div className="text-3xl font-bold text-yellow-400 mb-1">{avgBudget.toFixed(1)}%</div>
+              <p className="text-sm text-gray-400">執行率</p>
+              <div className="mt-3 text-xs text-gray-500">
+                適正範囲: 80-95%
               </div>
-            ) : (
-              <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105 relative group">
-                <div className="text-4xl mb-3">⭐</div>
-                <h4 className="font-bold text-white mb-2">品質管理</h4>
-                <div className="text-3xl font-bold text-purple-400 mb-1">{avgQuality.toFixed(1)}</div>
-                <p className="text-sm text-gray-400">品質スコア</p>
-                <div className="mt-3 text-xs text-gray-500">
-                  業界平均: 82.0
-                </div>
-                
-                {/* ホバー時の詳細説明 */}
-                <div className="absolute bottom-full left-0 mb-2 w-64 bg-gray-900 border border-gray-700 rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
-                  <div className="text-xs text-white mb-2 font-semibold">品質スコア構成要素:</div>
-                  <div className="space-y-1 text-xs text-gray-300">
-                    <div className="flex justify-between">
-                      <span>• 患者満足度</span>
-                      <span className="text-purple-400">30%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>• 医療安全指標</span>
-                      <span className="text-purple-400">25%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>• 職員定着率</span>
-                      <span className="text-purple-400">20%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>• 業務効率性</span>
-                      <span className="text-purple-400">15%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>• 地域連携度</span>
-                      <span className="text-purple-400">10%</span>
-                    </div>
+            </div>
+
+            {/* 品質スコアカード */}
+            <div className="bg-gray-800/30 rounded-xl p-6 hover:bg-gray-800/40 transition-all duration-300 hover:scale-105 relative group">
+              <div className="text-4xl mb-3">⭐</div>
+              <h4 className="font-bold text-white mb-2">品質スコア</h4>
+              <div className="text-3xl font-bold text-purple-400 mb-1">{avgQuality.toFixed(1)}</div>
+              <p className="text-sm text-gray-400">100点満点</p>
+              <div className="mt-3 text-xs text-gray-500">
+                業界平均: 82.0
+              </div>
+              
+              {/* ホバー時の詳細説明 */}
+              <div className="absolute bottom-full left-0 mb-2 w-64 bg-gray-900 border border-gray-700 rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                <div className="text-xs text-white mb-2 font-semibold">品質スコア構成要素:</div>
+                <div className="space-y-1 text-xs text-gray-300">
+                  <div className="flex justify-between">
+                    <span>• 患者満足度</span>
+                    <span className="text-purple-400">30%</span>
                   </div>
-                  <div className="mt-2 pt-2 border-t border-gray-700 text-xs text-gray-400">
-                    100点満点の総合評価
+                  <div className="flex justify-between">
+                    <span>• 医療安全指標</span>
+                    <span className="text-purple-400">25%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>• 職員定着率</span>
+                    <span className="text-purple-400">20%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>• 業務効率性</span>
+                    <span className="text-purple-400">15%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>• 地域連携度</span>
+                    <span className="text-purple-400">10%</span>
                   </div>
                 </div>
+                <div className="mt-2 pt-2 border-t border-gray-700 text-xs text-gray-400">
+                  100点満点の総合評価
+                </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
@@ -457,8 +354,8 @@ const IntegratedCorporateDashboard: React.FC = () => {
               { id: 'overview', label: '概要', icon: '📊' },
               { id: 'facilities', label: '施設別', icon: '🏥' },
               { id: 'departments', label: '部門別', icon: '👥' },
-              { id: 'users', label: 'ユーザー', icon: '👤' },
-              { id: 'analytics', label: '分析', icon: '📈' }
+              { id: 'financials', label: '財務分析', icon: '💰' },
+              { id: 'analytics', label: '品質分析', icon: '📈' }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -951,238 +848,81 @@ const IntegratedCorporateDashboard: React.FC = () => {
             </div>
           )}
 
-          {selectedTab === 'users' && (
+          {selectedTab === 'financials' && (
             <div className="space-y-6">
-              {/* フィルター */}
-              <div className="bg-gray-800/50 rounded-xl p-4">
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <label className="text-white font-medium">施設:</label>
-                    <select 
-                      value={selectedFacilityForUsers}
-                      onChange={(e) => {
-                        setSelectedFacilityForUsers(e.target.value);
-                        setSelectedDepartmentForUsers('all'); // 施設変更時は部署もリセット
-                      }}
-                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
-                    >
-                      <option value="all">全施設</option>
-                      {Object.entries(facilityMap).map(([key, name]) => (
-                        <option key={key} value={key}>{name}</option>
-                      ))}
-                    </select>
+              {/* 財務サマリー */}
+              <div className="bg-gray-800/50 rounded-xl p-6">
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="text-2xl">💰</span>
+                  財務分析サマリー
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-gray-700/30 rounded-xl p-4">
+                    <h3 className="text-lg font-medium text-white mb-2">総予算執行率</h3>
+                    <div className="text-3xl font-bold text-yellow-400 mb-2">{avgBudget.toFixed(1)}%</div>
+                    <div className="w-full bg-gray-700/50 rounded-full h-2">
+                      <div className="bg-yellow-400 h-2 rounded-full" style={{ width: `${avgBudget}%` }} />
+                    </div>
+                    <p className="text-sm text-gray-400 mt-2">適正範囲: 80-95%</p>
                   </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <label className="text-white font-medium">部署:</label>
-                    <select 
-                      value={selectedDepartmentForUsers}
-                      onChange={(e) => setSelectedDepartmentForUsers(e.target.value)}
-                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
-                    >
-                      <option value="all">全部署</option>
-                      {departmentOptions.map(dept => (
-                        <option key={dept.id} value={dept.id}>{dept.name}</option>
-                      ))}
-                    </select>
+                  <div className="bg-gray-700/30 rounded-xl p-4">
+                    <h3 className="text-lg font-medium text-white mb-2">収益効率</h3>
+                    <div className="text-3xl font-bold text-green-400 mb-2">92.3%</div>
+                    <div className="w-full bg-gray-700/50 rounded-full h-2">
+                      <div className="bg-green-400 h-2 rounded-full" style={{ width: '92.3%' }} />
+                    </div>
+                    <p className="text-sm text-gray-400 mt-2">前年比 +3.2%</p>
                   </div>
-                  
-                  <div className="text-sm text-gray-400">
-                    {filteredUsers.length}名のユーザーを表示中
+                  <div className="bg-gray-700/30 rounded-xl p-4">
+                    <h3 className="text-lg font-medium text-white mb-2">コスト管理</h3>
+                    <div className="text-3xl font-bold text-blue-400 mb-2">87.8%</div>
+                    <div className="w-full bg-gray-700/50 rounded-full h-2">
+                      <div className="bg-blue-400 h-2 rounded-full" style={{ width: '87.8%' }} />
+                    </div>
+                    <p className="text-sm text-gray-400 mt-2">目標達成率</p>
+                  </div>
+                  <div className="bg-gray-700/30 rounded-xl p-4">
+                    <h3 className="text-lg font-medium text-white mb-2">投資効果</h3>
+                    <div className="text-3xl font-bold text-purple-400 mb-2">15.2%</div>
+                    <div className="w-full bg-gray-700/50 rounded-full h-2">
+                      <div className="bg-purple-400 h-2 rounded-full" style={{ width: '76%' }} />
+                    </div>
+                    <p className="text-sm text-gray-400 mt-2">ROI指標</p>
                   </div>
                 </div>
               </div>
 
-              {/* ユーザーランキング */}
+              {/* 施設別財務パフォーマンス */}
               <div className="bg-gray-800/50 rounded-xl p-6">
-                <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                  <span className="text-2xl">👤</span>
-                  ユーザーランキング
-                  <span className="text-sm text-gray-400 font-normal">
-                    (権限レベル・在籍期間・管理職責任・予算権限による総合評価)
-                  </span>
-                </h2>
-                
-                {rankedUsers.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">
-                    条件に一致するユーザーが見つかりません
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {rankedUsers.slice(0, 20).map((user, index) => (
-                      <div key={user.id} className="bg-gray-700/30 rounded-lg p-4 hover:bg-gray-700/40 transition-all duration-300">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            {/* ランキング順位 */}
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                              index === 0 ? 'bg-yellow-500 text-black' :
-                              index === 1 ? 'bg-gray-400 text-black' :
-                              index === 2 ? 'bg-orange-600 text-white' :
-                              'bg-gray-600 text-white'
-                            }`}>
-                              {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
-                            </div>
-                            
-                            {/* ユーザー情報 */}
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <h3 className="text-lg font-medium text-white">{user.name}</h3>
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                  user.permissionLevel >= 7 ? 'bg-purple-500/20 text-purple-400' :
-                                  user.permissionLevel >= 5 ? 'bg-blue-500/20 text-blue-400' :
-                                  user.permissionLevel >= 3 ? 'bg-green-500/20 text-green-400' :
-                                  'bg-gray-500/20 text-gray-400'
-                                }`}>
-                                  Lv.{user.permissionLevel}
-                                </span>
-                                <span className="text-sm text-gray-400">{user.position}</span>
-                              </div>
-                              
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-                                <div>
-                                  <span className="text-gray-400">施設: </span>
-                                  <span className="text-white">{user.facilityName}</span>
-                                </div>
-                                <div>
-                                  <span className="text-gray-400">部署: </span>
-                                  <span className="text-white">{user.departmentName}</span>
-                                </div>
-                                {user.directReports && (
-                                  <div>
-                                    <span className="text-gray-400">部下: </span>
-                                    <span className="text-cyan-400">{user.directReports}名</span>
-                                  </div>
-                                )}
-                                <div>
-                                  <span className="text-gray-400">在籍: </span>
-                                  <span className="text-green-400">
-                                    {user.joinDate ? new Date().getFullYear() - new Date(user.joinDate).getFullYear() : 0}年
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* スコア表示 */}
-                          <div className="text-right">
-                            <div className="text-2xl font-bold text-yellow-400 mb-1">
-                              {user.rankingScore}
-                            </div>
-                            <div className="text-xs text-gray-400">総合スコア</div>
-                            <div className="w-24 bg-gray-600/50 rounded-full h-2 mt-2">
-                              <div 
-                                className={`h-2 rounded-full transition-all duration-1000 ${
-                                  user.rankingScore >= 80 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500' :
-                                  user.rankingScore >= 60 ? 'bg-gradient-to-r from-blue-400 to-blue-500' :
-                                  user.rankingScore >= 40 ? 'bg-gradient-to-r from-green-400 to-green-500' :
-                                  'bg-gradient-to-r from-gray-400 to-gray-500'
-                                }`}
-                                style={{ width: `${Math.min((user.rankingScore / 100) * 100, 100)}%` }}
-                              />
-                            </div>
-                          </div>
+                <h2 className="text-xl font-bold text-white mb-4">施設別財務パフォーマンス</h2>
+                <div className="space-y-4">
+                  {facilities.map((facility) => (
+                    <div key={facility.id} className="bg-gray-700/30 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-medium text-white">{facility.name}</h3>
+                        <div className="flex items-center gap-4">
+                          <span className="text-sm text-gray-400">予算執行率</span>
+                          <span className={`text-lg font-bold ${
+                            facility.budget >= 90 ? 'text-red-400' :
+                            facility.budget >= 80 ? 'text-yellow-400' :
+                            'text-green-400'
+                          }`}>
+                            {facility.budget.toFixed(1)}%
+                          </span>
                         </div>
                       </div>
-                    ))}
-                    
-                    {rankedUsers.length > 20 && (
-                      <div className="text-center py-4 text-gray-400">
-                        上位20名を表示中（全{rankedUsers.length}名）
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* ユーザー統計 */}
-              <div className="bg-gray-800/50 rounded-xl p-6">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                  <span className="text-2xl">📊</span>
-                  ユーザー統計
-                </h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* 権限レベル別統計 */}
-                  <div className="bg-gray-700/20 rounded-lg p-4">
-                    <h4 className="font-medium text-white mb-3">権限レベル別</h4>
-                    <div className="space-y-2 text-sm">
-                      {[8, 7, 6, 5, 4, 3, 2, 1].map(level => {
-                        const count = filteredUsers.filter(u => u.permissionLevel === level).length;
-                        return count > 0 ? (
-                          <div key={level} className="flex justify-between">
-                            <span className="text-gray-400">Level {level}</span>
-                            <span className="text-white font-medium">{count}名</span>
-                          </div>
-                        ) : null;
-                      })}
-                    </div>
-                  </div>
-
-                  {/* 施設別統計 */}
-                  <div className="bg-gray-700/20 rounded-lg p-4">
-                    <h4 className="font-medium text-white mb-3">施設別</h4>
-                    <div className="space-y-2 text-sm">
-                      {Object.entries(facilityMap).map(([key, name]) => {
-                        const count = filteredUsers.filter(u => u.facility_id === key).length;
-                        return count > 0 ? (
-                          <div key={key} className="flex justify-between">
-                            <span className="text-gray-400 truncate">{name}</span>
-                            <span className="text-white font-medium">{count}名</span>
-                          </div>
-                        ) : null;
-                      })}
-                    </div>
-                  </div>
-
-                  {/* 在籍期間統計 */}
-                  <div className="bg-gray-700/20 rounded-lg p-4">
-                    <h4 className="font-medium text-white mb-3">在籍期間</h4>
-                    <div className="space-y-2 text-sm">
-                      {[
-                        { range: '10年以上', min: 10, max: 100 },
-                        { range: '5-9年', min: 5, max: 9 },
-                        { range: '3-4年', min: 3, max: 4 },
-                        { range: '1-2年', min: 1, max: 2 },
-                        { range: '1年未満', min: 0, max: 0 }
-                      ].map(({ range, min, max }) => {
-                        const count = filteredUsers.filter(u => {
-                          const years = u.joinDate ? new Date().getFullYear() - new Date(u.joinDate).getFullYear() : 0;
-                          return years >= min && years <= max;
-                        }).length;
-                        return count > 0 ? (
-                          <div key={range} className="flex justify-between">
-                            <span className="text-gray-400">{range}</span>
-                            <span className="text-white font-medium">{count}名</span>
-                          </div>
-                        ) : null;
-                      })}
-                    </div>
-                  </div>
-
-                  {/* 管理職統計 */}
-                  <div className="bg-gray-700/20 rounded-lg p-4">
-                    <h4 className="font-medium text-white mb-3">管理職</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">管理職</span>
-                        <span className="text-white font-medium">
-                          {filteredUsers.filter(u => u.directReports && u.directReports > 0).length}名
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">一般職</span>
-                        <span className="text-white font-medium">
-                          {filteredUsers.filter(u => !u.directReports || u.directReports === 0).length}名
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">総部下数</span>
-                        <span className="text-cyan-400 font-medium">
-                          {filteredUsers.reduce((sum, u) => sum + (u.directReports || 0), 0)}名
-                        </span>
+                      <div className="w-full bg-gray-600/50 rounded-full h-3">
+                        <div 
+                          className={`h-3 rounded-full transition-all duration-500 ${
+                            facility.budget >= 90 ? 'bg-red-400' :
+                            facility.budget >= 80 ? 'bg-yellow-400' :
+                            'bg-green-400'
+                          }`}
+                          style={{ width: `${facility.budget}%` }}
+                        />
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>

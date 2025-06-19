@@ -22,7 +22,7 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [selectedSlots, setSelectedSlots] = useState<TimeSlot[]>([]);
-  const [interviewType, setInterviewType] = useState<InterviewType>('career');
+  const [interviewType, setInterviewType] = useState<InterviewType>('ad_hoc');
   const [interviewCategory, setInterviewCategory] = useState<InterviewCategory>('career_path');
   const [description, setDescription] = useState('');
   const [availableSlots, setAvailableSlots] = useState<Map<string, TimeSlot[]>>(new Map());
@@ -39,14 +39,26 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
     { id: 'slot5', startTime: '16:20', endTime: '16:50', label: '16:20-16:50' }
   ];
 
-  // 面談タイプの選択肢
+  // 面談タイプの選択肢（医療介護系法人向け）
   const interviewTypes = [
-    { value: 'regular', label: '定期面談', icon: '📅' },
-    { value: 'career', label: 'キャリア相談', icon: '🎯' },
-    { value: 'concern', label: '悩み相談', icon: '💭' },
-    { value: 'evaluation', label: '評価面談', icon: '📊' },
-    { value: 'development', label: '能力開発', icon: '📚' },
-    { value: 'other', label: 'その他', icon: '📝' }
+    { value: 'new_employee_monthly', label: '新入職員月次面談', icon: '🩺', description: '新入職員の月次フォローアップ面談' },
+    { value: 'regular_annual', label: '年次定期面談', icon: '📅', description: '年1回の定期面談' },
+    { value: 'management_biannual', label: '管理職面談', icon: '👔', description: '管理職・リーダー向け半年面談' },
+    { value: 'ad_hoc', label: '随時面談', icon: '💬', description: '必要に応じた相談面談' },
+    { value: 'incident_followup', label: 'インシデント後面談', icon: '⚠️', description: '医療事故・インシデント後のフォローアップ' },
+    { value: 'return_to_work', label: '復職面談', icon: '🔄', description: '長期休暇からの復職時面談' },
+    { value: 'career_development', label: 'キャリア開発面談', icon: '🎯', description: 'キャリア形成・専門性向上相談' },
+    { value: 'stress_care', label: 'ストレスケア面談', icon: '🧘', description: 'メンタルヘルス・ストレス相談' },
+    { value: 'performance_review', label: '人事評価面談', icon: '📊', description: '業績評価・目標設定面談' },
+    { value: 'grievance', label: '苦情・相談面談', icon: '💭', description: '職場での悩み・苦情相談' },
+    { value: 'exit_interview', label: '退職面談', icon: '👋', description: '退職時の最終面談' },
+    // 後方互換性のため旧タイプも残す
+    { value: 'regular', label: '定期面談（旧）', icon: '📅', description: '従来の定期面談' },
+    { value: 'career', label: 'キャリア相談（旧）', icon: '🎯', description: '従来のキャリア相談' },
+    { value: 'concern', label: '悩み相談（旧）', icon: '💭', description: '従来の悩み相談' },
+    { value: 'evaluation', label: '評価面談（旧）', icon: '📊', description: '従来の評価面談' },
+    { value: 'development', label: '能力開発（旧）', icon: '📚', description: '従来の能力開発' },
+    { value: 'other', label: 'その他', icon: '📝', description: 'その他の面談' }
   ];
 
   // カテゴリの選択肢
@@ -356,21 +368,30 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
 
       <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
         <h3 className="font-semibold text-lg mb-4">面談の種類</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {interviewTypes.map(type => (
             <button
               key={type.value}
               onClick={() => setInterviewType(type.value as InterviewType)}
               className={`
-                p-4 rounded-lg text-center transition-all
+                p-4 rounded-lg text-left transition-all h-auto
                 ${interviewType === type.value
                   ? 'bg-blue-600 text-white'
                   : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-300'
                 }
               `}
             >
-              {type?.icon && <div className="text-2xl mb-1">{type.icon}</div>}
-              <div className="font-medium">{type.label || '未設定'}</div>
+              <div className="flex items-center mb-2">
+                {type?.icon && <span className="text-2xl mr-2">{type.icon}</span>}
+                <div className="font-medium text-sm">{type.label || '未設定'}</div>
+              </div>
+              {type.description && (
+                <div className={`text-xs leading-relaxed ${
+                  interviewType === type.value ? 'text-blue-100' : 'text-gray-500'
+                }`}>
+                  {type.description}
+                </div>
+              )}
             </button>
           ))}
         </div>

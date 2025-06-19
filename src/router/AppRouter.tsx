@@ -378,6 +378,13 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
         
+        {/* User Analysis (Level 5+) */}
+        <Route path="user-analysis" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
+            <UserAnalysisPage />
+          </ProtectedRoute>
+        } />
+        
         {/* Whistleblowing System - All users can access (internal permission handling) */}
         <Route path="whistleblowing" element={<WhistleblowingPage />} />
         
