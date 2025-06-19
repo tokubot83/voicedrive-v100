@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Clock, CheckCircle, Users, AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Project, ProjectStatus } from '../data/demo/projects';
 import { demoProjects } from '../data/demo/projects';
 import { getDemoUserById } from '../data/demo/users';
 import { useDemoMode } from '../components/demo/DemoModeController';
+import { MobileFooter } from '../components/layout/MobileFooter';
 
 interface ProjectGroup {
   title: string;
@@ -155,7 +157,7 @@ const MyProjectsPage: React.FC = () => {
   const totalProjects = projectGroups.reduce((sum, group) => sum + group.projects.length, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-16 md:pb-0">
       
       {/* Header */}
       <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
@@ -333,6 +335,9 @@ const MyProjectsPage: React.FC = () => {
           </div>
         )}
       </div>
+      
+      {/* モバイルフッター */}
+      <MobileFooter />
     </div>
   );
 };
