@@ -293,7 +293,7 @@ const GenerationalAnalysisPage: React.FC = () => {
 
       {/* タブコンテンツ */}
       <div className="p-6">
-        <div className="max-w-7xl mx-auto">
+        <div className="">
           {selectedTab === 'overview' && analysisResult && (
             <div className="space-y-6">
               {/* 世代構成グリッド */}

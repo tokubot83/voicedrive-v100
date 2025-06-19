@@ -222,7 +222,7 @@ const UserAnalysisPage: React.FC = () => {
 
       {/* タブナビゲーション */}
       <div className="bg-gray-800/50 p-4">
-        <div className="max-w-7xl mx-auto">
+        <div className="px-6">
           <div className="flex space-x-1 bg-gray-900/50 rounded-xl p-1">
             {[
               { id: 'overview', label: '概要', icon: '📊' },
@@ -250,7 +250,7 @@ const UserAnalysisPage: React.FC = () => {
 
       {/* タブコンテンツ */}
       <div className="p-6">
-        <div className="max-w-7xl mx-auto">
+        <div className="">
           {selectedTab === 'overview' && analysisResult && (
             <div className="space-y-6">
               {/* 世代×階層クロス分析 */}
