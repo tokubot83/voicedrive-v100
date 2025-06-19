@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Search, Clock, CheckCircle, Users, AlertCircle } from 'lucide-react';
+import { Search, Clock, CheckCircle, Users, AlertCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { Project, ProjectStatus } from '../data/demo/projects';
 import { demoProjects } from '../data/demo/projects';
@@ -161,18 +160,9 @@ const MyProjectsPage: React.FC = () => {
       {/* Header */}
       <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              to="/"
-              className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm">ホーム</span>
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-white">マイプロジェクト</h1>
-              <p className="text-gray-400 text-sm">あなたが関わっているプロジェクトの一覧です</p>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">マイプロジェクト</h1>
+            <p className="text-gray-400 text-sm">あなたが関わっているプロジェクトの一覧です</p>
           </div>
         </div>
       </header>

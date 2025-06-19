@@ -6,7 +6,7 @@ import { NotificationService } from '../services/NotificationService';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-import { Calendar, Users, CheckCircle, Clock, Home, FolderOpen, ArrowLeft } from 'lucide-react';
+import { Calendar, Users, CheckCircle, Clock, FolderOpen, ArrowLeft } from 'lucide-react';
 
 // 日付フォーマット関数（date-fnsの代替）
 const formatDate = (date: Date, formatStr: string, options?: { locale?: any }): string => {
@@ -280,13 +280,6 @@ export const ProjectDetailPage: React.FC = () => {
               <ArrowLeft className="w-4 h-4" />
               <span className="text-sm">戻る</span>
             </button>
-            <Link
-              to="/"
-              className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors text-gray-300 hover:text-white"
-            >
-              <Home className="w-4 h-4" />
-              <span className="text-sm">ホーム</span>
-            </Link>
             <Link
               to={getMyProjectsPath()}
               className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors text-gray-300 hover:text-white"

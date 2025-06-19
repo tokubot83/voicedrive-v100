@@ -1,28 +1,16 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
 
 const HRDashboardPage = () => {
-  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen text-white">
       {/* カスタムヘッダー */}
       <div className="bg-gray-900/50 backdrop-blur-md border-b border-gray-800/50 p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm">ホーム</span>
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-white">
-                人事ダッシュボード
-              </h1>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">
+              人事ダッシュボード
+            </h1>
           </div>
         </div>
       </div>

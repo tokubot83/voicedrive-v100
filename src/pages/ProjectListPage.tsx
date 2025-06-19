@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Search, Filter, Calendar, Users, TrendingUp, CheckCircle, Clock, AlertCircle, ArrowLeft, Building2, Building, Briefcase, AlertTriangle, Eye } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Search, Filter, Calendar, Users, TrendingUp, CheckCircle, Clock, AlertCircle, Building2, Building, Briefcase, AlertTriangle, Eye } from 'lucide-react';
 import { usePermissions } from '../hooks/usePermissions';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { projectDemoPosts } from '../data/demo/projectDemoData';
@@ -221,18 +221,9 @@ const ProjectListPage: React.FC = () => {
       {/* Custom Header with Back Button */}
       <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              to="/"
-              className="flex items-center gap-2 px-3 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm">ホーム</span>
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-white">プロジェクト一覧</h1>
-              <p className="text-gray-400 text-sm">参加中のプロジェクトを管理</p>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">プロジェクト一覧</h1>
+            <p className="text-gray-400 text-sm">参加中のプロジェクトを管理</p>
           </div>
         </div>
       </header>
