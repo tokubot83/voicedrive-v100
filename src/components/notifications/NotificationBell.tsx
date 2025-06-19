@@ -25,10 +25,11 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
   const [stats, setStats] = useState<NotificationStats | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread' | 'pending'>('pending');
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const notificationService = NotificationService.getInstance();
+  // const notificationService = NotificationService.getInstance(); // 一時的に無効化
+  const notificationService = null;
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser || !notificationService) return;
 
     // 初回読み込み
     loadNotifications();

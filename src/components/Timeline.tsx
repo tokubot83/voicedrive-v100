@@ -9,7 +9,6 @@ import { useDemoMode } from './demo/DemoModeController';
 import { FreespaceExpirationService } from '../services/FreespaceExpirationService';
 import { useAuth } from '../hooks/useAuth';
 import FreespaceExpirationNotification from './FreespaceExpirationNotification';
-// import PollExpirationChecker from '../services/PollExpirationChecker'; // 一時的に無効化
 import { demoPolls } from '../data/demo/freespacePolls';
 import { useVoting } from '../hooks/useVoting';
 
@@ -60,46 +59,14 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
     currentUser
   });
 
-  // 期限チェッカーの初期化と実行 - 一時的に無効化
+  // 初期データの設定
   useEffect(() => {
-    // PollExpirationChecker を一時的に無効化
-    // let pollChecker;
-    // try {
-    //   pollChecker = PollExpirationChecker.getInstance();
-    // } catch (error) {
-    //   console.error('Failed to initialize PollExpirationChecker:', error);
-    //   return; // エラーの場合は早期リターン
-    // }
-    
     // 初期投稿データの設定
     const initialPostsData = isDemoMode ? 
       [...demoPosts].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()) :
       getOriginalPosts();
     
     setPosts(initialPostsData);
-    
-    // 期限チェッカーの開始 - 一時的に無効化
-    // pollChecker.startPeriodicCheck(
-    //   () => polls,
-    //   () => posts,
-    //   (newPosts) => {
-    //     setPosts(prevPosts => [...newPosts, ...prevPosts]);
-    //   }
-    // );
-    
-    // 初回チェックの実行 - 一時的に無効化
-    // pollChecker.manualCheck(polls, initialPostsData, (newPosts) => {
-    //   if (newPosts.length > 0) {
-    //     setPosts(prevPosts => [...newPosts, ...prevPosts]);
-    //   }
-    // });
-    
-    // クリーンアップ - 一時的に無効化
-    // return () => {
-    //   if (pollChecker && typeof pollChecker.stopPeriodicCheck === 'function') {
-    //     pollChecker.stopPeriodicCheck();
-    //   }
-    // };
   }, [isDemoMode]);
   
   // Use demo posts in demo mode, otherwise use the original posts
