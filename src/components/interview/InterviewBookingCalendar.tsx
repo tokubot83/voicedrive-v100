@@ -4,9 +4,12 @@ import {
   TimeSlot, 
   BookingRequest, 
   InterviewType, 
-  InterviewCategory 
+  InterviewCategory,
+  MedicalEmployeeProfile,
+  EmploymentStatus 
 } from '../../types/interview';
 import { InterviewBookingService } from '../../services/InterviewBookingService';
+import InterviewReminderService from '../../services/InterviewReminderService';
 
 interface InterviewBookingCalendarProps {
   employeeId?: string;
