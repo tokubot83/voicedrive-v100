@@ -219,7 +219,6 @@ const UserAnalysisPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
 
       {/* タブナビゲーション */}
       <div className="bg-gray-800/50 p-4">
@@ -605,6 +604,7 @@ const UserAnalysisPage: React.FC = () => {
               </div>
             </div>
           )}
+        </div>
       </div>
     </div>
   );
