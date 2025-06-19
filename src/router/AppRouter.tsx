@@ -364,26 +364,6 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
         
-        {/* Generational Analysis (Level 7+) */}
-        <Route path="generational-analysis" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
-            <GenerationalAnalysisPage />
-          </ProtectedRoute>
-        } />
-        
-        {/* Hierarchical Analysis (Level 7+) */}
-        <Route path="hierarchical-analysis" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
-            <HierarchicalAnalysisPage />
-          </ProtectedRoute>
-        } />
-        
-        {/* User Analysis (Level 7+) */}
-        <Route path="user-analysis" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
-            <UserAnalysisPage />
-          </ProtectedRoute>
-        } />
         
         {/* Whistleblowing System - All users can access (internal permission handling) */}
         <Route path="whistleblowing" element={<WhistleblowingPage />} />
@@ -433,10 +413,20 @@ const AppRouter: React.FC = () => {
         </React.Suspense>
       } />
       
-      {/* Generational Analysis - Full width without sidebar */}
+      {/* Analysis Pages - Full width without sidebar */}
       <Route path="generational-analysis" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
           <GenerationalAnalysisPage />
+        </ProtectedRoute>
+      } />
+      <Route path="hierarchical-analysis" element={
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
+          <HierarchicalAnalysisPage />
+        </ProtectedRoute>
+      } />
+      <Route path="user-analysis" element={
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
+          <UserAnalysisPage />
         </ProtectedRoute>
       } />
     </Routes>
