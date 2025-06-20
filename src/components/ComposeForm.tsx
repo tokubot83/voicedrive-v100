@@ -9,6 +9,8 @@ import FreespaceOptions, { FreespaceCategory } from './FreespaceOptions';
 import { CreatePollData } from '../types/poll';
 import { CreateEventData } from '../types/event';
 import { FreespaceExpirationService } from '../services/FreespaceExpirationService';
+import { ContentModerationService, ModerationResult } from '../services/ContentModerationService';
+import PostingGuidelinesModal from './common/PostingGuidelinesModal';
 
 interface ComposeFormProps {
   selectedType: PostType;
@@ -44,6 +46,11 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   
   const [seasonalAdvice, setSeasonalAdvice] = useState(getSeasonalAdvice(selectedType));
   const [showCapacityWarning, setShowCapacityWarning] = useState(false);
+  
+  // Content moderation states
+  const [moderationResult, setModerationResult] = useState<ModerationResult | null>(null);
+  const [showGuidelinesModal, setShowGuidelinesModal] = useState(false);
+  const [isModeratingContent, setIsModeratingContent] = useState(false);
 
   useEffect(() => {
     setSeasonalAdvice(getSeasonalAdvice(selectedType));
@@ -84,10 +91,44 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
 
   const config = typeConfigs[selectedType];
 
-  const handleSubmit = () => {
+  // Content moderation check
+  const handleContentModeration = async (contentToCheck: string, titleToCheck?: string) => {
+    setIsModeratingContent(true);
+    try {
+      const contentService = ContentModerationService.getInstance();
+      const result = contentService.moderateContent(contentToCheck, titleToCheck);
+      setModerationResult(result);
+      return result;
+    } catch (error) {
+      console.error('Content moderation error:', error);
+      return { allowed: true, violations: [], recommendedAction: 'allow' as const };
+    } finally {
+      setIsModeratingContent(false);
+    }
+  };
+
+  const handleSubmit = async () => {
     if (!checkCanSubmit(currentProposalCount + 1)) {
       alert(`${capacityInfo.label}期の提案受付上限に達しています。次の季節をお待ちください。`);
       return;
+    }
+
+    // Content moderation check
+    const modResult = await handleContentModeration(content);
+    
+    if (!modResult.allowed) {
+      alert('投稿内容にガイドライン違反の可能性があります。内容を見直してください。');
+      return;
+    }
+    
+    if (modResult.recommendedAction === 'warn' && modResult.violations.length > 0) {
+      const violationDescriptions = modResult.violations.map(v => v.description).join('\n');
+      const confirmed = confirm(
+        `以下の潜在的な問題が検出されました:\n\n${violationDescriptions}\n\nそれでも投稿しますか？`
+      );
+      if (!confirmed) {
+        return;
+      }
     }
     
     // フリースペース投稿の場合、有効期限を計算
@@ -558,12 +599,53 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
             </button>
             <button
               onClick={handleSubmit}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-3xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(29,155,240,0.5)]"
+              disabled={isModeratingContent}
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-3xl font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(29,155,240,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span>投稿する</span>
-              <span className="text-lg md:text-xl">📤</span>
+              {isModeratingContent ? (
+                <>
+                  <span>チェック中...</span>
+                  <span className="animate-spin text-lg md:text-xl">⏳</span>
+                </>
+              ) : (
+                <>
+                  <span>投稿する</span>
+                  <span className="text-lg md:text-xl">📤</span>
+                </>
+              )}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Guidelines Modal */}
+      <PostingGuidelinesModal
+        isOpen={showGuidelinesModal}
+        onClose={() => setShowGuidelinesModal(false)}
+      />
+
+      {/* Content Moderation Results */}
+      {moderationResult && moderationResult.violations.length > 0 && (
+        <div className="mt-4 p-4 bg-yellow-900/30 border border-yellow-500/50 rounded-lg">
+          <h4 className="text-yellow-300 font-bold mb-2">⚠️ 投稿前チェック</h4>
+          <div className="space-y-2">
+            {moderationResult.violations.map((violation, index) => (
+              <div key={index} className="text-yellow-200 text-sm">
+                • {violation.description}
+                {violation.matchedPhrases.length > 0 && (
+                  <span className="text-yellow-300 ml-2">
+                    (検出: {violation.matchedPhrases.join(', ')})
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => setShowGuidelinesModal(true)}
+            className="mt-2 text-yellow-300 hover:text-yellow-100 text-sm underline"
+          >
+            📖 投稿ガイドラインを確認
+          </button>
         </div>
       )}
       </div>
