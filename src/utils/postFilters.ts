@@ -143,13 +143,13 @@ export const filterPostsByTab = (posts: Post[], tabState: TabState): Post[] => {
           return agreementLevel > 80;
           
         // フリーボイス専用フィルター
-        case 'voting':
+        case 'polls':
           return getPostType(post) === 'freevoice' && getFreevoiceSubType(post) === 'voting';
           
-        case 'event':
+        case 'events':
           return getPostType(post) === 'freevoice' && getFreevoiceSubType(post) === 'event';
           
-        case 'other':
+        case 'others':
           return getPostType(post) === 'freevoice' && getFreevoiceSubType(post) === 'other';
           
         case 'urgent-improvement':

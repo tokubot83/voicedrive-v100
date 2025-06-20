@@ -10,21 +10,20 @@ interface SubFiltersProps {
 
 // サブフィルターの定義
 export const subFilters: SubFilter[] = [
-  // 改善提案サブフィルター
-  { id: 'new', label: '新着', parentTab: 'improvement' },
-  { id: 'trending', label: '注目', parentTab: 'improvement' },
-  { id: 'near-project', label: 'プロジェクト化間近', parentTab: 'improvement' },
-  { id: 'urgent-improvement', label: '緊急', parentTab: 'improvement' },
+  // 改善提案サブフィルター（アイデアボイス）
+  { id: 'voting', label: '投票', parentTab: 'improvement' },
+  { id: 'facility', label: '施設', parentTab: 'improvement' },
+  { id: 'all', label: '全体', parentTab: 'improvement' },
   
-  // コミュニティサブフィルター
-  { id: 'new', label: '新着', parentTab: 'community' },
-  { id: 'trending', label: '注目', parentTab: 'community' },
-  { id: 'urgent-community', label: '緊急', parentTab: 'community' },
+  // コミュニティサブフィルター（フリーボイス）
+  { id: 'polls', label: '投票', parentTab: 'community' },
+  { id: 'events', label: 'イベント', parentTab: 'community' },
+  { id: 'others', label: 'その他', parentTab: 'community' },
   
-  // フリーボイスサブフィルター
-  { id: 'voting', label: '投票', parentTab: 'freevoice' },
-  { id: 'facility', label: '施設', parentTab: 'freevoice' },
-  { id: 'all', label: '全体', parentTab: 'freevoice' },
+  // フリーボイスサブフィルター（廃止）
+  // { id: 'voting', label: '投票', parentTab: 'freevoice' },
+  // { id: 'facility', label: '施設', parentTab: 'freevoice' },
+  // { id: 'all', label: '全体', parentTab: 'freevoice' },
   
   // 公益通報サブフィルター
   { id: 'new', label: '新着', parentTab: 'whistleblowing' },
