@@ -196,6 +196,44 @@ export const demoUsers: DemoUser[] = [
     organizationPath: ['user-1', 'user-2', 'user-3'],
     avatar: '/api/placeholder/150/150',
     isAnonymous: false
+  },
+  // リハビリテーション部長（レベル4）
+  {
+    id: 'user-rehab-head',
+    name: '松本 隆一',
+    username: 'matsumoto-ryuichi',
+    email: 'matsumoto@tategami-hospital.jp',
+    position: 'リハビリテーション部長',
+    department: 'リハビリテーション部',
+    permissionLevel: 4,
+    accountType: 'DEPARTMENT_HEAD',
+    facility_id: 'tategami_hospital',
+    joinDate: new Date('2017-04-01'),
+    directReports: 6,
+    stakeholderCategory: 'leadership',
+    parent_id: 'user-1',
+    organizationPath: ['user-1'],
+    avatar: '/api/placeholder/150/150',
+    isAnonymous: false
+  },
+  // リハビリテーション部理学療法士（レベル1）
+  {
+    id: 'user-rehab-pt',
+    name: '木村 誠',
+    username: 'kimura-makoto',
+    email: 'kimura@tategami-hospital.jp',
+    position: '理学療法士',
+    department: 'リハビリテーション部',
+    permissionLevel: 1,
+    accountType: 'STAFF',
+    facility_id: 'tategami_hospital',
+    joinDate: new Date('2020-04-01'),
+    directReports: 0,
+    stakeholderCategory: 'staff',
+    parent_id: 'user-rehab-head',
+    organizationPath: ['user-1', 'user-rehab-head'],
+    avatar: '/api/placeholder/150/150',
+    isAnonymous: false
   }
 ];
 
