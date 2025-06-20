@@ -1,133 +1,283 @@
-import { Poll, PollVote } from '../../types/poll';
-import { demoUsers } from './users';
+import { FreespacePost, PollOption } from '../../types';
 
-// デモ用投票データ
-export const demoPolls: Poll[] = [
-  // 期限切れの投票（結果投稿の対象）
-  {
-    id: 'poll-expired-1',
-    question: '新人研修プログラムに追加したい内容は？',
-    description: '来年度の新人研修プログラムを見直しています。現場で必要だと感じるスキルや知識について教えてください。',
-    options: [
-      { id: 'exp-opt-1', text: 'デジタル基礎スキル（Excel、PowerPoint等）', emoji: '💻', votes: 85 },
-      { id: 'exp-opt-2', text: 'コミュニケーション研修', emoji: '💬', votes: 67 },
-      { id: 'exp-opt-3', text: '業界特有の専門知識', emoji: '📚', votes: 102 },
-      { id: 'exp-opt-4', text: 'チームワーク・協調性研修', emoji: '🤝', votes: 43 },
-      { id: 'exp-opt-5', text: 'ビジネスマナー研修', emoji: '👔', votes: 28 }
-    ],
-    totalVotes: 325,
-    deadline: new Date('2025-01-10T23:59:59'), // 期限切れ
-    isActive: false,
-    showResults: 'afterDeadline',
-    category: 'idea_sharing',
-    scope: 'organization',
-    createdAt: new Date('2025-01-03T09:00:00'),
-    createdBy: demoUsers[5], // 人事部職員
-    postId: 'freespace-post-expired-1'
-  },
-  
-  // 期限切れの投票その2（接戦の例）
-  {
-    id: 'poll-expired-2',
-    question: '社内カフェの営業時間、どうしたい？',
-    description: '社内カフェの営業時間について、皆さんの希望をお聞かせください。現在は9:00-17:00ですが、より利用しやすくするための改善案を検討中です。',
-    options: [
-      { id: 'cafe-opt-1', text: '現状維持（9:00-17:00）', emoji: '⏰', votes: 89 },
-      { id: 'cafe-opt-2', text: '朝を早めに（8:00-17:00）', emoji: '🌅', votes: 94 },
-      { id: 'cafe-opt-3', text: '夜を遅めに（9:00-19:00）', emoji: '🌆', votes: 87 },
-      { id: 'cafe-opt-4', text: '朝夜両方延長（8:00-19:00）', emoji: '🕐', votes: 82 }
-    ],
-    totalVotes: 352,
-    deadline: new Date('2025-01-08T23:59:59'), // 期限切れ
-    isActive: false,
-    showResults: 'afterDeadline',
-    category: 'casual_discussion',
-    scope: 'facility',
-    createdAt: new Date('2025-01-01T10:00:00'),
-    createdBy: demoUsers[7], // 事務職員
-    postId: 'freespace-post-expired-2'
-  },
+export const freespacePolls: FreespacePost[] = [
   {
     id: 'poll-1',
-    question: '今年の忘年会、どこでやりたい？',
-    description: '年末も近づいてきましたね！皆さんの希望を聞かせてください 🎊',
-    options: [
-      { id: 'opt-1', text: 'ホテルの宴会場', emoji: '🏨', votes: 76 },
-      { id: 'opt-2', text: '居酒屋', emoji: '🍻', votes: 32 },
-      { id: 'opt-3', text: 'カジュアルレストラン', emoji: '🍕', votes: 19 }
+    type: 'poll',
+    title: '病棟の休憩室BGM、どんな音楽がお好みですか？',
+    content: '休憩時間をより快適に過ごすため、BGMの導入を検討しています。皆さんのご意見をお聞かせください🎵',
+    author: {
+      id: 'user-4',
+      name: '田中 恵子',
+      avatar: '/api/placeholder/150/150',
+      position: '看護主任'
+    },
+    department: '医療療養病棟',
+    facility_id: 'tategami_hospital',
+    category: 'casual_discussion',
+    scope: 'department',
+    createdAt: new Date('2025-06-08T15:00:00'),
+    deadline: new Date('2025-06-22T23:59:59'),
+    totalVotes: 8,
+    allowMultipleChoices: false,
+    showResults: true,
+    isExpired: false,
+    pollOptions: [
+      {
+        id: 'opt-1',
+        text: 'クラシック音楽 🎼',
+        emoji: '🎼',
+        votes: 3,
+        voters: ['user-6', 'user-8', 'user-10']
+      },
+      {
+        id: 'opt-2',
+        text: 'ジャズ 🎷',
+        emoji: '🎷',
+        votes: 2,
+        voters: ['user-7', 'user-9']
+      },
+      {
+        id: 'opt-3',
+        text: '自然音（鳥のさえずり、波音など） 🌊',
+        emoji: '🌊',
+        votes: 2,
+        voters: ['user-3', 'user-5']
+      },
+      {
+        id: 'opt-4',
+        text: 'BGMなし（静かな環境） 🤫',
+        emoji: '🤫',
+        votes: 1,
+        voters: ['user-2']
+      }
     ],
-    totalVotes: 127,
-    deadline: new Date('2025-01-20T23:59:59'),
-    isActive: true,
-    showResults: 'afterVote',
-    category: 'event_planning',
-    scope: 'facility',
-    createdAt: new Date('2025-01-15T10:00:00'),
-    createdBy: demoUsers[5] // 人事部職員
+    comments: [
+      {
+        id: 'comment-poll-1-1',
+        userId: 'user-6',
+        userName: '伊藤 麻衣',
+        content: 'クラシックは心が落ち着いて良いですね。バッハがおすすめです！',
+        timestamp: new Date('2025-06-08T16:30:00'),
+        likes: 4,
+        isAnonymous: false
+      },
+      {
+        id: 'comment-poll-1-2',
+        userId: 'user-7',
+        userName: '渡辺 由美',
+        content: 'ジャズは疲れた心を癒してくれます🎵 音量は小さめで',
+        timestamp: new Date('2025-06-09T12:00:00'),
+        likes: 2,
+        isAnonymous: false
+      }
+    ]
   },
   {
     id: 'poll-2',
-    question: '夏のクールビズ期間はいつからがいい？',
-    description: '今年の夏も暑くなりそうです。働きやすい環境づくりのために、皆さんの意見をお聞かせください。',
-    options: [
-      { id: 'opt-4', text: '5月1日から', emoji: '🌸', votes: 45 },
-      { id: 'opt-5', text: '6月1日から', emoji: '☀️', votes: 62 },
-      { id: 'opt-6', text: '7月1日から', emoji: '🌻', votes: 23 },
-      { id: 'opt-7', text: '気温に応じて柔軟に', emoji: '🌡️', votes: 38 }
-    ],
-    totalVotes: 168,
-    deadline: new Date('2025-02-28T23:59:59'),
-    isActive: true,
-    showResults: 'afterVote',
+    type: 'poll',
+    title: '夏祭りイベント、どの時期が参加しやすいですか？',
+    content: '今年も職員とご家族向けの夏祭りを開催予定です。皆さんの都合の良い時期を教えてください🏮',
+    author: {
+      id: 'user-3',
+      name: '鈴木 美香',
+      avatar: '/api/placeholder/150/150',
+      position: '医療療養病棟師長'
+    },
+    department: '医療療養病棟',
+    facility_id: 'tategami_hospital',
     category: 'idea_sharing',
-    scope: 'organization',
-    createdAt: new Date('2025-01-12T14:30:00'),
-    createdBy: demoUsers[6] // 管理職
+    scope: 'facility',
+    createdAt: new Date('2025-06-05T10:00:00'),
+    deadline: new Date('2025-06-20T23:59:59'),
+    totalVotes: 12,
+    allowMultipleChoices: true,
+    showResults: true,
+    isExpired: false,
+    pollOptions: [
+      {
+        id: 'opt-5',
+        text: '7月中旬（海の日の連休） 🌊',
+        emoji: '🌊',
+        votes: 5,
+        voters: ['user-4', 'user-6', 'user-8', 'user-9', 'user-10']
+      },
+      {
+        id: 'opt-6',
+        text: '7月下旬 ☀️',
+        emoji: '☀️',
+        votes: 3,
+        voters: ['user-2', 'user-5', 'user-7']
+      },
+      {
+        id: 'opt-7',
+        text: '8月上旬（お盆前） 🎋',
+        emoji: '🎋',
+        votes: 2,
+        voters: ['user-1', 'user-3']
+      },
+      {
+        id: 'opt-8',
+        text: '8月下旬 🌻',
+        emoji: '🌻',
+        votes: 2,
+        voters: ['user-4', 'user-6']
+      }
+    ],
+    comments: [
+      {
+        id: 'comment-poll-2-1',
+        userId: 'user-8',
+        userName: '中村 さゆり',
+        content: '子供の夏休み期間なので、7月中旬が助かります！',
+        timestamp: new Date('2025-06-05T14:00:00'),
+        likes: 3,
+        isAnonymous: false
+      },
+      {
+        id: 'comment-poll-2-2',
+        userId: 'user-2',
+        userName: '佐藤 花子',
+        content: 'どの時期でも楽しいイベントになりそうですね。準備お疲れ様です',
+        timestamp: new Date('2025-06-06T09:00:00'),
+        likes: 5,
+        isAnonymous: false
+      }
+    ]
   },
   {
     id: 'poll-3',
-    question: 'お昼休みの時間、どう過ごしてる？',
-    description: 'みんなのランチタイムの過ごし方を知りたいです！',
-    options: [
-      { id: 'opt-8', text: '外食', emoji: '🍽️', votes: 34 },
-      { id: 'opt-9', text: 'お弁当', emoji: '🍱', votes: 89 },
-      { id: 'opt-10', text: 'コンビニ', emoji: '🏪', votes: 45 }
-    ],
-    totalVotes: 168,
-    deadline: new Date('2025-01-18T17:00:00'),
-    isActive: true,
-    showResults: 'always',
-    category: 'casual_discussion',
+    type: 'poll',
+    title: '研修の開催時間、どちらが参加しやすいですか？',
+    content: '来月の院内研修会の時間設定で迷っています。皆さんのご都合をお聞かせください📚',
+    author: {
+      id: 'user-5',
+      name: '高橋 真理',
+      avatar: '/api/placeholder/150/150',
+      position: '介護看護補助者主任'
+    },
+    department: '医療療養病棟',
+    facility_id: 'tategami_hospital',
+    category: 'idea_sharing',
     scope: 'department',
-    createdAt: new Date('2025-01-16T12:00:00'),
-    createdBy: demoUsers[2] // 一般職員
+    createdAt: new Date('2025-06-12T11:00:00'),
+    deadline: new Date('2025-06-19T23:59:59'),
+    totalVotes: 6,
+    allowMultipleChoices: false,
+    showResults: true,
+    isExpired: false,
+    pollOptions: [
+      {
+        id: 'opt-9',
+        text: '午前中（10:00-12:00） 🌅',
+        emoji: '🌅',
+        votes: 4,
+        voters: ['user-6', 'user-7', 'user-9', 'user-10']
+      },
+      {
+        id: 'opt-10',
+        text: '午後（14:00-16:00） ☀️',
+        emoji: '☀️',
+        votes: 2,
+        voters: ['user-4', 'user-8']
+      }
+    ],
+    comments: [
+      {
+        id: 'comment-poll-3-1',
+        userId: 'user-7',
+        userName: '渡辺 由美',
+        content: '午前中の方が集中できそうです。午後は眠くなってしまって😅',
+        timestamp: new Date('2025-06-12T12:30:00'),
+        likes: 2,
+        isAnonymous: false
+      }
+    ]
+  },
+  {
+    id: 'poll-4',
+    type: 'poll',
+    title: '制服のカラーバリエーション、どう思いますか？',
+    content: '現在白一色の制服ですが、部署ごとに色分けするアイデアがあります。ご意見をお聞かせください👗',
+    author: {
+      id: 'user-6',
+      name: '伊藤 麻衣',
+      avatar: '/api/placeholder/150/150',
+      position: '看護師'
+    },
+    department: '医療療養病棟',
+    facility_id: 'tategami_hospital',
+    category: 'casual_discussion',
+    scope: 'facility',
+    createdAt: new Date('2025-06-01T09:00:00'),
+    deadline: new Date('2025-06-15T23:59:59'),
+    totalVotes: 9,
+    allowMultipleChoices: false,
+    showResults: true,
+    isExpired: true,
+    pollOptions: [
+      {
+        id: 'opt-11',
+        text: '賛成！部署が分かりやすくて良い 👍',
+        emoji: '👍',
+        votes: 6,
+        voters: ['user-3', 'user-4', 'user-7', 'user-8', 'user-9', 'user-10']
+      },
+      {
+        id: 'opt-12',
+        text: '現在の白一色で良い 👔',
+        emoji: '👔',
+        votes: 2,
+        voters: ['user-2', 'user-5']
+      },
+      {
+        id: 'opt-13',
+        text: 'どちらでも良い 🤷‍♀️',
+        emoji: '🤷‍♀️',
+        votes: 1,
+        voters: ['user-1']
+      }
+    ],
+    comments: [
+      {
+        id: 'comment-poll-4-1',
+        userId: 'user-4',
+        userName: '田中 恵子',
+        content: '患者さんにも職種が分かりやすくて良いアイデアですね！',
+        timestamp: new Date('2025-06-01T15:00:00'),
+        likes: 4,
+        isAnonymous: false
+      },
+      {
+        id: 'comment-poll-4-2',
+        userId: 'user-10',
+        userName: '加藤 健太',
+        content: 'リハビリ部門は動きやすさも重要なので、デザインも考慮してもらえると嬉しいです',
+        timestamp: new Date('2025-06-02T10:00:00'),
+        likes: 3,
+        isAnonymous: false
+      }
+    ]
   }
 ];
 
-// デモ用投票履歴
-export const demoVotes: PollVote[] = [
-  {
-    id: 'vote-1',
-    pollId: 'poll-1',
-    optionId: 'opt-1',
-    userId: 'user-1',
-    timestamp: new Date('2025-01-16T09:30:00'),
-    isAnonymous: false
-  },
-  {
-    id: 'vote-2',
-    pollId: 'poll-2',
-    optionId: 'opt-5',
-    userId: 'user-1',
-    timestamp: new Date('2025-01-13T11:15:00'),
-    isAnonymous: true
-  },
-  {
-    id: 'vote-3',
-    pollId: 'poll-3',
-    optionId: 'opt-9',
-    userId: 'user-1',
-    timestamp: new Date('2025-01-16T12:30:00'),
-    isAnonymous: false
-  }
-];
+// Helper functions
+export const getFreespacePostById = (id: string): FreespacePost | undefined => {
+  return freespacePolls.find(post => post.id === id);
+};
+
+export const getFreespacePostsByDepartment = (department: string): FreespacePost[] => {
+  return freespacePolls.filter(post => post.department === department);
+};
+
+export const getFreespacePostsByFacility = (facilityId: string): FreespacePost[] => {
+  return freespacePolls.filter(post => post.facility_id === facilityId);
+};
+
+export const getActiveFreespacePolls = (): FreespacePost[] => {
+  return freespacePolls.filter(post => !post.isExpired);
+};
+
+export const getExpiredFreespacePolls = (): FreespacePost[] => {
+  return freespacePolls.filter(post => post.isExpired);
+};
