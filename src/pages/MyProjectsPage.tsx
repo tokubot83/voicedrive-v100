@@ -44,7 +44,7 @@ const MyProjectsPage: React.FC = () => {
     
     // 承認待ちプロジェクト（自分が承認者）
     const approvingProjects = demoProjects.filter(p => 
-      p.workflows.some(w => 
+      (p.workflows || []).some(w => 
         w.approver === activeUser.id && 
         w.status === 'in-progress'
       )
@@ -52,14 +52,14 @@ const MyProjectsPage: React.FC = () => {
     
     // 参加中プロジェクト
     const participatingProjects = demoProjects.filter(p => 
-      p.teamMembers.includes(activeUser.id) && 
+      (p.teamMembers || []).includes(activeUser.id) && 
       p.status !== 'completed' && 
       p.status !== 'rejected'
     );
     
     // 仮選出中プロジェクト
     const provisionalProjects = demoProjects.filter(p => 
-      p.provisionalMembers?.includes(activeUser.id) && 
+      (p.provisionalMembers || []).includes(activeUser.id) && 
       p.memberSelectionStatus === 'in-progress'
     );
 
@@ -279,7 +279,7 @@ const MyProjectsPage: React.FC = () => {
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {group.projects.map((project) => {
                     const initiator = getDemoUserById(project.initiator);
-                    const currentWorkflow = project.workflows.find(w => w.status === 'in-progress');
+                    const currentWorkflow = (project.workflows || []).find(w => w.status === 'in-progress');
                     
                     return (
                       <Link
