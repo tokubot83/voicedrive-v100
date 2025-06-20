@@ -1,5 +1,7 @@
-import { Post } from '../types';
+import { Post, User } from '../types';
 import { TabState } from '../types/tabs';
+import PostVisibilityEngine from '../services/PostVisibilityEngine';
+import { StakeholderGroup } from '../types/visibility';
 
 /**
  * 投稿が最近のものかどうかを判定
@@ -199,4 +201,24 @@ export const getPostCountsByTab = (posts: Post[]) => {
     urgent: posts.filter(p => isUrgent(p)).length,
     projects: posts.filter(p => !!p.enhancedProjectStatus).length
   };
+};
+
+/**
+ * ユーザーコンテキストに基づいて投稿をフィルタリング
+ * 投稿の可視性ルールに従って、ユーザーが見るべき投稿のみを返す
+ */
+export const filterPostsByUserContext = (posts: Post[], currentUser: User): Post[] => {
+  const visibilityEngine = new PostVisibilityEngine();
+  
+  return posts.filter(post => {
+    // 同一施設内の投稿は基本的に全て表示
+    const userScope = visibilityEngine.getUserScope(post, currentUser);
+    
+    // 同一施設内または同一法人内の投稿は表示
+    // (投票権限は別途Post.tsxで制御される)
+    return userScope === StakeholderGroup.SAME_TEAM || 
+           userScope === StakeholderGroup.SAME_DEPARTMENT || 
+           userScope === StakeholderGroup.SAME_FACILITY ||
+           userScope === StakeholderGroup.SAME_ORGANIZATION;
+  });
 };

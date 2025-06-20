@@ -1,13 +1,16 @@
 import { useMemo } from 'react';
 import { TabState } from '../types/tabs';
-import { filterPostsByTab } from '../utils/postFilters';
+import { filterPostsByTab, filterPostsByUserContext } from '../utils/postFilters';
 import { demoPosts } from '../data/demo/posts';
+import { useDemoMode } from '../components/demo/DemoModeController';
 
 /**
  * タブフィルタリング用カスタムフック
  * 現在のタブ状態に基づいてフィルタリングされた投稿を返す
  */
 export const useFilteredPosts = (tabState: TabState) => {
+  const { currentUser } = useDemoMode();
+  
   return useMemo(() => {
     // TODO: 実際のアプリケーションでは、ここでAPIから投稿を取得する
     // const posts = usePostsQuery();
@@ -15,8 +18,18 @@ export const useFilteredPosts = (tabState: TabState) => {
     // デモデータを使用
     const posts = demoPosts;
     
-    return () => filterPostsByTab(posts, tabState);
-  }, [tabState]);
+    return () => {
+      // まずタブによるフィルタリング
+      const tabFiltered = filterPostsByTab(posts, tabState);
+      
+      // 次にユーザーコンテキストによるフィルタリング（投稿の表示権限）
+      if (currentUser) {
+        return filterPostsByUserContext(tabFiltered, currentUser);
+      }
+      
+      return tabFiltered;
+    };
+  }, [tabState, currentUser]);
 };
 
 /**

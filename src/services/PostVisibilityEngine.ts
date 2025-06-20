@@ -78,7 +78,7 @@ export class PostVisibilityEngine {
    */
   private checkVotingEligibility(postLevel: ProjectLevel, userScope: StakeholderGroup): boolean {
     const votingRules: Record<ProjectLevel, StakeholderGroup[]> = {
-      'PENDING': [StakeholderGroup.SAME_DEPARTMENT],
+      'PENDING': [StakeholderGroup.SAME_DEPARTMENT, StakeholderGroup.SAME_FACILITY], // 同一施設内なら投票可能
       'TEAM': [StakeholderGroup.SAME_DEPARTMENT], // チームプロジェクトは昇格なし
       'DEPARTMENT': [StakeholderGroup.SAME_FACILITY],
       'FACILITY': [StakeholderGroup.SAME_ORGANIZATION],
@@ -95,7 +95,7 @@ export class PostVisibilityEngine {
   private checkCommentEligibility(postLevel: ProjectLevel, userScope: StakeholderGroup): boolean {
     // コメントは投票権限と同じかより広い範囲
     const commentRules: Record<ProjectLevel, StakeholderGroup[]> = {
-      'PENDING': [StakeholderGroup.SAME_DEPARTMENT],
+      'PENDING': [StakeholderGroup.SAME_DEPARTMENT, StakeholderGroup.SAME_FACILITY], // 同一施設内ならコメント可能
       'TEAM': [StakeholderGroup.SAME_DEPARTMENT],
       'DEPARTMENT': [StakeholderGroup.SAME_FACILITY],
       'FACILITY': [StakeholderGroup.SAME_ORGANIZATION],
@@ -168,8 +168,8 @@ export class PostVisibilityEngine {
       return '🎉 部署プロジェクトに昇格しました！施設内職員の投票で施設プロジェクトを目指せます';
     } else if (postLevel === 'FACILITY' && userScope === StakeholderGroup.SAME_ORGANIZATION) {
       return '🎉 施設プロジェクトに昇格しました！法人内職員の投票で法人プロジェクトを目指せます';
-    } else if (userScope !== StakeholderGroup.SAME_DEPARTMENT && postLevel === 'PENDING') {
-      return 'この投稿は部署内での議論中です。プロジェクト化されると投票できるようになります。';
+    } else if (userScope === StakeholderGroup.SAME_ORGANIZATION && postLevel === 'PENDING') {
+      return 'この投稿は他施設での議論中です。プロジェクト化されると投票できるようになります。';
     }
     
     return undefined;
