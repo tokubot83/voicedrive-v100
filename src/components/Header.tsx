@@ -8,6 +8,37 @@ import { NotificationBell } from './notifications/NotificationBell';
 import { useDemoMode } from './demo/DemoModeController';
 import { useScrollDirection } from '../hooks/useScrollDirection';
 
+// ユーザー情報コンポーネント
+const UserInfo = () => {
+  const { currentUser } = useDemoMode();
+  
+  return (
+    <Link to="/profile" className="flex items-center space-x-2 sm:space-x-3 hover:bg-white/5 rounded-lg p-1 sm:p-2 transition-colors">
+      <div className="text-right hidden md:block">
+        <p className="text-sm font-medium text-white">{currentUser.name}</p>
+        <p className="text-xs text-gray-400">{currentUser.department}</p>
+      </div>
+      <div className="text-right hidden sm:block md:hidden">
+        <p className="text-sm font-medium text-white">{currentUser.name}</p>
+        <p className="text-xs text-gray-400">Lv.{currentUser.permissionLevel}</p>
+      </div>
+      <div className="relative">
+        <img 
+          src={currentUser.avatar} 
+          alt={currentUser.name}
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-blue-500"
+          onError={(e) => {
+            e.currentTarget.src = '/default-avatar.svg';
+          }}
+        />
+        <div className="absolute -bottom-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center font-bold">
+          {currentUser.permissionLevel}
+        </div>
+      </div>
+    </Link>
+  );
+};
+
 interface HeaderProps {
   toggleSidebar: () => void;
 }
@@ -26,17 +57,24 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
     <header className={`fixed left-0 right-0 top-0 z-50 bg-black/80 backdrop-blur border-b border-gray-800 transition-transform duration-300 ${
       isVisible ? 'translate-y-0' : '-translate-y-full'
     }`}>
-      <div className="flex items-center justify-between relative">
-        {/* 中央ロゴ（モバイル・デスクトップ共通） */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-          <div className="flex flex-col items-center">
-            <span className="text-xl md:text-2xl font-bold gradient-text">VoiceDrive</span>
-            <span className="text-xs md:text-sm text-gray-400 mt-1">厚生会 人材統括本部</span>
+      <div className="flex items-center justify-between px-4 py-3">
+        {/* VoiceDriveロゴ（左側） */}
+        <Link to="/" className="flex items-center space-x-3">
+          <div className="text-2xl drop-shadow-[0_0_10px_rgba(29,155,240,0.8)]">🚀</div>
+          <div>
+            <h1 className="text-xl font-bold gradient-text">VoiceDrive</h1>
+            <p className="text-xs text-gray-400 hidden sm:block">革新的な合意形成システム</p>
           </div>
-        </div>
+        </Link>
         
-        {/* 通知ベル（右側に配置） */}
-        <div className="ml-auto flex items-center space-x-3 p-4">
+        {/* ユーザー情報と通知（右側） */}
+        <div className="flex items-center space-x-2 sm:space-x-4">
+          {/* ユーザー情報 */}
+          {isDemoMode ? (
+            <UserInfo />
+          ) : null}
+          
+          {/* 通知ベル */}
           <NotificationBell className="text-white" />
         </div>
       </div>
