@@ -530,7 +530,51 @@ export class NotificationService {
     const deadline = new Date('2024-12-22T17:00:00');
     const hoursUntilDeadline = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60));
 
-    // 施設レベルのプロジェクトメンバー選出に関わる可能性のあるユーザーに通知
+    // 1. 承認権限者への承認発動通知（高権限ユーザー）
+    const approvalAuthorities = [
+      { userId: 'user-8', name: '中村恵子', role: '人事部門長', level: 5 },
+      { userId: 'user-12', name: '藤田洋平', role: '営業本部長', level: 6 },
+      { userId: 'user-15', name: '小林直樹', role: '院長', level: 8 }
+    ];
+
+    await Promise.all(approvalAuthorities.map(async (authority) => {
+      await this.createActionableNotification(authority.userId, 'APPROVAL_REQUIRED', {
+        title: '🏥 施設プロジェクト承認要請',
+        message: `【1on1時間拡充プロジェクト】が施設レベル（380点）に到達し、${authority.role}の承認が必要です。田中太郎さんの提案を予算承認・人員配置の観点からご判断ください。`,
+        dueDate: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48時間後
+        actions: [
+          {
+            id: 'approve',
+            label: '承認',
+            type: 'primary',
+            action: 'approve',
+            requiresComment: true
+          },
+          {
+            id: 'request_modification',
+            label: '修正要求',
+            type: 'secondary',
+            action: 'request_modification',
+            requiresComment: true
+          },
+          {
+            id: 'reject',
+            label: '却下',
+            type: 'danger',
+            action: 'reject',
+            requiresComment: true
+          }
+        ],
+        metadata: {
+          projectId: 'proj-003',
+          postId: 'post-6',
+          workflowStage: 'FACILITY_APPROVAL',
+          urgencyLevel: 4
+        }
+      });
+    }));
+
+    // 2. 施設レベルのプロジェクトメンバー選出に関わる可能性のあるユーザーに通知
     const memberSelectionTargets = [
       'user-1', // 田中太郎（提案者）
       'user-5', // 高橋健太（チームリーダー）
@@ -573,27 +617,93 @@ export class NotificationService {
       });
     }));
 
-    // さらに緊急性を高めるため、期限間近の投票催促通知も追加
-    await this.createActionableNotification('user-1', 'DEADLINE_REMINDER', {
-      title: '🎯 あなたの提案がプロジェクト化決定！',
-      message: '「1on1時間増加」提案が施設プロジェクトレベル（380点）に到達しました！メンバー選出フェーズに入っています。22日17時までにチーム編成を完了する必要があります。',
+    // 3. 投稿者（田中太郎）へのプロジェクト化成功通知
+    await this.createActionableNotification('user-1', 'PROJECT_UPDATE', {
+      title: '🎯 おめでとうございます！あなたの提案がプロジェクト化決定！',
+      message: '「1on1時間増加」提案が施設プロジェクトレベル（380点）に到達しました！現在、承認プロセス中です。メンバー選出フェーズに入っており、22日17時までにチーム編成を完了する必要があります。',
       dueDate: deadline,
       actions: [
         {
           id: 'view_project',
-          label: '詳細',
+          label: 'プロジェクト詳細',
           type: 'primary',
           action: 'view'
+        },
+        {
+          id: 'update_proposal',
+          label: '提案更新',
+          type: 'secondary',
+          action: 'update'
         }
       ],
       metadata: {
         projectId: 'proj-003',
         postId: 'post-6',
-        urgencyLevel: 4
+        urgencyLevel: 2
       }
     });
 
-    console.log('✅ デモ通知システム初期化完了 - 田中太郎1on1プロジェクト緊急メンバー選出通知');
+    // 4. 予算承認者への予算承認通知
+    await this.createActionableNotification('user-12', 'APPROVAL_REQUIRED', {
+      title: '💰 予算承認要請：1on1時間拡充プロジェクト',
+      message: '推定予算：月額15万円（スタッフ1時間×150名）の人件費増。年間180万円の予算承認が必要です。ROI分析では職員満足度向上と離職率低下による長期的効果が見込まれます。',
+      dueDate: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72時間後
+      actions: [
+        {
+          id: 'approve_budget',
+          label: '予算承認',
+          type: 'primary',
+          action: 'approve',
+          requiresComment: false
+        },
+        {
+          id: 'request_detail',
+          label: '詳細資料要求',
+          type: 'secondary',
+          action: 'request_detail',
+          requiresComment: true
+        },
+        {
+          id: 'reject_budget',
+          label: '予算否認',
+          type: 'danger',
+          action: 'reject',
+          requiresComment: true
+        }
+      ],
+      metadata: {
+        projectId: 'proj-003',
+        postId: 'post-6',
+        workflowStage: 'BUDGET_APPROVAL',
+        urgencyLevel: 3
+      }
+    });
+
+    // 5. 面談リマインダー通知（新入職員向け）
+    await this.createActionableNotification('user-3', 'INTERVIEW_REMINDER_FIRST', {
+      title: '📅 新入職員初回面談リマインダー',
+      message: '入職から1週間が経過しました。来週火曜日（12/26）に初回面談を予定しています。職場環境、業務内容、今後のキャリアについて相談しましょう。',
+      dueDate: new Date('2024-12-26T10:00:00'),
+      actions: [
+        {
+          id: 'confirm_attendance',
+          label: '出席確認',
+          type: 'primary',
+          action: 'confirm'
+        },
+        {
+          id: 'reschedule',
+          label: '日程変更',
+          type: 'secondary',
+          action: 'reschedule'
+        }
+      ],
+      metadata: {
+        urgencyLevel: 2
+      }
+    });
+
+    console.log('✅ デモ通知システム初期化完了 - 承認権限発動・プロジェクト化・面談リマインダー通知');
   }
 
   // 面談リマインダー送信メソッド
