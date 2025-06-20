@@ -15,6 +15,8 @@ export default defineConfig({
         drop_debugger: true
       }
     },
+    target: 'es2020',
+    outDir: 'dist',
     rollupOptions: {
       onwarn(warning, warn) {
         if (warning.code === 'UNRESOLVED_IMPORT') return
@@ -23,9 +25,12 @@ export default defineConfig({
         warn(warning)
       },
       output: {
-        manualChunks: {
-          react: ['react', 'react-dom'],
-          vendor: ['lucide-react']
+        manualChunks(id) {
+          if (id.includes('node_modules/react')) return 'react';
+          if (id.includes('node_modules/lucide-react')) return 'vendor';
+          if (id.includes('src/services/')) return 'services';
+          if (id.includes('src/components/analytics/')) return 'analytics';
+          if (id.includes('src/components/dashboards/')) return 'dashboards';
         },
         assetFileNames: (assetInfo) => {
           if (!assetInfo.name) return 'assets/[name]-[hash][extname]';
@@ -39,7 +44,7 @@ export default defineConfig({
       }
     },
     assetsInlineLimit: 4096,
-    chunkSizeWarningLimit: 1000
+    chunkSizeWarningLimit: 500
   },
   esbuild: {
     logOverride: { 
