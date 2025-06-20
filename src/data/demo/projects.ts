@@ -1,4 +1,5 @@
 import { Project, ProjectStatus, ProjectPriority, ProjectCategory } from '../../types';
+import { demoPosts } from './posts';
 
 export const demoProjects: Project[] = [
   // 非常勤職員の慶弔休暇制度プロジェクト（施設内投票フェーズ）
@@ -25,6 +26,7 @@ export const demoProjects: Project[] = [
     priority: 'high',
     category: 'employee-welfare',
     originalPostId: 'post-1',
+    relatedPostIds: ['post-1'],
     createdBy: 'user-7',
     createdByName: '渡辺 由美',
     createdAt: new Date('2025-05-15T10:00:00'),
@@ -178,6 +180,7 @@ export const demoProjects: Project[] = [
     priority: 'medium',
     category: 'innovation',
     originalPostId: 'post-4',
+    relatedPostIds: ['post-4'],
     createdBy: 'user-4',
     createdByName: '田中 恵子',
     createdAt: new Date('2025-06-08T16:45:00'),
@@ -267,6 +270,7 @@ export const demoProjects: Project[] = [
     priority: 'medium',
     category: 'improvement',
     originalPostId: 'post-2',
+    relatedPostIds: ['post-2'],
     createdBy: 'user-6',
     createdByName: '伊藤 麻衣',
     createdAt: new Date('2025-06-10T14:30:00'),

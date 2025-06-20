@@ -1,50 +1,58 @@
-import { Post, PostStatus, PostType, AnonymityLevel, Priority } from '../../types';
+import { Post, PostType, AnonymityLevel, Priority, VoteOption, Comment } from '../../types';
 import { getDemoUserById } from './users';
 
-// Helper function to generate comments
+// Helper function to generate comments that match the expected Comment interface
 const generateComments = (postId: string, comments: Array<{
   userId: string;
   content: string;
   isAnonymous?: boolean;
   timestamp?: Date;
-}>) => {
+}>): Comment[] => {
   return comments.map((comment, index) => ({
     id: `comment-${postId}-${index + 1}`,
-    userId: comment.userId,
-    userName: comment.isAnonymous ? '匿名' : getDemoUserById(comment.userId)?.name || '不明',
+    postId: postId,
     content: comment.content,
+    author: getDemoUserById(comment.userId) || {
+      id: comment.userId,
+      name: comment.isAnonymous ? '匿名' : '不明',
+      department: '医療療養病棟',
+      role: 'スタッフ'
+    },
+    commentType: 'support' as const,
+    anonymityLevel: comment.isAnonymous ? 'anonymous' : 'real_name' as AnonymityLevel,
+    privacyLevel: 'full' as const,
     timestamp: comment.timestamp || new Date(Date.now() - (comments.length - index) * 24 * 60 * 60 * 1000),
     likes: Math.floor(Math.random() * 10),
-    privacyLevel: 'public' as const,
-    isAnonymous: comment.isAnonymous || false
+    hasLiked: false
   }));
 };
 
-// Helper function to generate votes
-const generateVotes = (postId: string, voteData: Array<{
-  userId: string;
-  value: number;
-  comment?: string;
-}>) => {
-  return voteData.map((vote, index) => ({
-    id: `vote-${postId}-${index + 1}`,
-    userId: vote.userId,
-    userName: getDemoUserById(vote.userId)?.name || '不明',
-    value: vote.value,
-    comment: vote.comment,
-    timestamp: new Date(Date.now() - index * 12 * 60 * 60 * 1000),
-    stakeholderCategory: getDemoUserById(vote.userId)?.stakeholderCategory || 'staff'
-  }));
+// Helper function to generate votes in the correct format
+const generateVoteRecord = (voteData: {
+  stronglySupport: number;
+  support: number;
+  neutral: number;
+  oppose: number;
+  stronglyOppose: number;
+}): Record<VoteOption, number> => {
+  return {
+    'strongly-support': voteData.stronglySupport,
+    'support': voteData.support,
+    'neutral': voteData.neutral,
+    'oppose': voteData.oppose,
+    'strongly-oppose': voteData.stronglyOppose
+  };
 };
 
 export const demoPosts: Post[] = [
   // 1. 非常勤職員の慶弔休暇制度（施設内投票フェーズ）
   {
     id: 'post-1',
-    type: 'proposal',
-    status: 'in_voting',
-    title: '非常勤職員の慶弔休暇取得制度の導入提案',
-    content: `現在、非常勤職員には慶弔休暇の制度がありません。実際の現場では、非常勤職員が常勤職員に気を使って、親族の葬儀等でも通常の欠勤扱いで休暇を取得している状況が見受けられます。
+    type: 'improvement' as PostType,
+    proposalType: 'operational',
+    content: `非常勤職員の慶弔休暇取得制度の導入提案
+
+現在、非常勤職員には慶弔休暇の制度がありません。実際の現場では、非常勤職員が常勤職員に気を使って、親族の葬儀等でも通常の欠勤扱いで休暇を取得している状況が見受けられます。
 
 【現状の課題】
 ・非常勤職員が慶弔時に有給休暇を使用するか、欠勤扱いになる
@@ -60,19 +68,20 @@ export const demoPosts: Post[] = [
     author: {
       id: 'user-7',
       name: '渡辺 由美',
+      department: '医療療養病棟',
+      role: '看護師（非常勤）',
       avatar: '/api/placeholder/150/150'
     },
-    department: '医療療養病棟',
-    facility_id: 'tategami_hospital',
-    category: 'employee-welfare',
-    priority: 'high',
-    anonymityLevel: 'non_anonymous',
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'high' as Priority,
     timestamp: new Date('2025-05-15T10:00:00'),
-    likes: 45,
-    views: 289,
-    hasRead: true,
-    projectPhase: 'facility_voting',
-    votingDeadline: new Date('2025-06-30T23:59:59'),
+    votes: generateVoteRecord({
+      stronglySupport: 6,
+      support: 2,
+      neutral: 0,
+      oppose: 0,
+      stronglyOppose: 0
+    }),
     comments: generateComments('post-1', [
       {
         userId: 'user-4',
@@ -92,24 +101,30 @@ export const demoPosts: Post[] = [
         content: '私も非常勤から常勤になりましたが、当時はとても苦労しました。後輩たちのためにも実現してほしいです。'
       }
     ]),
-    votes: generateVotes('post-1', [
-      { userId: 'user-2', value: 5, comment: '病院全体の働きやすさ向上に繋がる重要な提案です' },
-      { userId: 'user-3', value: 5 },
-      { userId: 'user-4', value: 5 },
-      { userId: 'user-5', value: 5 },
-      { userId: 'user-6', value: 5 },
-      { userId: 'user-8', value: 5 },
-      { userId: 'user-10', value: 4, comment: '基本的に賛成ですが、財務面の検討も必要かと' }
-    ])
+    projectStatus: {
+      stage: 'ready' as const,
+      score: 180,
+      threshold: 150,
+      progress: 85
+    },
+    projectId: 'proj-1',
+    votingDeadline: new Date('2025-06-30T23:59:59'),
+    eligibleVoters: 10,
+    voteBreakdown: {
+      agree: 8,
+      disagree: 0,
+      hold: 0
+    }
   },
 
   // 2. 委員会運営の効率化提案
   {
     id: 'post-2',
-    type: 'proposal',
-    status: 'active',
-    title: '各種委員会の運営方法見直しによる業務効率化',
-    content: `当院では医療安全、感染対策、褥瘡対策など多数の委員会が運営されていますが、会議時間の長期化や資料作成の負担が課題となっています。
+    type: 'improvement' as PostType,
+    proposalType: 'innovation',
+    content: `各種委員会の運営方法見直しによる業務効率化
+
+当院では医療安全、感染対策、褥瘡対策など多数の委員会が運営されていますが、会議時間の長期化や資料作成の負担が課題となっています。
 
 【現状の問題点】
 ・月1回の定例会議が2時間以上かかることが多い
@@ -127,17 +142,20 @@ export const demoPosts: Post[] = [
     author: {
       id: 'user-6',
       name: '伊藤 麻衣',
+      department: '医療療養病棟',
+      role: '看護師',
       avatar: '/api/placeholder/150/150'
     },
-    department: '医療療養病棟',
-    facility_id: 'tategami_hospital',
-    category: 'improvement',
-    priority: 'medium',
-    anonymityLevel: 'non_anonymous',
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'medium' as Priority,
     timestamp: new Date('2025-06-10T14:30:00'),
-    likes: 32,
-    views: 156,
-    hasRead: true,
+    votes: generateVoteRecord({
+      stronglySupport: 4,
+      support: 3,
+      neutral: 1,
+      oppose: 0,
+      stronglyOppose: 0
+    }),
     comments: generateComments('post-2', [
       {
         userId: 'user-3',
@@ -147,16 +165,24 @@ export const demoPosts: Post[] = [
         userId: 'user-5',
         content: 'オンライン参加ができれば、病棟を離れられない時でも参加できます。ぜひ実現してほしいです。'
       }
-    ])
+    ]),
+    projectStatus: {
+      stage: 'approaching' as const,
+      score: 95,
+      threshold: 100,
+      progress: 65
+    },
+    projectId: 'proj-3'
   },
 
   // 3. 休憩室の環境改善
   {
     id: 'post-3',
-    type: 'idea',
-    status: 'active',
-    title: '職員休憩室の環境改善について',
-    content: `療養病棟の休憩室が手狭で、昼食時に座れないスタッフがいます。
+    type: 'improvement' as PostType,
+    proposalType: 'operational',
+    content: `職員休憩室の環境改善について
+
+療養病棟の休憩室が手狭で、昼食時に座れないスタッフがいます。
 
 【提案】
 ・休憩時間の分散化（11:30〜、12:00〜、12:30〜の3グループ制）
@@ -167,17 +193,20 @@ export const demoPosts: Post[] = [
     author: {
       id: 'user-8',
       name: '中村 さゆり',
+      department: '医療療養病棟',
+      role: '介護看護補助者',
       avatar: '/api/placeholder/150/150'
     },
-    department: '医療療養病棟',
-    facility_id: 'tategami_hospital',
-    category: 'employee-welfare',
-    priority: 'low',
-    anonymityLevel: 'non_anonymous',
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'low' as Priority,
     timestamp: new Date('2025-06-12T09:15:00'),
-    likes: 28,
-    views: 98,
-    hasRead: false,
+    votes: generateVoteRecord({
+      stronglySupport: 2,
+      support: 4,
+      neutral: 2,
+      oppose: 0,
+      stronglyOppose: 0
+    }),
     comments: generateComments('post-3', [
       {
         userId: 'user-9',
@@ -188,16 +217,23 @@ export const demoPosts: Post[] = [
         userId: 'user-4',
         content: '休憩時間の分散化は良いアイデアですね。シフト調整と合わせて検討してみます。'
       }
-    ])
+    ]),
+    projectStatus: {
+      stage: 'approaching' as const,
+      score: 65,
+      threshold: 75,
+      progress: 45
+    }
   },
 
-  // 4. 申し送り方法の改善
+  // 4. 音声入力システム導入提案
   {
     id: 'post-4',
-    type: 'proposal',
-    status: 'department_review',
-    title: '音声入力を活用した申し送り業務の効率化',
-    content: `毎日の申し送り記録作成に多くの時間を費やしています。
+    type: 'improvement' as PostType,
+    proposalType: 'innovation',
+    content: `音声入力を活用した申し送り業務の効率化
+
+毎日の申し送り記録作成に多くの時間を費やしています。
 
 【現状】
 ・手書きメモから電子カルテへの転記に15-20分
@@ -214,18 +250,20 @@ export const demoPosts: Post[] = [
     author: {
       id: 'user-4',
       name: '田中 恵子',
+      department: '医療療養病棟',
+      role: '看護主任',
       avatar: '/api/placeholder/150/150'
     },
-    department: '医療療養病棟',
-    facility_id: 'tategami_hospital',
-    category: 'innovation',
-    priority: 'medium',
-    anonymityLevel: 'non_anonymous',
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'medium' as Priority,
     timestamp: new Date('2025-06-08T16:45:00'),
-    likes: 41,
-    views: 178,
-    hasRead: true,
-    projectPhase: 'department_discussion',
+    votes: generateVoteRecord({
+      stronglySupport: 5,
+      support: 2,
+      neutral: 1,
+      oppose: 0,
+      stronglyOppose: 0
+    }),
     comments: generateComments('post-4', [
       {
         userId: 'user-6',
@@ -239,16 +277,24 @@ export const demoPosts: Post[] = [
         userId: 'user-10',
         content: 'リハビリ部門でも同様の課題があります。病院全体での導入を検討してはどうでしょうか。'
       }
-    ])
+    ]),
+    projectStatus: {
+      stage: 'ready' as const,
+      score: 125,
+      threshold: 100,
+      progress: 78
+    },
+    projectId: 'proj-2'
   },
 
   // 5. 新人教育プログラムの改善
   {
     id: 'post-5',
-    type: 'discussion',
-    status: 'active',
-    title: '新人看護師・介護職員の教育プログラム改善案',
-    content: `来年度の新人受け入れに向けて、教育プログラムの見直しを提案します。
+    type: 'improvement' as PostType,
+    proposalType: 'operational',
+    content: `新人看護師・介護職員の教育プログラム改善案
+
+来年度の新人受け入れに向けて、教育プログラムの見直しを提案します。
 
 【現行の課題】
 ・OJT依存で指導者により差がある
@@ -265,17 +311,20 @@ export const demoPosts: Post[] = [
     author: {
       id: 'user-5',
       name: '高橋 真理',
+      department: '医療療養病棟',
+      role: '介護看護補助者主任',
       avatar: '/api/placeholder/150/150'
     },
-    department: '医療療養病棟',
-    facility_id: 'tategami_hospital',
-    category: 'improvement',
-    priority: 'high',
-    anonymityLevel: 'non_anonymous',
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'high' as Priority,
     timestamp: new Date('2025-06-11T11:00:00'),
-    likes: 38,
-    views: 145,
-    hasRead: true,
+    votes: generateVoteRecord({
+      stronglySupport: 4,
+      support: 3,
+      neutral: 1,
+      oppose: 0,
+      stronglyOppose: 0
+    }),
     comments: generateComments('post-5', [
       {
         userId: 'user-7',
@@ -289,16 +338,23 @@ export const demoPosts: Post[] = [
         userId: 'user-3',
         content: '看護部として、この提案を前向きに検討します。特にメンタルフォローは重要課題です。'
       }
-    ])
+    ]),
+    projectStatus: {
+      stage: 'approaching' as const,
+      score: 110,
+      threshold: 125,
+      progress: 88
+    }
   },
 
   // 6. 感染対策の効率化（匿名投稿）
   {
     id: 'post-6',
-    type: 'idea',
-    status: 'active',
-    title: '手指消毒剤の配置場所最適化の提案',
-    content: `感染対策は重要ですが、現在の消毒剤配置に改善の余地があります。
+    type: 'improvement' as PostType,
+    proposalType: 'operational',
+    content: `手指消毒剤の配置場所最適化の提案
+
+感染対策は重要ですが、現在の消毒剤配置に改善の余地があります。
 
 ・病室入口にはあるが、ナースステーション内が不足
 ・詰め替え作業が非効率（月2回、計3時間）
@@ -308,23 +364,32 @@ export const demoPosts: Post[] = [
     author: {
       id: 'user-6',
       name: '匿名',
+      department: '医療療養病棟',
+      role: 'スタッフ',
       avatar: '/api/placeholder/150/150'
     },
-    department: '医療療養病棟',
-    facility_id: 'tategami_hospital',
-    category: 'improvement',
-    priority: 'medium',
-    anonymityLevel: 'anonymous',
+    anonymityLevel: 'anonymous' as AnonymityLevel,
+    priority: 'medium' as Priority,
     timestamp: new Date('2025-06-13T13:20:00'),
-    likes: 19,
-    views: 67,
-    hasRead: false,
+    votes: generateVoteRecord({
+      stronglySupport: 2,
+      support: 3,
+      neutral: 1,
+      oppose: 0,
+      stronglyOppose: 0
+    }),
     comments: generateComments('post-6', [
       {
         userId: 'user-4',
         content: '感染対策委員会でも同様の意見が出ていました。来月の会議で検討します。'
       }
-    ])
+    ]),
+    projectStatus: {
+      stage: 'approaching' as const,
+      score: 45,
+      threshold: 75,
+      progress: 35
+    }
   }
 ];
 
@@ -333,18 +398,12 @@ export const getDemoPostById = (id: string): Post | undefined => {
   return demoPosts.find(post => post.id === id);
 };
 
-export const getDemoPostsByDepartment = (department: string): Post[] => {
-  return demoPosts.filter(post => post.department === department);
-};
-
-export const getDemoPostsByFacility = (facilityId: string): Post[] => {
-  return demoPosts.filter(post => post.facility_id === facilityId);
-};
-
 export const getDemoPostsByType = (type: PostType): Post[] => {
   return demoPosts.filter(post => post.type === type);
 };
 
-export const getDemoPostsByStatus = (status: PostStatus): Post[] => {
-  return demoPosts.filter(post => post.status === status);
+export const getDemoPostsByDepartment = (department: string): Post[] => {
+  return demoPosts.filter(post => post.author.department === department);
 };
+
+export default demoPosts;
