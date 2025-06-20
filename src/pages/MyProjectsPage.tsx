@@ -40,19 +40,19 @@ const MyProjectsPage: React.FC = () => {
     if (!activeUser) return;
 
     // 提案したプロジェクト
-    const proposedProjects = demoProjects.filter(p => p.initiator === activeUser.id);
+    const proposedProjects = demoProjects.filter(p => p.createdBy === activeUser.id);
     
     // 承認待ちプロジェクト（自分が承認者）
     const approvingProjects = demoProjects.filter(p => 
-      (p.workflows || []).some(w => 
+      (p.workflowStages || []).some(w => 
         w.approver === activeUser.id && 
-        w.status === 'in-progress'
+        w.status === 'in_progress'
       )
     );
     
     // 参加中プロジェクト
     const participatingProjects = demoProjects.filter(p => 
-      (p.teamMembers || []).includes(activeUser.id) && 
+      (p.teamMembers || []).some(member => member.userId === activeUser.id) && 
       p.status !== 'completed' && 
       p.status !== 'rejected'
     );
@@ -278,8 +278,8 @@ const MyProjectsPage: React.FC = () => {
               ) : (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {group.projects.map((project) => {
-                    const initiator = getDemoUserById(project.initiator);
-                    const currentWorkflow = (project.workflows || []).find(w => w.status === 'in-progress');
+                    const initiator = getDemoUserById(project.createdBy);
+                    const currentWorkflow = (project.workflowStages || []).find(w => w.status === 'in-progress');
                     
                     return (
                       <Link
@@ -300,11 +300,11 @@ const MyProjectsPage: React.FC = () => {
                         
                         <div className="space-y-1 text-xs text-gray-500">
                           <p>提案者: {initiator?.name || '不明'}</p>
-                          <p>作成日: {project.createdDate.toLocaleDateString('ja-JP')}</p>
+                          <p>作成日: {project.createdAt.toLocaleDateString('ja-JP')}</p>
                           
                           {currentWorkflow && (
                             <p className="text-orange-400 font-medium">
-                              現在: {currentWorkflow.stage} 承認待ち
+                              現在: {currentWorkflow.name} 承認待ち
                             </p>
                           )}
                           
