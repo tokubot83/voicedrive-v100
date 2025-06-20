@@ -78,10 +78,10 @@ export class PostVisibilityEngine {
    */
   private checkVotingEligibility(postLevel: ProjectLevel, userScope: StakeholderGroup): boolean {
     const votingRules: Record<ProjectLevel, StakeholderGroup[]> = {
-      'PENDING': [StakeholderGroup.SAME_DEPARTMENT, StakeholderGroup.SAME_FACILITY], // 同一施設内なら投票可能
+      'PENDING': [StakeholderGroup.SAME_DEPARTMENT], // 部署内議論段階：同一部署のみ投票可能
       'TEAM': [StakeholderGroup.SAME_DEPARTMENT], // チームプロジェクトは昇格なし
-      'DEPARTMENT': [StakeholderGroup.SAME_FACILITY],
-      'FACILITY': [StakeholderGroup.SAME_ORGANIZATION],
+      'DEPARTMENT': [StakeholderGroup.SAME_FACILITY], // 部署プロジェクト化後：施設内投票可能
+      'FACILITY': [StakeholderGroup.SAME_ORGANIZATION], // 施設プロジェクト化後：法人内投票可能
       'ORGANIZATION': [StakeholderGroup.SAME_ORGANIZATION],
       'STRATEGIC': [StakeholderGroup.SAME_ORGANIZATION]
     };
@@ -95,9 +95,9 @@ export class PostVisibilityEngine {
   private checkCommentEligibility(postLevel: ProjectLevel, userScope: StakeholderGroup): boolean {
     // コメントは投票権限と同じかより広い範囲
     const commentRules: Record<ProjectLevel, StakeholderGroup[]> = {
-      'PENDING': [StakeholderGroup.SAME_DEPARTMENT, StakeholderGroup.SAME_FACILITY], // 同一施設内ならコメント可能
+      'PENDING': [StakeholderGroup.SAME_DEPARTMENT], // 部署内議論段階：同一部署のみコメント可能
       'TEAM': [StakeholderGroup.SAME_DEPARTMENT],
-      'DEPARTMENT': [StakeholderGroup.SAME_FACILITY],
+      'DEPARTMENT': [StakeholderGroup.SAME_FACILITY], // 部署プロジェクト化後：施設内コメント可能
       'FACILITY': [StakeholderGroup.SAME_ORGANIZATION],
       'ORGANIZATION': [StakeholderGroup.SAME_ORGANIZATION],
       'STRATEGIC': [StakeholderGroup.SAME_ORGANIZATION]
@@ -168,8 +168,10 @@ export class PostVisibilityEngine {
       return '🎉 部署プロジェクトに昇格しました！施設内職員の投票で施設プロジェクトを目指せます';
     } else if (postLevel === 'FACILITY' && userScope === StakeholderGroup.SAME_ORGANIZATION) {
       return '🎉 施設プロジェクトに昇格しました！法人内職員の投票で法人プロジェクトを目指せます';
+    } else if (userScope === StakeholderGroup.SAME_FACILITY && postLevel === 'PENDING') {
+      return '💭 この投稿は他部署での議論中です。部署プロジェクト化されると施設内で投票できるようになります。';
     } else if (userScope === StakeholderGroup.SAME_ORGANIZATION && postLevel === 'PENDING') {
-      return 'この投稿は他施設での議論中です。プロジェクト化されると投票できるようになります。';
+      return '💭 この投稿は他施設での議論中です。プロジェクト化されると投票できるようになります。';
     }
     
     return undefined;
