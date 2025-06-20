@@ -33,7 +33,6 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
   const allNavItems: NavItem[] = [
     // 基本機能（全レベルでアクセス可能）
     { id: 'home', path: '/', icon: '🏠', label: 'ホーム', section: 'main' },
-    { id: 'profile', path: '/profile', icon: '👤', label: 'プロフィール', section: 'main' },
     { id: 'interview-booking', path: '/interview-booking', icon: '🗣️', label: '面談情報', section: 'main' },
     { id: 'my-projects', path: '/my-projects', icon: '⭐', label: 'マイプロジェクト', section: 'main' },
     { id: 'projects', path: '/projects', icon: '📁', label: '全プロジェクト', section: 'main' },
