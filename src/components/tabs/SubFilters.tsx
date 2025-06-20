@@ -15,10 +15,10 @@ export const subFilters: SubFilter[] = [
   { id: 'facility', label: '施設', parentTab: 'improvement' },
   { id: 'all', label: '全体', parentTab: 'improvement' },
   
-  // コミュニティサブフィルター（フリーボイス）
-  { id: 'polls', label: '投票', parentTab: 'community' },
-  { id: 'events', label: 'イベント', parentTab: 'community' },
-  { id: 'others', label: 'その他', parentTab: 'community' },
+  // フリーボイスサブフィルター
+  { id: 'polls', label: '投票', parentTab: 'freevoice' },
+  { id: 'events', label: 'イベント', parentTab: 'freevoice' },
+  { id: 'others', label: 'その他', parentTab: 'freevoice' },
   
   // フリーボイスサブフィルター（廃止）
   // { id: 'voting', label: '投票', parentTab: 'freevoice' },
