@@ -11,6 +11,7 @@ export const freevoicePosts: FreevoicePost[] = [
     },
     department: '医療療養病棟',
     facility_id: 'tategami_hospital',
+    filterCategory: 'facility', // 施設内投稿
     timestamp: new Date('2025-06-14T06:30:00'),
     likes: 12,
     isAnonymous: false,
@@ -45,6 +46,7 @@ export const freevoicePosts: FreevoicePost[] = [
     },
     department: '医療療養病棟',
     facility_id: 'tategami_hospital',
+    filterCategory: 'facility', // 施設内投稿
     timestamp: new Date('2025-06-13T12:45:00'),
     likes: 8,
     isAnonymous: false,
@@ -79,6 +81,7 @@ export const freevoicePosts: FreevoicePost[] = [
     },
     department: '医療療養病棟',
     facility_id: 'tategami_hospital',
+    filterCategory: 'facility', // 施設内投稿
     timestamp: new Date('2025-06-12T09:00:00'),
     likes: 15,
     isAnonymous: false,
@@ -113,6 +116,7 @@ export const freevoicePosts: FreevoicePost[] = [
     },
     department: '医療療養病棟',
     facility_id: 'tategami_hospital',
+    filterCategory: 'facility', // 施設内投稿
     timestamp: new Date('2025-06-11T17:30:00'),
     likes: 9,
     isAnonymous: false,
@@ -138,6 +142,7 @@ export const freevoicePosts: FreevoicePost[] = [
     },
     department: '医療療養病棟',
     facility_id: 'tategami_hospital',
+    filterCategory: 'facility', // 施設内投稿
     timestamp: new Date('2025-06-10T22:00:00'),
     likes: 11,
     isAnonymous: true,
@@ -170,6 +175,62 @@ export const freevoicePosts: FreevoicePost[] = [
         isAnonymous: false
       }
     ]
+  },
+  // 投票対象の投稿
+  {
+    id: 'fv-6',
+    content: '勤務シフトの希望提出方法について投票をお願いします📝 現在の紙ベースから変更を検討中です。皆さんのご意見をお聞かせください！',
+    author: {
+      id: 'user-4',
+      name: '田中 恵子',
+      avatar: '/api/placeholder/150/150'
+    },
+    department: '医療療養病棟',
+    facility_id: 'tategami_hospital',
+    filterCategory: 'voting', // 投票対象
+    hasVoting: true,
+    votingDeadline: new Date('2025-06-28T23:59:59'),
+    timestamp: new Date('2025-06-15T10:00:00'),
+    likes: 6,
+    isAnonymous: false,
+    comments: [
+      {
+        id: 'fvc-11',
+        userId: 'user-6',
+        userName: '伊藤 麻衣',
+        content: 'デジタル化に賛成です！スマホから入力できると便利ですね',
+        timestamp: new Date('2025-06-15T11:00:00'),
+        likes: 3,
+        isAnonymous: false
+      }
+    ]
+  },
+  // 全体表示の投稿（他施設からの情報）
+  {
+    id: 'fv-7',
+    content: '法人内の他施設です。新しい介護技術の研修会を開催します🏥 興味のある方はご参加ください。オンライン参加も可能です！',
+    author: {
+      id: 'user-14',
+      name: '佐々木 健',
+      avatar: '/api/placeholder/150/150'
+    },
+    department: '介護部',
+    facility_id: 'other_facility',
+    filterCategory: 'all', // 全体表示
+    timestamp: new Date('2025-06-13T15:00:00'),
+    likes: 8,
+    isAnonymous: false,
+    comments: [
+      {
+        id: 'fvc-12',
+        userId: 'user-5',
+        userName: '高橋 真理',
+        content: '立神リハビリテーション温泉病院からも参加させていただきたいです！',
+        timestamp: new Date('2025-06-13T16:00:00'),
+        likes: 2,
+        isAnonymous: false
+      }
+    ]
   }
 ];
 
@@ -188,4 +249,29 @@ export const getFreevoicePostsByFacility = (facilityId: string): FreevoicePost[]
 
 export const getFreevoicePostsByUser = (userId: string): FreevoicePost[] => {
   return freevoicePosts.filter(post => post.author.id === userId && !post.isAnonymous);
+};
+
+// 新しいフィルター対応のヘルパー関数
+export const getFreevoicePostsByFilter = (filter: 'voting' | 'facility' | 'all', userFacilityId: string = 'tategami_hospital'): FreevoicePost[] => {
+  switch (filter) {
+    case 'voting':
+      return freevoicePosts.filter(post => 
+        post.filterCategory === 'voting' || 
+        post.hasVoting === true ||
+        (post.votingDeadline && post.votingDeadline > new Date())
+      );
+    case 'facility':
+      return freevoicePosts.filter(post => 
+        post.filterCategory === 'facility' && 
+        post.facility_id === userFacilityId
+      );
+    case 'all':
+      return freevoicePosts.filter(post => 
+        post.filterCategory === 'all' || 
+        post.facility_id !== userFacilityId ||
+        post.filterCategory === undefined // 既存投稿の後方互換性
+      );
+    default:
+      return freevoicePosts;
+  }
 };

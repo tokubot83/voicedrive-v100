@@ -50,6 +50,9 @@ export const demoPosts: Post[] = [
     id: 'post-1',
     type: 'improvement' as PostType,
     proposalType: 'operational',
+    filterCategory: 'voting', // 投票対象
+    facilityScope: 'tategami_hospital',
+    departmentScope: '医療療養病棟',
     content: `非常勤職員の慶弔休暇取得制度の導入提案
 
 現在、非常勤職員には慶弔休暇の制度がありません。実際の現場では、非常勤職員が常勤職員に気を使って、親族の葬儀等でも通常の欠勤扱いで休暇を取得している状況が見受けられます。
@@ -122,6 +125,9 @@ export const demoPosts: Post[] = [
     id: 'post-2',
     type: 'improvement' as PostType,
     proposalType: 'innovation',
+    filterCategory: 'facility', // 施設内投稿
+    facilityScope: 'tategami_hospital',
+    departmentScope: '医療療養病棟',
     content: `各種委員会の運営方法見直しによる業務効率化
 
 当院では医療安全、感染対策、褥瘡対策など多数の委員会が運営されていますが、会議時間の長期化や資料作成の負担が課題となっています。
@@ -180,6 +186,9 @@ export const demoPosts: Post[] = [
     id: 'post-3',
     type: 'improvement' as PostType,
     proposalType: 'operational',
+    filterCategory: 'facility', // 施設内投稿
+    facilityScope: 'tategami_hospital',
+    departmentScope: '医療療養病棟',
     content: `職員休憩室の環境改善について
 
 療養病棟の休憩室が手狭で、昼食時に座れないスタッフがいます。
@@ -231,6 +240,9 @@ export const demoPosts: Post[] = [
     id: 'post-4',
     type: 'improvement' as PostType,
     proposalType: 'innovation',
+    filterCategory: 'voting', // 投票対象
+    facilityScope: 'tategami_hospital',
+    departmentScope: '医療療養病棟',
     content: `音声入力を活用した申し送り業務の効率化
 
 毎日の申し送り記録作成に多くの時間を費やしています。
@@ -292,6 +304,9 @@ export const demoPosts: Post[] = [
     id: 'post-5',
     type: 'improvement' as PostType,
     proposalType: 'operational',
+    filterCategory: 'facility', // 施設内投稿
+    facilityScope: 'tategami_hospital',
+    departmentScope: '医療療養病棟',
     content: `新人看護師・介護職員の教育プログラム改善案
 
 来年度の新人受け入れに向けて、教育プログラムの見直しを提案します。
@@ -352,6 +367,9 @@ export const demoPosts: Post[] = [
     id: 'post-6',
     type: 'improvement' as PostType,
     proposalType: 'operational',
+    filterCategory: 'facility', // 施設内投稿
+    facilityScope: 'tategami_hospital',
+    departmentScope: '医療療養病棟',
     content: `手指消毒剤の配置場所最適化の提案
 
 感染対策は重要ですが、現在の消毒剤配置に改善の余地があります。
@@ -390,6 +408,125 @@ export const demoPosts: Post[] = [
       threshold: 75,
       progress: 35
     }
+  },
+
+  // 7. 法人全体のデジタル化推進（全体表示対象）
+  {
+    id: 'post-7',
+    type: 'improvement' as PostType,
+    proposalType: 'innovation',
+    filterCategory: 'all', // 全体表示
+    facilityScope: 'all', // 全法人
+    departmentScope: 'all',
+    content: `法人全体でのペーパーレス化推進について
+
+医療業界全体でDXが求められる中、当法人でも段階的なペーパーレス化を進めています。
+
+【現状】
+・各施設でバラバラなシステム運用
+・紙書類の保管コストと管理負担
+・情報共有の遅延
+
+【提案】
+1. 統一電子カルテシステムの導入
+2. 会議資料の完全電子化
+3. 職員間情報共有プラットフォームの構築
+
+法人内の皆様からのご意見をお待ちしています。`,
+    author: {
+      id: 'user-11',
+      name: '立神 太郎',
+      department: '法人本部',
+      role: '理事長',
+      avatar: '/api/placeholder/150/150'
+    },
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'high' as Priority,
+    timestamp: new Date('2025-06-01T09:00:00'),
+    votes: generateVoteRecord({
+      stronglySupport: 12,
+      support: 8,
+      neutral: 2,
+      oppose: 1,
+      stronglyOppose: 0
+    }),
+    comments: generateComments('post-7', [
+      {
+        userId: 'user-3',
+        content: '立神リハビリテーション温泉病院として、この取り組みを全面的に支持します。段階的な導入が現実的ですね。'
+      },
+      {
+        userId: 'user-12',
+        content: '他の施設職員です。システム統一により情報共有がスムーズになることを期待しています。'
+      }
+    ]),
+    projectStatus: {
+      stage: 'approaching' as const,
+      score: 150,
+      threshold: 200,
+      progress: 75
+    }
+  },
+
+  // 8. 他施設職員からの投票対象投稿
+  {
+    id: 'post-8',
+    type: 'improvement' as PostType,
+    proposalType: 'operational',
+    filterCategory: 'voting', // 投票対象
+    facilityScope: 'other_hospital', // 他施設
+    departmentScope: '看護部',
+    content: `夜勤者用の仮眠室改善プロジェクト
+
+夜勤の質向上のため、仮眠室の環境改善を提案します。
+
+【課題】
+・防音が不十分で日中の騒音が気になる
+・照明調整ができない
+・ベッドの快適性に課題
+
+【改善案】
+1. 防音対策の強化
+2. 調光可能な照明設備
+3. マットレスの交換
+
+同じ課題を抱える他施設の皆様のご意見もお聞かせください。`,
+    author: {
+      id: 'user-13',
+      name: '山田 美咲',
+      department: '看護部',
+      role: '看護師長',
+      avatar: '/api/placeholder/150/150'
+    },
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'medium' as Priority,
+    timestamp: new Date('2025-06-05T14:00:00'),
+    votes: generateVoteRecord({
+      stronglySupport: 7,
+      support: 3,
+      neutral: 1,
+      oppose: 0,
+      stronglyOppose: 0
+    }),
+    comments: generateComments('post-8', [
+      {
+        userId: 'user-4',
+        content: '立神リハビリテーション温泉病院でも同様の課題があります。参考にさせてください。'
+      }
+    ]),
+    projectStatus: {
+      stage: 'ready' as const,
+      score: 95,
+      threshold: 100,
+      progress: 85
+    },
+    votingDeadline: new Date('2025-06-25T23:59:59'),
+    eligibleVoters: 15,
+    voteBreakdown: {
+      agree: 11,
+      disagree: 0,
+      hold: 1
+    }
   }
 ];
 
@@ -404,6 +541,32 @@ export const getDemoPostsByType = (type: PostType): Post[] => {
 
 export const getDemoPostsByDepartment = (department: string): Post[] => {
   return demoPosts.filter(post => post.author.department === department);
+};
+
+// 新しいフィルター対応のヘルパー関数
+export const getDemoPostsByFilter = (filter: 'voting' | 'facility' | 'all', userFacilityId: string = 'tategami_hospital'): Post[] => {
+  switch (filter) {
+    case 'voting':
+      return demoPosts.filter(post => 
+        post.filterCategory === 'voting' ||
+        (post.votingDeadline && post.votingDeadline > new Date()) ||
+        (post.projectStatus?.stage === 'ready')
+      );
+    case 'facility':
+      return demoPosts.filter(post => 
+        post.filterCategory === 'facility' && 
+        post.facilityScope === userFacilityId
+      );
+    case 'all':
+      return demoPosts.filter(post => 
+        post.filterCategory === 'all' || 
+        post.facilityScope === 'all' ||
+        post.facilityScope !== userFacilityId ||
+        post.filterCategory === undefined // 既存投稿の後方互換性
+      );
+    default:
+      return demoPosts;
+  }
 };
 
 export default demoPosts;
