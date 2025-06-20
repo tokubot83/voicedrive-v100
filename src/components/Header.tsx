@@ -28,17 +28,20 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
       isVisible ? 'translate-y-0' : '-translate-y-full'
     }`}>
       <div className="flex items-center justify-between px-4 py-3">
-        {/* VoiceDriveロゴ（左側） */}
+        {/* 左側のスペーサー */}
+        <div className="flex-1"></div>
+        
+        {/* VoiceDriveロゴ（中央） */}
         <Link to="/" className="flex items-center space-x-3">
           <div className="text-2xl drop-shadow-[0_0_10px_rgba(29,155,240,0.8)] animate-pulse">🚀</div>
-          <div>
+          <div className="text-center">
             <h1 className="text-xl font-bold gradient-text">VoiceDrive</h1>
-            <p className="text-xs text-gray-400 hidden sm:block">厚生会 人材統括本部</p>
+            <p className="text-xs text-gray-400">厚生会人財統括本部</p>
           </div>
         </Link>
         
         {/* 通知ベル（右側） */}
-        <div className="flex items-center">
+        <div className="flex items-center flex-1 justify-end">
           <NotificationBell className="text-white" />
         </div>
       </div>
