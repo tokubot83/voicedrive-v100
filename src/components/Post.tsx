@@ -8,6 +8,7 @@ import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 import { generateSampleVotesByStakeholder } from '../utils/votingCalculations';
 import { proposalTypeConfigs } from '../config/proposalTypes';
 import { FACILITIES } from '../data/medical/facilities';
+import PostVisibilityEngine from '../services/PostVisibilityEngine';
 
 interface PostProps {
   post: PostType;
@@ -25,6 +26,10 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
   const { calculateScore, getStatusConfig, convertVotesToEngagements } = useProjectScoring();
   
   console.log('Post component rendered:', post.id, post.content.substring(0, 50));
+  
+  // PostVisibilityEngineを使用して権限を確認
+  const visibilityEngine = new PostVisibilityEngine();
+  const displayConfig = visibilityEngine.getDisplayConfig(post, currentUser);
   
   // 施設名を取得するヘルパー関数
   const getFacilityName = (facilityId: string) => {
@@ -216,7 +221,7 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
       </div>
 
       {/* 投票・合意システム */}
-      {post.type === 'improvement' && (
+      {post.type === 'improvement' && displayConfig.showVoteButtons && (
         <div className="px-4 pb-4">
           {post.enhancedProjectStatus ? (
             <EnhancedConsensusChart
@@ -244,6 +249,15 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
               showScore={true}
             />
           )}
+        </div>
+      )}
+      
+      {/* 投票権限がない場合のメッセージ */}
+      {post.type === 'improvement' && !displayConfig.showVoteButtons && displayConfig.upgradeNotification && (
+        <div className="px-4 pb-4">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+            <p className="text-gray-600 text-sm">{displayConfig.upgradeNotification}</p>
+          </div>
         </div>
       )}
 
