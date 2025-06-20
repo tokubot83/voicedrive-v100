@@ -162,16 +162,37 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
 
   return (
     <div className="w-full h-full p-5 overflow-y-auto bg-black/30 backdrop-blur-xl">
-      <div className="flex items-center text-2xl font-bold mb-5 text-white animate-pulse">
-        <span className="mr-3 text-3xl drop-shadow-[0_0_10px_rgba(29,155,240,0.8)] animate-float">
-          🚀
-        </span>
-        <span className="gradient-text">VoiceDrive</span>
-      </div>
-      
-      <div className="text-sm text-gray-500 mb-6 text-center opacity-80">
-        革新的合意形成システム
-      </div>
+      {/* ユーザー情報（最上部） */}
+      {isDemoMode ? (
+        <Link to="/profile" className="block mb-6 bg-gray-800/50 rounded-lg p-3 sm:p-4 backdrop-blur hover:bg-gray-800/70 transition-colors">
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <img 
+              src={currentUser.avatar} 
+              alt={currentUser.name}
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-blue-500"
+              onError={(e) => {
+                e.currentTarget.src = '/default-avatar.svg';
+              }}
+            />
+            <div className="flex-1 min-w-0">
+              <div className="text-xs sm:text-sm font-medium text-white truncate">{currentUser.name}</div>
+              <div className="text-xs text-gray-400 truncate">{currentUser.position}</div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-gray-500 truncate flex-1">{currentUser.department}</span>
+            <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full ml-2">
+              Lv.{currentUser.permissionLevel}
+            </span>
+          </div>
+        </Link>
+      ) : (
+        <div className="mb-6 text-center">
+          <div className="text-xs text-gray-500">
+            {metadata.displayName}
+          </div>
+        </div>
+      )}
       
       <nav>
         {filteredNavItems.map((item) => {
