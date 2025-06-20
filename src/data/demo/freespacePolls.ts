@@ -1,6 +1,6 @@
 import { FreespacePost, PollOption } from '../../types';
 
-export const freespacePolls: FreespacePost[] = [
+export const demoPolls: FreespacePost[] = [
   {
     id: 'poll-1',
     type: 'poll',
@@ -262,22 +262,31 @@ export const freespacePolls: FreespacePost[] = [
 ];
 
 // Helper functions
+// エイリアスとしてfreespacePostsもエクスポート
+export const freespacePolls = demoPolls;
+
+// 投票データもエクスポート（後方互換性のため）
+export const demoVotes = demoPolls.map(poll => ({
+  pollId: poll.id,
+  votes: poll.pollOptions?.reduce((total, option) => total + option.votes, 0) || 0
+}));
+
 export const getFreespacePostById = (id: string): FreespacePost | undefined => {
-  return freespacePolls.find(post => post.id === id);
+  return demoPolls.find(post => post.id === id);
 };
 
 export const getFreespacePostsByDepartment = (department: string): FreespacePost[] => {
-  return freespacePolls.filter(post => post.department === department);
+  return demoPolls.filter(post => post.department === department);
 };
 
 export const getFreespacePostsByFacility = (facilityId: string): FreespacePost[] => {
-  return freespacePolls.filter(post => post.facility_id === facilityId);
+  return demoPolls.filter(post => post.facility_id === facilityId);
 };
 
 export const getActiveFreespacePolls = (): FreespacePost[] => {
-  return freespacePolls.filter(post => !post.isExpired);
+  return demoPolls.filter(post => !post.isExpired);
 };
 
 export const getExpiredFreespacePolls = (): FreespacePost[] => {
-  return freespacePolls.filter(post => post.isExpired);
+  return demoPolls.filter(post => post.isExpired);
 };
