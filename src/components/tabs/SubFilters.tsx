@@ -22,10 +22,9 @@ export const subFilters: SubFilter[] = [
   { id: 'urgent-community', label: '緊急', parentTab: 'community' },
   
   // フリーボイスサブフィルター
-  { id: 'new', label: '新着', parentTab: 'freevoice' },
   { id: 'voting', label: '投票', parentTab: 'freevoice' },
-  { id: 'event', label: 'イベント', parentTab: 'freevoice' },
-  { id: 'other', label: 'その他', parentTab: 'freevoice' },
+  { id: 'facility', label: '施設', parentTab: 'freevoice' },
+  { id: 'all', label: '全体', parentTab: 'freevoice' },
   
   // 公益通報サブフィルター
   { id: 'new', label: '新着', parentTab: 'whistleblowing' },
