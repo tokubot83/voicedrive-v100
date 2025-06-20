@@ -17,9 +17,10 @@ interface EventAnalysisProps {
 // 投票分析コンポーネント
 const VotingAnalysis: React.FC<VotingAnalysisProps> = ({ post }) => {
   // 投票データの取得
-  const pollOptions = post.pollOptions || [];
+  const poll = post.poll;
+  const pollOptions = poll?.options || [];
   const pollResult = post.pollResult;
-  const votingDeadline = post.votingDeadline;
+  const votingDeadline = post.votingDeadline || poll?.deadline;
   const isExpired = votingDeadline && new Date() > new Date(votingDeadline);
 
   // 基本統計の計算
@@ -205,13 +206,13 @@ const VotingAnalysis: React.FC<VotingAnalysisProps> = ({ post }) => {
 
 // イベント分析コンポーネント（プライバシー配慮）
 const EventAnalysis: React.FC<EventAnalysisProps> = ({ post }) => {
-  const eventDetails = post.eventDetails;
+  const event = post.event;
   
-  if (!eventDetails) return null;
+  if (!event) return null;
 
   // プライバシー配慮した申込状況の表示
-  const maxCapacity = eventDetails.maxParticipants || 50;
-  const currentParticipants = eventDetails.currentParticipants || 0;
+  const maxCapacity = event.maxParticipants || 50;
+  const currentParticipants = event.participants?.length || 0;
   const occupancyRate = maxCapacity > 0 ? (currentParticipants / maxCapacity) * 100 : 0;
   
   // 申込状況をざっくりとした表現で表示（個人特定を避ける）
@@ -224,7 +225,7 @@ const EventAnalysis: React.FC<EventAnalysisProps> = ({ post }) => {
   };
 
   const statusInfo = getOccupancyStatus();
-  const eventDate = eventDetails.eventDate ? new Date(eventDetails.eventDate) : null;
+  const eventDate = event.finalDate?.date ? new Date(event.finalDate.date) : null;
   const isUpcoming = eventDate && eventDate > new Date();
   const daysUntilEvent = eventDate ? Math.ceil((eventDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0;
 
@@ -331,15 +332,26 @@ const EventAnalysis: React.FC<EventAnalysisProps> = ({ post }) => {
 const FreevoiceAnalysisPanel: React.FC<FreevoiceAnalysisPanelProps> = ({ post }) => {
   // フリーボイス以外は表示しない
   if (post.type !== 'community') {
+    console.log('FreevoiceAnalysisPanel: Not a community post', post.type);
     return null;
   }
 
   // 投票投稿かイベント投稿かを判定
-  const isVotingPost = post.pollOptions || post.pollResult || post.votingDeadline;
-  const isEventPost = post.eventDetails;
+  const isVotingPost = post.poll || post.pollResult || post.votingDeadline;
+  const isEventPost = post.event;
+  
+  console.log('FreevoiceAnalysisPanel: Post analysis', {
+    postId: post.id,
+    hasPoll: !!post.poll,
+    hasPollResult: !!post.pollResult,
+    hasEvent: !!post.event,
+    isVotingPost,
+    isEventPost
+  });
 
   // どちらでもない場合（通常のコミュニティ投稿）は表示しない
   if (!isVotingPost && !isEventPost) {
+    console.log('FreevoiceAnalysisPanel: No poll or event found');
     return null;
   }
 

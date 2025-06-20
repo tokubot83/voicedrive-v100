@@ -1,4 +1,5 @@
-import { Post, CommentType, CommentPrivacyLevel, AnonymityLevel, Comment } from '../../types';
+import { Post, CommentType, CommentPrivacyLevel, AnonymityLevel, Comment, Poll, Event } from '../../types';
+import { EventType, EventStatus, EventVisibility, ParticipantStatus } from '../../types/event';
 import { demoUsers } from './users';
 
 // 医療介護系法人向けフリーボイス投稿のデモデータ
@@ -25,13 +26,27 @@ export const freevoiceDemoPosts: Post[] = [
     visibility: 'organization',
     votingDeadline: new Date('2025-01-22T23:59:59'), // 1週間後
     tags: ['夜勤', '勤務改善', '投票進行中'],
-    pollOptions: [
-      { id: 'night-opt-1', text: '休憩時間を3時間に延長', emoji: '⏰', votes: 0 },
-      { id: 'night-opt-2', text: '休憩室を拡張・個室化', emoji: '🛏️', votes: 0 },
-      { id: 'night-opt-3', text: '仮眠専用時間を1時間確保', emoji: '😴', votes: 0 },
-      { id: 'night-opt-4', text: '夜勤手当の増額', emoji: '💰', votes: 0 },
-      { id: 'night-opt-5', text: '夜勤回数の上限設定', emoji: '📅', votes: 0 }
-    ],
+    poll: {
+      id: 'poll-night-1',
+      question: '夜勤時の休憩時間の改善について',
+      description: '現在の夜勤時の休憩時間について改善案を検討中です。どの案が最も効果的だと思いますか？',
+      options: [
+        { id: 'night-opt-1', text: '休憩時間を3時間に延長', emoji: '⏰', votes: 34 },
+        { id: 'night-opt-2', text: '休憩室を拡張・個室化', emoji: '🛏️', votes: 32 },
+        { id: 'night-opt-3', text: '仮眠専用時間を1時間確保', emoji: '😴', votes: 29 },
+        { id: 'night-opt-4', text: '夜勤手当の増額', emoji: '💰', votes: 20 },
+        { id: 'night-opt-5', text: '夜勤回数の上限設定', emoji: '📅', votes: 12 }
+      ],
+      totalVotes: 127,
+      deadline: new Date('2025-01-22T23:59:59'),
+      isActive: true,
+      allowMultiple: false,
+      showResults: 'afterVote' as const,
+      category: 'casual_discussion' as const,
+      scope: 'organization' as const,
+      createdAt: new Date('2025-01-15T14:00:00'),
+      createdBy: demoUsers[5]
+    },
     pollResult: {
       totalVotes: 127,
       participationRate: 73.4,
@@ -85,12 +100,26 @@ export const freevoiceDemoPosts: Post[] = [
     visibility: 'facility',
     votingDeadline: new Date('2025-01-25T23:59:59'),
     tags: ['職員食堂', 'メニュー改善', '投票参加率低'],
-    pollOptions: [
-      { id: 'menu-opt-1', text: 'ヘルシーサラダバー', emoji: '🥗', votes: 0 },
-      { id: 'menu-opt-2', text: '低糖質メニュー', emoji: '🍚', votes: 0 },
-      { id: 'menu-opt-3', text: '夜勤者向け軽食', emoji: '🥪', votes: 0 },
-      { id: 'menu-opt-4', text: '季節の郷土料理', emoji: '🍲', votes: 0 }
-    ],
+    poll: {
+      id: 'poll-menu-1',
+      question: '職員食堂のメニュー改善アンケート',
+      description: '健康的で美味しい食事を提供するため、新しいメニューの導入を検討しています。',
+      options: [
+        { id: 'menu-opt-1', text: 'ヘルシーサラダバー', emoji: '🥗', votes: 8 },
+        { id: 'menu-opt-2', text: '低糖質メニュー', emoji: '🍚', votes: 6 },
+        { id: 'menu-opt-3', text: '夜勤者向け軽食', emoji: '🥪', votes: 5 },
+        { id: 'menu-opt-4', text: '季節の郷土料理', emoji: '🍲', votes: 4 }
+      ],
+      totalVotes: 23,
+      deadline: new Date('2025-01-25T23:59:59'),
+      isActive: true,
+      allowMultiple: false,
+      showResults: 'afterVote' as const,
+      category: 'idea_sharing' as const,
+      scope: 'facility' as const,
+      createdAt: new Date('2025-01-18T10:00:00'),
+      createdBy: demoUsers[7]
+    },
     pollResult: {
       totalVotes: 23,
       participationRate: 28.4,
@@ -131,16 +160,48 @@ export const freevoiceDemoPosts: Post[] = [
     createdDate: new Date('2025-01-20T09:00:00'),
     visibility: 'organization',
     tags: ['お花見', 'イベント開催', '申込受付中'],
-    eventDetails: {
-      eventDate: new Date('2025-04-05T12:00:00'),
-      location: '病院中庭 桜広場',
-      maxParticipants: 80,
-      currentParticipants: 74, // 満席間近
+    event: {
+      id: 'event-hanami-1',
+      title: '第3回 院内お花見会',
+      description: '毎年恒例の院内お花見会を今年も開催いたします！',
+      type: EventType.SOCIAL,
+      proposedDates: [{
+        id: 'date-hanami-1',
+        date: new Date('2025-04-05T12:00:00'),
+        startTime: '12:00',
+        endTime: '15:00',
+        votes: [],
+        totalVotes: 0
+      }],
+      finalDate: {
+        date: new Date('2025-04-05T12:00:00'),
+        startTime: '12:00',
+        endTime: '15:00',
+        timezone: 'Asia/Tokyo'
+      },
       registrationDeadline: new Date('2025-03-28T23:59:59'),
-      fee: 500,
       organizer: demoUsers[4],
-      categories: ['交流会', '院内イベント'],
-      requiresRegistration: true
+      maxParticipants: 80,
+      participants: Array(74).fill(null).map((_, i) => ({
+        id: `participant-${i}`,
+        user: demoUsers[0],
+        status: ParticipantStatus.CONFIRMED,
+        joinedAt: new Date('2025-01-20T09:00:00')
+      })),
+      waitlist: [],
+      venue: {
+        name: '病院中庭 桜広場',
+        capacity: 80
+      },
+      cost: 500,
+      status: EventStatus.RECRUITING,
+      visibility: EventVisibility.ORGANIZATION,
+      allowDateVoting: false,
+      allowParticipantComments: true,
+      sendReminders: true,
+      createdAt: new Date('2025-01-20T09:00:00'),
+      updatedAt: new Date('2025-01-20T09:00:00'),
+      tags: ['お花見', 'イベント開催', '申込受付中']
     },
     comments: [
       {
@@ -196,16 +257,48 @@ export const freevoiceDemoPosts: Post[] = [
     createdDate: new Date('2025-01-21T08:00:00'),
     visibility: 'organization',
     tags: ['勉強会', '感染対策', '申込開始'],
-    eventDetails: {
-      eventDate: new Date('2025-02-15T14:00:00'),
-      location: '大会議室A',
-      maxParticipants: 50,
-      currentParticipants: 7, // 申込開始したばかり
+    event: {
+      id: 'event-study-1',
+      title: '第1回 院内勉強会「感染対策の最新動向」',
+      description: '感染対策委員会主催の勉強会を開催いたします。',
+      type: EventType.TRAINING,
+      proposedDates: [{
+        id: 'date-study-1',
+        date: new Date('2025-02-15T14:00:00'),
+        startTime: '14:00',
+        endTime: '16:00',
+        votes: [],
+        totalVotes: 0
+      }],
+      finalDate: {
+        date: new Date('2025-02-15T14:00:00'),
+        startTime: '14:00',
+        endTime: '16:00',
+        timezone: 'Asia/Tokyo'
+      },
       registrationDeadline: new Date('2025-02-12T23:59:59'),
-      fee: 0,
       organizer: demoUsers[6],
-      categories: ['研修', '感染対策'],
-      requiresRegistration: true
+      maxParticipants: 50,
+      participants: Array(7).fill(null).map((_, i) => ({
+        id: `participant-study-${i}`,
+        user: demoUsers[0],
+        status: ParticipantStatus.CONFIRMED,
+        joinedAt: new Date('2025-01-21T08:00:00')
+      })),
+      waitlist: [],
+      venue: {
+        name: '大会議室A',
+        capacity: 50
+      },
+      cost: 0,
+      status: EventStatus.RECRUITING,
+      visibility: EventVisibility.ORGANIZATION,
+      allowDateVoting: false,
+      allowParticipantComments: true,
+      sendReminders: true,
+      createdAt: new Date('2025-01-21T08:00:00'),
+      updatedAt: new Date('2025-01-21T08:00:00'),
+      tags: ['勉強会', '感染対策', '申込開始']
     },
     comments: []
   },

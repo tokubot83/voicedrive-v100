@@ -39,6 +39,15 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
     onVote?.(optionId);
   };
 
+  // デバッグ用
+  console.log('FreespacePost rendered:', {
+    postId: post.id,
+    hasComments: !!post.comments,
+    commentsLength: post.comments?.length || 0,
+    showComments,
+    onComment: !!onComment
+  });
+
   const getPercentage = (votes: number) => {
     if (!poll || poll.totalVotes === 0) return 0;
     return Math.round((votes / poll.totalVotes) * 100);
@@ -186,7 +195,10 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
       <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
         <div className="flex space-x-6">
           <button 
-            onClick={() => setShowComments(!showComments)}
+            onClick={() => {
+              console.log('Comment button clicked, toggling showComments from', showComments, 'to', !showComments);
+              setShowComments(!showComments);
+            }}
             className="flex items-center space-x-2 text-gray-500 hover:text-blue-600 transition-colors"
           >
             <MessageCircle className="w-5 h-5" />

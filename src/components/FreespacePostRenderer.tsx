@@ -10,7 +10,7 @@ interface FreespacePostRendererProps {
   post: Post;
   currentUserId?: string;
   onVote?: (postId: string, option: string) => void;
-  onComment?: (postId: string) => void;
+  onComment?: (postId: string, comment: any) => void;
   onJoinEvent?: (eventId: string, note?: string) => void;
   onLeaveEvent?: (eventId: string) => void;
   onVoteDate?: (eventId: string, proposedDateId: string, response: any) => void;
@@ -66,7 +66,7 @@ const FreespacePostRenderer = ({
         poll={post.poll}
         userVote={userVote}
         onVote={(optionId) => onPollVote?.(post.poll.id, optionId)}
-        onComment={() => onComment?.(post.id)}
+        onComment={onComment}
       />
     );
   }
@@ -113,7 +113,7 @@ const FreespacePostRenderer = ({
       {/* アクションボタン */}
       <div className="flex items-center space-x-6 pt-3 border-t border-gray-200">
         <button 
-          onClick={() => onComment?.(post.id)}
+          onClick={() => console.log('Comment button clicked for post:', post.id)}
           className="flex items-center space-x-2 text-gray-500 hover:text-blue-600 transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
