@@ -18,8 +18,8 @@ export class ConsensusInsightGenerator {
   static generateInsights(votes: VoteData, users?: User[]): string[] {
     const insights: string[] = [];
     
-    // 総投票数の計算
-    const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+    // 総投票数の計算（nullチェック付き）
+    const totalVotes = Object.values(votes || {}).reduce((sum, count) => sum + count, 0);
     
     // 支持率の計算
     const supportVotes = votes['support'] + votes['strongly-support'];
@@ -73,7 +73,7 @@ export class ConsensusInsightGenerator {
     level: string;
     color: 'green' | 'yellow' | 'red';
   } {
-    const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+    const totalVotes = Object.values(votes || {}).reduce((sum, count) => sum + count, 0);
     
     if (totalVotes === 0) {
       return { percentage: 0, level: '投票待ち', color: 'yellow' };
@@ -101,7 +101,7 @@ export class ConsensusInsightGenerator {
   }
   
   static getConsensusDetails(votes: VoteData): Array<{label: string; value: string | number; trend?: 'up' | 'down' | 'stable'}> {
-    const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+    const totalVotes = Object.values(votes || {}).reduce((sum, count) => sum + count, 0);
     const supportVotes = votes['support'] + votes['strongly-support'];
     const opposeVotes = votes['strongly-oppose'] + votes['oppose'];
     

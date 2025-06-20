@@ -21,8 +21,8 @@ const ConsensusProgressBar: React.FC<ConsensusProgressBarProps> = ({
     { type: 'strongly-oppose' as VoteOption, label: '強く反対', color: 'bg-red-500', emoji: '😠' }
   ];
 
-  // 合計票数を計算
-  const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+  // 合計票数を計算（nullチェック付き）
+  const totalVotes = Object.values(votes || {}).reduce((sum, count) => sum + count, 0);
 
   if (totalVotes === 0) {
     return (

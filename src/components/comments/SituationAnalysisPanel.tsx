@@ -11,8 +11,8 @@ interface SituationAnalysisPanelProps {
 const SituationAnalysisPanel: React.FC<SituationAnalysisPanelProps> = ({ post }) => {
   const { calculateScore, convertVotesToEngagements } = useProjectScoring();
   
-  // 投票の詳細分析
-  const totalVotes = Object.values(post.votes).reduce((sum, count) => sum + count, 0);
+  // 投票の詳細分析（nullチェック付き）
+  const totalVotes = Object.values(post.votes || {}).reduce((sum, count) => sum + count, 0);
   
   // フリーボイス投稿の場合は専用パネルを使用するため表示しない
   if (post.type === 'community') {

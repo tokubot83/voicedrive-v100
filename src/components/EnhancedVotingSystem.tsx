@@ -32,7 +32,7 @@ const EnhancedVotingSystem = ({
     { id: 'strongly-support' as VoteOption, emoji: '😍', label: '強く賛成', color: 'blue' },
   ];
 
-  const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+  const totalVotes = Object.values(votes || {}).reduce((sum, count) => sum + count, 0);
   const rawConsensus = calculateRawConsensus(votes);
   const weightedConsensus = votesByStakeholder && proposalType 
     ? calculateWeightedConsensus(votesByStakeholder, proposalType)

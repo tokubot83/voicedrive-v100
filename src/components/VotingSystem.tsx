@@ -22,7 +22,7 @@ const VotingSystem = ({ votes, selectedVote, onVote, postId, proposalType, showS
     { id: 'strongly-support' as VoteOption, emoji: '😍', label: '強く賛成', color: 'blue' },
   ];
 
-  const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+  const totalVotes = Object.values(votes || {}).reduce((sum, count) => sum + count, 0);
   const consensusScore = totalVotes > 0 
     ? Math.round(((votes.support + votes['strongly-support']) / totalVotes) * 100)
     : 0;

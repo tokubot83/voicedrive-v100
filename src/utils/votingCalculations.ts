@@ -14,7 +14,7 @@ interface StakeholderVotes {
 
 // Calculate raw consensus score (unweighted)
 export const calculateRawConsensus = (votes: Record<VoteOption, number>): number => {
-  const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+  const totalVotes = Object.values(votes || {}).reduce((sum, count) => sum + count, 0);
   
   if (totalVotes === 0) return 0;
   
@@ -37,7 +37,7 @@ export const calculateWeightedConsensus = (
     const stakeholderVotes = votesByStakeholder[category];
     if (!stakeholderVotes) return;
     
-    const totalVotes = Object.values(stakeholderVotes).reduce((sum, count) => sum + count, 0);
+    const totalVotes = Object.values(stakeholderVotes || {}).reduce((sum, count) => sum + count, 0);
     if (totalVotes === 0) return;
     
     const supportVotes = (stakeholderVotes.support || 0) + (stakeholderVotes['strongly-support'] || 0);
@@ -69,7 +69,7 @@ export const getStakeholderBreakdown = (
       'strongly-support': 0
     };
     
-    const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+    const totalVotes = Object.values(votes || {}).reduce((sum, count) => sum + count, 0);
     
     return {
       category,

@@ -6,6 +6,7 @@ import ThreadedCommentSystem from './comments/ThreadedCommentSystem';
 import Avatar from './common/Avatar';
 import { generateAvatarByAnonymity, getDisplayName } from '../utils/avatarGenerator';
 import { useDemoMode } from './demo/DemoModeController';
+import { safeTotalValues } from '../utils/safeObjectHelpers';
 
 interface FreespacePostProps {
   post: Post;
@@ -39,18 +40,19 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
     onVote?.(optionId);
   };
 
-  // デバッグ用
-  console.log('FreespacePost rendered:', {
-    postId: post.id,
-    hasComments: !!post.comments,
-    commentsLength: post.comments?.length || 0,
-    showComments,
-    onComment: !!onComment
-  });
 
   const getPercentage = (votes: number) => {
     if (!poll || poll.totalVotes === 0) return 0;
     return Math.round((votes / poll.totalVotes) * 100);
+  };
+
+  // 投票データの安全な初期化
+  const safeVotes = post.votes || {
+    'strongly-oppose': 0,
+    'oppose': 0,
+    'neutral': 0,
+    'support': 0,
+    'strongly-support': 0
   };
 
   const getTimeLeft = (deadline: Date) => {
@@ -195,10 +197,7 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
       <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
         <div className="flex space-x-6">
           <button 
-            onClick={() => {
-              console.log('Comment button clicked, toggling showComments from', showComments, 'to', !showComments);
-              setShowComments(!showComments);
-            }}
+            onClick={() => setShowComments(!showComments)}
             className="flex items-center space-x-2 text-gray-500 hover:text-blue-600 transition-colors"
           >
             <MessageCircle className="w-5 h-5" />
