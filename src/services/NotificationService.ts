@@ -524,23 +524,23 @@ export class NotificationService {
     return template ? template(data) : { subject: '', body: '' };
   }
 
-  // デモ用通知の初期化（田中太郎の1on1プロジェクトメンバー選出緊急通知）
+  // デモ用通知の初期化（立神リハビリテーション温泉病院の正しいデモデータ）
   async initializeDemoNotifications(): Promise<void> {
     const now = new Date();
-    const deadline = new Date('2024-12-22T17:00:00');
+    const deadline = new Date('2025-06-30T23:59:59');
     const hoursUntilDeadline = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60));
 
-    // 1. 承認権限者への承認発動通知（高権限ユーザー）
+    // 1. 承認権限者への承認発動通知（立神リハビリ病院の権限者）
     const approvalAuthorities = [
-      { userId: 'user-8', name: '中村恵子', role: '人事部門長', level: 5 },
-      { userId: 'user-12', name: '藤田洋平', role: '営業本部長', level: 6 },
-      { userId: 'user-15', name: '小林直樹', role: '院長', level: 8 }
+      { userId: 'user-1', name: '山田 太郎', role: '院長', level: 4 },
+      { userId: 'user-2', name: '佐藤 花子', role: '総師長', level: 4 },
+      { userId: 'user-rehab-head', name: '松本 隆一', role: 'リハビリテーション部長', level: 4 }
     ];
 
     await Promise.all(approvalAuthorities.map(async (authority) => {
       await this.createActionableNotification(authority.userId, 'APPROVAL_REQUIRED', {
-        title: '🏥 施設プロジェクト承認要請',
-        message: `【1on1時間拡充プロジェクト】が施設レベル（380点）に到達し、${authority.role}の承認が必要です。田中太郎さんの提案を予算承認・人員配置の観点からご判断ください。`,
+        title: '🏥 非常勤職員処遇改善プロジェクト承認要請',
+        message: `【非常勤職員の慶弔休暇取得制度の導入】が施設レベル（94%支持）に到達し、${authority.role}の承認が必要です。渡辺由美さんの提案を予算承認・制度運用の観点からご判断ください。`,
         dueDate: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48時間後
         actions: [
           {
@@ -566,27 +566,27 @@ export class NotificationService {
           }
         ],
         metadata: {
-          projectId: 'proj-003',
-          postId: 'post-6',
+          projectId: 'proj-1',
+          postId: 'post-1',
           workflowStage: 'FACILITY_APPROVAL',
           urgencyLevel: 4
         }
       });
     }));
 
-    // 2. 施設レベルのプロジェクトメンバー選出に関わる可能性のあるユーザーに通知
+    // 2. 非常勤職員処遇改善プロジェクトメンバー選出通知
     const memberSelectionTargets = [
-      'user-1', // 田中太郎（提案者）
-      'user-5', // 高橋健太（チームリーダー）
-      'user-7', // 渡辺大輔（スーパーバイザー）
-      'user-8', // 中村恵子（HR部門長）
-      'user-12', // 藤田洋平（営業本部長）
+      'user-7', // 渡辺由美（提案者・非常勤看護師）
+      'user-3', // 鈴木美香（医療療養病棟師長）
+      'user-4', // 田中恵子（看護主任）
+      'user-5', // 高橋真理（介護看護補助者主任）
+      'user-2', // 佐藤花子（総師長）
     ];
 
     await Promise.all(memberSelectionTargets.map(async (userId) => {
       await this.createActionableNotification(userId, 'MEMBER_SELECTION', {
-        title: '🔥 緊急：施設プロジェクトメンバー選出期限迫る',
-        message: `【1on1時間拡充プロジェクト】のメンバー選出期限まで残り${hoursUntilDeadline}時間です。田中太郎さんの提案が380点を獲得し、施設レベルのプロジェクトとして承認されました。メンバー選出が完了していません。`,
+        title: '🔥 緊急：非常勤職員処遇改善プロジェクトメンバー選出',
+        message: `【非常勤職員の慶弔休暇取得制度の導入】のメンバー選出期限まで残り${Math.max(hoursUntilDeadline, 24)}時間です。渡辺由美さんの提案が94%の支持を獲得し、施設レベルのプロジェクトとして承認されました。`,
         dueDate: deadline,
         actions: [
           {
@@ -610,17 +610,17 @@ export class NotificationService {
           }
         ],
         metadata: {
-          projectId: 'proj-003',
-          postId: 'post-6',
+          projectId: 'proj-1',
+          postId: 'post-1',
           urgencyLevel: 3
         }
       });
     }));
 
-    // 3. 投稿者（田中太郎）へのプロジェクト化成功通知
-    await this.createActionableNotification('user-1', 'PROJECT_UPDATE', {
+    // 3. 投稿者（渡辺由美）へのプロジェクト化成功通知
+    await this.createActionableNotification('user-7', 'PROJECT_UPDATE', {
       title: '🎯 おめでとうございます！あなたの提案がプロジェクト化決定！',
-      message: '「1on1時間増加」提案が施設プロジェクトレベル（380点）に到達しました！現在、承認プロセス中です。メンバー選出フェーズに入っており、22日17時までにチーム編成を完了する必要があります。',
+      message: '「非常勤職員の慶弔休暇取得制度の導入」提案が施設プロジェクトレベル（94%支持）に到達しました！現在、承認プロセス中です。6月30日までに制度設計を完了する必要があります。',
       dueDate: deadline,
       actions: [
         {
@@ -637,53 +637,69 @@ export class NotificationService {
         }
       ],
       metadata: {
-        projectId: 'proj-003',
-        postId: 'post-6',
+        projectId: 'proj-1',
+        postId: 'post-1',
         urgencyLevel: 2
       }
     });
 
-    // 4. 予算承認者への予算承認通知
-    await this.createActionableNotification('user-12', 'APPROVAL_REQUIRED', {
-      title: '💰 予算承認要請：1on1時間拡充プロジェクト',
-      message: '推定予算：月額15万円（スタッフ1時間×150名）の人件費増。年間180万円の予算承認が必要です。ROI分析では職員満足度向上と離職率低下による長期的効果が見込まれます。',
-      dueDate: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72時間後
+    // 4. 音声入力システム導入プロジェクトの進捗通知
+    await this.createActionableNotification('user-4', 'PROJECT_UPDATE', {
+      title: '📢 音声入力システム導入プロジェクト進捗報告',
+      message: '「音声入力を活用した申し送り業務の効率化」プロジェクトが部門検討フェーズに入りました。予算120万円での導入が検討されています。',
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7日後
       actions: [
         {
-          id: 'approve_budget',
-          label: '予算承認',
+          id: 'review_budget',
+          label: '予算検討',
           type: 'primary',
-          action: 'approve',
-          requiresComment: false
+          action: 'review'
         },
         {
-          id: 'request_detail',
-          label: '詳細資料要求',
+          id: 'provide_feedback',
+          label: 'フィードバック',
           type: 'secondary',
-          action: 'request_detail',
-          requiresComment: true
-        },
-        {
-          id: 'reject_budget',
-          label: '予算否認',
-          type: 'danger',
-          action: 'reject',
+          action: 'feedback',
           requiresComment: true
         }
       ],
       metadata: {
-        projectId: 'proj-003',
-        postId: 'post-6',
-        workflowStage: 'BUDGET_APPROVAL',
-        urgencyLevel: 3
+        projectId: 'proj-2',
+        postId: 'post-4',
+        urgencyLevel: 2
       }
     });
 
-    // 5. 面談リマインダー通知（新入職員向け）
-    await this.createActionableNotification('user-3', 'INTERVIEW_REMINDER_FIRST', {
-      title: '📅 新入職員初回面談リマインダー',
-      message: '入職から1週間が経過しました。来週火曜日（12/26）に初回面談を予定しています。職場環境、業務内容、今後のキャリアについて相談しましょう。',
-      dueDate: new Date('2024-12-26T10:00:00'),
+    // 5. リハビリテーション部の新人教育プログラム改善通知
+    await this.createActionableNotification('user-rehab-head', 'MEMBER_SELECTION', {
+      title: '👥 新人教育プログラム改善メンバー募集',
+      message: '木村誠さんの「理学療法士新人教育プログラム改善」提案についてプロジェクトメンバーを募集しています。リハビリテーション部の専門性向上が期待されます。',
+      dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5日後
+      actions: [
+        {
+          id: 'assign_mentor',
+          label: 'メンター指名',
+          type: 'primary',
+          action: 'assign'
+        },
+        {
+          id: 'schedule_meeting',
+          label: '会議設定',
+          type: 'secondary',
+          action: 'schedule'
+        }
+      ],
+      metadata: {
+        projectId: 'proj-rehab-education',
+        urgencyLevel: 1
+      }
+    });
+
+    // 6. 面談リマインダー通知（立神リハビリ病院スタッフ向け）
+    await this.createActionableNotification('user-6', 'INTERVIEW_REMINDER_FIRST', {
+      title: '📅 職員面談リマインダー（立神リハビリテーション温泉病院）',
+      message: '伊藤麻衣さん、四半期面談の時期になりました。来週金曜日に看護部での面談を予定しています。キャリア発達や職場環境について相談しましょう。',
+      dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3日後
       actions: [
         {
           id: 'confirm_attendance',
@@ -703,7 +719,7 @@ export class NotificationService {
       }
     });
 
-    console.log('✅ デモ通知システム初期化完了 - 承認権限発動・プロジェクト化・面談リマインダー通知');
+    console.log('✅ デモ通知システム初期化完了 - 立神リハビリテーション温泉病院データ統合・承認権限発動・プロジェクト化通知');
   }
 
   // 面談リマインダー送信メソッド
