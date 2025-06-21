@@ -29,12 +29,13 @@ export interface ProjectStatus {
 }
 
 export class ProjectScoringEngine {
-  // 見直し版閾値設定（段階的昇格対応）
+  // 新マッピング対応閾値設定
   private readonly baseThresholds = {
-    TEAM: 50,           // チーム内（昇格なし）
-    DEPARTMENT: 100,    // 部署内→施設内昇格可能
-    FACILITY: 300,      // 施設内→法人内昇格可能  
-    ORGANIZATION: 600   // 法人内（最終）
+    TEAM: 50,           // チームレベル（予算上限5万円）
+    DEPARTMENT: 100,    // 部門レベル（予算上限20万円）
+    FACILITY: 300,      // 施設レベル（予算上限1000万円）
+    ORGANIZATION: 600,  // 法人レベル（予算上限2000万円）
+    STRATEGIC: 1200     // 法人戦略レベル（予算無制限）
   };
   
   // エンゲージメントレベルごとの重み付け（参照HTML準拠）
@@ -46,16 +47,21 @@ export class ProjectScoringEngine {
     'strongly-oppose': 0.5
   };
   
-  // 8段階権限レベル別の重み付け
+  // 13段階権限レベル別の重み付け（新マッピング対応）
   private readonly permissionLevelWeights = {
-    [PermissionLevel.LEVEL_1]: 1.0,    // 一般従業員
-    [PermissionLevel.LEVEL_2]: 1.5,    // チーフ・主任
-    [PermissionLevel.LEVEL_3]: 2.0,    // 係長・マネージャー
-    [PermissionLevel.LEVEL_4]: 2.5,    // 課長
-    [PermissionLevel.LEVEL_5]: 3.0,    // 人財統括本部部門長
-    [PermissionLevel.LEVEL_6]: 3.5,    // 人財統括本部統括管理部門長
-    [PermissionLevel.LEVEL_7]: 4.0,    // 部長・本部長
-    [PermissionLevel.LEVEL_8]: 5.0     // 役員・経営層
+    [PermissionLevel.LEVEL_1]: 1.0,     // 一般従業員
+    [PermissionLevel.LEVEL_2]: 1.5,     // チーフ・主任（チームレベル承認権限）
+    [PermissionLevel.LEVEL_3]: 2.0,     // 係長・マネージャー（部門レベル承認権限）
+    [PermissionLevel.LEVEL_4]: 2.5,     // 課長（施設レベル承認権限）
+    [PermissionLevel.LEVEL_5]: 3.0,     // 人財統括本部戦略企画・統括管理部門（法人レベル承認権限）
+    [PermissionLevel.LEVEL_6]: 3.2,     // 人財統括本部キャリア支援部門員
+    [PermissionLevel.LEVEL_7]: 3.5,     // 人財統括本部キャリア支援部門長
+    [PermissionLevel.LEVEL_8]: 4.0,     // 人財統括本部統括管理部門長
+    [PermissionLevel.LEVEL_9]: 4.5,     // 部長・本部長
+    [PermissionLevel.LEVEL_10]: 5.0,    // 人財統括本部各部門長
+    [PermissionLevel.LEVEL_11]: 5.5,    // 人財統括本部統括管理部門長（レビュー権限）
+    [PermissionLevel.LEVEL_12]: 6.0,    // 人財統括本部トップ（提案・オーバーライド権限）
+    [PermissionLevel.LEVEL_13]: 10.0    // 理事長（最終承認権限）
   };
   
   // 旧システムとの互換性のための役職別重み付け
@@ -123,7 +129,7 @@ export class ProjectScoringEngine {
       STRATEGIC: 1200 * typeMultiplier[postType] // 戦略的プロジェクトは固定
     };
     
-    // 達成済みレベルを判定
+    // 達成済みレベルを判定（新マッピング対応）
     if (score >= adjustedThresholds.STRATEGIC) {
       return { 
         level: 'STRATEGIC', 
@@ -132,7 +138,7 @@ export class ProjectScoringEngine {
         currentScore: score,
         threshold: adjustedThresholds.STRATEGIC,
         displayStage: 5,
-        requiredPermissionLevel: PermissionLevel.LEVEL_8
+        requiredPermissionLevel: PermissionLevel.LEVEL_13 // 戦略レベルは理事長承認
       };
     } else if (score >= adjustedThresholds.ORGANIZATION) {
       return { 
@@ -142,7 +148,7 @@ export class ProjectScoringEngine {
         currentScore: score,
         threshold: adjustedThresholds.ORGANIZATION,
         displayStage: 5,
-        requiredPermissionLevel: PermissionLevel.LEVEL_8
+        requiredPermissionLevel: PermissionLevel.LEVEL_5 // 法人レベルは各施設のレベル5以上
       };
     } else if (score >= adjustedThresholds.FACILITY) {
       return { 
@@ -152,7 +158,7 @@ export class ProjectScoringEngine {
         currentScore: score,
         threshold: adjustedThresholds.FACILITY,
         displayStage: 5,
-        requiredPermissionLevel: PermissionLevel.LEVEL_7
+        requiredPermissionLevel: PermissionLevel.LEVEL_4 // 施設レベルは所属施設の課長全員
       };
     } else if (score >= adjustedThresholds.DEPARTMENT) {
       return { 
@@ -162,7 +168,7 @@ export class ProjectScoringEngine {
         currentScore: score,
         threshold: adjustedThresholds.DEPARTMENT,
         displayStage: 5,
-        requiredPermissionLevel: PermissionLevel.LEVEL_4
+        requiredPermissionLevel: PermissionLevel.LEVEL_3 // 部門レベルは係長以上
       };
     } else if (score >= adjustedThresholds.TEAM) {
       return { 
@@ -172,7 +178,7 @@ export class ProjectScoringEngine {
         currentScore: score,
         threshold: adjustedThresholds.TEAM,
         displayStage: 5,
-        requiredPermissionLevel: PermissionLevel.LEVEL_2
+        requiredPermissionLevel: PermissionLevel.LEVEL_2 // チームレベルは主任以上
       };
     }
     
@@ -254,17 +260,30 @@ export class ProjectScoringEngine {
     return '戦略的';
   }
   
-  // プロジェクトスコープから必要な権限レベルを取得
+  // プロジェクトスコープから必要な権限レベルを取得（新マッピング対応）
   getRequiredPermissionLevel(scope: ProjectScope): PermissionLevel {
     const scopeToPermissionLevel: Record<ProjectScope, PermissionLevel> = {
-      [ProjectScope.TEAM]: PermissionLevel.LEVEL_2,
-      [ProjectScope.DEPARTMENT]: PermissionLevel.LEVEL_4,
-      [ProjectScope.FACILITY]: PermissionLevel.LEVEL_7,
-      [ProjectScope.ORGANIZATION]: PermissionLevel.LEVEL_8,
-      [ProjectScope.STRATEGIC]: PermissionLevel.LEVEL_8
+      [ProjectScope.TEAM]: PermissionLevel.LEVEL_2,        // チーフ・主任以上
+      [ProjectScope.DEPARTMENT]: PermissionLevel.LEVEL_3,  // 係長・マネージャー以上
+      [ProjectScope.FACILITY]: PermissionLevel.LEVEL_4,    // 課長以上（所属施設全員）
+      [ProjectScope.ORGANIZATION]: PermissionLevel.LEVEL_5, // 各施設のレベル5以上
+      [ProjectScope.STRATEGIC]: PermissionLevel.LEVEL_13   // 理事長
     };
     
     return scopeToPermissionLevel[scope];
+  }
+  
+  // 予算上限を取得（新マッピング対応）
+  getBudgetLimit(scope: ProjectScope): number {
+    const scopeToBudgetLimit: Record<ProjectScope, number> = {
+      [ProjectScope.TEAM]: 50000,        // 5万円
+      [ProjectScope.DEPARTMENT]: 200000, // 20万円
+      [ProjectScope.FACILITY]: 10000000, // 1000万円
+      [ProjectScope.ORGANIZATION]: 20000000, // 2000万円
+      [ProjectScope.STRATEGIC]: -1       // 無制限（-1で表現）
+    };
+    
+    return scopeToBudgetLimit[scope];
   }
   
   // デモ用のダミーユーザー重み生成（8段階権限システム対応）

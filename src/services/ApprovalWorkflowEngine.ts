@@ -15,6 +15,11 @@ export interface WorkflowStage {
   dueDate?: Date;
   escalationDate?: Date;
   comments?: string;
+  // 新機能: 複数承認者と緊急オーバーライド機能
+  multipleApprovers?: boolean;  // 複数承認者が必要かどうか
+  emergencyOverride?: boolean;  // 緊急オーバーライド権限かどうか
+  approvedBy?: string[];        // 承認者リスト（複数承認者用）
+  requiredApprovers?: string[]; // 必要な承認者リスト
   // メンバー選出関連
   memberSelectionStatus?: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   provisionalMembers?: string[];
@@ -60,81 +65,104 @@ export interface WorkflowEscalation {
 
 export class ApprovalWorkflowEngine {
   private workflowTemplates = {
-    // チームレベルプロジェクト
+    // チームレベルプロジェクト（予算上限：5万円）
     TEAM: [
       { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
       { stage: 'TEAM_LEAD_APPROVAL', assignee: 'TEAM_LEAD', requiredLevel: PermissionLevel.LEVEL_2 },
       { stage: 'MANAGER_APPROVAL', assignee: 'MANAGER', requiredLevel: PermissionLevel.LEVEL_3 },
-      { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true }, // 承認完了マーカー
-      { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false }, // メンバー選出
+      { stage: 'SECTION_CHIEF_APPROVAL', assignee: 'SECTION_CHIEF', requiredLevel: PermissionLevel.LEVEL_5 },
+      { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
+      { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
     ],
-    // 部門レベルプロジェクト
+    // 部門レベルプロジェクト（予算上限：20万円）
     DEPARTMENT: [
       { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
       { stage: 'MANAGER_APPROVAL', assignee: 'MANAGER', requiredLevel: PermissionLevel.LEVEL_3 },
       { stage: 'SECTION_CHIEF_APPROVAL', assignee: 'SECTION_CHIEF', requiredLevel: PermissionLevel.LEVEL_4 },
+      { stage: 'HR_STRATEGIC_APPROVAL', assignee: 'HR_STRATEGIC', requiredLevel: PermissionLevel.LEVEL_5 },
       { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
       { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
     ],
-    // 施設レベルプロジェクト（10段階権限対応）
+    // 施設レベルプロジェクト（予算上限：1000万円）- 所属施設のレベル4全員承認
     FACILITY: [
       { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
-      { stage: 'SECTION_CHIEF_APPROVAL', assignee: 'SECTION_CHIEF', requiredLevel: PermissionLevel.LEVEL_4 },
+      { stage: 'ALL_LEVEL4_APPROVAL', assignee: 'ALL_FACILITY_LEVEL4', requiredLevel: PermissionLevel.LEVEL_4, multipleApprovers: true },
+      { stage: 'HR_STRATEGIC_APPROVAL', assignee: 'HR_STRATEGIC', requiredLevel: PermissionLevel.LEVEL_5 },
+      { stage: 'HR_CAREER_APPROVAL', assignee: 'HR_CAREER', requiredLevel: PermissionLevel.LEVEL_6 },
       { stage: 'HR_DEPT_HEAD_APPROVAL', assignee: 'HR_DEPT_HEAD', requiredLevel: PermissionLevel.LEVEL_7 },
-      { stage: 'HR_GENERAL_MANAGER_APPROVAL', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_8 },
-      { stage: 'BUDGET_APPROVAL', assignee: 'FINANCE_HEAD', requiredLevel: PermissionLevel.LEVEL_8 },
-      { stage: 'DIRECTOR_APPROVAL', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_9 },
+      { stage: 'CEO_REVIEW', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_12 },
       { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
       { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
     ],
-    // 組織全体レベルプロジェクト（10段階権限対応）
+    // 法人レベルプロジェクト（予算上限：2000万円）- 各施設のレベル5全員承認
     ORGANIZATION: [
       { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
-      { stage: 'HR_DEPT_HEAD_REVIEW', assignee: 'HR_DEPT_HEAD', requiredLevel: PermissionLevel.LEVEL_7 },
-      { stage: 'HR_GENERAL_MANAGER_REVIEW', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_8 },
-      { stage: 'DIRECTOR_APPROVAL', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_9 },
-      { stage: 'EXECUTIVE_APPROVAL', assignee: 'EXECUTIVE', requiredLevel: PermissionLevel.LEVEL_10 },
-      { stage: 'BUDGET_ALLOCATION', assignee: 'CFO', requiredLevel: PermissionLevel.LEVEL_9 },
+      { stage: 'ALL_FACILITIES_LEVEL5_APPROVAL', assignee: 'ALL_FACILITIES_LEVEL5', requiredLevel: PermissionLevel.LEVEL_5, multipleApprovers: true },
+      { stage: 'ALL_FACILITIES_LEVEL6_APPROVAL', assignee: 'ALL_FACILITIES_LEVEL6', requiredLevel: PermissionLevel.LEVEL_6, multipleApprovers: true },
+      { stage: 'ALL_FACILITIES_LEVEL7_APPROVAL', assignee: 'ALL_FACILITIES_LEVEL7', requiredLevel: PermissionLevel.LEVEL_7, multipleApprovers: true },
+      { stage: 'CEO_REVIEW', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_12 },
+      { stage: 'CHAIRMAN_APPROVAL', assignee: 'CHAIRMAN', requiredLevel: PermissionLevel.LEVEL_13 },
       { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
       { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
       { stage: 'IMPLEMENTATION', assignee: 'PROJECT_TEAM', autoComplete: false }
     ],
-    // 戦略的プロジェクト（10段階権限対応）
+    // 法人戦略的プロジェクト（予算無制限）- レベル12緊急オーバーライド権限行使により発動
     STRATEGIC: [
-      { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
-      { stage: 'DIRECTOR_REVIEW', assignee: 'DIRECTOR', requiredLevel: PermissionLevel.LEVEL_9 },
-      { stage: 'EXECUTIVE_APPROVAL', assignee: 'EXECUTIVE', requiredLevel: PermissionLevel.LEVEL_10 },
-      { stage: 'BOARD_APPROVAL', assignee: 'BOARD', requiredLevel: PermissionLevel.LEVEL_10 },
-      { stage: 'STRATEGIC_ALLOCATION', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_10 },
+      { stage: 'EMERGENCY_OVERRIDE', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_12, emergencyOverride: true },
+      { stage: 'CEO_REVIEW', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_12 },
+      { stage: 'CHAIRMAN_LEVEL_APPROVAL', assignee: 'CHAIRMAN', requiredLevel: PermissionLevel.LEVEL_13 },
+      { stage: 'CHAIRMAN_APPROVAL', assignee: 'CHAIRMAN', requiredLevel: PermissionLevel.LEVEL_13 },
       { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
       { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
       { stage: 'IMPLEMENTATION', assignee: 'STRATEGIC_TEAM', autoComplete: false }
     ],
     
-    // 面談関連ワークフロー（新規追加）
-    INTERVIEW_POLICY: [
-      { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
-      { stage: 'HR_ADMIN_REVIEW', assignee: 'HR_ADMIN', requiredLevel: PermissionLevel.LEVEL_5 },
-      { stage: 'CAREER_SUPPORT_APPROVAL', assignee: 'CAREER_SUPPORT_HEAD', requiredLevel: PermissionLevel.LEVEL_7 },
-      { stage: 'HR_GENERAL_MANAGER_APPROVAL', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_8 },
+    // 特別カテゴリ: 人財統括本部プロジェクト（レベル12提案権限）
+    // 面談システム関連
+    HR_INTERVIEW_SYSTEM: [
+      { stage: 'CEO_INITIATED', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_12, autoComplete: true },
+      { stage: 'ALL_HR_DEPT_HEADS_APPROVAL', assignee: 'ALL_HR_DEPT_HEADS', requiredLevel: PermissionLevel.LEVEL_10, multipleApprovers: true },
+      { stage: 'HR_GENERAL_MANAGER_REVIEW', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_11 },
+      { stage: 'CEO_APPROVAL', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_12 },
       { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
       { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
-      { stage: 'IMPLEMENTATION', assignee: 'INTERVIEW_TEAM', autoComplete: false }
+      { stage: 'IMPLEMENTATION', assignee: 'HR_INTERVIEW_TEAM', autoComplete: false }
     ],
     
-    // 人事関連プロジェクト（新規追加）
-    HR_INITIATIVE: [
-      { stage: 'AUTO_PROJECT', assignee: 'SYSTEM', autoComplete: true },
-      { stage: 'HR_ADMIN_PREPARATION', assignee: 'HR_ADMIN', requiredLevel: PermissionLevel.LEVEL_5 },
-      { stage: 'CAREER_SUPPORT_REVIEW', assignee: 'CAREER_SUPPORT_STAFF', requiredLevel: PermissionLevel.LEVEL_6 },
-      { stage: 'HR_DEPT_HEAD_APPROVAL', assignee: 'HR_DEPT_HEAD', requiredLevel: PermissionLevel.LEVEL_7 },
-      { stage: 'FINAL_APPROVAL', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_8 },
+    // 研修・キャリア支援
+    HR_TRAINING_CAREER: [
+      { stage: 'CEO_INITIATED', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_12, autoComplete: true },
+      { stage: 'ALL_HR_DEPT_HEADS_APPROVAL', assignee: 'ALL_HR_DEPT_HEADS', requiredLevel: PermissionLevel.LEVEL_10, multipleApprovers: true },
+      { stage: 'HR_GENERAL_MANAGER_REVIEW', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_11 },
+      { stage: 'CEO_APPROVAL', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_12 },
       { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
       { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
-      { stage: 'IMPLEMENTATION', assignee: 'HR_TEAM', autoComplete: false }
+      { stage: 'IMPLEMENTATION', assignee: 'HR_TRAINING_TEAM', autoComplete: false }
+    ],
+    
+    // 人事政策
+    HR_POLICY: [
+      { stage: 'CEO_INITIATED', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_12, autoComplete: true },
+      { stage: 'ALL_HR_DEPT_HEADS_APPROVAL', assignee: 'ALL_HR_DEPT_HEADS', requiredLevel: PermissionLevel.LEVEL_10, multipleApprovers: true },
+      { stage: 'HR_GENERAL_MANAGER_REVIEW', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_11 },
+      { stage: 'CEO_APPROVAL', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_12 },
+      { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
+      { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
+      { stage: 'IMPLEMENTATION', assignee: 'HR_POLICY_TEAM', autoComplete: false }
+    ],
+    
+    // 戦略的人事企画
+    HR_STRATEGIC_PLANNING: [
+      { stage: 'CEO_INITIATED', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_12, autoComplete: true },
+      { stage: 'ALL_HR_DEPT_HEADS_APPROVAL', assignee: 'ALL_HR_DEPT_HEADS', requiredLevel: PermissionLevel.LEVEL_10, multipleApprovers: true },
+      { stage: 'HR_GENERAL_MANAGER_REVIEW', assignee: 'HR_GENERAL_MANAGER', requiredLevel: PermissionLevel.LEVEL_11 },
+      { stage: 'CEO_APPROVAL', assignee: 'CEO', requiredLevel: PermissionLevel.LEVEL_12 },
+      { stage: 'APPROVAL_COMPLETED', assignee: 'SYSTEM', autoComplete: true },
+      { stage: 'MEMBER_SELECTION', assignee: 'PROJECT_LEAD', autoComplete: false },
+      { stage: 'IMPLEMENTATION', assignee: 'HR_STRATEGIC_TEAM', autoComplete: false }
     ]
   };
 
@@ -192,22 +220,30 @@ export class ApprovalWorkflowEngine {
       SECTION_CHIEF: async () => this.findSectionChief(projectData.department),
       HR_DEPT_HEAD: async () => this.findHRDepartmentHead(projectData.organization),
       HR_GENERAL_MANAGER: async () => this.findHRGeneralManager(projectData.organization),
-      // 新規追加: 面談関連HR役職
-      HR_ADMIN: async () => this.findHRAdmin(projectData.organization),
-      CAREER_SUPPORT_STAFF: async () => this.findCareerSupportStaff(projectData.organization),
-      CAREER_SUPPORT_HEAD: async () => this.findCareerSupportHead(projectData.organization),
-      INTERVIEW_TEAM: async () => this.assembleInterviewTeam(projectData),
-      HR_TEAM: async () => this.assembleHRTeam(projectData),
+      // 新マッピング対応のアサイニー
+      HR_STRATEGIC: async () => this.findHRStrategic(),
+      HR_CAREER: async () => this.findHRCareer(),
+      ALL_FACILITY_LEVEL4: async () => this.findAllFacilityLevel4(projectData.facility || 'default'),
+      ALL_FACILITIES_LEVEL5: async () => this.findAllFacilitiesLevel5(),
+      ALL_FACILITIES_LEVEL6: async () => this.findAllFacilitiesLevel6(),
+      ALL_FACILITIES_LEVEL7: async () => this.findAllFacilitiesLevel7(),
+      ALL_HR_DEPT_HEADS: async () => this.findAllHRDeptHeads(),
+      CEO: async () => this.findCEO(),
+      CHAIRMAN: async () => this.findChairman(),
       // 既存役職
       DIRECTOR: async () => this.findDirector(projectData.facility),
       EXECUTIVE: async () => this.findExecutive(projectData.organization),
       BOARD: async () => this.findBoardMembers(projectData.organization),
       FINANCE_HEAD: async () => this.findFinanceHead(projectData.organization),
       CFO: async () => this.findCFO(projectData.organization),
-      CEO: async () => this.findCEO(projectData.organization),
       PROJECT_LEAD: async () => this.findProjectLead(projectData),
       PROJECT_TEAM: async () => this.assembleProjectTeam(projectData),
-      STRATEGIC_TEAM: async () => this.assembleStrategicTeam(projectData)
+      STRATEGIC_TEAM: async () => this.assembleStrategicTeam(projectData),
+      // HR特別チーム
+      HR_INTERVIEW_TEAM: async () => this.assembleHRInterviewTeam(projectData),
+      HR_TRAINING_TEAM: async () => this.assembleHRTrainingTeam(projectData),
+      HR_POLICY_TEAM: async () => this.assembleHRPolicyTeam(projectData),
+      HR_STRATEGIC_TEAM: async () => this.assembleHRStrategicTeam(projectData)
     };
     
     const resolver = assigneeResolvers[assigneeType];
@@ -419,10 +455,10 @@ export class ApprovalWorkflowEngine {
     };
   }
   
-  private async findCEO(organization?: string): Promise<AssigneeInfo> {
+  private async findCEOLegacy(organization?: string): Promise<AssigneeInfo> {
     return {
-      id: 'ceo',
-      name: 'CEO',
+      id: 'ceo_legacy',
+      name: 'CEO(旧システム)',
       type: 'USER'
     };
   }
@@ -443,47 +479,116 @@ export class ApprovalWorkflowEngine {
     };
   }
   
-  // 新規追加: 面談関連HR役職ファインダー
-  private async findHRAdmin(organization?: string): Promise<AssigneeInfo> {
+  // 新機能: 複数承認者システム用ファインダー
+  private async findAllFacilityLevel4(facility: string): Promise<AssigneeInfo> {
     return {
-      id: 'hr_admin',
-      name: '人財統括本部 戦略企画・統括管理部門',
-      type: 'USER',
-      department: '人財統括本部'
+      id: `all_level4_${facility}`,
+      name: `${facility}所属の全課長（レベル4）`,
+      type: 'GROUP',
+      department: facility
     };
   }
   
-  private async findCareerSupportStaff(organization?: string): Promise<AssigneeInfo> {
+  private async findAllFacilitiesLevel5(): Promise<AssigneeInfo> {
     return {
-      id: 'career_support_staff',
-      name: '人財統括本部 キャリア支援部門員',
-      type: 'USER',
-      department: '人財統括本部'
+      id: 'all_facilities_level5',
+      name: '全施設のレベル5以上',
+      type: 'GROUP'
     };
   }
   
-  private async findCareerSupportHead(organization?: string): Promise<AssigneeInfo> {
+  private async findAllFacilitiesLevel6(): Promise<AssigneeInfo> {
     return {
-      id: 'career_support_head',
-      name: '人財統括本部 キャリア支援部門長',
-      type: 'USER',
-      department: '人財統括本部'
+      id: 'all_facilities_level6',
+      name: '全施設のレベル6以上',
+      type: 'GROUP'
     };
   }
   
-  private async assembleInterviewTeam(projectData: any): Promise<AssigneeInfo> {
+  private async findAllFacilitiesLevel7(): Promise<AssigneeInfo> {
     return {
-      id: 'interview_team',
-      name: '面談実施チーム',
+      id: 'all_facilities_level7',
+      name: '全施設のレベル7以上',
+      type: 'GROUP'
+    };
+  }
+  
+  private async findAllHRDeptHeads(): Promise<AssigneeInfo> {
+    return {
+      id: 'all_hr_dept_heads',
+      name: '人財統括本部各部門長全員',
       type: 'GROUP',
       department: '人財統括本部'
     };
   }
   
-  private async assembleHRTeam(projectData: any): Promise<AssigneeInfo> {
+  private async findCEO(): Promise<AssigneeInfo> {
     return {
-      id: 'hr_team',
-      name: '人財統括本部プロジェクトチーム',
+      id: 'ceo',
+      name: '人財統括本部トップ（レベル12）',
+      type: 'USER',
+      department: '人財統括本部'
+    };
+  }
+  
+  private async findChairman(): Promise<AssigneeInfo> {
+    return {
+      id: 'chairman',
+      name: '理事長（レベル13）',
+      type: 'USER'
+    };
+  }
+  
+  private async findHRStrategic(): Promise<AssigneeInfo> {
+    return {
+      id: 'hr_strategic',
+      name: '人財統括本部戦略企画・統括管理部門',
+      type: 'USER',
+      department: '人財統括本部'
+    };
+  }
+  
+  private async findHRCareer(): Promise<AssigneeInfo> {
+    return {
+      id: 'hr_career',
+      name: '人財統括本部キャリア支援部門',
+      type: 'USER',
+      department: '人財統括本部'
+    };
+  }
+  
+  // 新チームアセンブラー
+  private async assembleHRInterviewTeam(projectData: any): Promise<AssigneeInfo> {
+    return {
+      id: 'hr_interview_team',
+      name: '人財統括本部面談システムチーム',
+      type: 'GROUP',
+      department: '人財統括本部'
+    };
+  }
+  
+  private async assembleHRTrainingTeam(projectData: any): Promise<AssigneeInfo> {
+    return {
+      id: 'hr_training_team',
+      name: '人財統括本部研修・キャリア支援チーム',
+      type: 'GROUP',
+      department: '人財統括本部'
+    };
+  }
+  
+  private async assembleHRPolicyTeam(projectData: any): Promise<AssigneeInfo> {
+    return {
+      id: 'hr_policy_team',
+      name: '人財統括本部人事政策チーム',
+      type: 'GROUP',
+      department: '人財統括本部'
+    };
+  }
+  
+  private async assembleHRStrategicTeam(projectData: any): Promise<AssigneeInfo> {
+    return {
+      id: 'hr_strategic_team',
+      name: '人財統括本部戦略企画チーム',
       type: 'GROUP',
       department: '人財統括本部'
     };
@@ -526,10 +631,22 @@ export class ApprovalWorkflowEngine {
       TEAM_LEAD_APPROVAL: 'チームリーダー承認',
       MANAGER_APPROVAL: 'マネージャー承認',
       SECTION_CHIEF_APPROVAL: '課長承認',
+      HR_STRATEGIC_APPROVAL: '人財統括本部戦略企画部門承認',
+      HR_CAREER_APPROVAL: '人財統括本部キャリア支援部門承認',
       HR_DEPT_HEAD_APPROVAL: '人財統括本部部門長承認',
-      HR_DEPT_HEAD_REVIEW: '人財統括本部部門長レビュー',
-      HR_GENERAL_MANAGER_APPROVAL: '人財統括本部統括管理部門長承認',
+      ALL_LEVEL4_APPROVAL: '所属施設の全課長承認',
+      ALL_FACILITIES_LEVEL5_APPROVAL: '全施設レベル5承認',
+      ALL_FACILITIES_LEVEL6_APPROVAL: '全施設レベル6承認',
+      ALL_FACILITIES_LEVEL7_APPROVAL: '全施設レベル7承認',
+      ALL_HR_DEPT_HEADS_APPROVAL: '人財統括本部各部門長全員承認',
+      CEO_INITIATED: '人財統括本部トップ発起',
+      CEO_REVIEW: '人財統括本部トップレビュー',
+      CEO_APPROVAL: '人財統括本部トップ承認',
+      CHAIRMAN_LEVEL_APPROVAL: '理事長レベル承認',
+      CHAIRMAN_APPROVAL: '理事長承認',
       HR_GENERAL_MANAGER_REVIEW: '人財統括本部統括管理部門長レビュー',
+      EMERGENCY_OVERRIDE: '緊急オーバーライド権限行使',
+      // 既存表示名
       DIRECTOR_APPROVAL: '本部長承認',
       DIRECTOR_REVIEW: '本部長レビュー',
       EXECUTIVE_APPROVAL: '役員承認',
@@ -537,18 +654,65 @@ export class ApprovalWorkflowEngine {
       BUDGET_APPROVAL: '予算承認',
       BUDGET_ALLOCATION: '予算配分',
       STRATEGIC_ALLOCATION: '戦略的リソース配分',
-      // 新規追加: 面談関連ワークフロー表示名
-      HR_ADMIN_REVIEW: '人財統括本部戦略企画・統括管理部門レビュー',
-      HR_ADMIN_PREPARATION: '人財統括本部戦略企画・統括管理部門準備',
-      CAREER_SUPPORT_APPROVAL: 'キャリア支援部門長承認',
-      CAREER_SUPPORT_REVIEW: 'キャリア支援部門員レビュー',
-      FINAL_APPROVAL: '最終承認',
       APPROVAL_COMPLETED: '承認完了',
       MEMBER_SELECTION: 'メンバー選出',
       IMPLEMENTATION: 'プロジェクト実行'
     };
     
     return displayNames[stage] || stage;
+  }
+  
+  // 新機能: 緊急オーバーライド権限行使
+  async executeEmergencyOverride(
+    workflow: ProjectWorkflow,
+    overrideBy: string,
+    reason: string
+  ): Promise<void> {
+    const currentStage = workflow.stages[workflow.currentStage];
+    if (currentStage?.emergencyOverride) {
+      currentStage.status = 'COMPLETED';
+      currentStage.completedAt = new Date();
+      currentStage.comments = `緊急オーバーライド権限行使: ${reason}`;
+      
+      // 次のステージに進む
+      if (workflow.currentStage < workflow.stages.length - 1) {
+        workflow.currentStage += 1;
+        workflow.stages[workflow.currentStage].status = 'IN_PROGRESS';
+      }
+      
+      workflow.updatedAt = new Date();
+    }
+  }
+  
+  // 新機能: 複数承認者ステージの部分承認
+  async approveMultipleApproversStage(
+    workflow: ProjectWorkflow,
+    stageIndex: number,
+    approvedBy: string,
+    comments?: string
+  ): Promise<boolean> {
+    const stage = workflow.stages[stageIndex];
+    if (!stage?.multipleApprovers) {
+      return false;
+    }
+    
+    if (!stage.approvedBy) {
+      stage.approvedBy = [];
+    }
+    
+    if (!stage.approvedBy.includes(approvedBy)) {
+      stage.approvedBy.push(approvedBy);
+    }
+    
+    // 必要な承認者数をチェック（例：全員の80%以上）
+    const requiredApprovals = stage.requiredApprovers ? stage.requiredApprovers.length : 1;
+    
+    if (stage.approvedBy.length >= requiredApprovals) {
+      await this.completeStage(workflow, stageIndex, 'MULTIPLE_APPROVERS', '複数承認者による承認完了');
+      return true;
+    }
+    
+    return false;
   }
 }
 
