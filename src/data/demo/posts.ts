@@ -229,7 +229,7 @@ export const demoPosts: Post[] = [
     ]),
     projectStatus: {
       stage: 'approaching' as const,
-      score: 65,
+      score: 44,
       threshold: 75,
       progress: 45
     }
@@ -404,7 +404,7 @@ export const demoPosts: Post[] = [
     ]),
     projectStatus: {
       stage: 'approaching' as const,
-      score: 45,
+      score: 44,
       threshold: 75,
       progress: 35
     }

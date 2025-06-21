@@ -104,8 +104,8 @@ const VotingSection: React.FC<VotingSectionProps> = ({
             }
             score={currentScore}
             isAnimated={
-              (currentScore >= 45 && currentScore < 50) ||
-              (currentScore >= 90 && currentScore < 100) ||
+              (currentScore >= 44 && currentScore < 50) ||
+              (currentScore >= 89 && currentScore < 100) ||
               (currentScore >= 270 && currentScore < 300) ||
               (currentScore >= 540 && currentScore < 600) ||
               (currentScore >= 1080 && currentScore < 1200)
@@ -182,7 +182,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
         {(post.type === 'improvement' || post.projectStatus === 'active' || post.enhancedProjectStatus) && (
           <UnifiedProgressBar
             type="project"
-            title="プロジェクト進捗"
+            title="みんなの投票スコア"
             percentage={post.enhancedProjectStatus ? post.enhancedProjectStatus.resources.completion : projectData.progress}
             status="active"
             quickInsights={post.enhancedProjectStatus ? [
@@ -196,7 +196,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               currentScore >= 300 ? '🏥 施設レベル到達' :
               currentScore >= 100 ? '🏢 部署レベル到達' :
               currentScore >= 50 ? '👥 チームレベル到達' : '💭 議論段階',
-              `📊 次の目標まで${currentScore >= 600 ? '完了' : 
+              `📊 next の目標まで${currentScore >= 600 ? '完了' : 
                 currentScore >= 300 ? Math.round(600 - currentScore) + '点' :
                 currentScore >= 100 ? Math.round(300 - currentScore) + '点' :
                 currentScore >= 50 ? Math.round(100 - currentScore) + '点' : Math.round(50 - currentScore) + '点'}`
