@@ -103,13 +103,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               currentScore >= 50 ? 'TEAM' : 'PENDING'
             }
             score={currentScore}
-            isAnimated={
-              (currentScore >= 44 && currentScore < 50) ||
-              (currentScore >= 89 && currentScore < 100) ||
-              (currentScore >= 270 && currentScore < 300) ||
-              (currentScore >= 540 && currentScore < 600) ||
-              (currentScore >= 1080 && currentScore < 1200)
-            }
+            isAnimated={false}
             showNextLevel={true}
             nextLevelInfo={
               currentScore >= 1200 ? undefined :
