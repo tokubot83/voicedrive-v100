@@ -91,45 +91,46 @@ const VotingSection: React.FC<VotingSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* みんなの投票スコア（改善提案用） - タイトルのみUnifiedProgressBar形式 */}
+      {/* みんなの投票スコア（改善提案用） - UnifiedProgressBarと完全同一スタイル */}
       {post.type === 'improvement' && (
-        <div className="bg-white rounded-lg shadow-sm border">
-          {/* UnifiedProgressBarと同じタイトル部分 */}
-          <div className="p-4 border-b">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-emerald-600" />
-                <h3 className="font-medium text-gray-900">みんなの投票スコア</h3>
+        <div className="w-full bg-white border border-emerald-300 rounded-xl p-4 hover:border-emerald-400 transition-all">
+          {/* Header Section - UnifiedProgressBarと同一 */}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg border text-emerald-700 border-emerald-300">
+                <Briefcase className="w-5 h-5" />
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-blue-600">● Active</span>
+              <div>
+                <h3 className="text-lg font-semibold text-emerald-800">みんなの投票スコア</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="inline-block w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="text-sm text-gray-600 capitalize">active</span>
+                </div>
               </div>
             </div>
           </div>
           {/* ProjectLevelBadgeの内容部分 */}
-          <div className="p-4">
-            <ProjectLevelBadge
-              level={
-                currentScore >= 1200 ? 'STRATEGIC' :
-                currentScore >= 600 ? 'ORGANIZATION' :
-                currentScore >= 300 ? 'FACILITY' :
-                currentScore >= 100 ? 'DEPARTMENT' :
-                currentScore >= 50 ? 'TEAM' : 'PENDING'
-              }
-              score={currentScore}
-              isAnimated={false}
-              showNextLevel={true}
-              nextLevelInfo={
-                currentScore >= 1200 ? undefined :
-                currentScore >= 600 ? { label: '戦略レベル', remainingPoints: Math.round(1200 - currentScore) } :
-                currentScore >= 300 ? { label: '法人レベル', remainingPoints: Math.round(600 - currentScore) } :
-                currentScore >= 100 ? { label: '施設レベル', remainingPoints: Math.round(300 - currentScore) } :
-                currentScore >= 50 ? { label: '部署レベル', remainingPoints: Math.round(100 - currentScore) } :
-                { label: 'チームレベル', remainingPoints: Math.round(50 - currentScore) }
-              }
-              compact={true}
-            />
-          </div>
+          <ProjectLevelBadge
+            level={
+              currentScore >= 1200 ? 'STRATEGIC' :
+              currentScore >= 600 ? 'ORGANIZATION' :
+              currentScore >= 300 ? 'FACILITY' :
+              currentScore >= 100 ? 'DEPARTMENT' :
+              currentScore >= 50 ? 'TEAM' : 'PENDING'
+            }
+            score={currentScore}
+            isAnimated={false}
+            showNextLevel={true}
+            nextLevelInfo={
+              currentScore >= 1200 ? undefined :
+              currentScore >= 600 ? { label: '戦略レベル', remainingPoints: Math.round(1200 - currentScore) } :
+              currentScore >= 300 ? { label: '法人レベル', remainingPoints: Math.round(600 - currentScore) } :
+              currentScore >= 100 ? { label: '施設レベル', remainingPoints: Math.round(300 - currentScore) } :
+              currentScore >= 50 ? { label: '部署レベル', remainingPoints: Math.round(100 - currentScore) } :
+              { label: 'チームレベル', remainingPoints: Math.round(50 - currentScore) }
+            }
+            compact={true}
+          />
         </div>
       )}
 
