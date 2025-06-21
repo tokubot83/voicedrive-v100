@@ -193,8 +193,8 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
         {/* 提案タイプと優先度のタグ */}
         {(post.proposalType || post.priority) && (
           <div className="flex items-center gap-2 mt-3 flex-wrap">
-            {post.type === 'improvement' && post.proposalType && (
-              <span className={`px-2 py-1 rounded-lg text-xs font-medium ${proposalTypeConfigs[post.proposalType].borderColor.replace('border-', 'bg-').replace('500', '500/20')} ${proposalTypeConfigs[post.proposalType].borderColor.replace('border-', 'text-')}`}>
+            {post.type === 'improvement' && post.proposalType && proposalTypeConfigs[post.proposalType] && (
+              <span className={`px-2 py-1 rounded-lg text-xs font-medium ${proposalTypeConfigs[post.proposalType]?.borderColor?.replace('border-', 'bg-').replace('500', '500/20') || 'bg-gray-500/20'} ${proposalTypeConfigs[post.proposalType]?.borderColor?.replace('border-', 'text-') || 'text-gray-600'}`}>
                 {proposalTypeConfigs[post.proposalType]?.icon || '📝'} {proposalTypeConfigs[post.proposalType]?.label}
               </span>
             )}

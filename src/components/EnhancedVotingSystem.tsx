@@ -89,7 +89,7 @@ const EnhancedVotingSystem = ({
           🗳️ 合意形成投票
         </h3>
         {proposalType && proposalConfig && (
-          <span className={`px-3 py-1 rounded-full text-xs font-bold ${proposalConfig.borderColor.replace('border-', 'bg-').replace('500', '500/20')} ${proposalConfig.borderColor.replace('border-', 'text-')}`}>
+          <span className={`px-3 py-1 rounded-full text-xs font-bold ${proposalConfig?.borderColor?.replace('border-', 'bg-').replace('500', '500/20') || 'bg-gray-500/20'} ${proposalConfig?.borderColor?.replace('border-', 'text-') || 'text-gray-600'}`}>
             {proposalConfig?.icon || '📝'} {proposalConfig?.label}
           </span>
         )}

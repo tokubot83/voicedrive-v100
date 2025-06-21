@@ -245,7 +245,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
                 className={`
                   w-full p-4 rounded-2xl border-2 transition-all duration-300
                   ${proposalType === type.type 
-                    ? `${type.borderColor} bg-gradient-to-r from-white/10 to-white/5 transform scale-105` 
+                    ? `${type?.borderColor || 'border-gray-500'} bg-gradient-to-r from-white/10 to-white/5 transform scale-105` 
                     : 'border-gray-800/50 hover:border-gray-600 hover:bg-white/5'
                   }
                 `}
@@ -559,7 +559,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
                 {selectedType === 'improvement' ? '💡 アイデアボイス' : selectedType === 'community' ? '💬 フリーボイス' : '🚨 コンプライアンス窓口'}
               </span>
               {selectedType === 'improvement' && (
-                <span className={`px-2 py-1 rounded-lg text-xs font-bold ${proposalTypes.find(t => t.type === proposalType)?.borderColor.replace('border-', 'bg-').replace('500', '500/20')} ${proposalTypes.find(t => t.type === proposalType)?.borderColor.replace('border-', 'text-')}`}>
+                <span className={`px-2 py-1 rounded-lg text-xs font-bold ${proposalTypes.find(t => t.type === proposalType)?.borderColor?.replace('border-', 'bg-').replace('500', '500/20') || 'bg-gray-500/20'} ${proposalTypes.find(t => t.type === proposalType)?.borderColor?.replace('border-', 'text-') || 'text-gray-600'}`}>
                   {proposalTypes.find(t => t.type === proposalType)?.icon || '📝'} {proposalTypes.find(t => t.type === proposalType)?.label || '提案タイプ'}
                 </span>
               )}
