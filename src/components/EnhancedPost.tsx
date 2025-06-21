@@ -7,6 +7,7 @@ import { generateAvatarByAnonymity, getDisplayName } from '../utils/avatarGenera
 import { Post as PostType, VoteOption, User, Comment } from '../types';
 import { proposalTypeConfigs } from '../config/proposalTypes';
 import { FACILITIES } from '../data/medical/facilities';
+import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 
 interface EnhancedPostProps {
   post: PostType;
@@ -18,6 +19,21 @@ interface EnhancedPostProps {
 const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProps) => {
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(null);
   const [showComments, setShowComments] = useState(false);
+  const { calculateScore, convertVotesToEngagements } = useProjectScoring();
+
+  // プロジェクトレベルの計算（改善提案のみ）
+  const currentScore = post.type === 'improvement' && post.votes
+    ? calculateScore(convertVotesToEngagements(post.votes), post.proposalType)
+    : 0;
+
+  const getProjectLevel = (score: number) => {
+    if (score >= 1200) return 'STRATEGIC';
+    if (score >= 600) return 'ORGANIZATION';
+    if (score >= 300) return 'FACILITY';
+    if (score >= 100) return 'DEPARTMENT';
+    if (score >= 50) return 'TEAM';
+    return 'PENDING';
+  };
 
   // コメント関連の処理
   const handleCommentClick = () => {
@@ -124,6 +140,30 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
         </div>
         
         <div className="ml-auto">
+          <div className="flex items-center gap-2">
+          {/* プロジェクトレベルバッジ（改善提案で高レベルの場合のみ表示） */}
+          {post.type === 'improvement' && currentScore >= 100 && (
+            <div className={`
+              px-2 py-1 rounded-full text-xs font-bold text-white shadow-md
+              bg-gradient-to-r ${
+                currentScore >= 600 ? 'from-orange-400 to-orange-600' :
+                currentScore >= 300 ? 'from-purple-400 to-purple-600' :
+                'from-blue-400 to-blue-600'
+              }
+              flex items-center gap-1
+            `}>
+              <span className="text-xs">
+                {currentScore >= 600 ? '🏛️' :
+                 currentScore >= 300 ? '🏥' : '🏢'}
+              </span>
+              <span>
+                {currentScore >= 600 ? '法人' :
+                 currentScore >= 300 ? '施設' : '部署'}
+              </span>
+            </div>
+          )}
+          
+          {/* メインタイプバッジ */}
           <div className={`
             px-3 py-1.5 rounded-lg text-xs font-medium text-white
             bg-gradient-to-r ${getTypeStyle()}
@@ -141,6 +181,7 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
                post.type === 'report' ? 'コンプライアンス窓口' : ''}
             </span>
           </div>
+        </div>
         </div>
       </div>
 

@@ -92,56 +92,71 @@ const VotingSection: React.FC<VotingSectionProps> = ({
       {/* 改善提案用スコア表示パネル */}
       {post.type === 'improvement' && (
         <div className="bg-white border border-emerald-300 rounded-xl p-4 mb-4 hover:border-emerald-400 transition-all">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg border border-emerald-300 text-emerald-700">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-emerald-800">プロジェクトスコア</h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="inline-block w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="text-sm text-gray-600 capitalize">active</span>
-                </div>
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-emerald-800">{Math.round(currentScore)}</div>
-              <div className="text-sm text-gray-600">点</div>
-            </div>
+          {/* レベルバッジをメイン表示 */}
+          <div className="mb-4">
+            <ProjectLevelBadge
+              level={
+                currentScore >= 1200 ? 'STRATEGIC' :
+                currentScore >= 600 ? 'ORGANIZATION' :
+                currentScore >= 300 ? 'FACILITY' :
+                currentScore >= 100 ? 'DEPARTMENT' :
+                currentScore >= 50 ? 'TEAM' : 'PENDING'
+              }
+              score={currentScore}
+              isAnimated={
+                (currentScore >= 45 && currentScore < 50) ||
+                (currentScore >= 90 && currentScore < 100) ||
+                (currentScore >= 270 && currentScore < 300) ||
+                (currentScore >= 540 && currentScore < 600) ||
+                (currentScore >= 1080 && currentScore < 1200)
+              }
+              showNextLevel={true}
+              nextLevelInfo={
+                currentScore >= 1200 ? undefined :
+                currentScore >= 600 ? { label: '戦略レベル', remainingPoints: Math.round(1200 - currentScore) } :
+                currentScore >= 300 ? { label: '法人レベル', remainingPoints: Math.round(600 - currentScore) } :
+                currentScore >= 100 ? { label: '施設レベル', remainingPoints: Math.round(300 - currentScore) } :
+                currentScore >= 50 ? { label: '部署レベル', remainingPoints: Math.round(100 - currentScore) } :
+                { label: 'チームレベル', remainingPoints: Math.round(50 - currentScore) }
+              }
+            />
           </div>
-          
-          {/* レベル表示 */}
-          <div className="mt-4 mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">
-              {currentScore >= 600 ? '🏢 法人レベル' :
-               currentScore >= 300 ? '🏥 施設レベル' :
-               currentScore >= 100 ? '🏢 部署レベル' :
-               currentScore >= 50 ? '👥 チームレベル' : '💭 議論段階'}
-            </span>
-            {currentScore < 600 && (
-              <span className="text-sm text-gray-500">
-                次の目標まで{currentScore >= 300 ? 600 - currentScore :
-                           currentScore >= 100 ? 300 - currentScore :
-                           currentScore >= 50 ? 100 - currentScore : 50 - currentScore}点
-              </span>
-            )}
+
+          {/* 補助情報 */}
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="capitalize">active</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              <span>プロジェクトスコア</span>
+            </div>
           </div>
           
           {/* プログレスバー */}
-          <div className="w-full bg-gray-200 rounded-full h-8 overflow-hidden">
-            <div
-              className="bg-gradient-to-r from-emerald-500 to-green-500 h-8 rounded-full transition-all duration-500"
-              style={{ 
-                width: `${Math.min(100, (currentScore / (
-                  currentScore >= 300 ? 600 :
-                  currentScore >= 100 ? 300 :
-                  currentScore >= 50 ? 100 : 50
-                )) * 100)}%` 
-              }}
-            />
+          <div className="mt-3">
+            <div className="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+              <div
+                className={`h-6 rounded-full transition-all duration-500 bg-gradient-to-r ${
+                  currentScore >= 600 ? 'from-orange-400 to-orange-600' :
+                  currentScore >= 300 ? 'from-purple-400 to-purple-600' :
+                  currentScore >= 100 ? 'from-blue-400 to-blue-600' :
+                  currentScore >= 50 ? 'from-green-400 to-green-600' :
+                  'from-gray-400 to-gray-600'
+                }`}
+                style={{ 
+                  width: `${Math.min(100, (currentScore / (
+                    currentScore >= 600 ? 1200 :
+                    currentScore >= 300 ? 600 :
+                    currentScore >= 100 ? 300 :
+                    currentScore >= 50 ? 100 : 50
+                  )) * 100)}%` 
+                }}
+              />
+            </div>
           </div>
         </div>
       )}

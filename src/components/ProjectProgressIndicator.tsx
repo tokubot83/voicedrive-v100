@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrendingUp, Target, Clock, Users, Star, AlertCircle } from 'lucide-react';
 import { VoteOption, ProjectLevel } from '../types';
+import ProjectLevelBadge from './projects/ProjectLevelBadge';
 
 interface ProjectProgressIndicatorProps {
   votes: Record<VoteOption, number>;
@@ -129,19 +130,52 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
     });
   }
 
+  // レベルアップアニメーション用のステート
+  const [showLevelUpAnimation, setShowLevelUpAnimation] = useState(false);
+  const [previousLevel, setPreviousLevel] = useState(currentThreshold.level);
+
+  useEffect(() => {
+    if (previousLevel !== currentThreshold.level && currentThreshold.level !== 'PENDING') {
+      setShowLevelUpAnimation(true);
+      const timer = setTimeout(() => setShowLevelUpAnimation(false), 3000);
+      return () => clearTimeout(timer);
+    }
+    setPreviousLevel(currentThreshold.level);
+  }, [currentThreshold.level, previousLevel]);
+
   // コンパクト表示（通常投稿用）
   if (isCompact) {
     try {
       return (
-        <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
+        <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-4 mb-4 relative">
+        {/* レベルアップアニメーション */}
+        {showLevelUpAnimation && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+            <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-xl shadow-2xl p-6 animate-bounce">
+              <h3 className="text-2xl font-bold text-center mb-2">🎉 レベルアップ！</h3>
+              <p className="text-lg">{currentThreshold.label}に到達しました</p>
+            </div>
+          </div>
+        )}
+
+        {/* レベルバッジを追加 */}
+        <div className="mb-4">
+          <ProjectLevelBadge
+            level={currentThreshold.level as 'PENDING' | 'TEAM' | 'DEPARTMENT' | 'FACILITY' | 'ORGANIZATION' | 'STRATEGIC'}
+            score={currentScore}
+            isAnimated={progressToNext >= 90}
+            showNextLevel={true}
+            nextLevelInfo={nextMilestone ? {
+              label: nextMilestone.label,
+              remainingPoints: remainingPoints
+            } : undefined}
+          />
+        </div>
+
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-blue-400" />
-            <span className="text-sm font-medium text-blue-400">プロジェクト進捗</span>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="text-gray-400">現在スコア</span>
-            <span className="text-white font-bold text-lg">{Math.round(currentScore || 0)}点</span>
+            <span className="text-sm font-medium text-blue-400">プロジェクト詳細進捗</span>
           </div>
         </div>
 
@@ -159,11 +193,17 @@ const ProjectProgressIndicator: React.FC<ProjectProgressIndicatorProps> = ({
           <div className="relative">
             <div className="w-full bg-gray-700/50 rounded-full h-8">
               <div
-                className="bg-gradient-to-r from-blue-500 to-purple-500 h-8 rounded-full transition-all duration-500 relative"
+                className={`h-8 rounded-full transition-all duration-500 relative bg-gradient-to-r ${
+                  currentThreshold.level === 'TEAM' ? 'from-green-400 to-green-600' :
+                  currentThreshold.level === 'DEPARTMENT' ? 'from-blue-400 to-blue-600' :
+                  currentThreshold.level === 'FACILITY' ? 'from-purple-400 to-purple-600' :
+                  currentThreshold.level === 'ORGANIZATION' ? 'from-orange-400 to-orange-600' :
+                  'from-gray-400 to-gray-600'
+                }`}
                 style={{ width: `${Math.min(progressToNext, 100)}%` }}
               >
                 {progressToNext >= 90 && (
-                  <div className="absolute right-2 top-1.5 text-sm text-white">
+                  <div className="absolute right-2 top-1.5 text-sm text-white animate-pulse">
                     🔥
                   </div>
                 )}

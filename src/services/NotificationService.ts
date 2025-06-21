@@ -113,6 +113,7 @@ export class NotificationService {
       dueDate?: Date;
       actions?: NotificationAction[];
       metadata?: ActionableNotification['metadata'];
+      selectionReason?: string;
     }
   ): Promise<ActionableNotification> {
     // プロジェクト詳細ボタンを追加しない
@@ -454,6 +455,82 @@ export class NotificationService {
     return [];
   }
   
+  /**
+   * メンバー選出通知を送信（理由付き）
+   */
+  async sendMemberSelectionNotification(
+    selectedMembers: Array<{
+      userId: string;
+      name: string;
+      role: string;
+      selectionReason?: string;
+    }>,
+    projectData: {
+      projectId: string;
+      projectTitle: string;
+      selectorName: string;
+      dueDate: Date;
+    }
+  ): Promise<void> {
+    const promises = selectedMembers.map(member => 
+      this.createActionableNotification(member.userId, 'MEMBER_SELECTION', {
+        title: `🎯 プロジェクトメンバー選出通知`,
+        message: this.buildMemberSelectionMessage(member, projectData),
+        dueDate: projectData.dueDate,
+        actions: [
+          {
+            id: 'accept',
+            label: '参加する',
+            type: 'primary',
+            action: 'participate'
+          },
+          {
+            id: 'decline',
+            label: '辞退する',
+            type: 'secondary',
+            action: 'decline',
+            requiresComment: true
+          },
+          {
+            id: 'negotiate',
+            label: '条件相談',
+            type: 'secondary',
+            action: 'negotiate',
+            requiresComment: true
+          }
+        ],
+        metadata: {
+          projectId: projectData.projectId,
+          urgencyLevel: 3
+        },
+        selectionReason: member.selectionReason
+      })
+    );
+
+    await Promise.all(promises);
+    console.log(`✅ メンバー選出通知送信完了: ${selectedMembers.length}名`);
+  }
+
+  /**
+   * メンバー選出メッセージを構築
+   */
+  private buildMemberSelectionMessage(
+    member: { name: string; role: string; selectionReason?: string },
+    projectData: { projectTitle: string; selectorName: string }
+  ): string {
+    let message = `${member.name}さん、「${projectData.projectTitle}」プロジェクトのメンバーに選出されました。\n\n`;
+    message += `選出権限者: ${projectData.selectorName}\n`;
+    message += `あなたの役割: ${member.role}\n\n`;
+    
+    if (member.selectionReason) {
+      message += `【選出理由】\n${member.selectionReason}\n\n`;
+    }
+    
+    message += `プロジェクトへの参加をご検討ください。`;
+    
+    return message;
+  }
+
   // 通知テンプレート（4カテゴリ対応）
   getNotificationTemplate(templateName: string, data: any): {
     subject: string;

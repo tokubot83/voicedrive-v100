@@ -19,6 +19,7 @@ interface SelectedMember {
   candidate: MemberCandidate;
   role: MemberRole;
   responsibility?: string;
+  selectionReason?: string;
 }
 
 export const MemberSelectionPanel: React.FC<MemberSelectionPanelProps> = ({
@@ -127,7 +128,7 @@ export const MemberSelectionPanel: React.FC<MemberSelectionPanelProps> = ({
       return;
     }
 
-    setSelectedMembers([...selectedMembers, { candidate, role }]);
+    setSelectedMembers([...selectedMembers, { candidate, role, selectionReason: '' }]);
     setError('');
   };
 
@@ -150,6 +151,17 @@ export const MemberSelectionPanel: React.FC<MemberSelectionPanelProps> = ({
   };
 
   /**
+   * メンバーの選出理由を更新
+   */
+  const updateMemberReason = (userId: string, reason: string) => {
+    setSelectedMembers(selectedMembers.map(m => 
+      m.candidate.user.id === userId 
+        ? { ...m, selectionReason: reason }
+        : m
+    ));
+  };
+
+  /**
    * 選定を実行
    */
   const executeSelection = async () => {
@@ -161,7 +173,16 @@ export const MemberSelectionPanel: React.FC<MemberSelectionPanelProps> = ({
     setLoading(true);
     try {
       const memberIds = selectedMembers.map(m => m.candidate.user.id);
-      const result = await selectionService.selectMembers(projectId, selectorId, memberIds, criteria);
+      const memberReasons = new Map<string, string>();
+      
+      // 選出理由をマップに変換
+      selectedMembers.forEach(member => {
+        if (member.selectionReason) {
+          memberReasons.set(member.candidate.user.id, member.selectionReason);
+        }
+      });
+      
+      const result = await selectionService.selectMembers(projectId, selectorId, memberIds, criteria, memberReasons);
 
       if (result.success && result.selection) {
         onSelectionComplete?.(result.selection);
@@ -338,6 +359,15 @@ export const MemberSelectionPanel: React.FC<MemberSelectionPanelProps> = ({
                           <option value="SPECIALIST">専門家</option>
                           <option value="ADVISOR">アドバイザー</option>
                         </select>
+                      </div>
+                      <div className="mt-2">
+                        <textarea
+                          value={selected.selectionReason || ''}
+                          onChange={(e) => updateMemberReason(selected.candidate.user.id, e.target.value)}
+                          placeholder="選出理由を入力（他部署への依頼時は特に重要）"
+                          className="w-full text-xs px-2 py-1 border border-gray-300 rounded resize-none"
+                          rows={2}
+                        />
                       </div>
                     </div>
                     <button

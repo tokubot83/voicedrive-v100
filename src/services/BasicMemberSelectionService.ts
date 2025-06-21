@@ -92,7 +92,8 @@ export class BasicMemberSelectionService {
     projectId: string,
     selectorId: string,
     memberIds: string[],
-    criteria?: SelectionCriteria
+    criteria?: SelectionCriteria,
+    memberReasons?: Map<string, string>
   ): Promise<SelectionResult> {
     try {
       // 選定権限の検証
@@ -119,7 +120,8 @@ export class BasicMemberSelectionService {
         selectorId,
         memberIds,
         'BASIC',
-        criteria
+        criteria,
+        memberReasons
       );
 
       // 選定結果を記録
@@ -201,7 +203,8 @@ export class BasicMemberSelectionService {
     selectorId: string,
     memberIds: string[],
     selectionType: 'BASIC' | 'COLLABORATIVE' | 'AI_ASSISTED' | 'EMERGENCY' | 'STRATEGIC',
-    criteria?: SelectionCriteria
+    criteria?: SelectionCriteria,
+    memberReasons?: Map<string, string>
   ): Promise<MemberSelection> {
     const id = this.generateSelectionId();
     const now = new Date();
@@ -227,11 +230,12 @@ export class BasicMemberSelectionService {
 
     // 選定されたメンバーを追加
     for (const memberId of memberIds) {
+      const customReason = memberReasons?.get(memberId);
       assignments.push({
         userId: memberId,
         role: 'TEAM_MEMBER',
         isRequired: false,
-        assignmentReason: '選定権限者による選出'
+        assignmentReason: customReason || '選定権限者による選出'
       });
     }
 
