@@ -218,32 +218,14 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
       {/* 投票・合意システム */}
       {post.type === 'improvement' && (
         <div className="px-4 pb-4">
-          {canVote ? (
-            <VotingSection
-              post={post}
-              currentUser={currentUser}
-              onVote={onVote}
-              userVote={selectedVote}
-            />
-          ) : (
-            <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="text-sm">
-                <span className="text-red-500">🚫</span> この投稿への投票権限がありません
-              </div>
-              <div className="text-xs mt-1">
-                {(() => {
-                  const visibilityInfo = getVisibilityInfo();
-                  const postAuthorFacility = post.author.facility_id;
-                  const currentUserFacility = currentUser.facility_id;
-                  
-                  if (postAuthorFacility !== currentUserFacility) {
-                    return `異なる施設の投稿です（投稿者: ${postAuthorFacility}, あなた: ${currentUserFacility}）`;
-                  }
-                  return `投票範囲: ${visibilityInfo.userScopeLabel}`;
-                })()}
-              </div>
-            </div>
-          )}
+          <VotingSection
+            post={post}
+            currentUser={currentUser}
+            onVote={onVote}
+            userVote={selectedVote}
+            canVote={canVote}
+            showTransparencyOnly={!canVote}
+          />
         </div>
       )}
 

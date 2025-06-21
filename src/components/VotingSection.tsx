@@ -11,13 +11,17 @@ interface VotingSectionProps {
   currentUser?: User;
   onVote: (postId: string, option: VoteOption) => void;
   userVote?: VoteOption;
+  canVote?: boolean; // 投票権限フラグ
+  showTransparencyOnly?: boolean; // 透明性表示のみ
 }
 
 const VotingSection: React.FC<VotingSectionProps> = ({ 
   post, 
   currentUser,
   onVote, 
-  userVote 
+  userVote,
+  canVote = true,
+  showTransparencyOnly = false
 }) => {
   console.log('🗳️ VotingSection rendering for post:', post.id, 'type:', post.type);
   
@@ -239,122 +243,150 @@ const VotingSection: React.FC<VotingSectionProps> = ({
         )}
       </div>
       
-      {/* 投票エリア */}
-      <div className="bg-white border border-emerald-300 rounded-xl p-6">
-        <h3 className="text-emerald-700 font-medium mb-4 flex items-center gap-2">
-          💬 あなたの意見をお聞かせください
-        </h3>
-        
-        {/* 洗練された投票ボタン */}
-        <div className="grid grid-cols-5 gap-2 sm:gap-3 mb-6">
-          {voteOptions.map((vote, index) => (
+      {/* 投票エリア - 権限に応じて表示制御 */}
+      {(canVote && !showTransparencyOnly) ? (
+        <div className="bg-white border border-emerald-300 rounded-xl p-6">
+          <h3 className="text-emerald-700 font-medium mb-4 flex items-center gap-2">
+            💬 あなたの意見をお聞かせください
+          </h3>
+          
+          {/* 洗練された投票ボタン */}
+          <div className="grid grid-cols-5 gap-2 sm:gap-3 mb-6">
+            {voteOptions.map((vote, index) => (
+              <button
+                key={vote.type}
+                onClick={() => setSelectedVote(vote.type)}
+                disabled={hasVoted}
+                className={`
+                  relative group overflow-hidden
+                  flex flex-col items-center p-3 sm:p-4 rounded-xl
+                  bg-gradient-to-b transition-all duration-300 transform
+                  ${selectedVote === vote.type 
+                    ? ((vote.color || 'blue') === 'red' ? 'from-red-500 to-red-600 shadow-lg shadow-red-500/30 scale-105 -translate-y-1' :
+                      vote.color === 'orange' ? 'from-orange-500 to-orange-600 shadow-lg shadow-orange-500/30 scale-105 -translate-y-1' :
+                      vote.color === 'gray' ? 'from-gray-500 to-gray-600 shadow-lg shadow-gray-500/30 scale-105 -translate-y-1' :
+                      vote.color === 'green' ? 'from-green-500 to-green-600 shadow-lg shadow-green-500/30 scale-105 -translate-y-1' :
+                      'from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30 scale-105 -translate-y-1')
+                    : currentUserVote === vote.type
+                    ? ((vote.color || 'blue') === 'red' ? 'from-red-400 to-red-500 shadow-md' :
+                      vote.color === 'orange' ? 'from-orange-400 to-orange-500 shadow-md' :
+                      vote.color === 'gray' ? 'from-gray-400 to-gray-500 shadow-md' :
+                      vote.color === 'green' ? 'from-green-400 to-green-500 shadow-md' :
+                      'from-blue-400 to-blue-500 shadow-md')
+                    : 'from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 hover:shadow-md hover:scale-105 hover:-translate-y-0.5'
+                  }
+                  ${hasVoted ? 'cursor-not-allowed' : 'cursor-pointer'}
+                  border border-white/20
+                `}
+              >
+                {/* 背景エフェクト */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                
+                {/* コンテンツ */}
+                <span className={`text-2xl sm:text-3xl mb-2 transform transition-transform group-hover:scale-110 ${
+                  selectedVote === vote.type || currentUserVote === vote.type ? 'text-white drop-shadow-lg' : 'text-gray-700'
+                }`}>
+                  {vote.emoji}
+                </span>
+                <span className={`text-xs font-medium text-center leading-tight ${
+                  selectedVote === vote.type || currentUserVote === vote.type ? 'text-white' : 'text-gray-700'
+                }`}>
+                  {vote.label}
+                </span>
+                
+                {/* 投票済みバッジ */}
+                {currentUserVote === vote.type && (
+                  <div className="absolute top-1 right-1 w-5 h-5 bg-white/90 rounded-full flex items-center justify-center">
+                    <svg className="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+                
+                {/* 選択インジケーター */}
+                {selectedVote === vote.type && !hasVoted && (
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/50" />
+                )}
+              </button>
+            ))}
+          </div>
+          
+          
+          {/* アクションボタン */}
+          <div className="flex">
             <button
-              key={vote.type}
-              onClick={() => setSelectedVote(vote.type)}
-              disabled={hasVoted}
+              onClick={handleVote}
+              disabled={!selectedVote || hasVoted || isVoting}
               className={`
-                relative group overflow-hidden
-                flex flex-col items-center p-3 sm:p-4 rounded-xl
-                bg-gradient-to-b transition-all duration-300 transform
-                ${selectedVote === vote.type 
-                  ? ((vote.color || 'blue') === 'red' ? 'from-red-500 to-red-600 shadow-lg shadow-red-500/30 scale-105 -translate-y-1' :
-                    vote.color === 'orange' ? 'from-orange-500 to-orange-600 shadow-lg shadow-orange-500/30 scale-105 -translate-y-1' :
-                    vote.color === 'gray' ? 'from-gray-500 to-gray-600 shadow-lg shadow-gray-500/30 scale-105 -translate-y-1' :
-                    vote.color === 'green' ? 'from-green-500 to-green-600 shadow-lg shadow-green-500/30 scale-105 -translate-y-1' :
-                    'from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30 scale-105 -translate-y-1')
-                  : currentUserVote === vote.type
-                  ? ((vote.color || 'blue') === 'red' ? 'from-red-400 to-red-500 shadow-md' :
-                    vote.color === 'orange' ? 'from-orange-400 to-orange-500 shadow-md' :
-                    vote.color === 'gray' ? 'from-gray-400 to-gray-500 shadow-md' :
-                    vote.color === 'green' ? 'from-green-400 to-green-500 shadow-md' :
-                    'from-blue-400 to-blue-500 shadow-md')
-                  : 'from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 hover:shadow-md hover:scale-105 hover:-translate-y-0.5'
+                relative w-full px-6 py-4 rounded-xl font-bold text-white
+                transition-all duration-300 transform overflow-hidden group
+                ${!selectedVote || hasVoted || isVoting
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 hover:shadow-lg hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98]'
                 }
-                ${hasVoted ? 'cursor-not-allowed' : 'cursor-pointer'}
-                border border-white/20
               `}
             >
-              {/* 背景エフェクト */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              
-              {/* コンテンツ */}
-              <span className={`text-2xl sm:text-3xl mb-2 transform transition-transform group-hover:scale-110 ${
-                selectedVote === vote.type || currentUserVote === vote.type ? 'text-white drop-shadow-lg' : 'text-gray-700'
-              }`}>
-                {vote.emoji}
-              </span>
-              <span className={`text-xs font-medium text-center leading-tight ${
-                selectedVote === vote.type || currentUserVote === vote.type ? 'text-white' : 'text-gray-700'
-              }`}>
-                {vote.label}
-              </span>
-              
-              {/* 投票済みバッジ */}
-              {currentUserVote === vote.type && (
-                <div className="absolute top-1 right-1 w-5 h-5 bg-white/90 rounded-full flex items-center justify-center">
-                  <svg className="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
+              {/* 背景アニメーション */}
+              {!(!selectedVote || hasVoted || isVoting) && (
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               )}
               
-              {/* 選択インジケーター */}
-              {selectedVote === vote.type && !hasVoted && (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/50" />
-              )}
+              {/* ボタンテキスト */}
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {isVoting ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                    </svg>
+                    投票中...
+                  </>
+                ) : hasVoted ? (
+                  <>
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    投票済み
+                  </>
+                ) : (
+                  <>
+                    投票する
+                    <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </>
+                )}
+              </span>
             </button>
-          ))}
+          </div>
         </div>
-        
-        
-        {/* アクションボタン */}
-        <div className="flex">
-          <button
-            onClick={handleVote}
-            disabled={!selectedVote || hasVoted || isVoting}
-            className={`
-              relative w-full px-6 py-4 rounded-xl font-bold text-white
-              transition-all duration-300 transform overflow-hidden group
-              ${!selectedVote || hasVoted || isVoting
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 hover:shadow-lg hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98]'
-              }
-            `}
-          >
-            {/* 背景アニメーション */}
-            {!(!selectedVote || hasVoted || isVoting) && (
-              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-            )}
-            
-            {/* ボタンテキスト */}
-            <span className="relative z-10 flex items-center justify-center gap-2">
-              {isVoting ? (
-                <>
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                  </svg>
-                  投票中...
-                </>
-              ) : hasVoted ? (
-                <>
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  投票済み
-                </>
-              ) : (
-                <>
-                  投票する
-                  <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </>
-              )}
-            </span>
-          </button>
+      ) : (
+        /* 投票権限なし - 透明性表示のみ */
+        <div className="bg-gray-50 border border-gray-300 rounded-xl p-6">
+          <h3 className="text-gray-600 font-medium mb-4 flex items-center gap-2">
+            🔍 投票結果の透明性表示
+          </h3>
+          <div className="text-center py-2 text-gray-500 bg-gray-100 rounded-lg border border-gray-200 mb-4">
+            <div className="text-sm">
+              <span className="text-orange-500">ℹ️</span> この投稿への投票権限はありませんが、透明性のため結果を表示しています
+            </div>
+            <div className="text-xs mt-1">
+              {(() => {
+                const postAuthorFacility = post.author.facility_id;
+                const currentUserFacility = currentUser?.facility_id;
+                
+                if (postAuthorFacility !== currentUserFacility) {
+                  return `異なる施設の投稿です（投稿施設: ${postAuthorFacility}）`;
+                }
+                return '投票権限の制限により参加できません';
+              })()}
+            </div>
+            <div className="text-xs mt-1 text-blue-600">
+              💡 将来的に法人プロジェクト化された場合は投票権限が発生する可能性があります
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
