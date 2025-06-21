@@ -8,6 +8,7 @@ import { Post as PostType, VoteOption, User, Comment } from '../types';
 import { proposalTypeConfigs } from '../config/proposalTypes';
 import { FACILITIES } from '../data/medical/facilities';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
+import ProjectLevelBadge from './projects/ProjectLevelBadge';
 
 interface EnhancedPostProps {
   post: PostType;

@@ -207,9 +207,25 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
                       <h4 className="font-semibold text-sm mb-1">
                         {notification.title}
                       </h4>
-                      <p className="text-sm text-gray-600 mb-2">
-                        {notification.message}
-                      </p>
+                      <div className="text-sm text-gray-600 mb-2">
+                        {notification.message.split('\n').map((line, index) => {
+                          // 選出理由セクションをハイライト
+                          if (line.includes('【選出理由】')) {
+                            return (
+                              <div key={index} className="mt-2 p-2 bg-blue-50 border-l-4 border-blue-400 rounded">
+                                <div className="font-semibold text-blue-800 text-xs mb-1">選出理由</div>
+                                <div className="text-blue-700">{line.replace('【選出理由】', '')}</div>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div key={index}>
+                              {line}
+                              {index < notification.message.split('\n').length - 1 && <br />}
+                            </div>
+                          );
+                        })}
+                      </div>
                       <div className="flex items-center gap-2 text-xs text-gray-500">
                         <span>
                           {formatDate(notification.createdAt)}

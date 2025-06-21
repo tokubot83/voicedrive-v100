@@ -3,6 +3,7 @@ import { Post, VoteOption, User } from '../types';
 import UnifiedProgressBar from './UnifiedProgressBar';
 import { ConsensusInsightGenerator } from '../utils/consensusInsights';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
+import ProjectLevelBadge from './projects/ProjectLevelBadge';
 
 interface VotingSectionProps {
   post: Post;

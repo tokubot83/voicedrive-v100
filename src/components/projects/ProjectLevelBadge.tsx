@@ -11,7 +11,7 @@ interface ProjectLevelBadgeProps {
   };
 }
 
-export const ProjectLevelBadge: React.FC<ProjectLevelBadgeProps> = ({ 
+const ProjectLevelBadge: React.FC<ProjectLevelBadgeProps> = ({ 
   level, 
   score, 
   isAnimated = false,
