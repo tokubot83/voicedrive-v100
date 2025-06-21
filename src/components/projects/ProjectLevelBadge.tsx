@@ -9,6 +9,7 @@ interface ProjectLevelBadgeProps {
     label: string;
     remainingPoints: number;
   };
+  compact?: boolean; // モバイル向けコンパクト表示
 }
 
 const ProjectLevelBadge: React.FC<ProjectLevelBadgeProps> = ({ 
@@ -16,7 +17,8 @@ const ProjectLevelBadge: React.FC<ProjectLevelBadgeProps> = ({
   score, 
   isAnimated = false,
   showNextLevel = false,
-  nextLevelInfo
+  nextLevelInfo,
+  compact = false
 }) => {
   const getLevelConfig = () => {
     switch(level) {
@@ -87,6 +89,72 @@ const ProjectLevelBadge: React.FC<ProjectLevelBadgeProps> = ({
   };
 
   const config = getLevelConfig();
+
+  if (compact) {
+    // モバイル向けコンパクト表示（上下2列レイアウト）
+    return (
+      <div className="space-y-3">
+        {/* タイトル - みんなの納得率と同じスタイル */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="text-sm font-medium text-emerald-700">みんなの投票スコア</span>
+          </div>
+        </div>
+        
+        {/* 上段: 現在のレベル */}
+        <div className={`
+          flex items-center justify-between px-4 py-3 rounded-xl
+          bg-gradient-to-r ${config.bgGradient} text-white
+          shadow-md ${isAnimated ? 'animate-pulse' : ''}
+          transition-all duration-300
+        `}>
+          <div className="flex items-center gap-3">
+            <span className="text-xl">{config.icon}</span>
+            <div>
+              <span className="text-xs opacity-90">現在</span>
+              <div className="text-base font-bold">{config.label}</div>
+            </div>
+          </div>
+          <div className="text-right">
+            <span className="text-lg font-bold">{Math.round(score)}</span>
+            <span className="text-sm opacity-90 ml-1">点</span>
+          </div>
+        </div>
+        
+        {/* 下段: 次のレベル */}
+        {showNextLevel && nextLevelInfo && (
+          <div className={`
+            flex items-center justify-between px-4 py-3 rounded-xl
+            bg-gray-50 border-2 ${config.borderColor}
+            ${isAnimated ? 'animate-bounce' : ''}
+            transition-all duration-300
+          `}>
+            <div className="flex items-center gap-3">
+              <span className="text-xl opacity-60">
+                {nextLevelInfo.label.includes('部署') ? '🏢' :
+                 nextLevelInfo.label.includes('施設') ? '🏥' :
+                 nextLevelInfo.label.includes('法人') ? '🏛️' :
+                 nextLevelInfo.label.includes('戦略') ? '🚀' : '👥'}
+              </span>
+              <div>
+                <span className={`text-xs ${config.textColor} opacity-80`}>次</span>
+                <div className={`text-base font-bold ${config.textColor}`}>
+                  {nextLevelInfo.label}
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <span className={`text-xs ${config.textColor} opacity-80`}>まであと</span>
+              <div className={`text-lg font-bold ${config.textColor}`}>
+                {nextLevelInfo.remainingPoints}点
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-3">
