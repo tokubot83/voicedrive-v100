@@ -78,12 +78,12 @@ export class PostVisibilityEngine {
    */
   private checkVotingEligibility(postLevel: ProjectLevel, userScope: StakeholderGroup): boolean {
     const votingRules: Record<ProjectLevel, StakeholderGroup[]> = {
-      'PENDING': [StakeholderGroup.SAME_DEPARTMENT], // 部署内議論段階：同一部署のみ投票可能
-      'TEAM': [StakeholderGroup.SAME_DEPARTMENT], // チームプロジェクトは昇格なし
-      'DEPARTMENT': [StakeholderGroup.SAME_FACILITY], // 部署プロジェクト化後：施設内投票可能
-      'FACILITY': [StakeholderGroup.SAME_ORGANIZATION], // 施設プロジェクト化後：法人内投票可能
-      'ORGANIZATION': [StakeholderGroup.SAME_ORGANIZATION],
-      'STRATEGIC': [StakeholderGroup.SAME_ORGANIZATION]
+      'PENDING': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT], // 部署内議論段階：同一部署のみ投票可能
+      'TEAM': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT], // チームプロジェクト：同一部署のみ投票可能
+      'DEPARTMENT': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT], // 部署プロジェクト：同一部署のみ投票可能
+      'FACILITY': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT, StakeholderGroup.SAME_FACILITY], // 施設プロジェクト：施設内投票可能
+      'ORGANIZATION': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT, StakeholderGroup.SAME_FACILITY, StakeholderGroup.SAME_ORGANIZATION], // 法人プロジェクト：法人内投票可能
+      'STRATEGIC': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT, StakeholderGroup.SAME_FACILITY, StakeholderGroup.SAME_ORGANIZATION] // 戦略プロジェクト：法人内投票可能
     };
     
     return votingRules[postLevel]?.includes(userScope) || false;
@@ -95,12 +95,12 @@ export class PostVisibilityEngine {
   private checkCommentEligibility(postLevel: ProjectLevel, userScope: StakeholderGroup): boolean {
     // コメントは投票権限と同じかより広い範囲
     const commentRules: Record<ProjectLevel, StakeholderGroup[]> = {
-      'PENDING': [StakeholderGroup.SAME_DEPARTMENT], // 部署内議論段階：同一部署のみコメント可能
-      'TEAM': [StakeholderGroup.SAME_DEPARTMENT],
-      'DEPARTMENT': [StakeholderGroup.SAME_FACILITY], // 部署プロジェクト化後：施設内コメント可能
-      'FACILITY': [StakeholderGroup.SAME_ORGANIZATION],
-      'ORGANIZATION': [StakeholderGroup.SAME_ORGANIZATION],
-      'STRATEGIC': [StakeholderGroup.SAME_ORGANIZATION]
+      'PENDING': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT], // 部署内議論段階：同一部署のみコメント可能
+      'TEAM': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT], // チームプロジェクト：同一部署のみコメント可能
+      'DEPARTMENT': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT], // 部署プロジェクト：同一部署のみコメント可能
+      'FACILITY': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT, StakeholderGroup.SAME_FACILITY], // 施設プロジェクト：施設内コメント可能
+      'ORGANIZATION': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT, StakeholderGroup.SAME_FACILITY, StakeholderGroup.SAME_ORGANIZATION], // 法人プロジェクト：法人内コメント可能
+      'STRATEGIC': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT, StakeholderGroup.SAME_FACILITY, StakeholderGroup.SAME_ORGANIZATION] // 戦略プロジェクト：法人内コメント可能
     };
     
     return commentRules[postLevel]?.includes(userScope) || false;
