@@ -90,32 +90,45 @@ const VotingSection: React.FC<VotingSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 改善提案用スコア表示パネル */}
+      {/* みんなの投票スコア（改善提案用） */}
       {post.type === 'improvement' && (
-        <div className="bg-white border border-emerald-300 rounded-xl p-4 mb-4 hover:border-emerald-400 transition-all">
-          {/* コンパクトレベルバッジ（モバイル最適化） */}
-          <ProjectLevelBadge
-            level={
-              currentScore >= 1200 ? 'STRATEGIC' :
-              currentScore >= 600 ? 'ORGANIZATION' :
-              currentScore >= 300 ? 'FACILITY' :
-              currentScore >= 100 ? 'DEPARTMENT' :
-              currentScore >= 50 ? 'TEAM' : 'PENDING'
+        <UnifiedProgressBar
+          type="project"
+          title="みんなの投票スコア"
+          percentage={Math.min((currentScore / 50) * 100, 100)} // 50点を100%として計算
+          status="active"
+          quickInsights={[
+            `🎯 現在スコア: ${Math.round(currentScore)}点`,
+            currentScore >= 600 ? '🏢 法人レベル到達' :
+            currentScore >= 300 ? '🏥 施設レベル到達' :
+            currentScore >= 100 ? '🏢 部署レベル到達' :
+            currentScore >= 50 ? '👥 チームレベル到達' : '💭 議論段階',
+            `📊 next の目標まで${currentScore >= 600 ? '完了' : 
+              currentScore >= 300 ? Math.round(600 - currentScore) + '点' :
+              currentScore >= 100 ? Math.round(300 - currentScore) + '点' :
+              currentScore >= 50 ? Math.round(100 - currentScore) + '点' : Math.round(50 - currentScore) + '点'}`
+          ]}
+          details={[
+            { label: '現在レベル', value: 
+              currentScore >= 1200 ? '戦略レベル' :
+              currentScore >= 600 ? '法人レベル' :
+              currentScore >= 300 ? '施設レベル' :
+              currentScore >= 100 ? '部署レベル' :
+              currentScore >= 50 ? 'チームレベル' : '議論段階'
+            },
+            { label: 'スコア', value: `${Math.round(currentScore)}点`, trend: 'up' },
+            { label: '次の目標', value: 
+              currentScore >= 1200 ? '最高レベル達成' :
+              currentScore >= 600 ? `戦略レベル (${Math.round(1200 - currentScore)}点)` :
+              currentScore >= 300 ? `法人レベル (${Math.round(600 - currentScore)}点)` :
+              currentScore >= 100 ? `施設レベル (${Math.round(300 - currentScore)}点)` :
+              currentScore >= 50 ? `部署レベル (${Math.round(100 - currentScore)}点)` :
+              `チームレベル (${Math.round(50 - currentScore)}点)`
             }
-            score={currentScore}
-            isAnimated={false}
-            showNextLevel={true}
-            nextLevelInfo={
-              currentScore >= 1200 ? undefined :
-              currentScore >= 600 ? { label: '戦略レベル', remainingPoints: Math.round(1200 - currentScore) } :
-              currentScore >= 300 ? { label: '法人レベル', remainingPoints: Math.round(600 - currentScore) } :
-              currentScore >= 100 ? { label: '施設レベル', remainingPoints: Math.round(300 - currentScore) } :
-              currentScore >= 50 ? { label: '部署レベル', remainingPoints: Math.round(100 - currentScore) } :
-              { label: 'チームレベル', remainingPoints: Math.round(50 - currentScore) }
-            }
-            compact={true}
-          />
-        </div>
+          ]}
+          detailsData={{ currentScore, post }}
+          description={`投票による評価スコア (${Math.round(currentScore)}点)`}
+        />
       )}
 
       {/* 統一ステータス表示（縦積みレイアウト） */}
@@ -172,11 +185,11 @@ const VotingSection: React.FC<VotingSectionProps> = ({
           />
         )}
         
-        {/* プロジェクト進捗（改善提案の場合は常に表示） */}
-        {(post.type === 'improvement' || post.projectStatus === 'active' || post.enhancedProjectStatus) && (
+        {/* プロジェクト進捗（改善提案以外で表示） */}
+        {(post.type !== 'improvement' && (post.projectStatus === 'active' || post.enhancedProjectStatus)) && (
           <UnifiedProgressBar
             type="project"
-            title="みんなの投票スコア"
+            title="プロジェクト進捗"
             percentage={post.enhancedProjectStatus ? post.enhancedProjectStatus.resources.completion : projectData.progress}
             status="active"
             quickInsights={post.enhancedProjectStatus ? [
