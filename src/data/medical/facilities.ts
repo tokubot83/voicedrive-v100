@@ -13,6 +13,13 @@ export const facilities: Facility[] = [
     name: '小原病院',
     type: 'hospital',
     departments: [
+      'nursing_administration_kohara', // 看護部
+      'outpatient_kohara', // 外来
+      'ward_3f_kohara', // 3階病棟
+      'ward_4f_kohara', // 4階病棟
+      'ward_5f_kohara', // 5階病棟
+      'operating_room_kohara', // 中材手術室
+      'dialysis_room_kohara', // 人工透析室
       'regional_comprehensive_care_ward', // 地域包括医療病棟
       'community_care_ward', // 地域包括ケア病棟  
       'rehabilitation_ward', // 回復期リハビリ病棟

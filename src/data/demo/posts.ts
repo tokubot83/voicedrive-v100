@@ -527,6 +527,480 @@ export const demoPosts: Post[] = [
       disagree: 0,
       hold: 1
     }
+  },
+
+  // === 小原病院看護部デモ投稿 ===
+  
+  // 9. 夜勤看護師の安全対策強化（看護部長からの提案）
+  {
+    id: 'kohara-post-1',
+    type: 'improvement' as PostType,
+    proposalType: 'safety',
+    filterCategory: 'voting', // 投票対象
+    facilityScope: 'kohara_hospital',
+    departmentScope: '看護部',
+    content: `夜勤看護師の安全対策強化についてのご提案
+
+小原病院看護部長の田中です。近年、全国的に医療施設での夜勤時のインシデント発生が課題視されており、当院でも予防的な対策を強化したいと考えております。
+
+【現状の課題】
+・夜勤時間帯（22時～翌朝6時）での緊急対応時の人員配置が手薄
+・一人夜勤業務での孤立感とストレス
+・緊急時の迅速な連絡体制の見直し必要
+
+【提案内容】
+1. 夜勤看護師向けの緊急通報システム導入（ナースコール連動型）
+2. 夜勤時の複数名体制への段階的移行（各病棟最低2名配置）
+3. 月1回の夜勤時安全研修の実施
+4. 夜勤専従看護師の処遇改善（夜勤手当見直し）
+
+患者様の安全と職員の働きやすさの両立を目指し、ご検討いただければと思います。`,
+    author: {
+      id: 'kohara-nursing-director',
+      name: '田中 美津子',
+      department: '看護部',
+      role: '看護部長',
+      avatar: '/api/placeholder/150/150'
+    },
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'high' as Priority,
+    timestamp: new Date('2025-06-10T09:00:00'),
+    votes: generateVoteRecord({
+      stronglySupport: 8,
+      support: 4,
+      neutral: 1,
+      oppose: 0,
+      stronglyOppose: 0
+    }),
+    comments: generateComments('kohara-post-1', [
+      {
+        userId: 'kohara-3f-head',
+        content: '3階病棟師長として、この提案を全面支持いたします。夜勤時の緊急対応で不安を感じることが多々あります。'
+      },
+      {
+        userId: 'kohara-4f-nurse',
+        content: '現場の看護師として、夜勤の複数名体制は本当に助かります。患者様にもより良いケアが提供できると思います。'
+      },
+      {
+        userId: 'kohara-5f-supervisor',
+        content: '夜勤専従の処遇改善も含まれており、現実的で包括的な提案だと感じます。ぜひ実現させたいです。'
+      }
+    ]),
+    projectStatus: {
+      stage: 'ready' as const,
+      score: 85,
+      threshold: 100,
+      progress: 70
+    },
+    votingDeadline: new Date('2025-06-30T23:59:59'),
+    eligibleVoters: 21,
+    voteBreakdown: {
+      agree: 13,
+      disagree: 0,
+      hold: 1
+    }
+  },
+
+  // 10. 病棟間看護師交流研修プログラム（3階病棟師長提案）
+  {
+    id: 'kohara-post-2',
+    type: 'improvement' as PostType,
+    proposalType: 'training',
+    filterCategory: 'facility', // 施設内共有
+    facilityScope: 'kohara_hospital',
+    departmentScope: '3階病棟',
+    content: `病棟間看護師交流研修プログラムの導入提案
+
+3階病棟師長の加藤です。各病棟の特性を活かした看護技術の共有と、看護師のスキルアップを目的とした研修プログラムを提案いたします。
+
+【背景】
+・各病棟で蓄積された専門知識や技術の共有不足
+・看護師のキャリア開発機会の拡充必要
+・病棟間の連携強化による患者ケアの質向上
+
+【プログラム内容】
+1. 月1回の病棟間ローテーション研修（半日程度）
+2. 各病棟の特色ある看護技術の発表会（四半期毎）
+3. 新人看護師向けの病棟見学プログラム
+4. ベテラン看護師による指導技術の共有
+
+【期待される効果】
+・看護技術の標準化と向上
+・職員のモチベーション向上
+・病棟間のコミュニケーション強化
+
+皆様のご意見をお聞かせください。`,
+    author: {
+      id: 'kohara-3f-head',
+      name: '加藤 理恵',
+      department: '3階病棟',
+      role: '3階病棟師長',
+      avatar: '/api/placeholder/150/150'
+    },
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'medium' as Priority,
+    timestamp: new Date('2025-06-08T14:30:00'),
+    votes: generateVoteRecord({
+      stronglySupport: 5,
+      support: 7,
+      neutral: 2,
+      oppose: 0,
+      stronglyOppose: 0
+    }),
+    comments: generateComments('kohara-post-2', [
+      {
+        userId: 'kohara-education-director',
+        content: '教育師長として、この提案は非常に有意義だと思います。教育プログラムとの連携も検討させていただきます。'
+      },
+      {
+        userId: 'kohara-5f-head',
+        content: '5階病棟でも似たような課題を感じていました。是非、連携して進めていきましょう。'
+      },
+      {
+        userId: 'kohara-outpatient-nurse',
+        content: '外来でも参考になる内容が多そうです。病棟見学をさせていただきたいです。'
+      }
+    ]),
+    projectStatus: {
+      stage: 'planning' as const,
+      score: 78,
+      threshold: 85,
+      progress: 60
+    },
+    votingDeadline: new Date('2025-06-25T23:59:59'),
+    eligibleVoters: 18,
+    voteBreakdown: {
+      agree: 12,
+      disagree: 0,
+      hold: 2
+    }
+  },
+
+  // 11. 透析室での患者教育資材の充実（透析室主任提案）
+  {
+    id: 'kohara-post-3',
+    type: 'resource_request' as PostType,
+    proposalType: 'equipment',
+    filterCategory: 'voting', // 投票対象
+    facilityScope: 'kohara_hospital',
+    departmentScope: '人工透析室',
+    content: `透析患者様向け教育資材の充実についてのお願い
+
+人工透析室主任の藤田です。透析患者様へのより効果的な療養指導のため、教育資材の充実をお願いしたく提案いたします。
+
+【現状の課題】
+・既存の教育パンフレットが古く、内容更新が必要
+・視覚的で分かりやすい説明資料の不足
+・患者様の年齢層に応じた教材の必要性
+
+【要求資材】
+1. デジタル教育用タブレット（3台）
+2. 透析の仕組み説明用3Dモデル
+3. 食事指導用食品サンプルセット
+4. 血管アクセス管理指導用教材
+
+【予算見積】
+・デジタル教材システム：約150,000円
+・実物教材セット：約80,000円
+・年次更新費用：約30,000円
+
+【期待される効果】
+・患者様の透析に対する理解度向上
+・セルフケア能力の向上
+・医療事故の予防
+
+透析患者様の QOL 向上のため、ご検討のほどよろしくお願いいたします。`,
+    author: {
+      id: 'kohara-dialysis-supervisor',
+      name: '藤田 千代',
+      department: '人工透析室',
+      role: '透析室主任',
+      avatar: '/api/placeholder/150/150'
+    },
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'medium' as Priority,
+    timestamp: new Date('2025-06-07T11:15:00'),
+    votes: generateVoteRecord({
+      stronglySupport: 6,
+      support: 3,
+      neutral: 1,
+      oppose: 0,
+      stronglyOppose: 0
+    }),
+    comments: generateComments('kohara-post-3', [
+      {
+        userId: 'kohara-nursing-director',
+        content: '患者教育の重要性を考慮し、前向きに検討いたします。予算計画に組み込んで参ります。'
+      },
+      {
+        userId: 'kohara-dialysis-nurse',
+        content: '現場で患者様から「もっと分かりやすい説明がほしい」との声をよく聞きます。この提案に賛成です。'
+      }
+    ]),
+    projectStatus: {
+      stage: 'ready' as const,
+      score: 92,
+      threshold: 100,
+      progress: 80
+    },
+    votingDeadline: new Date('2025-06-28T23:59:59'),
+    eligibleVoters: 12,
+    voteBreakdown: {
+      agree: 10,
+      disagree: 0,
+      hold: 1
+    }
+  },
+
+  // 12. 外来待ち時間短縮のための予約システム改善（外来師長提案）
+  {
+    id: 'kohara-post-4',
+    type: 'improvement' as PostType,
+    proposalType: 'system',
+    filterCategory: 'facility', // 施設内共有
+    facilityScope: 'kohara_hospital',
+    departmentScope: '外来',
+    content: `外来患者様の待ち時間短縮のための予約システム改善提案
+
+外来師長の高橋です。外来の予約システム改善により、患者様の満足度向上と効率的な外来運営を目指したいと思います。
+
+【現状の問題点】
+・予約時間に大幅な遅れが発生（平均30-60分遅延）
+・患者様からの苦情が月平均15件
+・看護師の説明・謝罪対応時間の増加
+
+【改善提案】
+1. リアルタイム予約状況表示システムの導入
+2. 診察予約の15分間隔制への変更（現在30分間隔）
+3. 患者様向けスマートフォンアプリでの待ち時間通知
+4. 緊急患者対応時の予約調整プロトコル策定
+
+【導入効果予測】
+・待ち時間20%短縮
+・患者満足度調査スコア向上
+・スタッフの負担軽減
+
+【導入コスト】
+・システム改修費：約300,000円
+・月額運用費：約15,000円
+
+患者様により良い医療サービスを提供するため、ご協力をお願いいたします。`,
+    author: {
+      id: 'kohara-outpatient-head',
+      name: '高橋 愛子',
+      department: '外来',
+      role: '外来師長',
+      avatar: '/api/placeholder/150/150'
+    },
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'high' as Priority,
+    timestamp: new Date('2025-06-06T16:45:00'),
+    votes: generateVoteRecord({
+      stronglySupport: 4,
+      support: 8,
+      neutral: 1,
+      oppose: 1,
+      stronglyOppose: 0
+    }),
+    comments: generateComments('kohara-post-4', [
+      {
+        userId: 'kohara-outpatient-supervisor',
+        content: '外来主任として、現場の実情をよく把握された提案だと思います。患者様対応がより円滑になることを期待します。'
+      },
+      {
+        userId: 'kohara-nursing-director',
+        content: 'システム導入には予算が必要ですが、患者満足度向上は重要な課題です。段階的な導入を検討いたします。'
+      },
+      {
+        userId: 'kohara-outpatient-nurse',
+        content: '現場で患者様の待ち時間の長さを日々感じています。改善されることを切に願います。'
+      }
+    ]),
+    projectStatus: {
+      stage: 'planning' as const,
+      score: 73,
+      threshold: 85,
+      progress: 55
+    },
+    votingDeadline: new Date('2025-06-25T23:59:59'),
+    eligibleVoters: 16,
+    voteBreakdown: {
+      agree: 12,
+      disagree: 1,
+      hold: 1
+    }
+  },
+
+  // 13. 手術室看護師のスキルアップ研修（手術室主任提案）
+  {
+    id: 'kohara-post-5',
+    type: 'training_request' as PostType,
+    proposalType: 'training',
+    filterCategory: 'voting', // 投票対象
+    facilityScope: 'kohara_hospital',
+    departmentScope: '中材手術室',
+    content: `手術室看護師向け専門研修の実施について
+
+手術室主任の石井です。手術室看護師の専門性向上のため、外部研修への参加と院内研修の充実を提案いたします。
+
+【現状の課題】
+・新しい手術器械・技術への対応遅れ
+・緊急手術時の対応スキル不足
+・感染管理の最新ガイドライン対応
+
+【研修計画】
+1. 外部研修参加（年2回）
+   - 手術看護学会セミナー
+   - 器械管理技術研修
+2. 院内研修の充実（月1回）
+   - 緊急手術対応シミュレーション
+   - 感染管理プロトコル確認
+3. 他施設見学研修（年1回）
+
+【予算要求】
+・外部研修参加費：年間150,000円
+・教材・機材費：80,000円
+・見学研修旅費：50,000円
+
+【期待される効果】
+・手術の安全性向上
+・チーム医療の質向上
+・職員のモチベーション向上
+
+手術室の更なる安全性確保のため、ご理解とご支援をお願いいたします。`,
+    author: {
+      id: 'kohara-or-supervisor',
+      name: '石井 優子',
+      department: '中材手術室',
+      role: '手術室主任',
+      avatar: '/api/placeholder/150/150'
+    },
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'high' as Priority,
+    timestamp: new Date('2025-06-05T13:20:00'),
+    votes: generateVoteRecord({
+      stronglySupport: 7,
+      support: 2,
+      neutral: 0,
+      oppose: 0,
+      stronglyOppose: 0
+    }),
+    comments: generateComments('kohara-post-5', [
+      {
+        userId: 'kohara-or-nurse',
+        content: '手術室看護師として、専門性を高める機会をいただけるのは大変ありがたいです。最新の知識・技術を学んでいきたいです。'
+      },
+      {
+        userId: 'kohara-education-director',
+        content: '教育師長として、専門研修は非常に重要だと考えます。看護部全体の教育計画との調整を図りながら進めさせていただきます。'
+      },
+      {
+        userId: 'kohara-nursing-director',
+        content: '手術室の安全性は病院全体の信頼に関わります。研修予算の確保に向けて調整いたします。'
+      }
+    ]),
+    projectStatus: {
+      stage: 'ready' as const,
+      score: 98,
+      threshold: 100,
+      progress: 90
+    },
+    votingDeadline: new Date('2025-06-27T23:59:59'),
+    eligibleVoters: 11,
+    voteBreakdown: {
+      agree: 9,
+      disagree: 0,
+      hold: 0
+    }
+  },
+
+  // 14. 看護補助者の業務範囲明確化（4階病棟主任提案）
+  {
+    id: 'kohara-post-6',
+    type: 'policy_proposal' as PostType,
+    proposalType: 'operational',
+    filterCategory: 'facility', // 施設内共有
+    facilityScope: 'kohara_hospital',
+    departmentScope: '4階病棟',
+    content: `看護補助者の業務範囲明確化について
+
+4階病棟主任の山口です。看護補助者の業務範囲を明確化し、より安全で効率的な病棟業務を実現したいと思います。
+
+【現状の問題】
+・看護補助者の業務範囲があいまい
+・看護師との役割分担が不明確
+・業務上の責任の所在が曖昧
+
+【明確化提案】
+◆看護補助者が実施可能な業務
+1. 患者移送・体位変換
+2. 病室・共用部清掃
+3. 食事配膳・下膳
+4. リネン交換
+5. 物品補充・整理
+
+◆看護師のみが実施する業務
+1. バイタルサイン測定
+2. 薬剤に関する業務
+3. 医療器具の操作
+4. 患者・家族への説明
+
+【導入効果】
+・業務の明確化による安全性向上
+・職員の役割意識向上
+・効率的な人員配置
+
+【実施方法】
+1. 業務分担表の作成・配布
+2. 全職員向け説明会開催
+3. 1ヶ月間の試験運用
+4. 課題検討・修正
+
+チームワーク向上のため、皆様のご意見をお聞かせください。`,
+    author: {
+      id: 'kohara-4f-supervisor',
+      name: '山口 里美',
+      department: '4階病棟',
+      role: '4階病棟主任',
+      avatar: '/api/placeholder/150/150'
+    },
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'medium' as Priority,
+    timestamp: new Date('2025-06-04T10:30:00'),
+    votes: generateVoteRecord({
+      stronglySupport: 3,
+      support: 6,
+      neutral: 3,
+      oppose: 1,
+      stronglyOppose: 0
+    }),
+    comments: generateComments('kohara-post-6', [
+      {
+        userId: 'kohara-4f-nurse',
+        content: '業務分担が明確になることで、お互いの立場を尊重した協働ができると思います。'
+      },
+      {
+        userId: 'kohara-4f-assistant',
+        content: '看護補助者として、自分の役割がはっきりすることで、より責任を持って業務に取り組めます。'
+      },
+      {
+        userId: 'kohara-3f-supervisor',
+        content: '3階病棟でも同様の課題があります。参考にさせていただきたいです。'
+      }
+    ]),
+    projectStatus: {
+      stage: 'planning' as const,
+      score: 65,
+      threshold: 75,
+      progress: 45
+    },
+    votingDeadline: new Date('2025-06-22T23:59:59'),
+    eligibleVoters: 14,
+    voteBreakdown: {
+      agree: 9,
+      disagree: 1,
+      hold: 3
+    }
   }
 ];
 

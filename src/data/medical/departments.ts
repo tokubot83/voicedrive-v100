@@ -10,6 +10,48 @@ export interface Department {
 export const departments: Department[] = [
   // 小原病院
   {
+    id: 'nursing_administration_kohara',
+    name: '看護部',
+    facility: 'kohara_hospital',
+    type: 'other'
+  },
+  {
+    id: 'outpatient_kohara',
+    name: '外来',
+    facility: 'kohara_hospital',
+    type: 'outpatient'
+  },
+  {
+    id: 'ward_3f_kohara',
+    name: '3階病棟',
+    facility: 'kohara_hospital',
+    type: 'ward'
+  },
+  {
+    id: 'ward_4f_kohara',
+    name: '4階病棟',
+    facility: 'kohara_hospital',
+    type: 'ward'
+  },
+  {
+    id: 'ward_5f_kohara',
+    name: '5階病棟',
+    facility: 'kohara_hospital',
+    type: 'ward'
+  },
+  {
+    id: 'operating_room_kohara',
+    name: '中材手術室',
+    facility: 'kohara_hospital',
+    type: 'other'
+  },
+  {
+    id: 'dialysis_room_kohara',
+    name: '人工透析室',
+    facility: 'kohara_hospital',
+    type: 'other'
+  },
+  {
     id: 'regional_comprehensive_care_ward',
     name: '地域包括医療病棟',
     facility: 'kohara_hospital',
