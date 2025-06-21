@@ -9,6 +9,7 @@ import { proposalTypeConfigs } from '../config/proposalTypes';
 import { FACILITIES } from '../data/medical/facilities';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 import ProjectLevelBadge from './projects/ProjectLevelBadge';
+import { usePostVisibility } from '../hooks/visibility/usePostVisibility';
 
 interface EnhancedPostProps {
   post: PostType;
@@ -21,6 +22,9 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(null);
   const [showComments, setShowComments] = useState(false);
   const { calculateScore, convertVotesToEngagements } = useProjectScoring();
+  
+  // 投稿権限チェック
+  const { canVote, canComment, getVisibilityInfo } = usePostVisibility(post, currentUser);
 
   // プロジェクトレベルの計算（改善提案のみ）
   const currentScore = post.type === 'improvement' && post.votes
@@ -214,12 +218,32 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
       {/* 投票・合意システム */}
       {post.type === 'improvement' && (
         <div className="px-4 pb-4">
-          <VotingSection
-            post={post}
-            currentUser={currentUser}
-            onVote={onVote}
-            userVote={selectedVote}
-          />
+          {canVote ? (
+            <VotingSection
+              post={post}
+              currentUser={currentUser}
+              onVote={onVote}
+              userVote={selectedVote}
+            />
+          ) : (
+            <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="text-sm">
+                <span className="text-red-500">🚫</span> この投稿への投票権限がありません
+              </div>
+              <div className="text-xs mt-1">
+                {(() => {
+                  const visibilityInfo = getVisibilityInfo();
+                  const postAuthorFacility = post.author.facility_id;
+                  const currentUserFacility = currentUser.facility_id;
+                  
+                  if (postAuthorFacility !== currentUserFacility) {
+                    return `異なる施設の投稿です（投稿者: ${postAuthorFacility}, あなた: ${currentUserFacility}）`;
+                  }
+                  return `投票範囲: ${visibilityInfo.userScopeLabel}`;
+                })()}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
