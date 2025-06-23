@@ -344,9 +344,9 @@ export const MENU_STRUCTURE: MenuStructure = {
   }
 };
 
-// 権限レベル別メニュー可視性設定
+// 13段階権限レベル別メニュー可視性設定
 export const MENU_VISIBILITY: MenuVisibility = {
-  1: { // 一般職員
+  1: { // 一般職員 (STAFF)
     stations: ['personal'],
     management: [],
     hr: [],
@@ -355,7 +355,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: [],
     executive: []
   },
-  2: { // 主任
+  2: { // 主任 (SUPERVISOR)
     stations: ['personal', 'leader'],
     management: ['team', 'authority_basic'],
     hr: [],
@@ -364,7 +364,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: [],
     executive: []
   },
-  3: { // 師長
+  3: { // 師長 (HEAD_NURSE)
     stations: ['personal', 'leader', 'department'],
     management: ['team', 'authority_basic', 'department'],
     hr: [],
@@ -373,7 +373,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: ['dept_user', 'dept_generation'],
     executive: []
   },
-  4: { // 部長・課長
+  4: { // 部長・課長 (DEPARTMENT_HEAD)
     stations: ['personal', 'leader', 'department', 'section'],
     management: ['team', 'authority_basic', 'department', 'section', 'budget'],
     hr: [],
@@ -382,7 +382,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: ['dept_user', 'dept_generation'],
     executive: []
   },
-  5: { // 事務長
+  5: { // 事務長 (ADMINISTRATIVE_DIRECTOR)
     stations: ['personal', 'leader', 'department', 'section'],
     management: ['team', 'authority_basic', 'department', 'section', 'budget'],
     hr: [],
@@ -391,7 +391,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
     executive: []
   },
-  6: { // 副院長
+  6: { // 副院長 (VICE_DIRECTOR)
     stations: ['personal', 'leader', 'department', 'section'],
     management: ['team', 'authority_basic', 'department', 'section', 'budget'],
     hr: [],
@@ -400,7 +400,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
     executive: []
   },
-  7: { // 院長・施設長
+  7: { // 院長・施設長 (HOSPITAL_DIRECTOR)
     stations: ['personal', 'leader', 'department', 'section'],
     management: ['team', 'authority_basic', 'department', 'section', 'budget'],
     hr: [],
@@ -409,7 +409,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
     executive: []
   },
-  8: { // 人財統括本部事務員
+  8: { // 人財統括本部事務員 (HR_ADMIN_STAFF)
     stations: ['personal'],
     management: [],
     hr: ['interview', 'policy', 'talent'],
@@ -418,7 +418,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: [],
     executive: []
   },
-  9: { // 人財統括本部キャリア支援部門員
+  9: { // 人財統括本部 キャリア支援部門員 (CAREER_SUPPORT_STAFF)
     stations: ['personal'],
     management: [],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
@@ -427,7 +427,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: [],
     executive: []
   },
-  10: { // 人財統括本部各部門長
+  10: { // 人財統括本部 各部門長 (HR_DEPARTMENT_HEAD)
     stations: ['personal'],
     management: [],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
@@ -436,7 +436,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
     executive: []
   },
-  11: { // 人財統括本部統括管理部門長
+  11: { // 人財統括本部 統括管理部門長 (HR_GENERAL_MANAGER)
     stations: ['personal'],
     management: [],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
@@ -445,7 +445,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
     executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance']
   },
-  12: { // 厚生会本部統括事務局長
+  12: { // 厚生会本部統括事務局長 (GENERAL_ADMINISTRATIVE_DIRECTOR)
     stations: ['personal'],
     management: [],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
@@ -454,7 +454,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
     executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance']
   },
-  13: { // 理事長
+  13: { // 理事長 (CHAIRMAN)
     stations: ['personal'],
     management: [],
     hr: ['interview', 'policy', 'talent', 'dashboard'],

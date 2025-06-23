@@ -685,6 +685,122 @@ export const demoUsers: DemoUser[] = [
     organizationPath: ['kohara-nursing-director', 'kohara-dialysis-supervisor'],
     avatar: '/api/placeholder/150/150',
     isAnonymous: false
+  },
+
+  // === 人財統括本部デモアカウント ===
+  // レベル8: 人財統括本部事務員
+  {
+    id: 'hr-admin-001',
+    name: '田村 美香',
+    username: 'tamura-mika',
+    email: 'tamura@hr-headquarters.jp',
+    position: '人財統括本部事務員',
+    department: '人財統括本部',
+    permissionLevel: 8,
+    accountType: 'HR_ADMIN_STAFF',
+    facility_id: 'hr_headquarters',
+    joinDate: new Date('2020-04-01'),
+    directReports: 0,
+    stakeholderCategory: 'hr_staff',
+    parent_id: null,
+    organizationPath: [],
+    avatar: '/api/placeholder/150/150',
+    isAnonymous: false
+  },
+  // レベル9: 人財統括本部 キャリア支援部門員
+  {
+    id: 'career-support-001',
+    name: '石井 美香',
+    username: 'ishii-mika',
+    email: 'ishii@hr-headquarters.jp',
+    position: '人財統括本部 キャリア支援部門員',
+    department: '人財統括本部',
+    permissionLevel: 9,
+    accountType: 'CAREER_SUPPORT_STAFF',
+    facility_id: 'hr_headquarters',
+    joinDate: new Date('2018-04-01'),
+    directReports: 4,
+    stakeholderCategory: 'hr_staff',
+    parent_id: null,
+    organizationPath: [],
+    avatar: '/api/placeholder/150/150',
+    isAnonymous: false
+  },
+  // レベル10: 人財統括本部 各部門長
+  {
+    id: 'hr-dept-head-001',
+    name: '橋本 信一',
+    username: 'hashimoto-shinichi',
+    email: 'hashimoto@hr-headquarters.jp',
+    position: '人財統括本部 教育研修部門長',
+    department: '人財統括本部',
+    permissionLevel: 10,
+    accountType: 'HR_DEPARTMENT_HEAD',
+    facility_id: 'hr_headquarters',
+    joinDate: new Date('2015-04-01'),
+    directReports: 18,
+    stakeholderCategory: 'hr_staff',
+    parent_id: null,
+    organizationPath: [],
+    avatar: '/api/placeholder/150/150',
+    isAnonymous: false
+  },
+  // レベル11: 人財統括本部 統括管理部門長
+  {
+    id: 'hr-general-manager-001',
+    name: '藤田 隆志',
+    username: 'fujita-takashi',
+    email: 'fujita@hr-headquarters.jp',
+    position: '人財統括本部 統括管理部門長',
+    department: '人財統括本部',
+    permissionLevel: 11,
+    accountType: 'HR_GENERAL_MANAGER',
+    facility_id: 'hr_headquarters',
+    joinDate: new Date('2010-04-01'),
+    directReports: 60,
+    stakeholderCategory: 'hr_staff',
+    parent_id: null,
+    organizationPath: [],
+    avatar: '/api/placeholder/150/150',
+    isAnonymous: false
+  },
+  // レベル12: 厚生会本部統括事務局長
+  {
+    id: 'general-admin-director-001',
+    name: '小原 直樹',
+    username: 'kohara-naoki',
+    email: 'naoki@kohara-kosei.jp',
+    position: '厚生会本部統括事務局長',
+    department: '厚生会本部',
+    permissionLevel: 12,
+    accountType: 'GENERAL_ADMINISTRATIVE_DIRECTOR',
+    facility_id: 'kosei_headquarters',
+    joinDate: new Date('2005-04-01'),
+    directReports: 150,
+    stakeholderCategory: 'executive_staff',
+    parent_id: null,
+    organizationPath: [],
+    avatar: '/api/placeholder/150/150',
+    isAnonymous: false
+  },
+  // レベル13: 理事長
+  {
+    id: 'chairman-001',
+    name: '小原 節夫',
+    username: 'kohara-setsuo',
+    email: 'setsuo@kohara-kosei.jp',
+    position: '理事長',
+    department: '理事会',
+    permissionLevel: 13,
+    accountType: 'CHAIRMAN',
+    facility_id: 'kosei_headquarters',
+    joinDate: new Date('1995-04-01'),
+    directReports: 200,
+    stakeholderCategory: 'executive_staff',
+    parent_id: null,
+    organizationPath: [],
+    avatar: '/api/placeholder/150/150',
+    isAnonymous: false
   }
 ];
 
@@ -737,5 +853,10 @@ export const getUserHierarchyPath = (userId: string): DemoUser[] => {
 
 // Current logged-in demo user (default to 看護師)
 export const getCurrentDemoUser = (): DemoUser => {
-  return demoUsers[5]; // user-6: 伊藤 麻衣（看護師）
+  return demoUsers[5]; // user-6: 伊藤 麻衣（看護師 - レベル1）
+};
+
+// Get demo user by permission level for testing
+export const getDemoUserByLevel = (level: number): DemoUser | undefined => {
+  return demoUsers.find(user => user.permissionLevel === level);
 };
