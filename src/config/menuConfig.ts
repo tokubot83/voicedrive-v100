@@ -4,7 +4,7 @@ import { MenuStructure, MenuVisibility } from '../types/menuTypes';
 
 export const MENU_STRUCTURE: MenuStructure = {
   // ステーション系（投稿・プロジェクト関連）
-  stations: {
+  station: {
     personal: {
       id: 'personal_station',
       label: 'パーソナルステーション',
@@ -347,7 +347,7 @@ export const MENU_STRUCTURE: MenuStructure = {
 // 13段階権限レベル別メニュー可視性設定
 export const MENU_VISIBILITY: MenuVisibility = {
   1: { // 一般職員 (STAFF)
-    stations: ['personal'],
+    station: ['personal'],
     management: [],
     hr: [],
     strategic_hr: [],
@@ -356,7 +356,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     executive: []
   },
   2: { // 主任 (SUPERVISOR)
-    stations: ['personal', 'leader'],
+    station: ['personal', 'leader'],
     management: ['team', 'authority_basic'],
     hr: [],
     strategic_hr: [],
@@ -365,7 +365,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     executive: []
   },
   3: { // 師長 (HEAD_NURSE)
-    stations: ['personal', 'leader', 'department'],
+    station: ['personal', 'leader', 'department'],
     management: ['team', 'authority_basic', 'department'],
     hr: [],
     strategic_hr: [],
@@ -374,7 +374,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     executive: []
   },
   4: { // 部長・課長 (DEPARTMENT_HEAD)
-    stations: ['personal', 'leader', 'department', 'section'],
+    station: ['personal', 'leader', 'department', 'section'],
     management: ['team', 'authority_basic', 'department', 'section', 'budget'],
     hr: [],
     strategic_hr: [],
@@ -383,7 +383,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     executive: []
   },
   5: { // 事務長 (ADMINISTRATIVE_DIRECTOR)
-    stations: ['personal', 'leader', 'department', 'section'],
+    station: ['personal', 'leader', 'department', 'section'],
     management: ['team', 'authority_basic', 'department', 'section', 'budget'],
     hr: [],
     strategic_hr: [],
@@ -392,7 +392,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     executive: []
   },
   6: { // 副院長 (VICE_DIRECTOR)
-    stations: ['personal', 'leader', 'department', 'section'],
+    station: ['personal', 'leader', 'department', 'section'],
     management: ['team', 'authority_basic', 'department', 'section', 'budget'],
     hr: [],
     strategic_hr: [],
@@ -401,7 +401,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     executive: []
   },
   7: { // 院長・施設長 (HOSPITAL_DIRECTOR)
-    stations: ['personal', 'leader', 'department', 'section'],
+    station: ['personal', 'leader', 'department', 'section'],
     management: ['team', 'authority_basic', 'department', 'section', 'budget'],
     hr: [],
     strategic_hr: [],
@@ -410,7 +410,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     executive: []
   },
   8: { // 人財統括本部事務員 (HR_ADMIN_STAFF)
-    stations: ['personal'],
+    station: ['personal'],
     management: [],
     hr: ['interview', 'policy', 'talent'],
     strategic_hr: [],
@@ -419,7 +419,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     executive: []
   },
   9: { // 人財統括本部 キャリア支援部門員 (CAREER_SUPPORT_STAFF)
-    stations: ['personal'],
+    station: ['personal'],
     management: [],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: [],
@@ -428,7 +428,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     executive: []
   },
   10: { // 人財統括本部 各部門長 (HR_DEPARTMENT_HEAD)
-    stations: ['personal'],
+    station: ['personal'],
     management: [],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'performance', 'retirement'],
@@ -437,7 +437,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     executive: []
   },
   11: { // 人財統括本部 統括管理部門長 (HR_GENERAL_MANAGER)
-    stations: ['personal'],
+    station: ['personal'],
     management: [],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'performance', 'retirement'],
@@ -446,7 +446,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance']
   },
   12: { // 厚生会本部統括事務局長 (GENERAL_ADMINISTRATIVE_DIRECTOR)
-    stations: ['personal'],
+    station: ['personal'],
     management: [],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'performance', 'retirement'],
@@ -455,7 +455,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance']
   },
   13: { // 理事長 (CHAIRMAN)
-    stations: ['personal'],
+    station: ['personal'],
     management: [],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'performance', 'retirement'],

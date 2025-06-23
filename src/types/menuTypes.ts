@@ -79,7 +79,7 @@ export interface ExecutiveMenu {
 
 // 完全なメニュー構造
 export interface MenuStructure {
-  stations: StationMenu;
+  station: StationMenu;
   management: ManagementMenu;
   hr: HRMenu;
   strategic_hr: StrategicHRMenu;
@@ -91,7 +91,7 @@ export interface MenuStructure {
 // 権限レベル別メニュー可視性
 export interface MenuVisibility {
   [level: number]: {
-    stations: (keyof StationMenu)[];
+    station: (keyof StationMenu)[];
     management: (keyof ManagementMenu)[];
     hr: (keyof HRMenu)[];
     strategic_hr: (keyof StrategicHRMenu)[];

@@ -45,7 +45,7 @@ const categoryLabels: Record<MenuCategory, string> = {
 };
 
 export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, onNavigate }) => {
-  const { userPermissionLevel, hasFeatureAccess } = usePermissions();
+  const { userLevel: userPermissionLevel, hasFeatureAccess } = usePermissions();
   const [expandedCategories, setExpandedCategories] = useState<Set<MenuCategory>>(new Set(['station']));
 
   const toggleCategory = (category: MenuCategory) => {
@@ -89,8 +89,8 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
             w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg
             transition-colors duration-200
             ${isActive 
-              ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
-              : 'text-gray-700 hover:bg-gray-100'
+              ? 'bg-blue-600/20 text-blue-400 border-r-2 border-blue-500' 
+              : 'text-slate-300 hover:bg-slate-700/50'
             }
           `}
         >
@@ -123,7 +123,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       <div key={category} className="mb-4">
         <button
           onClick={() => toggleCategory(category)}
-          className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-700 transition-colors"
+          className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider hover:text-slate-300 transition-colors"
         >
           <div className="flex items-center gap-2">
             <CategoryIcon className="w-4 h-4" />
@@ -162,16 +162,16 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
   };
 
   return (
-    <div className="w-80 bg-white shadow-lg h-full overflow-y-auto">
+    <div className="w-80 bg-slate-800/95 backdrop-blur-xl shadow-lg h-full overflow-y-auto border-r border-slate-700/50">
       {/* ヘッダー */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-slate-700/50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-            <Heart className="w-5 h-5 text-blue-600" />
+          <div className="w-10 h-10 bg-blue-600/20 rounded-full flex items-center justify-center">
+            <Heart className="w-5 h-5 text-blue-400" />
           </div>
           <div>
-            <h2 className="font-semibold text-gray-900">VoiceDrive</h2>
-            <p className="text-xs text-gray-500">{getPermissionLevelDisplay()}</p>
+            <h2 className="font-semibold text-white">VoiceDrive</h2>
+            <p className="text-xs text-slate-400">{getPermissionLevelDisplay()}</p>
           </div>
         </div>
       </div>
@@ -201,8 +201,8 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       </div>
 
       {/* フッター情報 */}
-      <div className="p-4 border-t border-gray-200 mt-auto">
-        <div className="text-xs text-gray-500 space-y-1">
+      <div className="p-4 border-t border-slate-700/50 mt-auto">
+        <div className="text-xs text-slate-400 space-y-1">
           <div>権限レベル: {userPermissionLevel}/13</div>
           <div>アクセス可能機能: {Object.values(MENU_STRUCTURE).flatMap(category => 
             Object.values(category).filter(item => item.requiredLevel <= userPermissionLevel)
