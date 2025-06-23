@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
+import { useLocation } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
 import { UserCheck, Calendar, Users, FileText, BarChart3 } from 'lucide-react';
 import { demoUsers } from '../data/demo/users';
@@ -8,7 +9,20 @@ import { demoUsers } from '../data/demo/users';
 export const HRFunctionsPage: React.FC = () => {
   const { user } = useAuth();
   const { userPermissionLevel } = usePermissions();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('interview_management');
+
+  // パスに基づいてアクティブタブを設定
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes('interview-management')) {
+      setActiveTab('interview_management');
+    } else if (path.includes('policy-management')) {
+      setActiveTab('policy_management');
+    } else if (path.includes('talent-analytics')) {
+      setActiveTab('talent_analytics');
+    }
+  }, [location.pathname]);
 
   const hrTabs = [
     { id: 'interview_management', label: '面談管理', icon: Calendar },

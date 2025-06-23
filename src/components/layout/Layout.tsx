@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import Sidebar from '../Sidebar';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { EnhancedSidebar } from './EnhancedSidebar';
 import RightSidebar from '../RightSidebar';
 import MobileOverlay from '../MobileOverlay';
 import Breadcrumb from '../Breadcrumb';
@@ -14,6 +14,7 @@ import { useDemoMode } from '../demo/DemoModeController';
 const Layout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { currentUser, isDemoMode } = useDemoMode();
   const { isVisible } = useScrollDirection();
   
@@ -144,11 +145,9 @@ const Layout: React.FC = () => {
           {!isManagementPage && (
             <aside className="hidden lg:block w-sidebar-left flex-shrink-0">
               <div className="sticky top-0 h-screen">
-                <Sidebar 
+                <EnhancedSidebar 
                   currentPath={location.pathname}
-                  isOpen={false}
-                  closeSidebar={closeSidebar}
-                  userRole={userRole}
+                  onNavigate={(path) => navigate(path)}
                 />
               </div>
             </aside>
@@ -182,11 +181,12 @@ const Layout: React.FC = () => {
             isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}>
             <div className="h-full bg-black/95 backdrop-blur-xl border-r border-slate-700/50">
-              <Sidebar 
+              <EnhancedSidebar 
                 currentPath={location.pathname}
-                isOpen={isSidebarOpen}
-                closeSidebar={closeSidebar}
-                userRole={userRole}
+                onNavigate={(path) => {
+                  navigate(path);
+                  closeSidebar();
+                }}
               />
             </div>
           </div>
