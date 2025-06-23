@@ -90,7 +90,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     description: '看護師、看護補助者、事務職員、技術職員等',
     accessibleFeatures: ['create_post', 'vote', 'view_own_posts'],
     projectScopes: [ProjectScope.TEAM],
-    menuItems: ['home', 'voice', 'my_posts'],
+    menuItems: ['personal_station'],
     analyticsAccess: false,
     workflowStages: ['proposal']
   },
@@ -103,7 +103,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     accessibleFeatures: ['create_post', 'vote', 'view_team_posts', 'moderate_team'],
     approvalLimit: 100000,
     projectScopes: [ProjectScope.TEAM],
-    menuItems: ['home', 'voice', 'my_posts', 'team_management'],
+    menuItems: ['personal_station', 'leader_station', 'team_management', 'authority_basic'],
     analyticsAccess: false,
     workflowStages: ['proposal', 'initial_review']
   },
@@ -116,7 +116,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     accessibleFeatures: ['create_post', 'vote', 'view_department_posts', 'approve_team_projects', 'moderate_department'],
     approvalLimit: 500000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT],
-    menuItems: ['home', 'voice', 'my_posts', 'team_management', 'department_dashboard', 'authority_management'],
+    menuItems: ['personal_station', 'leader_station', 'department_station', 'team_management', 'authority_basic', 'department_management', 'dept_user_analysis', 'dept_generation_analysis'],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval']
   },
@@ -129,7 +129,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     accessibleFeatures: ['create_post', 'vote', 'view_all_department_posts', 'approve_department_projects', 'budget_management'],
     approvalLimit: 2000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT],
-    menuItems: ['home', 'voice', 'my_posts', 'team_management', 'department_dashboard', 'budget_control', 'authority_management'],
+    menuItems: ['personal_station', 'leader_station', 'department_station', 'section_station', 'team_management', 'authority_basic', 'department_management', 'section_management', 'budget_management', 'dept_user_analysis', 'dept_generation_analysis'],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'budget_review']
   },
@@ -146,8 +146,10 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     approvalLimit: 5000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: [
-      'home', 'voice', 'my_posts', 'facility_management', 'budget_control', 
-      'administrative_dashboard', 'authority_management'
+      'personal_station', 'leader_station', 'department_station', 'section_station',
+      'team_management', 'authority_basic', 'department_management', 'section_management', 'budget_management',
+      'own_facility_management', 'own_facility_strategy', 'own_facility_budget',
+      'dept_user_analysis', 'dept_generation_analysis', 'facility_hierarchy_analysis', 'facility_profession_analysis'
     ],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'facility_approval']
@@ -165,8 +167,10 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     approvalLimit: 7000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: [
-      'home', 'voice', 'my_posts', 'facility_management', 'medical_policy', 
-      'strategic_planning', 'authority_management'
+      'personal_station', 'leader_station', 'department_station', 'section_station',
+      'team_management', 'authority_basic', 'department_management', 'section_management', 'budget_management',
+      'own_facility_management', 'own_facility_strategy', 'own_facility_budget',
+      'dept_user_analysis', 'dept_generation_analysis', 'facility_hierarchy_analysis', 'facility_profession_analysis'
     ],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'facility_approval', 'medical_review']
@@ -184,8 +188,10 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     approvalLimit: 10000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: [
-      'home', 'voice', 'my_posts', 'facility_management', 'strategic_dashboard', 
-      'governance', 'executive_reports', 'authority_management'
+      'personal_station', 'leader_station', 'department_station', 'section_station',
+      'team_management', 'authority_basic', 'department_management', 'section_management', 'budget_management',
+      'own_facility_management', 'own_facility_strategy', 'own_facility_budget',
+      'dept_user_analysis', 'dept_generation_analysis', 'facility_hierarchy_analysis', 'facility_profession_analysis'
     ],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'facility_approval', 'executive_review']
@@ -203,8 +209,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     approvalLimit: 0,
     projectScopes: [ProjectScope.TEAM],
     menuItems: [
-      'home', 'voice', 'my_posts', 'interview_management', 'booking_calendar',
-      'schedule_reports', 'booking_statistics'
+      'personal_station', 'interview_management', 'policy_management', 'talent_analytics'
     ],
     analyticsAccess: false,
     workflowStages: ['proposal']
@@ -222,8 +227,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     approvalLimit: 1000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT],
     menuItems: [
-      'home', 'voice', 'my_posts', 'interview_schedule', 'interview_records',
-      'career_tracking', 'consultation_reports'
+      'personal_station', 'interview_management', 'policy_management', 'talent_analytics', 'hr_dashboard'
     ],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'career_review']
@@ -241,8 +245,10 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     approvalLimit: 5000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: [
-      'home', 'voice', 'my_posts', 'team_management', 'department_dashboard',
-      'hr_dashboard', 'policy_management', 'talent_analytics', 'interview_oversight', 'authority_management'
+      'personal_station', 'interview_management', 'policy_management', 'talent_analytics', 'hr_dashboard',
+      'strategic_hr_planning', 'org_development', 'performance_analytics', 'retirement_management',
+      'all_facility_management', 'all_facility_strategy', 'all_facility_budget',
+      'all_user_analysis', 'all_generation_analysis', 'all_hierarchy_analysis', 'all_profession_analysis', 'executive_report'
     ],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'hr_review', 'facility_coordination']
@@ -260,8 +266,11 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     approvalLimit: 10000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: [
-      'home', 'voice', 'my_posts', 'team_management', 'department_dashboard',
-      'hr_dashboard', 'strategic_planning', 'org_development', 'performance_analytics', 'authority_management'
+      'personal_station', 'interview_management', 'policy_management', 'talent_analytics', 'hr_dashboard',
+      'strategic_hr_planning', 'org_development', 'performance_analytics', 'retirement_management',
+      'all_facility_management', 'all_facility_strategy', 'all_facility_budget',
+      'all_user_analysis', 'all_generation_analysis', 'all_hierarchy_analysis', 'all_profession_analysis', 'executive_report',
+      'executive_overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance'
     ],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'hr_review', 'strategic_review']
@@ -279,8 +288,11 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     approvalLimit: 20000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY, ProjectScope.ORGANIZATION],
     menuItems: [
-      'home', 'voice', 'my_posts', 'organization_management', 'strategic_dashboard',
-      'budget_planning', 'analytics', 'executive_reports', 'authority_management'
+      'personal_station', 'interview_management', 'policy_management', 'talent_analytics', 'hr_dashboard',
+      'strategic_hr_planning', 'org_development', 'performance_analytics', 'retirement_management',
+      'all_facility_management', 'all_facility_strategy', 'all_facility_budget',
+      'all_user_analysis', 'all_generation_analysis', 'all_hierarchy_analysis', 'all_profession_analysis', 'executive_report',
+      'executive_overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance'
     ],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'facility_approval', 'organization_approval']
@@ -298,8 +310,11 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     approvalLimit: undefined, // 無制限
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY, ProjectScope.ORGANIZATION, ProjectScope.STRATEGIC],
     menuItems: [
-      'home', 'voice', 'executive_dashboard', 'strategic_initiatives',
-      'organization_analytics', 'board_reports', 'governance', 'authority_management'
+      'personal_station', 'interview_management', 'policy_management', 'talent_analytics', 'hr_dashboard',
+      'strategic_hr_planning', 'org_development', 'performance_analytics', 'retirement_management',
+      'all_facility_management', 'all_facility_strategy', 'all_facility_budget',
+      'all_user_analysis', 'all_generation_analysis', 'all_hierarchy_analysis', 'all_profession_analysis', 'executive_report',
+      'executive_overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance'
     ],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval', 'facility_approval', 'executive_approval', 'board_review']
