@@ -10,6 +10,7 @@ interface ThreadedCommentSystemProps {
   comments: Comment[];
   currentUser?: User;
   onComment: (postId: string, comment: Partial<Comment>) => void;
+  canComment?: boolean;
 }
 
 // コメントタイプの設定
@@ -24,7 +25,8 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
   post,
   comments,
   currentUser,
-  onComment
+  onComment,
+  canComment = true
 }) => {
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -97,13 +99,15 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
 
           {/* アクションボタン */}
           <div className="flex items-center gap-4 text-sm">
-            <button
-              onClick={() => setReplyingTo(comment.id)}
-              className="flex items-center gap-1 text-gray-400 hover:text-blue-400 transition-colors"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>返信</span>
-            </button>
+            {canComment && (
+              <button
+                onClick={() => setReplyingTo(comment.id)}
+                className="flex items-center gap-1 text-gray-400 hover:text-blue-400 transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>返信</span>
+              </button>
+            )}
           </div>
 
           {/* 返信フォーム */}
@@ -210,7 +214,7 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
       <FreevoiceAnalysisPanel post={post} />
 
       {/* コメント投稿ボタン */}
-      {!showCommentForm && (
+      {!showCommentForm && canComment && (
         <button
           onClick={() => setShowCommentForm(true)}
           className="w-full py-3 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg text-gray-300 hover:text-white transition-all flex items-center justify-center gap-2"
@@ -218,6 +222,14 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
           <MessageCircle className="w-5 h-5" />
           <span>ディスカッションに参加する</span>
         </button>
+      )}
+      
+      {/* コメント権限がない場合の表示 */}
+      {!showCommentForm && !canComment && currentUser && (
+        <div className="w-full py-3 bg-gray-100 rounded-lg text-gray-500 flex items-center justify-center gap-2">
+          <AlertCircle className="w-5 h-5" />
+          <span>この投稿へのコメントは許可されていません</span>
+        </div>
       )}
 
       {/* メインコメントフォーム */}

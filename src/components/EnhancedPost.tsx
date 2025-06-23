@@ -250,6 +250,7 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
             comments={post.comments}
             currentUser={currentUser}
             onComment={handleCommentSubmit}
+            canComment={canComment}
           />
         </div>
       )}
