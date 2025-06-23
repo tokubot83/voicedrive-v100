@@ -32,7 +32,7 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [commentContent, setCommentContent] = useState('');
   const [selectedCommentType, setSelectedCommentType] = useState<CommentType>('proposal');
-  const [anonymityLevel, setAnonymityLevel] = useState<AnonymityLevel>('partial');
+  const [anonymityLevel, setAnonymityLevel] = useState<AnonymityLevel>('department_only');
 
   // トップレベルのコメントのみ取得
   const topLevelComments = comments.filter(comment => !comment.parentId);
@@ -59,9 +59,9 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
   const getAuthorDisplay = (comment: Comment) => {
     if (comment.anonymityLevel === 'anonymous') {
       return '匿名ユーザー';
-    } else if (comment.anonymityLevel === 'partial') {
+    } else if (comment.anonymityLevel === 'department_only') {
       return `${comment.visibleInfo?.position || '職員'} (${comment.visibleInfo?.experienceYears || '?'}年目)`;
-    } else if (comment.anonymityLevel === 'selective') {
+    } else if (comment.anonymityLevel === 'facility_anonymous') {
       return `${comment.author.name} (${comment.visibleInfo?.facility || '所属非公開'})`;
     }
     return `${comment.author.name} (${comment.author.position})`;

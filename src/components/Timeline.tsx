@@ -341,7 +341,14 @@ const Timeline = ({ activeTab = 'all', filterByUser }: TimelineProps) => {
                 key={post.id}
                 post={postWithVote}
                 poll={post.poll}
-                userVote={post.poll ? { optionId: getUserVote(post.id) || '', userId: currentUser?.id || '' } : undefined}
+                userVote={post.poll ? { 
+                  id: `vote-${post.id}-${currentUser?.id}`,
+                  pollId: post.poll.id,
+                  optionId: getUserVote(post.id) || '', 
+                  userId: currentUser?.id || '',
+                  timestamp: new Date(),
+                  isAnonymous: false
+                } : undefined}
                 onVote={(optionId) => handleVote(post.id, optionId as VoteOption)}
                 onComment={handleFreespaceComment}
               />

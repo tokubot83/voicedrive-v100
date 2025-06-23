@@ -54,6 +54,7 @@ interface ProfessionalAnalysisResult {
   categoryDistribution: {
     medical: number;
     nursing: number;
+    nursing_support: number;
     rehabilitation: number;
     care: number;
     administrative: number;

@@ -56,13 +56,13 @@ const getPostType = (post: Post): 'improvement' | 'freevoice' | 'whistleblowing'
  */
 const getFreevoiceSubType = (post: Post): 'voting' | 'event' | 'other' => {
   // 投票関連
-  if (post.pollOptions || post.pollResult || post.votingDeadline || 
+  if (post.poll?.options || post.pollResult || post.votingDeadline || 
       (post.tags && (post.tags.includes('投票') || post.tags.includes('アンケート') || post.tags.includes('投票結果')))) {
     return 'voting';
   }
   
   // イベント関連
-  if (post.eventDetails || 
+  if (post.event || 
       (post.tags && (post.tags.includes('イベント') || post.tags.includes('開催') || post.tags.includes('参加募集')))) {
     return 'event';
   }

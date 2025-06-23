@@ -204,16 +204,6 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               `💰 予算${Math.round((post.enhancedProjectStatus.resources.budget_used / post.enhancedProjectStatus.resources.budget_total) * 100)}%使用`,
               `👥 ${post.enhancedProjectStatus.resources.team_size}名参加`,
               `⏱️ ${post.enhancedProjectStatus.timeline}`
-            ] : post.type === 'improvement' ? [
-              `🎯 現在スコア: ${Math.round(currentScore)}点`,
-              currentScore >= 600 ? '🏢 法人レベル到達' :
-              currentScore >= 300 ? '🏥 施設レベル到達' :
-              currentScore >= 100 ? '🏢 部署レベル到達' :
-              currentScore >= 50 ? '👥 チームレベル到達' : '💭 議論段階',
-              `📊 next の目標まで${currentScore >= 600 ? '完了' : 
-                currentScore >= 300 ? Math.round(600 - currentScore) + '点' :
-                currentScore >= 100 ? Math.round(300 - currentScore) + '点' :
-                currentScore >= 50 ? Math.round(100 - currentScore) + '点' : Math.round(50 - currentScore) + '点'}`
             ] : [
               '📅 予定通り',
               `💰 予算${Math.round((projectData.budget.used / projectData.budget.total) * 100)}%使用`,

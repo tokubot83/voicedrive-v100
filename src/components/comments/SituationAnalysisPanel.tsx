@@ -167,7 +167,7 @@ const SituationAnalysisPanel: React.FC<SituationAnalysisPanelProps> = ({ post })
         )}
 
         {/* 参加度（フリーボイス専用） */}
-        {post.type === 'community' && (
+        {post.type && (
           <div className="bg-white rounded-lg p-3 border border-blue-100">
             <div className="flex items-center gap-2 mb-1">
               <MessageCircle className="w-4 h-4 text-gray-600" />

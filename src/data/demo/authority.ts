@@ -135,10 +135,43 @@ export const grievanceStatistics: GrievanceStatistics = {
   averageResolutionTime: 7.2
 };
 
+// デモ用統合メトリクス
+export const demoAuthorityMetrics = {
+  approvals: {
+    pending: 8,
+    approved: 142,
+    rejected: 6,
+    total: 156
+  },
+  emergencies: {
+    pendingReports: 1,
+    resolved: 16,
+    total: 17
+  },
+  weightAdjustments: {
+    pending: 1,
+    approved: 1,
+    rejected: 0,
+    total: 2
+  },
+  audit: {
+    totalLogs: 3,
+    highSeverity: 2,
+    mediumSeverity: 1,
+    lowSeverity: 0
+  },
+  grievances: {
+    pending: 3,
+    resolved: 12,
+    total: 15
+  }
+};
+
 export default {
   authorityMetrics,
   weightAdjustmentRequests,
   emergencyManagement,
   auditLogs,
-  grievanceStatistics
+  grievanceStatistics,
+  demoAuthorityMetrics
 };

@@ -24,13 +24,13 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
 
   // Generate avatar based on anonymity level
   const avatarData = generateAvatarByAnonymity(
-    post.anonymityLevel || 'full',
+    post.anonymityLevel || 'real_name',
     post.author,
     post.id
   );
   
   const displayName = getDisplayName(
-    post.anonymityLevel || 'full',
+    post.anonymityLevel || 'real_name',
     post.author
   );
 

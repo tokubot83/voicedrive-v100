@@ -51,13 +51,13 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
 
   // Generate avatar based on anonymity level
   const avatarData = generateAvatarByAnonymity(
-    post.anonymityLevel || 'full',
+    post.anonymityLevel || 'real_name',
     post.author,
     post.id
   );
   
   const displayName = getDisplayName(
-    post.anonymityLevel || 'full',
+    post.anonymityLevel || 'real_name',
     post.author
   );
 
@@ -178,12 +178,12 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
             <span className="text-sm">
               {post.type === 'improvement' ? '💡' : 
                post.type === 'community' ? '💬' : 
-               post.type === 'report' ? '🚨' : ''}
+               '🚨'}
             </span>
             <span>
               {post.type === 'improvement' ? 'アイデアボイス' : 
                post.type === 'community' ? 'フリーボイス' : 
-               post.type === 'report' ? 'コンプライアンス窓口' : ''}
+               'コンプライアンス窓口'}
             </span>
           </div>
         </div>

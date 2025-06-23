@@ -38,7 +38,7 @@ const PollResultPost: React.FC<PollResultPostProps> = ({ post }) => {
       </div>
 
       {/* タイトル */}
-      <h3 className="text-lg font-bold text-gray-900 mb-4">{post.title}</h3>
+      <h3 className="text-lg font-bold text-gray-900 mb-4">{post.title || post.content}</h3>
 
       {/* 勝者発表 */}
       <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-lg p-4 mb-6">

@@ -95,7 +95,8 @@ const AuthorityDashboard: React.FC = () => {
     if (!isDemoMode || demoDataLoaded) return;
     
     // Load demo data
-    const { demoAuthorityMetrics } = await import('../../data/demo/authority');
+    const authorityModule = await import('../../data/demo/authority');
+    const demoAuthorityMetrics = authorityModule.default.demoAuthorityMetrics;
     
     setMetrics({
       pendingApprovals: demoAuthorityMetrics.approvals.pending,

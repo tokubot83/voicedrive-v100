@@ -1,16 +1,16 @@
 export type PostType = 'improvement' | 'community' | 'report';
-export type AnonymityLevel = 'anonymous' | 'department_only' | 'facility_anonymous' | 'facility_department' | 'real_name';
+export type AnonymityLevel = 'anonymous' | 'department_only' | 'facility_anonymous' | 'facility_department' | 'real_name' | 'full';
 export type CommentPrivacyLevel = 'anonymous' | 'partial' | 'selective' | 'full';
 export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 export type VoteOption = 'strongly-oppose' | 'oppose' | 'neutral' | 'support' | 'strongly-support';
 export type UserRole = 'employee' | 'chief' | 'manager' | 'executive';
 
 // Import types from other files
-import { Poll } from './poll';
+import { Poll, PollOption } from './poll';
 import { Event } from './event';
 
 // Export them for use in other modules
-export type { Poll } from './poll';
+export type { Poll, PollOption } from './poll';
 export type { Event } from './event';
 
 // Stakeholder categories
@@ -48,7 +48,7 @@ export interface User {
   id: string;
   name: string;
   department: string;
-  role: string;
+  role?: string;
   avatar?: string;
   facility_id?: string;
   stakeholderCategory?: StakeholderCategory;
@@ -64,18 +64,21 @@ export interface User {
   retirementProcessedDate?: Date;
 }
 
-// Account types mapping to 10-level permission system
+// Account types mapping to 13-level permission system
 export type AccountType = 
-  | 'CHAIRMAN'              // Level 10 - 役員・経営層
-  | 'EXECUTIVE_SECRETARY'   // Level 9 - 部長・本部長級
-  | 'HR_DIRECTOR'           // Level 8 - 人財統括本部 統括管理部門長
-  | 'CAREER_SUPPORT_HEAD'   // Level 7 - 人財統括本部 各部門長
-  | 'CAREER_SUPPORT_STAFF'  // Level 6 - 人財統括本部 キャリア支援部門員（面談実施者）
-  | 'HR_DEPARTMENT_HEAD'    // Level 5 - 人財統括本部 戦略企画・統括管理部門（面談予約窓口）
-  | 'FACILITY_HEAD'         // Level 4 - 課長
-  | 'DEPARTMENT_HEAD'       // Level 3 - 係長・マネージャー
-  | 'SUPERVISOR'            // Level 2 - チーフ・主任
-  | 'STAFF';                // Level 1 - 一般職員
+  | 'CHAIRMAN'                      // Level 13 - 理事長
+  | 'GENERAL_ADMINISTRATIVE_DIRECTOR' // Level 12 - 厚生会本部統括事務局長
+  | 'HR_GENERAL_MANAGER'            // Level 11 - 人財統括本部 統括管理部門長
+  | 'HR_DEPARTMENT_HEAD'            // Level 10 - 人財統括本部 各部門長
+  | 'CAREER_SUPPORT_STAFF'          // Level 9 - 人財統括本部 キャリア支援部門員
+  | 'HR_ADMIN_STAFF'                // Level 8 - 人財統括本部事務員
+  | 'HOSPITAL_DIRECTOR'             // Level 7 - 院長・施設長
+  | 'VICE_DIRECTOR'                 // Level 6 - 副院長
+  | 'ADMINISTRATIVE_DIRECTOR'       // Level 5 - 事務長
+  | 'DEPARTMENT_HEAD'               // Level 4 - 部長・課長
+  | 'HEAD_NURSE'                    // Level 3 - 師長
+  | 'SUPERVISOR'                    // Level 2 - 主任
+  | 'STAFF';                        // Level 1 - 一般職員
 
 // Hierarchical user interface extending base User
 export interface HierarchicalUser extends User {
@@ -173,6 +176,11 @@ export interface Post {
   };
   originalPollId?: string;
   originalPostId?: string;
+  
+  // For backward compatibility
+  pollOptions?: PollOption[]; // Alias for poll?.options
+  eventDetails?: Event; // Alias for event
+  title?: string; // For poll results
 }
 
 export interface ProjectMilestone {

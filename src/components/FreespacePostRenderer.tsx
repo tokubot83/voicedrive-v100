@@ -50,7 +50,7 @@ const FreespacePostRenderer = ({
         onJoinEvent={onJoinEvent}
         onLeaveEvent={onLeaveEvent}
         onVoteDate={onVoteDate}
-        onComment={() => onComment?.(post.id)}
+        onComment={() => onComment?.(post.id, {} as any)}
       />
     );
   }

@@ -6,7 +6,7 @@ export class PollExpirationChecker {
   private static instance: PollExpirationChecker;
   private autoPollResultService: any = null; // 一時的に無効化
   private checkInterval: number = 60000; // 1分間隔でチェック
-  private intervalId: NodeJS.Timeout | null = null;
+  private intervalId: number | null = null;
 
   private constructor() {
     // AutoPollResultService の初期化を一時的に無効化
