@@ -5,11 +5,7 @@ export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 export type VoteOption = 'strongly-oppose' | 'oppose' | 'neutral' | 'support' | 'strongly-support';
 export type UserRole = 'employee' | 'chief' | 'manager' | 'executive';
 
-// Import types from other files
-import { Poll, PollOption } from './poll';
-import { Event } from './event';
-
-// Export them for use in other modules
+// Re-export types from other files (avoiding circular imports)
 export type { Poll, PollOption } from './poll';
 export type { Event } from './event';
 
@@ -141,9 +137,9 @@ export interface Post {
   freespaceCategory?: 'idea_sharing' | 'casual_discussion' | 'event_planning';
   freespaceScope?: 'team' | 'department' | 'facility' | 'organization';
   
-  // Poll and Event integration
-  poll?: Poll; // Poll from poll.ts
-  event?: Event; // Event from event.ts
+  // Poll and Event integration (using imports for type safety)
+  poll?: import('./poll').Poll;
+  event?: import('./event').Event;
   
   // Freespace expiration properties
   expirationDate?: Date;
@@ -178,8 +174,8 @@ export interface Post {
   originalPostId?: string;
   
   // For backward compatibility
-  pollOptions?: PollOption[]; // Alias for poll?.options
-  eventDetails?: Event; // Alias for event
+  pollOptions?: import('./poll').PollOption[]; // Alias for poll?.options
+  eventDetails?: import('./event').Event; // Alias for event
   title?: string; // For poll results
 }
 

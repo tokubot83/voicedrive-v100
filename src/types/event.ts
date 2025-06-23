@@ -1,5 +1,23 @@
 // イベント企画機能の型定義
-import { User } from './index';
+// Forward declaration to avoid circular dependency
+export interface User {
+  id: string;
+  name: string;
+  department: string;
+  role?: string;
+  avatar?: string;
+  facility_id?: string;
+  stakeholderCategory?: string;
+  position?: string;
+  expertise?: number;
+  hierarchyLevel?: number;
+  permissionLevel?: number;
+  isRetired?: boolean;
+  retirementDate?: Date;
+  anonymizedId?: string;
+  retirementProcessedBy?: string;
+  retirementProcessedDate?: Date;
+}
 
 export interface Event {
   id: string;
