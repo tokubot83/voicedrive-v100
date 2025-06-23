@@ -1,0 +1,332 @@
+import React, { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { usePermissions } from '../hooks/usePermissions';
+import { Card } from '../components/ui/Card';
+import { Building, Users, TrendingUp, DollarSign, Calendar, MessageSquare, BarChart3 } from 'lucide-react';
+import { posts } from '../data/demo/posts';
+import { projects } from '../data/demo/projects';
+import { demoUsers } from '../data/demo/users';
+import { EnhancedPost } from '../components/EnhancedPost';
+import { ProjectProgressIndicator } from '../components/ProjectProgressIndicator';
+
+export const SectionStationPage: React.FC = () => {
+  const { user } = useAuth();
+  const { userPermissionLevel } = usePermissions();
+  const [activeTab, setActiveTab] = useState('section_overview');
+
+  // 部署メンバーを取得（同じdepartment内のより低い権限レベル）
+  const sectionMembers = demoUsers.filter(u => 
+    u.department === user?.department && u.permissionLevel <= userPermissionLevel
+  );
+  
+  // 部署の投稿
+  const sectionPosts = posts.filter(post => {
+    const author = demoUsers.find(u => u.id === post.authorId);
+    return author?.department === user?.department;
+  });
+
+  // 部署のプロジェクト
+  const sectionProjects = projects.filter(project =>
+    project.department === user?.department
+  );
+
+  const sectionTabs = [
+    { id: 'section_overview', label: '部署概要', icon: Building },
+    { id: 'section_members', label: '部署メンバー', icon: Users },
+    { id: 'section_projects', label: '部署プロジェクト', icon: TrendingUp },
+    { id: 'budget_management', label: '予算管理', icon: DollarSign },
+    { id: 'performance', label: 'パフォーマンス', icon: BarChart3 }
+  ];
+
+  const renderSectionOverview = () => (
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* KPI カード */}
+      <Card className="p-6">
+        <div className="flex items-center gap-3 mb-2">
+          <Users className="w-5 h-5 text-blue-600" />
+          <span className="text-sm font-medium text-gray-600">総メンバー</span>
+        </div>
+        <div className="text-2xl font-bold text-gray-900">{sectionMembers.length}</div>
+        <div className="text-sm text-green-600">+2 今月</div>
+      </Card>
+
+      <Card className="p-6">
+        <div className="flex items-center gap-3 mb-2">
+          <TrendingUp className="w-5 h-5 text-green-600" />
+          <span className="text-sm font-medium text-gray-600">アクティブプロジェクト</span>
+        </div>
+        <div className="text-2xl font-bold text-gray-900">
+          {sectionProjects.filter(p => p.status === 'active').length}
+        </div>
+        <div className="text-sm text-blue-600">3件 計画中</div>
+      </Card>
+
+      <Card className="p-6">
+        <div className="flex items-center gap-3 mb-2">
+          <DollarSign className="w-5 h-5 text-purple-600" />
+          <span className="text-sm font-medium text-gray-600">月次予算</span>
+        </div>
+        <div className="text-2xl font-bold text-gray-900">¥2.4M</div>
+        <div className="text-sm text-orange-600">85% 使用済み</div>
+      </Card>
+
+      <Card className="p-6">
+        <div className="flex items-center gap-3 mb-2">
+          <MessageSquare className="w-5 h-5 text-indigo-600" />
+          <span className="text-sm font-medium text-gray-600">今月の投稿</span>
+        </div>
+        <div className="text-2xl font-bold text-gray-900">{sectionPosts.length}</div>
+        <div className="text-sm text-green-600">+15% 先月比</div>
+      </Card>
+
+      {/* 最新活動 */}
+      <Card className="p-6 lg:col-span-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">最新活動</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-medium text-gray-900 mb-3">進行中プロジェクト</h4>
+            <div className="space-y-3">
+              {sectionProjects.filter(p => p.status === 'active').slice(0, 3).map(project => (
+                <div key={project.id} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">{project.title}</p>
+                    <p className="text-xs text-gray-500">進捗: {Math.floor(Math.random() * 100)}%</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <h4 className="font-medium text-gray-900 mb-3">承認待ち案件</h4>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">設備購入申請</p>
+                  <p className="text-xs text-gray-500">¥500,000 • 緊急</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">人員配置変更</p>
+                  <p className="text-xs text-gray-500">3名 • 通常</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+
+  const renderSectionMembers = () => (
+    <div className="space-y-6">
+      {/* メンバー統計 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">権限レベル分布</h3>
+          <div className="space-y-3">
+            {[1, 2, 3, 4].map(level => {
+              const count = sectionMembers.filter(m => m.permissionLevel === level).length;
+              const percentage = count > 0 ? (count / sectionMembers.length) * 100 : 0;
+              return (
+                <div key={level} className="flex items-center gap-3">
+                  <span className="text-sm font-medium w-20">レベル{level}</span>
+                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full" 
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+                  <span className="text-sm text-gray-600 w-8">{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">職種分布</h3>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">看護師</span>
+              <span className="font-medium">{sectionMembers.filter(m => m.position.includes('看護師')).length}名</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">事務職</span>
+              <span className="font-medium">{sectionMembers.filter(m => m.position.includes('事務')).length}名</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">技術職</span>
+              <span className="font-medium">{sectionMembers.filter(m => m.position.includes('技師')).length}名</span>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">活動状況</h3>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">アクティブメンバー</span>
+              <span className="font-medium text-green-600">{Math.floor(sectionMembers.length * 0.8)}名</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">今月投稿者</span>
+              <span className="font-medium text-blue-600">{Math.floor(sectionMembers.length * 0.6)}名</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">プロジェクト参加者</span>
+              <span className="font-medium text-purple-600">{Math.floor(sectionMembers.length * 0.4)}名</span>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* メンバーリスト */}
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">メンバー一覧</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {sectionMembers.map(member => (
+            <div key={member.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50">
+              <img
+                src={member.avatar}
+                alt={member.name}
+                className="w-10 h-10 rounded-full"
+              />
+              <div className="flex-1">
+                <h4 className="font-medium text-gray-900">{member.name}</h4>
+                <p className="text-sm text-gray-600">{member.position}</p>
+                <p className="text-xs text-gray-500">レベル {member.permissionLevel}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+
+  const renderBudgetManagement = () => (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">予算概要</h3>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600">年間予算</span>
+            <span className="text-xl font-bold text-gray-900">¥30,000,000</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600">使用済み</span>
+            <span className="text-xl font-bold text-red-600">¥25,500,000</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600">残予算</span>
+            <span className="text-xl font-bold text-green-600">¥4,500,000</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="bg-blue-500 h-3 rounded-full" style={{ width: '85%' }}></div>
+          </div>
+          <p className="text-sm text-gray-500">85% 使用済み</p>
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">月次予算内訳</h3>
+        <div className="space-y-3">
+          <div className="flex justify-between items-center py-2 border-b">
+            <span className="text-gray-600">人件費</span>
+            <span className="font-medium">¥1,800,000</span>
+          </div>
+          <div className="flex justify-between items-center py-2 border-b">
+            <span className="text-gray-600">設備費</span>
+            <span className="font-medium">¥400,000</span>
+          </div>
+          <div className="flex justify-between items-center py-2 border-b">
+            <span className="text-gray-600">運営費</span>
+            <span className="font-medium">¥200,000</span>
+          </div>
+          <div className="flex justify-between items-center py-2 font-semibold">
+            <span className="text-gray-900">合計</span>
+            <span className="text-gray-900">¥2,400,000</span>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-6 lg:col-span-2">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">承認待ち予算申請</h3>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div>
+              <h4 className="font-medium text-gray-900">医療機器更新</h4>
+              <p className="text-sm text-gray-600">超音波診断装置の更新</p>
+              <p className="text-xs text-gray-500">申請者: 医療技術部 • 3日前</p>
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-bold text-gray-900">¥2,500,000</p>
+              <div className="flex gap-2 mt-2">
+                <button className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                  承認
+                </button>
+                <button className="px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded hover:bg-gray-400">
+                  保留
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-6xl mx-auto p-6">
+        {/* ヘッダー */}
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <Building className="w-6 h-6 text-blue-600" />
+            <h1 className="text-2xl font-bold text-gray-900">部署ステーション</h1>
+          </div>
+          <p className="text-gray-600">部署の運営管理と予算管理を行う場所です。</p>
+        </div>
+
+        {/* タブナビゲーション */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="flex space-x-8">
+              {sectionTabs.map(tab => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                      activeTab === tab.id
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon className="w-4 h-4" />
+                      {tab.label}
+                    </div>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+
+        {/* コンテンツ */}
+        <div>
+          {activeTab === 'section_overview' && renderSectionOverview()}
+          {activeTab === 'section_members' && renderSectionMembers()}
+          {activeTab === 'section_projects' && renderDeptProjects()}
+          {activeTab === 'budget_management' && renderBudgetManagement()}
+          {activeTab === 'performance' && renderDeptAnalytics()}
+        </div>
+      </div>
+    </div>
+  );
+};
