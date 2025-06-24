@@ -5,6 +5,7 @@ import { DemoModeProvider, DemoModeController } from './components/demo/DemoMode
 import { TabProvider } from './components/tabs/TabContext';
 import { AuthProvider } from './hooks/useAuth';
 import { NotificationService } from './services/NotificationService';
+import ErrorDebugger from './components/debug/ErrorDebugger';
 
 function App() {
   useEffect(() => {
@@ -24,16 +25,18 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <DemoModeProvider>
-          <TabProvider>
-            <DemoModeController />
-            <AppRouter />
-          </TabProvider>
-        </DemoModeProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorDebugger>
+      <BrowserRouter>
+        <AuthProvider>
+          <DemoModeProvider>
+            <TabProvider>
+              <DemoModeController />
+              <AppRouter />
+            </TabProvider>
+          </DemoModeProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorDebugger>
   );
 }
 
