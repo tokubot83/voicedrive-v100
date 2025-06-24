@@ -19,7 +19,7 @@ const Layout: React.FC = () => {
   const { isVisible } = useScrollDirection();
   
   // Map demo user role to UserRole type
-  const userRole = currentUser.role as UserRole;
+  const userRole = currentUser?.role as UserRole | undefined;
   
   // 専用管理画面のパスを定義
   const managementPaths = [

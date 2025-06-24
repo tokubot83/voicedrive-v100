@@ -16,7 +16,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   exactLevel = false,
   fallbackPath = '/'
 }) => {
-  const { userLevel, hasPermission } = usePermissions();
+  const { userLevel } = usePermissions();
   const location = useLocation();
   
   
@@ -36,7 +36,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       }
     } else {
       // Minimum level required
-      if (!hasPermission(requiredLevel)) {
+      if (userLevel < requiredLevel) {
         return (
           <Navigate 
             to={fallbackPath} 

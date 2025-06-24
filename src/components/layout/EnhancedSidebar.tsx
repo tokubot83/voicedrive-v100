@@ -3,6 +3,7 @@ import { usePermissions } from '../../hooks/usePermissions';
 import { MENU_STRUCTURE, MENU_VISIBILITY } from '../../config/menuConfig';
 import { MenuItem, MenuCategory } from '../../types/menuTypes';
 import { PermissionLevel } from '../../permissions/types/PermissionTypes';
+import { EnhancedSidebarMenuItem } from './EnhancedSidebarMenuItem';
 import { 
   ChevronDown, 
   ChevronRight, 
@@ -45,8 +46,8 @@ const categoryLabels: Record<MenuCategory, string> = {
 };
 
 export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, onNavigate }) => {
-  const { userLevel: userPermissionLevel, hasFeatureAccess } = usePermissions();
-  const [expandedCategories, setExpandedCategories] = useState<Set<MenuCategory>>(new Set(['station']));
+  const { userLevel: userPermissionLevel } = usePermissions();
+  const [expandedCategories, setExpandedCategories] = useState<Set<MenuCategory>>(() => new Set(['station']));
 
   const toggleCategory = (category: MenuCategory) => {
     const newExpanded = new Set(expandedCategories);
@@ -70,47 +71,6 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       .filter(item => item && item.requiredLevel <= userPermissionLevel);
   };
 
-  const renderMenuItem = (item: MenuItem, depth: number = 0) => {
-    const isActive = currentPath === item.path;
-    const hasChildren = item.children && item.children.length > 0;
-    const [isExpanded, setIsExpanded] = useState(false);
-
-    return (
-      <div key={item.id} className={`ml-${depth * 4}`}>
-        <button
-          onClick={() => {
-            if (hasChildren) {
-              setIsExpanded(!isExpanded);
-            } else {
-              onNavigate(item.path);
-            }
-          }}
-          className={`
-            w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg
-            transition-colors duration-200
-            ${isActive 
-              ? 'bg-blue-600/20 text-blue-400 border-r-2 border-blue-500' 
-              : 'text-slate-300 hover:bg-slate-700/50'
-            }
-          `}
-        >
-          <div className="flex items-center gap-3">
-            {item.icon && <span className="text-lg">{item.icon}</span>}
-            <span>{item.label}</span>
-          </div>
-          {hasChildren && (
-            isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
-          )}
-        </button>
-        
-        {hasChildren && isExpanded && (
-          <div className="mt-1 space-y-1">
-            {item.children?.map(child => renderMenuItem(child, depth + 1))}
-          </div>
-        )}
-      </div>
-    );
-  };
 
   const renderCategory = (category: MenuCategory) => {
     const menuItems = getVisibleMenuItems(category);
@@ -134,7 +94,15 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
         
         {isExpanded && (
           <div className="mt-2 space-y-1">
-            {menuItems.map(item => renderMenuItem(item))}
+            {menuItems.map(item => (
+              <EnhancedSidebarMenuItem
+                key={item.id}
+                item={item}
+                depth={0}
+                currentPath={currentPath}
+                onNavigate={onNavigate}
+              />
+            ))}
           </div>
         )}
       </div>

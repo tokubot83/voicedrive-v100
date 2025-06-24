@@ -32,7 +32,12 @@ const PERMISSION_LEVELS = {
 
 export const usePermissions = (): UsePermissionsReturn => {
   const { currentUser: demoUser } = useDemoMode();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    // クライアントサイドでのみ実行
+    setIsLoading(false);
+  }, []);
   
   const hasPermission = useCallback((requiredPermission: string | number): boolean => {
     if (!demoUser || isLoading) return false;
