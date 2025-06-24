@@ -18,7 +18,16 @@ export const EnhancedSidebarMenuItem: React.FC<EnhancedSidebarMenuItemProps> = (
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const hasChildren = item.children && item.children.length > 0;
   const isActive = currentPath === item.path;
-  const Icon = item.icon;
+  
+  // Handle both string icons (emojis) and React components
+  const renderIcon = () => {
+    if (typeof item.icon === 'string') {
+      return <span className="w-4 h-4 flex-shrink-0 text-center">{item.icon}</span>;
+    } else {
+      const Icon = item.icon;
+      return <Icon className="w-4 h-4 flex-shrink-0" />;
+    }
+  };
 
   const handleClick = () => {
     if (hasChildren) {
@@ -44,7 +53,7 @@ export const EnhancedSidebarMenuItem: React.FC<EnhancedSidebarMenuItemProps> = (
         style={{ paddingLeft: `${12 + depth * 16}px` }}
       >
         <div className="flex items-center gap-3">
-          <Icon className="w-4 h-4 flex-shrink-0" />
+          {renderIcon()}
           <span className="text-left">{item.title}</span>
         </div>
         {hasChildren && (
