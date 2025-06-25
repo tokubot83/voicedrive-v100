@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { usePermissions } from '../../hooks/usePermissions';
+import { useDemoMode } from '../demo/DemoModeController';
 import { MENU_STRUCTURE, MENU_VISIBILITY } from '../../config/menuConfig';
 import { MenuItem, MenuCategory } from '../../types/menuTypes';
 import { PermissionLevel } from '../../permissions/types/PermissionTypes';
@@ -47,6 +49,7 @@ const categoryLabels: Record<MenuCategory, string> = {
 
 export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, onNavigate }) => {
   const { userLevel: userPermissionLevel } = usePermissions();
+  const { isDemoMode, currentUser } = useDemoMode();
   const [expandedCategories, setExpandedCategories] = useState<Set<MenuCategory>>(() => new Set(['station']));
 
   const toggleCategory = (category: MenuCategory) => {
@@ -150,8 +153,40 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
 
   return (
     <div className="w-80 bg-slate-800/95 backdrop-blur-xl shadow-lg h-full overflow-y-auto border-r border-slate-700/50">
+      {/* プロフィール部分（最上部） */}
+      {isDemoMode ? (
+        <Link to="/profile" className="block m-4 bg-gray-800/50 rounded-lg p-3 sm:p-4 backdrop-blur hover:bg-gray-800/70 transition-colors">
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <img 
+              src={currentUser.avatar} 
+              alt={currentUser.name}
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-blue-500"
+              onError={(e) => {
+                e.currentTarget.src = '/default-avatar.svg';
+              }}
+            />
+            <div className="flex-1 min-w-0">
+              <div className="text-xs sm:text-sm font-medium text-white truncate">{currentUser.name}</div>
+              <div className="text-xs text-gray-400 truncate">{currentUser.position}</div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-gray-500 truncate flex-1">{currentUser.department}</span>
+            <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full ml-2">
+              Lv.{currentUser.permissionLevel}
+            </span>
+          </div>
+        </Link>
+      ) : (
+        <div className="m-4 text-center">
+          <div className="text-xs text-gray-500">
+            VoiceDrive
+          </div>
+        </div>
+      )}
+
       {/* ヘッダー */}
-      <div className="p-4 border-b border-slate-700/50">
+      <div className="px-4 pb-4 border-b border-slate-700/50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-blue-600/20 rounded-full flex items-center justify-center">
             <Heart className="w-5 h-5 text-blue-400" />
