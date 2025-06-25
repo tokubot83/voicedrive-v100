@@ -154,50 +154,22 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
   };
 
   return (
-    <div className="w-80 bg-slate-800/95 backdrop-blur-xl shadow-lg h-full overflow-y-auto border-r border-slate-700/50">
-      {/* ヘッダー・プロフィール統合部分 */}
-      {isDemoMode ? (
-        <Link to="/profile" className="block p-4 bg-gray-800/50 hover:bg-gray-800/70 transition-colors border-b border-slate-700/50">
-          <div className="flex items-center gap-3 mb-3">
-            <img 
-              src={currentUser.avatar} 
-              alt={currentUser.name}
-              className="w-10 h-10 rounded-full border-2 border-blue-500"
-              onError={(e) => {
-                e.currentTarget.src = '/default-avatar.svg';
-              }}
-            />
-            <div className="flex-1 min-w-0">
-              <h2 className="font-semibold text-white text-sm">VoiceDrive</h2>
-              <div className="text-xs font-medium text-white truncate">{currentUser.name}</div>
-            </div>
+    <div className="w-80 bg-slate-800/95 backdrop-blur-xl shadow-lg h-full flex flex-col border-r border-slate-700/50">
+      {/* ヘッダー */}
+      <div className="p-4 border-b border-slate-700/50">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-blue-600/20 rounded-full flex items-center justify-center">
+            <Heart className="w-5 h-5 text-blue-400" />
           </div>
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex-1 min-w-0">
-              <div className="text-gray-400 truncate">{currentUser.position}</div>
-              <div className="text-gray-500 truncate">{currentUser.department}</div>
-            </div>
-            <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full ml-2">
-              Lv.{currentUser.permissionLevel}
-            </span>
-          </div>
-        </Link>
-      ) : (
-        <div className="p-4 border-b border-slate-700/50">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600/20 rounded-full flex items-center justify-center">
-              <Heart className="w-5 h-5 text-blue-400" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-white">VoiceDrive</h2>
-              <p className="text-xs text-slate-400">{getPermissionLevelDisplay()}</p>
-            </div>
+          <div>
+            <h2 className="font-semibold text-white">VoiceDrive</h2>
+            <p className="text-xs text-slate-400">{getPermissionLevelDisplay()}</p>
           </div>
         </div>
-      )}
+      </div>
 
       {/* メニューセクション */}
-      <div className="p-4 space-y-2">
+      <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {/* ステーション系 */}
         {renderCategory('station')}
         
@@ -260,6 +232,40 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
             Object.values(category).filter(item => item.requiredLevel <= userPermissionLevel)
           ).length}件</div>
         </div>
+      </div>
+
+      {/* ユーザー情報（最下部） */}
+      <div className="p-4">
+        {isDemoMode ? (
+          <div className="bg-gray-800/50 rounded-lg p-3 backdrop-blur">
+            <div className="flex items-center gap-2 mb-1">
+              <img 
+                src={currentUser.avatar} 
+                alt={currentUser.name}
+                className="w-8 h-8 rounded-full"
+                onError={(e) => {
+                  e.currentTarget.src = '/default-avatar.svg';
+                }}
+              />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-white">{currentUser.name}</div>
+                <div className="text-xs text-gray-400">{currentUser.position}</div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-gray-500">{currentUser.department}</span>
+              <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full">
+                Lv.{currentUser.permissionLevel}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center">
+            <div className="text-xs text-gray-500">
+              VoiceDrive
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
