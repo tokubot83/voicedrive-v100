@@ -19,7 +19,9 @@ import {
   Target,
   Building,
   TrendingUp,
-  Crown
+  Crown,
+  Bell,
+  Settings as SettingsIcon
 } from 'lucide-react';
 
 interface EnhancedSidebarProps {
@@ -216,6 +218,38 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
         
         {/* 経営機能 */}
         {userPermissionLevel >= 11 && renderCategory('executive')}
+      </div>
+
+      {/* システム機能 */}
+      <div className="p-4 space-y-1 border-t border-slate-700/50">
+        <button
+          onClick={() => onNavigate('/notifications')}
+          className={`
+            w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+            transition-all duration-150
+            ${currentPath === '/notifications' 
+              ? 'bg-blue-600 text-white shadow-lg' 
+              : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+            }
+          `}
+        >
+          <Bell className="w-4 h-4" />
+          <span>通知</span>
+        </button>
+        <button
+          onClick={() => onNavigate('/settings')}
+          className={`
+            w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+            transition-all duration-150
+            ${currentPath === '/settings' 
+              ? 'bg-blue-600 text-white shadow-lg' 
+              : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+            }
+          `}
+        >
+          <SettingsIcon className="w-4 h-4" />
+          <span>設定</span>
+        </button>
       </div>
 
       {/* フッター情報 */}
