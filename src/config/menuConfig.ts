@@ -96,6 +96,7 @@ export const MENU_STRUCTURE: MenuStructure = {
         {
           id: 'interview_booking',
           label: '面談予約',
+          icon: '📅',
           path: '/interview-booking',
           requiredLevel: 8,
           category: 'hr'
@@ -103,6 +104,7 @@ export const MENU_STRUCTURE: MenuStructure = {
         {
           id: 'interview_calendar',
           label: '面談カレンダー',
+          icon: '📆',
           path: '/interview-calendar',
           requiredLevel: 8,
           category: 'hr'

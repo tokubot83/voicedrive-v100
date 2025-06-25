@@ -67,7 +67,26 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
     const categoryMenu = MENU_STRUCTURE[category];
     
     return visibleItemKeys
-      .map(key => categoryMenu[key])
+      .map(key => {
+        const item = categoryMenu[key];
+        if (!item) return null;
+        // Ensure we have a title property for the sidebar menu item
+        const mappedItem = {
+          ...item,
+          title: item.label // Use label as title for display
+        };
+        
+        // Map children if they exist
+        if (item.children) {
+          mappedItem.children = item.children.map(child => ({
+            ...child,
+            title: child.label,
+            icon: child.icon || '📄' // Default icon for children without icons
+          }));
+        }
+        
+        return mappedItem;
+      })
       .filter(item => item && item.requiredLevel <= userPermissionLevel);
   };
 
