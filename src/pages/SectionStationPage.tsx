@@ -7,7 +7,7 @@ import { posts } from '../data/demo/posts';
 import { projects } from '../data/demo/projects';
 import { demoUsers } from '../data/demo/users';
 import { EnhancedPost } from '../components/EnhancedPost';
-import { ProjectProgressIndicator } from '../components/ProjectProgressIndicator';
+import ProjectProgressIndicator from '../components/ProjectProgressIndicator';
 
 export const SectionStationPage: React.FC = () => {
   const { user } = useAuth();
@@ -294,7 +294,12 @@ export const SectionStationPage: React.FC = () => {
                 <h4 className="font-medium text-gray-900">{project.title}</h4>
               </div>
               <p className="text-sm text-gray-600 mb-3">{project.description}</p>
-              <ProjectProgressIndicator progress={project.progress || 0} />
+              <ProjectProgressIndicator 
+                votes={project.votes || []}
+                currentScore={project.progress || 0}
+                postId={project.id}
+                isCompact={true}
+              />
             </div>
           ))}
         </div>
