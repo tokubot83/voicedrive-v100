@@ -7,12 +7,12 @@ import { SubFilters } from '../components/tabs/SubFilters';
 import { Post } from '../components/Post';
 import ComposeSection from '../components/ComposeSection';
 import { ProjectProgressIndicator } from '../components/ProjectProgressIndicator';
-import { EnhancedPost } from '../components/EnhancedPost';
+import EnhancedPost from '../components/EnhancedPost';
 import { posts } from '../data/demo/posts';
 import { projects } from '../data/demo/projects';
 import { Card } from '../components/ui/Card';
 import { Home, User, MessageSquare, TrendingUp } from 'lucide-react';
-import { PostType } from '../types';
+import { PostType, VoteOption, Comment } from '../types';
 
 export const PersonalStationPage: React.FC = () => {
   const { user } = useAuth();
@@ -47,6 +47,16 @@ export const PersonalStationPage: React.FC = () => {
       case 'warning': return '⚠️';
       default: return '📌';
     }
+  };
+
+  const handleVote = (postId: string, option: VoteOption) => {
+    // 投票処理の実装
+    console.log('Vote:', postId, option);
+  };
+
+  const handleComment = (postId: string, comment: Omit<Comment, 'id' | 'timestamp'>) => {
+    // コメント処理の実装
+    console.log('Comment:', postId, comment);
   };
 
   const personalTabs = [
@@ -165,7 +175,12 @@ export const PersonalStationPage: React.FC = () => {
           <div className="space-y-3">
             {myPosts.map(post => (
               <div key={post.id} className="bg-gray-700/30 rounded-lg p-4 hover:bg-gray-700/50 transition-colors cursor-pointer">
-                <EnhancedPost post={post} />
+                <EnhancedPost 
+                  post={post} 
+                  currentUser={currentUser || user}
+                  onVote={handleVote}
+                  onComment={handleComment}
+                />
               </div>
             ))}
           </div>
