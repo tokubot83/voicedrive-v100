@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
+import { useDemoMode } from '../components/demo/DemoModeController';
 import { Card } from '../components/ui/Card';
-import { Users, Target, MessageSquare, TrendingUp, AlertCircle } from 'lucide-react';
+import { Users, Target, MessageSquare, TrendingUp, AlertCircle, Shield } from 'lucide-react';
 import { posts } from '../data/demo/posts';
 import { projects } from '../data/demo/projects';
 import { demoUsers } from '../data/demo/users';
@@ -11,13 +12,26 @@ import { ProjectProgressIndicator } from '../components/ProjectProgressIndicator
 
 export const LeaderStationPage: React.FC = () => {
   const { user } = useAuth();
-  const { userPermissionLevel } = usePermissions();
+  const { currentUser } = useDemoMode();
+  const { userPermissionLevel, hasPermission } = usePermissions();
   const [activeTab, setActiveTab] = useState('team_overview');
 
-  // チームメンバーを取得（権限レベル2以上が対象）
-  const teamMembers = demoUsers.filter(u => 
-    u.department === user?.department && u.permissionLevel < userPermissionLevel
-  );
+  // 13階層レベル対応 - チームメンバーを取得（部下のみ対象）
+  const teamMembers = demoUsers.filter(u => {
+    // 同じ部署で、権限レベルが自分より低い（階層が下位）ユーザー
+    if (u.department !== user?.department) return false;
+    if (u.permissionLevel >= userPermissionLevel) return false;
+    
+    // 看護主任の場合は看護師のみ、介護主任の場合は介護職のみを対象
+    if (user?.position?.includes('看護主任')) {
+      return u.position?.includes('看護師') || u.position?.includes('准看護師');
+    } else if (user?.position?.includes('介護主任')) {
+      return u.position?.includes('介護士') || u.position?.includes('介護福祉士') || 
+             u.position?.includes('看護補助者') || u.position?.includes('介護職');
+    }
+    
+    return true;
+  });
 
   // チーム関連の投稿
   const teamPosts = posts.filter(post => {
@@ -38,68 +52,117 @@ export const LeaderStationPage: React.FC = () => {
   ];
 
   const renderTeamOverview = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* チームメンバー */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Users className="w-5 h-5 text-blue-600" />
+    <div className="space-y-6">
+      {/* 統計カード */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-gray-400">チームメンバー</span>
+            <span className="text-2xl">👥</span>
+          </div>
+          <div className="text-3xl font-bold text-white">{teamMembers.length}</div>
+          <div className="text-sm text-blue-400 mt-1">管理下の職員</div>
+        </div>
+
+        <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-gray-400">チーム投稿</span>
+            <span className="text-2xl">📝</span>
+          </div>
+          <div className="text-3xl font-bold text-white">{teamPosts.length}</div>
+          <div className="text-sm text-green-400 mt-1">今月の投稿数</div>
+        </div>
+
+        <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-gray-400">承認待ち</span>
+            <span className="text-2xl">⏳</span>
+          </div>
+          <div className="text-3xl font-bold text-white">3</div>
+          <div className="text-sm text-orange-400 mt-1">要対応案件</div>
+        </div>
+      </div>
+
+      {/* チームメンバー詳細 */}
+      <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <Users className="w-5 h-5 text-blue-400" />
           チームメンバー ({teamMembers.length}名)
         </h3>
-        <div className="space-y-3">
-          {teamMembers.slice(0, 5).map(member => (
-            <div key={member.id} className="flex items-center gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {teamMembers.slice(0, 8).map(member => (
+            <div key={member.id} className="flex items-center gap-3 p-3 bg-gray-700/30 rounded-lg">
               <img
                 src={member.avatar}
                 alt={member.name}
-                className="w-8 h-8 rounded-full"
+                className="w-10 h-10 rounded-full border-2 border-gray-600"
               />
-              <div>
-                <p className="text-sm font-medium text-gray-900">{member.name}</p>
-                <p className="text-xs text-gray-500">{member.position}</p>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white">{member.name}</p>
+                <p className="text-xs text-gray-400">{member.position}</p>
+              </div>
+              <div className="text-xs text-gray-500">
+                Lv.{member.permissionLevel}
               </div>
             </div>
           ))}
-          {teamMembers.length > 5 && (
-            <p className="text-sm text-gray-500">他 {teamMembers.length - 5}名</p>
+          {teamMembers.length > 8 && (
+            <div className="col-span-full text-center">
+              <p className="text-sm text-gray-400">他 {teamMembers.length - 8}名</p>
+            </div>
           )}
         </div>
-      </Card>
+      </div>
 
-      {/* チーム統計 */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">チーム統計</h3>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">今月の投稿数</span>
-            <span className="text-lg font-semibold text-blue-600">{teamPosts.length}</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">アクティブプロジェクト</span>
-            <span className="text-lg font-semibold text-green-600">
-              {teamProjects.filter(p => p.status === 'active').length}
-            </span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">承認待ち案件</span>
-            <span className="text-lg font-semibold text-orange-600">3</span>
-          </div>
+      {/* プロジェクト進捗 */}
+      <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <TrendingUp className="w-5 h-5 text-purple-400" />
+          チームプロジェクト進捗
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {teamProjects.filter(p => p.status === 'active').slice(0, 4).map(project => (
+            <div key={project.id} className="bg-gradient-to-r from-purple-600/20 to-purple-600/10 p-4 rounded-lg border border-purple-500/30">
+              <h4 className="text-white font-medium mb-2">{project.title}</h4>
+              <div className="flex items-center justify-between text-sm mb-2">
+                <span className="text-gray-400">進捗</span>
+                <span className="text-purple-400">{project.progress || 65}%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${project.progress || 65}%` }} />
+              </div>
+            </div>
+          ))}
         </div>
-      </Card>
+      </div>
     </div>
   );
 
   const renderTeamPosts = () => (
     <div className="space-y-4">
       {teamPosts.length === 0 ? (
-        <Card className="p-8 text-center">
+        <div className="bg-gray-800/50 rounded-xl p-8 text-center backdrop-blur border border-gray-700/50">
           <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">チーム投稿がありません</h3>
-          <p className="text-gray-500">チームメンバーの投稿がここに表示されます。</p>
-        </Card>
+          <h3 className="text-lg font-medium text-white mb-2">チーム投稿がありません</h3>
+          <p className="text-gray-400">チームメンバーの投稿がここに表示されます。</p>
+        </div>
       ) : (
-        teamPosts.map(post => (
-          <EnhancedPost key={post.id} post={post} />
-        ))
+        <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <span className="text-2xl">📋</span>
+            チーム投稿
+          </h2>
+          <div className="space-y-3">
+            {teamPosts.map(post => (
+              <div key={post.id} className="bg-gray-700/30 rounded-lg p-4 hover:bg-gray-700/50 transition-colors">
+                <EnhancedPost 
+                  post={post} 
+                  currentUser={currentUser || user}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
@@ -107,34 +170,45 @@ export const LeaderStationPage: React.FC = () => {
   const renderTeamProjects = () => (
     <div className="space-y-4">
       {teamProjects.length === 0 ? (
-        <Card className="p-8 text-center">
+        <div className="bg-gray-800/50 rounded-xl p-8 text-center backdrop-blur border border-gray-700/50">
           <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">チームプロジェクトがありません</h3>
-          <p className="text-gray-500">チームのプロジェクトがここに表示されます。</p>
-        </Card>
+          <h3 className="text-lg font-medium text-white mb-2">チームプロジェクトがありません</h3>
+          <p className="text-gray-400">チームのプロジェクトがここに表示されます。</p>
+        </div>
       ) : (
         teamProjects.map(project => (
-          <Card key={project.id} className="p-6">
+          <div key={project.id} className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{project.title}</h3>
-                <p className="text-gray-600 mt-1">{project.description}</p>
+                <h3 className="text-lg font-semibold text-white">{project.title}</h3>
+                <p className="text-gray-300 mt-1">{project.description}</p>
               </div>
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                project.status === 'active' ? 'bg-green-100 text-green-800' :
-                project.status === 'planning' ? 'bg-blue-100 text-blue-800' :
-                'bg-yellow-100 text-yellow-800'
+                project.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                project.status === 'planning' ? 'bg-blue-500/20 text-blue-400' :
+                'bg-yellow-500/20 text-yellow-400'
               }`}>
                 {project.status === 'active' ? '進行中' :
                  project.status === 'planning' ? '計画中' : '一時停止'}
               </span>
             </div>
-            <ProjectProgressIndicator project={project} />
-            <div className="mt-4 flex items-center gap-4 text-sm text-gray-500">
-              <span>メンバー: {project.members.length}名</span>
-              <span>予算: ¥{project.budget?.toLocaleString()}</span>
+            <ProjectProgressIndicator 
+              votes={{
+                'strongly-support': 3,
+                'support': 2,
+                'neutral': 1,
+                'oppose': 0,
+                'strongly-oppose': 0
+              }}
+              currentScore={project.impactScore || 75}
+              postId={project.id}
+              isCompact={true}
+            />
+            <div className="mt-4 flex items-center gap-4 text-sm text-gray-400">
+              <span>メンバー: {project.members?.length || 0}名</span>
+              <span>予算: ¥{project.budget?.toLocaleString() || '未設定'}</span>
             </div>
-          </Card>
+          </div>
         ))
       )}
     </div>
@@ -142,66 +216,102 @@ export const LeaderStationPage: React.FC = () => {
 
   const renderPendingApprovals = () => (
     <div className="space-y-4">
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 text-orange-600" />
+      <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <AlertCircle className="w-5 h-5 text-orange-400" />
           承認待ち案件
         </h3>
         <div className="space-y-3">
-          <div className="border border-orange-200 rounded-lg p-4 bg-orange-50">
+          <div className="border border-orange-500/30 rounded-lg p-4 bg-orange-600/10">
             <div className="flex items-start justify-between">
               <div>
-                <h4 className="font-medium text-gray-900">病棟業務改善プロジェクト</h4>
-                <p className="text-sm text-gray-600 mt-1">看護業務の効率化を図る改善案</p>
+                <h4 className="font-medium text-white">病棟業務改善プロジェクト</h4>
+                <p className="text-sm text-gray-300 mt-1">看護業務の効率化を図る改善案</p>
                 <p className="text-xs text-gray-500 mt-2">申請者: 田中花子 • 2日前</p>
               </div>
               <div className="flex gap-2">
-                <button className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                <button className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
                   承認
                 </button>
-                <button className="px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded hover:bg-gray-400">
+                <button className="px-3 py-1 bg-gray-600 text-gray-200 text-sm rounded hover:bg-gray-700 transition-colors">
+                  保留
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="border border-blue-500/30 rounded-lg p-4 bg-blue-600/10">
+            <div className="flex items-start justify-between">
+              <div>
+                <h4 className="font-medium text-white">新人研修プログラム提案</h4>
+                <p className="text-sm text-gray-300 mt-1">新人看護師向けの研修カリキュラム</p>
+                <p className="text-xs text-gray-500 mt-2">申請者: 佐藤次郎 • 1日前</p>
+              </div>
+              <div className="flex gap-2">
+                <button className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
+                  承認
+                </button>
+                <button className="px-3 py-1 bg-gray-600 text-gray-200 text-sm rounded hover:bg-gray-700 transition-colors">
+                  保留
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="border border-purple-500/30 rounded-lg p-4 bg-purple-600/10">
+            <div className="flex items-start justify-between">
+              <div>
+                <h4 className="font-medium text-white">勤務シフト調整システム</h4>
+                <p className="text-sm text-gray-300 mt-1">職員の勤務希望を効率的に管理するシステム</p>
+                <p className="text-xs text-gray-500 mt-2">申請者: 山田三郎 • 3時間前</p>
+              </div>
+              <div className="flex gap-2">
+                <button className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
+                  承認
+                </button>
+                <button className="px-3 py-1 bg-gray-600 text-gray-200 text-sm rounded hover:bg-gray-700 transition-colors">
                   保留
                 </button>
               </div>
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto p-6">
+    <div className="min-h-screen bg-gray-900 w-full">
+      <div className="w-full p-6">
         {/* ヘッダー */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Target className="w-6 h-6 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">リーダーステーション</h1>
-          </div>
-          <p className="text-gray-600">チーム管理とリーダーシップを発揮する場所です。</p>
+        <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-2xl p-6 backdrop-blur-xl border border-blue-500/20 mb-6">
+          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+            <span className="text-4xl">🎯</span>
+            リーダーステーション
+          </h1>
+          <p className="text-gray-300">
+            ようこそ、{currentUser?.name || user?.name || 'リーダー'}さん！チーム管理とリーダーシップを発揮する場所です。
+          </p>
         </div>
 
         {/* タブナビゲーション */}
         <div className="mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8">
+          <div className="bg-gray-800/50 rounded-xl p-1 backdrop-blur border border-gray-700/50">
+            <nav className="flex space-x-1">
               {leaderTabs.map(tab => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    className={`py-3 px-6 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
                       activeTab === tab.id
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <Icon className="w-4 h-4" />
-                      {tab.label}
-                    </div>
+                    <Icon className="w-4 h-4" />
+                    {tab.label}
                   </button>
                 );
               })}
