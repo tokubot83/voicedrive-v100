@@ -8,7 +8,7 @@ import { posts } from '../data/demo/posts';
 import { projects } from '../data/demo/projects';
 import { demoUsers } from '../data/demo/users';
 import EnhancedPost from '../components/EnhancedPost';
-import { ProjectProgressIndicator } from '../components/ProjectProgressIndicator';
+import ProjectProgressIndicator from '../components/ProjectProgressIndicator';
 import { VoteOption, Comment } from '../types';
 
 export const LeaderStationPage: React.FC = () => {
