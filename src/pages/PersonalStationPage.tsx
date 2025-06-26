@@ -5,19 +5,21 @@ import { useDemoMode } from '../components/demo/DemoModeController';
 import { MainTabs } from '../components/tabs/MainTabs';
 import { SubFilters } from '../components/tabs/SubFilters';
 import { Post } from '../components/Post';
-import { ComposeSection } from '../components/ComposeSection';
+import ComposeSection from '../components/ComposeSection';
 import { ProjectProgressIndicator } from '../components/ProjectProgressIndicator';
 import { EnhancedPost } from '../components/EnhancedPost';
 import { posts } from '../data/demo/posts';
 import { projects } from '../data/demo/projects';
 import { Card } from '../components/ui/Card';
 import { Home, User, MessageSquare, TrendingUp } from 'lucide-react';
+import { PostType } from '../types';
 
 export const PersonalStationPage: React.FC = () => {
   const { user } = useAuth();
   const { currentUser } = useDemoMode();
   const { userPermissionLevel, hasPermission } = usePermissions();
   const [activeTab, setActiveTab] = useState('overview');
+  const [selectedPostType, setSelectedPostType] = useState<PostType>('improvement');
 
   // 自分の投稿をフィルタリング
   const myPosts = posts.filter(post => post.authorId === user?.id);
@@ -144,7 +146,10 @@ export const PersonalStationPage: React.FC = () => {
 
   const renderMyPosts = () => (
     <div className="space-y-4">
-      <ComposeSection />
+      <ComposeSection 
+        selectedPostType={selectedPostType}
+        setSelectedPostType={setSelectedPostType}
+      />
       {myPosts.length === 0 ? (
         <div className="bg-gray-800/50 rounded-xl p-8 text-center backdrop-blur border border-gray-700/50">
           <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
