@@ -21,11 +21,11 @@ export const PersonalStationPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedPostType, setSelectedPostType] = useState<PostType>('improvement');
 
-  // 自分の投稿をフィルタリング
-  const myPosts = posts.filter(post => post.authorId === user?.id);
-  const myProjects = projects.filter(project => 
-    project.members.some(member => member.id === user?.id)
-  );
+  // 自分の投稿をフィルタリング（安全なチェック）
+  const myPosts = posts?.filter(post => post.authorId === user?.id) || [];
+  const myProjects = projects?.filter(project => 
+    project.members?.some(member => member.id === user?.id)
+  ) || [];
 
   // ダミーデータ
   const myVotes = {
@@ -98,7 +98,7 @@ export const PersonalStationPage: React.FC = () => {
             <span className="text-gray-400">提案数</span>
             <span className="text-2xl">💡</span>
           </div>
-          <div className="text-3xl font-bold text-white">{myPosts.length}</div>
+          <div className="text-3xl font-bold text-white">{myPosts?.length || 0}</div>
           <div className="text-sm text-blue-400 mt-1">承認率 66.7%</div>
         </div>
       </div>
@@ -160,7 +160,7 @@ export const PersonalStationPage: React.FC = () => {
         selectedPostType={selectedPostType}
         setSelectedPostType={setSelectedPostType}
       />
-      {myPosts.length === 0 ? (
+      {(myPosts?.length || 0) === 0 ? (
         <div className="bg-gray-800/50 rounded-xl p-8 text-center backdrop-blur border border-gray-700/50">
           <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white mb-2">投稿がありません</h3>
@@ -173,7 +173,7 @@ export const PersonalStationPage: React.FC = () => {
             マイ提案
           </h2>
           <div className="space-y-3">
-            {myPosts.map(post => (
+            {myPosts?.map(post => (
               <div key={post.id} className="bg-gray-700/30 rounded-lg p-4 hover:bg-gray-700/50 transition-colors cursor-pointer">
                 <EnhancedPost 
                   post={post} 
@@ -191,14 +191,14 @@ export const PersonalStationPage: React.FC = () => {
 
   const renderMyProjects = () => (
     <div className="space-y-4">
-      {myProjects.length === 0 ? (
+      {(myProjects?.length || 0) === 0 ? (
         <div className="bg-gray-800/50 rounded-xl p-8 text-center backdrop-blur border border-gray-700/50">
           <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white mb-2">参加プロジェクトがありません</h3>
           <p className="text-gray-400">プロジェクトに参加するか、新しいプロジェクトを提案してみましょう。</p>
         </div>
       ) : (
-        myProjects.map(project => (
+        myProjects?.map(project => (
           <div key={project.id} className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
             <div className="flex items-start justify-between mb-4">
               <div>
