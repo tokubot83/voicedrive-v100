@@ -296,7 +296,7 @@ export const LeaderStationPage: React.FC = () => {
     <div className="min-h-screen bg-gray-900 w-full">
       <div className="w-full p-6">
         {/* ヘッダー */}
-        <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-2xl p-6 backdrop-blur-xl border border-blue-500/20 mb-6">
+        <div className="bg-gradient-to-r from-green-900/50 to-teal-900/50 rounded-2xl p-6 backdrop-blur-xl border border-green-500/20 mb-6">
           <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
             <span className="text-4xl">🎯</span>
             リーダーステーション

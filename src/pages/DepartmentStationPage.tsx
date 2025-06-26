@@ -233,14 +233,14 @@ export const DepartmentStationPage: React.FC = () => {
     <div className="min-h-screen bg-gray-900 w-full">
       <div className="max-w-6xl mx-auto p-6">
         {/* ヘッダー */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Building2 className="w-6 h-6 text-blue-400" />
-            <h1 className="text-2xl font-bold text-white">部門ステーション</h1>
-          </div>
-          <p className="text-gray-400">部門全体の状況を把握し、管理を行う場所です。</p>
+        <div className="bg-gradient-to-r from-blue-900/50 to-cyan-900/50 rounded-2xl p-6 backdrop-blur-xl border border-blue-500/20 mb-6">
+          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+            <span className="text-4xl">🏥</span>
+            部門ステーション
+          </h1>
+          <p className="text-gray-300">部門全体の状況を把握し、管理を行う場所です。</p>
           {!userDepartment && (
-            <div className="mt-2 p-3 bg-yellow-900/30 border border-yellow-500/30 rounded-lg">
+            <div className="mt-4 p-3 bg-yellow-900/30 border border-yellow-500/30 rounded-lg">
               <p className="text-yellow-400 text-sm">注意: ユーザーの部門情報が設定されていません。デモデータで表示しています。</p>
             </div>
           )}
@@ -248,8 +248,8 @@ export const DepartmentStationPage: React.FC = () => {
 
         {/* タブナビゲーション */}
         <div className="mb-6">
-          <div className="bg-gray-800/50 rounded-xl p-4 backdrop-blur border border-gray-700/50">
-            <nav className="flex space-x-2">
+          <div className="bg-gray-800/50 rounded-xl p-1 backdrop-blur border border-gray-700/50">
+            <nav className="flex space-x-1">
               {deptTabs.map(tab => {
                 const Icon = tab.icon;
                 return (
