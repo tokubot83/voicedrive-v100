@@ -53,7 +53,7 @@ export const MENU_STRUCTURE: MenuStructure = {
       id: 'authority_basic',
       label: '権限管理（基本）',
       icon: '🔐',
-      path: '/authority-basic',
+      path: '/authority',
       requiredLevel: 2,
       category: 'management'
     },
@@ -61,7 +61,7 @@ export const MENU_STRUCTURE: MenuStructure = {
       id: 'department_management',
       label: '部門管理',
       icon: '🏥',
-      path: '/department-management',
+      path: '/department-overview',
       requiredLevel: 3,
       category: 'management'
     },
@@ -77,8 +77,32 @@ export const MENU_STRUCTURE: MenuStructure = {
       id: 'budget_management',
       label: '予算管理',
       icon: '💰',
-      path: '/budget-planning',
+      path: '/budget',
       requiredLevel: 4,
+      category: 'management'
+    },
+    users: {
+      id: 'user_management',
+      label: 'ユーザー管理',
+      icon: '👤',
+      path: '/admin/users',
+      requiredLevel: 5,
+      category: 'management'
+    },
+    system_settings: {
+      id: 'system_settings',
+      label: 'システム設定',
+      icon: '⚙️',
+      path: '/admin/system-settings',
+      requiredLevel: 6,
+      category: 'management'
+    },
+    audit_logs: {
+      id: 'audit_logs',
+      label: '監査ログ',
+      icon: '📋',
+      path: '/admin/audit-logs',
+      requiredLevel: 5,
       category: 'management'
     }
   },
@@ -115,8 +139,8 @@ export const MENU_STRUCTURE: MenuStructure = {
       id: 'policy_management',
       label: 'ポリシー管理',
       icon: '📋',
-      path: '/policy-management',
-      requiredLevel: 8,
+      path: '/policy',
+      requiredLevel: 5,
       category: 'hr'
     },
     talent: {
@@ -386,8 +410,8 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   5: { // 事務長 (ADMINISTRATIVE_DIRECTOR)
     station: ['personal', 'leader', 'department', 'section'],
-    management: ['team', 'authority_basic', 'department', 'section', 'budget'],
-    hr: [],
+    management: ['team', 'authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs'],
+    hr: ['policy'],
     strategic_hr: [],
     facility: ['own_facility', 'own_strategy', 'own_budget'],
     analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
@@ -395,8 +419,8 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   6: { // 副院長 (VICE_DIRECTOR)
     station: ['personal', 'leader', 'department', 'section'],
-    management: ['team', 'authority_basic', 'department', 'section', 'budget'],
-    hr: [],
+    management: ['team', 'authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs', 'system_settings'],
+    hr: ['policy'],
     strategic_hr: [],
     facility: ['own_facility', 'own_strategy', 'own_budget'],
     analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
@@ -404,8 +428,8 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   7: { // 院長・施設長 (HOSPITAL_DIRECTOR)
     station: ['personal', 'leader', 'department', 'section'],
-    management: ['team', 'authority_basic', 'department', 'section', 'budget'],
-    hr: [],
+    management: ['team', 'authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs', 'system_settings'],
+    hr: ['policy'],
     strategic_hr: [],
     facility: ['own_facility', 'own_strategy', 'own_budget'],
     analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
@@ -413,7 +437,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   8: { // 人財統括本部事務員 (HR_ADMIN_STAFF)
     station: ['personal'],
-    management: [],
+    management: ['users', 'audit_logs'],
     hr: ['interview', 'policy', 'talent'],
     strategic_hr: [],
     facility: [],
@@ -422,7 +446,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   9: { // 人財統括本部 キャリア支援部門員 (CAREER_SUPPORT_STAFF)
     station: ['personal'],
-    management: [],
+    management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: [],
     facility: [],
@@ -431,7 +455,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   10: { // 人財統括本部 各部門長 (HR_DEPARTMENT_HEAD)
     station: ['personal'],
-    management: [],
+    management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'performance', 'retirement'],
     facility: ['all_facility', 'all_strategy', 'all_budget'],
@@ -440,7 +464,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   11: { // 人財統括本部 統括管理部門長 (HR_GENERAL_MANAGER)
     station: ['personal'],
-    management: [],
+    management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'performance', 'retirement'],
     facility: ['all_facility', 'all_strategy', 'all_budget'],
@@ -449,7 +473,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   12: { // 厚生会本部統括事務局長 (GENERAL_ADMINISTRATIVE_DIRECTOR)
     station: ['personal'],
-    management: [],
+    management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'performance', 'retirement'],
     facility: ['all_facility', 'all_strategy', 'all_budget'],
@@ -458,7 +482,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   13: { // 理事長 (CHAIRMAN)
     station: ['personal'],
-    management: [],
+    management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'performance', 'retirement'],
     facility: ['all_facility', 'all_strategy', 'all_budget'],
