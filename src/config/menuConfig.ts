@@ -25,7 +25,7 @@ export const MENU_STRUCTURE: MenuStructure = {
       id: 'department_station',
       label: '部門ステーション',
       icon: '🏥',
-      path: '/department-dashboard',
+      path: '/department-station',
       requiredLevel: 3,
       category: 'station'
     },

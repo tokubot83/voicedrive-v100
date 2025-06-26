@@ -6,8 +6,8 @@ import { Building2, Users, TrendingUp, BarChart3, MessageSquare } from 'lucide-r
 import { posts } from '../data/demo/posts';
 import { projects } from '../data/demo/projects';
 import { demoUsers } from '../data/demo/users';
-import { EnhancedPost } from '../components/EnhancedPost';
-import { ProjectProgressIndicator } from '../components/ProjectProgressIndicator';
+import EnhancedPost from '../components/EnhancedPost';
+import ProjectProgressIndicator from '../components/ProjectProgressIndicator';
 
 export const DepartmentStationPage: React.FC = () => {
   const { user } = useAuth();
