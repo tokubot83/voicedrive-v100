@@ -7,8 +7,9 @@ import { Users, Target, MessageSquare, TrendingUp, AlertCircle, Shield } from 'l
 import { posts } from '../data/demo/posts';
 import { projects } from '../data/demo/projects';
 import { demoUsers } from '../data/demo/users';
-import { EnhancedPost } from '../components/EnhancedPost';
+import EnhancedPost from '../components/EnhancedPost';
 import { ProjectProgressIndicator } from '../components/ProjectProgressIndicator';
+import { VoteOption, Comment } from '../types';
 
 export const LeaderStationPage: React.FC = () => {
   const { user } = useAuth();
@@ -43,6 +44,15 @@ export const LeaderStationPage: React.FC = () => {
   const teamProjects = projects.filter(project =>
     project.department === user?.department
   );
+
+  // ハンドラー関数を追加
+  const handleVote = (postId: string, option: VoteOption) => {
+    console.log('Vote:', postId, option);
+  };
+
+  const handleComment = (postId: string, comment: Omit<Comment, 'id' | 'timestamp'>) => {
+    console.log('Comment:', postId, comment);
+  };
 
   const leaderTabs = [
     { id: 'team_overview', label: 'チーム概要', icon: Users },
@@ -158,6 +168,8 @@ export const LeaderStationPage: React.FC = () => {
                 <EnhancedPost 
                   post={post} 
                   currentUser={currentUser || user}
+                  onVote={handleVote}
+                  onComment={handleComment}
                 />
               </div>
             ))}
