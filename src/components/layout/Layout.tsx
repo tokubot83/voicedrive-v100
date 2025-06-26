@@ -63,7 +63,8 @@ const Layout: React.FC = () => {
     '/budget-planning',
     '/facility-management',
     '/team-management',
-    '/org-development'
+    '/org-development',
+    '/admin'
   ];
   
   // 現在のパスが専用管理画面かどうかを判定

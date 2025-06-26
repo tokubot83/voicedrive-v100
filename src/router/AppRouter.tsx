@@ -396,24 +396,6 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
         
-        {/* Admin Pages (Level 5+) */}
-        <Route path="admin">
-          <Route path="users" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-              <UserManagementPage />
-            </ProtectedRoute>
-          } />
-          <Route path="system-settings" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
-              <SystemSettingsPage />
-            </ProtectedRoute>
-          } />
-          <Route path="audit-logs" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-              <AuditLogPage />
-            </ProtectedRoute>
-          } />
-        </Route>
         
         {/* Whistleblowing System - All users can access (internal permission handling) */}
         <Route path="whistleblowing" element={<WhistleblowingPage />} />
@@ -498,6 +480,23 @@ const AppRouter: React.FC = () => {
       <Route path="professional-analysis" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
           <ProfessionalAnalysisPage />
+        </ProtectedRoute>
+      } />
+      
+      {/* Admin Pages - Full width without sidebar */}
+      <Route path="admin/users" element={
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
+          <UserManagementPage />
+        </ProtectedRoute>
+      } />
+      <Route path="admin/system-settings" element={
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
+          <SystemSettingsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="admin/audit-logs" element={
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
+          <AuditLogPage />
         </ProtectedRoute>
       } />
     </Routes>
