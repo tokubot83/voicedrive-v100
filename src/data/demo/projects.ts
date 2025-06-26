@@ -751,3 +751,6 @@ export const getDemoProjectsByMember = (userId: string): Project[] => {
     project.teamMembers.some(member => member.userId === userId)
   );
 };
+
+export { demoProjects as projects };
+export default demoProjects;
