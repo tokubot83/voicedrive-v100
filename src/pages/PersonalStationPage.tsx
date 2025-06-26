@@ -6,7 +6,7 @@ import { MainTabs } from '../components/tabs/MainTabs';
 import { SubFilters } from '../components/tabs/SubFilters';
 import { Post } from '../components/Post';
 import ComposeSection from '../components/ComposeSection';
-import { ProjectProgressIndicator } from '../components/ProjectProgressIndicator';
+import ProjectProgressIndicator from '../components/ProjectProgressIndicator';
 import EnhancedPost from '../components/EnhancedPost';
 import { posts } from '../data/demo/posts';
 import { projects } from '../data/demo/projects';
@@ -214,7 +214,18 @@ export const PersonalStationPage: React.FC = () => {
                  project.status === 'planning' ? '計画中' : '一時停止'}
               </span>
             </div>
-            <ProjectProgressIndicator project={project} />
+            <ProjectProgressIndicator 
+              votes={{
+                'strongly-support': 3,
+                'support': 2,
+                'neutral': 1,
+                'oppose': 0,
+                'strongly-oppose': 0
+              }}
+              currentScore={project.impactScore || 75}
+              postId={project.id}
+              isCompact={true}
+            />
           </div>
         ))
       )}
