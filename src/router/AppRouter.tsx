@@ -101,6 +101,11 @@ import UserAnalysisPage from '../pages/UserAnalysisPage';
 // Professional Analysis
 import ProfessionalAnalysisPage from '../pages/ProfessionalAnalysisPage';
 
+// Admin pages
+import { UserManagementPage } from '../pages/UserManagementPage';
+import { SystemSettingsPage } from '../pages/SystemSettingsPage';
+import { AuditLogPage } from '../pages/AuditLogPage';
+
 // Error pages
 import NotFoundPage from '../pages/NotFoundPage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
@@ -391,6 +396,24 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
         
+        {/* Admin Pages (Level 5+) */}
+        <Route path="admin">
+          <Route path="users" element={
+            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
+              <UserManagementPage />
+            </ProtectedRoute>
+          } />
+          <Route path="system-settings" element={
+            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
+              <SystemSettingsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="audit-logs" element={
+            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
+              <AuditLogPage />
+            </ProtectedRoute>
+          } />
+        </Route>
         
         {/* Whistleblowing System - All users can access (internal permission handling) */}
         <Route path="whistleblowing" element={<WhistleblowingPage />} />
