@@ -9,7 +9,7 @@ export const MENU_STRUCTURE: MenuStructure = {
       id: 'personal_station',
       label: 'パーソナルステーション',
       icon: '👤',
-      path: '/personal-dashboard',
+      path: '/personal-station',
       requiredLevel: 1,
       category: 'station'
     },

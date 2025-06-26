@@ -13,6 +13,7 @@ import ProjectListPage from '../pages/ProjectListPage';
 import EnhancedProjectListPage from '../pages/EnhancedProjectListPage';
 import { ProjectDetailPage } from '../pages/ProjectDetailPage';
 import TeamManagementPage from '../pages/TeamManagementPage';
+import { PersonalStationPage } from '../pages/PersonalStationPage';
 import DepartmentOverviewPage from '../pages/DepartmentOverviewPage';
 import BudgetPage from '../pages/BudgetPage';
 import HRDashboardPage from '../pages/HRDashboardPage';
@@ -419,6 +420,7 @@ const AppRouter: React.FC = () => {
       {/* Full-width pages without sidebar */}
       <Route path="compose/:type" element={<ComposePage />} />
       <Route path="project/:projectId" element={<ProjectDetailPage />} />
+      <Route path="personal-station" element={<PersonalStationPage />} />
       
       {/* Interview and Project Management - Full width */}
       <Route path="interview-booking" element={<InterviewBookingPage />} />
