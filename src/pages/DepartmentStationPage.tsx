@@ -14,19 +14,19 @@ export const DepartmentStationPage: React.FC = () => {
   const { userPermissionLevel } = usePermissions();
   const [activeTab, setActiveTab] = useState('dept_overview');
 
-  // 部門メンバーを取得
-  const deptMembers = demoUsers.filter(u => u.department === user?.department);
+  // 部門メンバーを取得（安全なチェック）
+  const deptMembers = demoUsers?.filter(u => u.department === user?.department) || [];
   
-  // 部門の投稿
-  const deptPosts = posts.filter(post => {
-    const author = demoUsers.find(u => u.id === post.authorId);
+  // 部門の投稿（安全なチェック）
+  const deptPosts = posts?.filter(post => {
+    const author = demoUsers?.find(u => u.id === post.authorId);
     return author?.department === user?.department;
-  });
+  }) || [];
 
-  // 部門のプロジェクト
-  const deptProjects = projects.filter(project =>
+  // 部門のプロジェクト（安全なチェック）
+  const deptProjects = projects?.filter(project =>
     project.department === user?.department
-  );
+  ) || [];
 
   const deptTabs = [
     { id: 'dept_overview', label: '部門概要', icon: Building2 },
@@ -43,17 +43,17 @@ export const DepartmentStationPage: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">部門統計</h3>
         <div className="space-y-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{deptMembers.length}</div>
+            <div className="text-2xl font-bold text-blue-600">{deptMembers?.length || 0}</div>
             <div className="text-sm text-gray-500">総メンバー数</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600">
-              {deptProjects.filter(p => p.status === 'active').length}
+              {deptProjects?.filter(p => p.status === 'active').length || 0}
             </div>
             <div className="text-sm text-gray-500">アクティブプロジェクト</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">{deptPosts.length}</div>
+            <div className="text-2xl font-bold text-purple-600">{deptPosts?.length || 0}</div>
             <div className="text-sm text-gray-500">今月の投稿数</div>
           </div>
         </div>
@@ -63,12 +63,12 @@ export const DepartmentStationPage: React.FC = () => {
       <Card className="p-6 lg:col-span-2">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">最新プロジェクト</h3>
         <div className="space-y-3">
-          {deptProjects.slice(0, 3).map(project => (
+          {deptProjects?.slice(0, 3).map(project => (
             <div key={project.id} className="border-l-4 border-blue-500 pl-4 py-2">
               <h4 className="font-medium text-gray-900">{project.title}</h4>
               <p className="text-sm text-gray-600 mt-1">{project.description}</p>
               <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                <span>メンバー: {project.members.length}名</span>
+                <span>メンバー: {project.members?.length || 0}名</span>
                 <span className={`px-2 py-1 rounded ${
                   project.status === 'active' ? 'bg-green-100 text-green-800' :
                   project.status === 'planning' ? 'bg-blue-100 text-blue-800' :
@@ -87,7 +87,7 @@ export const DepartmentStationPage: React.FC = () => {
 
   const renderDeptMembers = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {deptMembers.map(member => (
+      {deptMembers?.map(member => (
         <Card key={member.id} className="p-6">
           <div className="flex items-center gap-4 mb-4">
             <img
@@ -128,7 +128,7 @@ export const DepartmentStationPage: React.FC = () => {
           <p className="text-gray-500">部門メンバーの投稿がここに表示されます。</p>
         </Card>
       ) : (
-        deptPosts.map(post => (
+        deptPosts?.map(post => (
           <EnhancedPost key={post.id} post={post} />
         ))
       )}
@@ -144,7 +144,7 @@ export const DepartmentStationPage: React.FC = () => {
           <p className="text-gray-500">部門のプロジェクトがここに表示されます。</p>
         </Card>
       ) : (
-        deptProjects.map(project => (
+        deptProjects?.map(project => (
           <Card key={project.id} className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
@@ -162,9 +162,9 @@ export const DepartmentStationPage: React.FC = () => {
             </div>
             <ProjectProgressIndicator project={project} />
             <div className="mt-4 flex items-center gap-4 text-sm text-gray-500">
-              <span>メンバー: {project.members.length}名</span>
-              <span>予算: ¥{project.budget?.toLocaleString()}</span>
-              <span>期限: {project.deadline}</span>
+              <span>メンバー: {project.members?.length || 0}名</span>
+              <span>予算: ¥{project.budget?.toLocaleString() || '未設定'}</span>
+              <span>期限: {project.deadline || '未設定'}</span>
             </div>
           </Card>
         ))
@@ -179,18 +179,18 @@ export const DepartmentStationPage: React.FC = () => {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">今月の投稿数</span>
-            <span className="text-lg font-semibold text-blue-600">{deptPosts.length}</span>
+            <span className="text-lg font-semibold text-blue-600">{deptPosts?.length || 0}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">アクティブメンバー</span>
             <span className="text-lg font-semibold text-green-600">
-              {deptMembers.filter(m => m.permissionLevel >= 1).length}
+              {deptMembers?.filter(m => m.permissionLevel >= 1).length || 0}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">完了プロジェクト</span>
             <span className="text-lg font-semibold text-purple-600">
-              {deptProjects.filter(p => p.status === 'completed').length}
+              {deptProjects?.filter(p => p.status === 'completed').length || 0}
             </span>
           </div>
         </div>
@@ -200,8 +200,8 @@ export const DepartmentStationPage: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">権限レベル分布</h3>
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map(level => {
-            const count = deptMembers.filter(m => m.permissionLevel === level).length;
-            const percentage = count > 0 ? (count / deptMembers.length) * 100 : 0;
+            const count = deptMembers?.filter(m => m.permissionLevel === level).length || 0;
+            const percentage = count > 0 && deptMembers?.length ? (count / deptMembers.length) * 100 : 0;
             return (
               <div key={level} className="flex items-center gap-3">
                 <span className="text-sm font-medium w-16">レベル{level}</span>
@@ -230,6 +230,11 @@ export const DepartmentStationPage: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900">部門ステーション</h1>
           </div>
           <p className="text-gray-600">部門全体の状況を把握し、管理を行う場所です。</p>
+          {!user?.department && (
+            <div className="mt-2 p-3 bg-yellow-100 border border-yellow-300 rounded-lg">
+              <p className="text-yellow-800 text-sm">注意: ユーザーの部門情報が設定されていません。</p>
+            </div>
+          )}
         </div>
 
         {/* タブナビゲーション */}
