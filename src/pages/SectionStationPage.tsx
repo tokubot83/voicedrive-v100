@@ -279,6 +279,64 @@ export const SectionStationPage: React.FC = () => {
     </div>
   );
 
+  const renderSectionProjects = () => (
+    <div className="space-y-6">
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">部署プロジェクト</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {sectionProjects.map(project => (
+            <div key={project.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`w-3 h-3 rounded-full ${
+                  project.status === 'active' ? 'bg-green-500' : 
+                  project.status === 'completed' ? 'bg-blue-500' : 'bg-gray-400'
+                }`}></div>
+                <h4 className="font-medium text-gray-900">{project.title}</h4>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">{project.description}</p>
+              <ProjectProgressIndicator progress={project.progress || 0} />
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+
+  const renderSectionAnalytics = () => (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">部署パフォーマンス</h3>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600">プロジェクト完了率</span>
+            <span className="text-xl font-bold text-green-600">85%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="bg-green-500 h-3 rounded-full" style={{ width: '85%' }}></div>
+          </div>
+        </div>
+      </Card>
+      
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">生産性指標</h3>
+        <div className="space-y-3">
+          <div className="flex justify-between">
+            <span className="text-gray-600">月間効率性</span>
+            <span className="font-medium text-blue-600">92%</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">品質スコア</span>
+            <span className="font-medium text-purple-600">4.7/5.0</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">納期遵守率</span>
+            <span className="font-medium text-green-600">96%</span>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto p-6">
@@ -322,9 +380,9 @@ export const SectionStationPage: React.FC = () => {
         <div>
           {activeTab === 'section_overview' && renderSectionOverview()}
           {activeTab === 'section_members' && renderSectionMembers()}
-          {activeTab === 'section_projects' && renderDeptProjects()}
+          {activeTab === 'section_projects' && renderSectionProjects()}
           {activeTab === 'budget_management' && renderBudgetManagement()}
-          {activeTab === 'performance' && renderDeptAnalytics()}
+          {activeTab === 'performance' && renderSectionAnalytics()}
         </div>
       </div>
     </div>

@@ -33,7 +33,7 @@ export const MENU_STRUCTURE: MenuStructure = {
       id: 'section_station',
       label: '部署ステーション',
       icon: '🏢',
-      path: '/facility-dashboard',
+      path: '/section-station',
       requiredLevel: 4,
       category: 'station'
     }
