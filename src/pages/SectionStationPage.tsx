@@ -41,77 +41,77 @@ export const SectionStationPage: React.FC = () => {
   const renderSectionOverview = () => (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       {/* KPI カード */}
-      <Card className="p-6">
+      <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50 p-6">
         <div className="flex items-center gap-3 mb-2">
-          <Users className="w-5 h-5 text-blue-600" />
-          <span className="text-sm font-medium text-gray-600">総メンバー</span>
+          <Users className="w-5 h-5 text-blue-400" />
+          <span className="text-sm font-medium text-gray-300">総メンバー</span>
         </div>
-        <div className="text-2xl font-bold text-gray-900">{sectionMembers.length}</div>
-        <div className="text-sm text-green-600">+2 今月</div>
+        <div className="text-2xl font-bold text-white">{sectionMembers.length}</div>
+        <div className="text-sm text-green-400">+2 今月</div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50 p-6">
         <div className="flex items-center gap-3 mb-2">
-          <TrendingUp className="w-5 h-5 text-green-600" />
-          <span className="text-sm font-medium text-gray-600">アクティブプロジェクト</span>
+          <TrendingUp className="w-5 h-5 text-green-400" />
+          <span className="text-sm font-medium text-gray-300">アクティブプロジェクト</span>
         </div>
-        <div className="text-2xl font-bold text-gray-900">
+        <div className="text-2xl font-bold text-white">
           {sectionProjects.filter(p => p.status === 'active').length}
         </div>
-        <div className="text-sm text-blue-600">3件 計画中</div>
+        <div className="text-sm text-blue-400">3件 計画中</div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50 p-6">
         <div className="flex items-center gap-3 mb-2">
-          <DollarSign className="w-5 h-5 text-purple-600" />
-          <span className="text-sm font-medium text-gray-600">月次予算</span>
+          <DollarSign className="w-5 h-5 text-purple-400" />
+          <span className="text-sm font-medium text-gray-300">月次予算</span>
         </div>
-        <div className="text-2xl font-bold text-gray-900">¥2.4M</div>
-        <div className="text-sm text-orange-600">85% 使用済み</div>
+        <div className="text-2xl font-bold text-white">¥2.4M</div>
+        <div className="text-sm text-orange-400">85% 使用済み</div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50 p-6">
         <div className="flex items-center gap-3 mb-2">
-          <MessageSquare className="w-5 h-5 text-indigo-600" />
-          <span className="text-sm font-medium text-gray-600">今月の投稿</span>
+          <MessageSquare className="w-5 h-5 text-indigo-400" />
+          <span className="text-sm font-medium text-gray-300">今月の投稿</span>
         </div>
-        <div className="text-2xl font-bold text-gray-900">{sectionPosts.length}</div>
-        <div className="text-sm text-green-600">+15% 先月比</div>
+        <div className="text-2xl font-bold text-white">{sectionPosts.length}</div>
+        <div className="text-sm text-green-400">+15% 先月比</div>
       </Card>
 
       {/* 最新活動 */}
-      <Card className="p-6 lg:col-span-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">最新活動</h3>
+      <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50 p-6 lg:col-span-4">
+        <h3 className="text-lg font-semibold text-white mb-4">最新活動</h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-gray-900 mb-3">進行中プロジェクト</h4>
+            <h4 className="font-medium text-white mb-3">進行中プロジェクト</h4>
             <div className="space-y-3">
               {sectionProjects.filter(p => p.status === 'active').slice(0, 3).map(project => (
-                <div key={project.id} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div key={project.id} className="flex items-center gap-3 p-3 bg-green-500/20 rounded-lg border border-green-500/30">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">{project.title}</p>
-                    <p className="text-xs text-gray-500">進捗: {Math.floor(Math.random() * 100)}%</p>
+                    <p className="text-sm font-medium text-white">{project.title}</p>
+                    <p className="text-xs text-gray-400">進捗: {Math.floor(Math.random() * 100)}%</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
           <div>
-            <h4 className="font-medium text-gray-900 mb-3">承認待ち案件</h4>
+            <h4 className="font-medium text-white mb-3">承認待ち案件</h4>
             <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
-                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+              <div className="flex items-center gap-3 p-3 bg-orange-500/20 rounded-lg border border-orange-500/30">
+                <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">設備購入申請</p>
-                  <p className="text-xs text-gray-500">¥500,000 • 緊急</p>
+                  <p className="text-sm font-medium text-white">設備購入申請</p>
+                  <p className="text-xs text-gray-400">¥500,000 • 緊急</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <div className="flex items-center gap-3 p-3 bg-blue-500/20 rounded-lg border border-blue-500/30">
+                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">人員配置変更</p>
-                  <p className="text-xs text-gray-500">3名 • 通常</p>
+                  <p className="text-sm font-medium text-white">人員配置変更</p>
+                  <p className="text-xs text-gray-400">3名 • 通常</p>
                 </div>
               </div>
             </div>
@@ -343,37 +343,35 @@ export const SectionStationPage: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-900 w-full">
       <div className="max-w-6xl mx-auto p-6">
         {/* ヘッダー */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Building className="w-6 h-6 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">部署ステーション</h1>
-          </div>
-          <p className="text-gray-600">部署の運営管理と予算管理を行う場所です。</p>
+        <div className="bg-gradient-to-r from-orange-900/50 to-red-900/50 rounded-2xl p-6 backdrop-blur-xl border border-orange-500/20 mb-6">
+          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+            <span className="text-4xl">🏢</span>
+            部署ステーション
+          </h1>
+          <p className="text-gray-300">部署の運営管理と予算管理を行う場所です。</p>
         </div>
 
         {/* タブナビゲーション */}
         <div className="mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8">
+          <div className="bg-gray-800/50 rounded-xl p-1 backdrop-blur border border-gray-700/50">
+            <nav className="flex space-x-1">
               {sectionTabs.map(tab => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    className={`py-3 px-6 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
                       activeTab === tab.id
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <Icon className="w-4 h-4" />
-                      {tab.label}
-                    </div>
+                    <Icon className="w-4 h-4" />
+                    {tab.label}
                   </button>
                 );
               })}
