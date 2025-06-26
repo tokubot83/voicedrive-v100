@@ -17,7 +17,7 @@ export const MENU_STRUCTURE: MenuStructure = {
       id: 'leader_station',
       label: 'リーダーステーション',
       icon: '👥',
-      path: '/team-leader-dashboard',
+      path: '/leader-station',
       requiredLevel: 2,
       category: 'station'
     },
