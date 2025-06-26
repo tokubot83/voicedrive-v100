@@ -1043,4 +1043,5 @@ export const getDemoPostsByFilter = (filter: 'voting' | 'facility' | 'all', user
   }
 };
 
+export { demoPosts as posts };
 export default demoPosts;
