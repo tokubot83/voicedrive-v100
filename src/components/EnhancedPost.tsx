@@ -21,6 +21,7 @@ interface EnhancedPostProps {
 const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProps) => {
   const [selectedVote, setSelectedVote] = useState<VoteOption | null>(null);
   const [showComments, setShowComments] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const { calculateScore, convertVotesToEngagements } = useProjectScoring();
   
   // 投稿権限チェック
@@ -171,7 +172,21 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
 
       {/* 投稿内容 */}
       <div className="px-4 pb-3">
-        <p className="text-gray-900 leading-relaxed">{post.content}</p>
+        {post.content.length > 100 ? (
+          <div>
+            <p className="text-gray-900 leading-relaxed">
+              {isExpanded ? post.content : `${post.content.slice(0, 100)}...`}
+            </p>
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-blue-500 hover:text-blue-600 text-sm mt-2 font-medium transition-colors"
+            >
+              {isExpanded ? '表示を縮小' : 'さらに表示'}
+            </button>
+          </div>
+        ) : (
+          <p className="text-gray-900 leading-relaxed">{post.content}</p>
+        )}
         
         {/* 提案タイプと優先度のタグ */}
         {(post.proposalType || post.priority) && (
