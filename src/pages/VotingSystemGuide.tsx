@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 const VotingSystemGuide: React.FC = () => {
   const [progressWidth, setProgressWidth] = useState(0);
@@ -82,8 +84,8 @@ const VotingSystemGuide: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900 w-full">
-      <div className="w-full p-6">
+    <div className="min-h-screen bg-gray-900 w-full flex flex-col">
+      <div className="flex-1 w-full p-6 pb-20 lg:pb-16">
         {/* ヘッダー */}
         <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-2xl p-8 backdrop-blur-xl border border-blue-500/20 mb-8">
           <h1 className="text-4xl font-bold text-white mb-4 flex items-center gap-4">
@@ -449,6 +451,10 @@ const VotingSystemGuide: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* フッター */}
+      <MobileFooter />
+      <DesktopFooter />
     </div>
   );
 };
