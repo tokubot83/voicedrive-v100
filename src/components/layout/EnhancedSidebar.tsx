@@ -216,6 +216,20 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       {/* システム機能 */}
       <div className="p-4 space-y-1 border-t border-slate-700/50">
         <button
+          onClick={() => onNavigate('/voting-system-guide')}
+          className={`
+            w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+            transition-all duration-150
+            ${currentPath === '/voting-system-guide' 
+              ? 'bg-blue-600 text-white shadow-lg' 
+              : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+            }
+          `}
+        >
+          <BarChart3 className="w-4 h-4" />
+          <span>投票システムガイド</span>
+        </button>
+        <button
           onClick={() => onNavigate('/notifications')}
           className={`
             w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
