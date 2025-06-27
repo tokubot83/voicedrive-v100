@@ -237,39 +237,34 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       </div>
 
       {/* ユーザー情報（最下部） */}
-      <div className="p-4">
-        <div className="bg-gray-800/50 rounded-lg p-3 backdrop-blur">
-          {isDemoMode ? (
-            <>
-              <div className="flex items-center gap-2 mb-1">
-                <Avatar 
-                  avatarData={generatePersonalAvatar(currentUser)}
-                  size="sm"
-                />
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-white">{currentUser.name}</div>
-                  <div className="text-xs text-gray-400">{currentUser.position}</div>
-                </div>
+      <div className="p-4 hover:bg-slate-700/30 transition-colors cursor-pointer">
+        {isDemoMode ? (
+          <div className="flex items-center gap-3">
+            <Avatar 
+              avatarData={generatePersonalAvatar(currentUser)}
+              size="md"
+            />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <div className="text-sm font-medium text-white truncate">{currentUser.name}</div>
+                <span className="text-xs text-slate-500">Lv.{currentUser.permissionLevel}</span>
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">{currentUser.department}</span>
-                <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full">
-                  Lv.{currentUser.permissionLevel}
-                </span>
-              </div>
-            </>
-          ) : (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <span className="text-xs font-bold text-white">V</span>
-              </div>
-              <div className="flex-1">
-                <div className="text-sm font-medium text-white">VoiceDrive User</div>
-                <div className="text-xs text-gray-400">権限レベル {userPermissionLevel}</div>
-              </div>
+              <div className="text-xs text-slate-400 truncate">@{currentUser.position.replace(/\s+/g, '_').toLowerCase()}</div>
             </div>
-          )}
-        </div>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+              <span className="text-sm font-bold text-white">V</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-white">VoiceDrive User</div>
+              <div className="text-xs text-slate-400">@voicedrive_user</div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </div>
+        )}
       </div>
     </div>
   );
