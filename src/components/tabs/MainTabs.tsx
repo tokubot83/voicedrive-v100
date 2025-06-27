@@ -89,14 +89,15 @@ export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) =>
   };
 
   return (
-    <div className="flex justify-center items-center">
-      <div className="flex overflow-x-auto scrollbar-hide">
+    <div className="w-full">
+      <div className="flex overflow-x-auto scrollbar-hide border-b border-gray-700/50">
         {mainTabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => handleTabClick(tab.id)}
             className={`
-              flex items-center gap-2 px-4 py-3 
+              flex-1 sm:flex-initial flex items-center justify-center gap-2 
+              px-4 py-3 min-w-0
               whitespace-nowrap transition-all duration-200
               relative group
               ${activeTab === tab.id
@@ -105,11 +106,17 @@ export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) =>
               }
             `}
           >
-            <span className="text-lg">{tab?.icon}</span>
-            <span className="hidden sm:inline font-medium">
-              {tab.label}
+            <span className="text-lg sm:text-base">{tab?.icon}</span>
+            <span className="text-sm sm:text-base font-medium">
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden">
+                {tab.id === 'improvement' ? 'アイデア' : 
+                 tab.id === 'freevoice' ? 'フリー' : 
+                 tab.id === 'whistleblowing' ? 'コンプラ' : 
+                 tab.label}
+              </span>
               {tab.id === 'approvals' && notificationStats?.pending && notificationStats.pending > 0 && (
-                <span className="ml-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                <span className="ml-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
                   {notificationStats.pending}
                 </span>
               )}
@@ -117,7 +124,7 @@ export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) =>
             
             {/* アクティブインジケーター */}
             {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400" />
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-400" />
             )}
             
             {/* ホバーエフェクト */}
