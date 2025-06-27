@@ -89,8 +89,8 @@ export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) =>
   };
 
   return (
-    <div className="w-full">
-      <div className="flex overflow-x-auto scrollbar-hide border-b border-gray-700/50">
+    <div className="w-full flex justify-center">
+      <div className="flex overflow-x-auto scrollbar-hide border-b border-gray-700/50 sm:border-b-0">
         {mainTabs.map(tab => (
           <button
             key={tab.id}
