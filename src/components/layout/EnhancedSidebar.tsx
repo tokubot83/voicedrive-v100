@@ -52,9 +52,16 @@ const categoryLabels: Record<MenuCategory, string> = {
 };
 
 export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, onNavigate }) => {
+  console.log('🚨 EnhancedSidebar: コンポーネント初期化開始');
+  console.log('🚨 EnhancedSidebar: currentPath =', currentPath);
+  
   const { userLevel: userPermissionLevel } = usePermissions();
   const { isDemoMode, currentUser } = useDemoMode();
   const [expandedCategories, setExpandedCategories] = useState<Set<MenuCategory>>(() => new Set(['station']));
+  
+  console.log('🚨 EnhancedSidebar: userPermissionLevel =', userPermissionLevel);
+  console.log('🚨 EnhancedSidebar: isDemoMode =', isDemoMode);
+  console.log('🚨 EnhancedSidebar: currentUser =', currentUser);
 
   const toggleCategory = (category: MenuCategory) => {
     const newExpanded = new Set(expandedCategories);
@@ -155,8 +162,11 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
     return levelNames[userPermissionLevel as keyof typeof levelNames] || `レベル${userPermissionLevel}`;
   };
 
+  console.log('🚨 EnhancedSidebar: レンダリング開始');
+  
   return (
     <div className="w-80 bg-slate-800/95 backdrop-blur-xl shadow-lg h-full flex flex-col border-r border-slate-700/50">
+      {console.log('🚨 EnhancedSidebar: DOMレンダリング実行中')}
       {/* ヘッダー */}
       <div className="p-4 border-b border-slate-700/50">
         <div className="flex items-center gap-3">
@@ -238,6 +248,8 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
 
       {/* ユーザー情報（最下部） */}
       <div className="p-4">
+        {console.log('🔧 EnhancedSidebar: isDemoMode =', isDemoMode)}
+        {console.log('🔧 EnhancedSidebar: currentUser =', currentUser)}
         <div className="bg-gray-800/50 rounded-lg p-3 backdrop-blur">
           {isDemoMode ? (
             <>
@@ -259,15 +271,18 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
               </div>
             </>
           ) : (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <span className="text-xs font-bold text-white">V</span>
+            <>
+              {console.log('🔧 EnhancedSidebar: 非デモモード表示実行')}
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold text-white">V</span>
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-white">VoiceDrive User</div>
+                  <div className="text-xs text-gray-400">権限レベル {userPermissionLevel}</div>
+                </div>
               </div>
-              <div className="flex-1">
-                <div className="text-sm font-medium text-white">VoiceDrive User</div>
-                <div className="text-xs text-gray-400">権限レベル {userPermissionLevel}</div>
-              </div>
-            </div>
+            </>
           )}
         </div>
       </div>

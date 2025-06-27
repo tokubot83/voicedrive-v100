@@ -157,8 +157,12 @@ const Layout: React.FC = () => {
       <div className="flex justify-center min-h-screen">
         <div className={`w-full ${isManagementPage ? '' : 'max-w-container'} flex relative`}>
           {/* 左サイドバー（デスクトップ、管理画面では非表示） */}
+          {console.log('🚨 Layout: isManagementPage =', isManagementPage)}
+          {console.log('🚨 Layout: window.innerWidth =', typeof window !== 'undefined' ? window.innerWidth : 'undefined')}
+          {console.log('🚨 Layout: location.pathname =', location.pathname)}
           {!isManagementPage && (
             <aside className="hidden lg:block w-sidebar-left flex-shrink-0">
+              {console.log('🚨 Layout: サイドバーレンダリング実行')}
               <div className="sticky top-0 h-screen">
                 <EnhancedSidebar 
                   currentPath={location.pathname}
@@ -167,6 +171,7 @@ const Layout: React.FC = () => {
               </div>
             </aside>
           )}
+          {isManagementPage && console.log('🚨 Layout: 管理画面のためサイドバー非表示')}
           
           {/* メインコンテンツ */}
           <main className={`flex-1 ${isManagementPage ? 'w-full' : 'max-w-main'} min-w-0 ${isManagementPage ? '' : 'border-x-0 lg:border-x border-slate-700/50'}`}>
