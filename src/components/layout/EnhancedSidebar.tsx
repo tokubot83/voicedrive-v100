@@ -251,24 +251,37 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
         {console.log('🔧 EnhancedSidebar: isDemoMode =', isDemoMode)}
         {console.log('🔧 EnhancedSidebar: currentUser =', currentUser)}
         <div className="bg-gray-800/50 rounded-lg p-3 backdrop-blur">
+          {console.log('🚨 EnhancedSidebar: プロフィール表示判定 isDemoMode =', isDemoMode)}
+          {console.log('🚨 EnhancedSidebar: currentUser詳細 =', JSON.stringify(currentUser, null, 2))}
           {isDemoMode ? (
             <>
-              <div className="flex items-center gap-2 mb-1">
-                <Avatar 
-                  avatarData={generatePersonalAvatar(currentUser)}
-                  size="sm"
-                />
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-white">{currentUser.name}</div>
-                  <div className="text-xs text-gray-400">{currentUser.position}</div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">{currentUser.department}</span>
-                <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full">
-                  Lv.{currentUser.permissionLevel}
-                </span>
-              </div>
+              {console.log('🚨 EnhancedSidebar: デモモードプロフィール表示実行')}
+              {currentUser ? (
+                <>
+                  {console.log('🚨 EnhancedSidebar: currentUser存在確認OK')}
+                  <div className="flex items-center gap-2 mb-1">
+                    <Avatar 
+                      avatarData={generatePersonalAvatar(currentUser)}
+                      size="sm"
+                    />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-white">{currentUser.name}</div>
+                      <div className="text-xs text-gray-400">{currentUser.position}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-500">{currentUser.department}</span>
+                    <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full">
+                      Lv.{currentUser.permissionLevel}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {console.log('🚨 EnhancedSidebar: currentUserが存在しません')}
+                  <div className="text-white text-sm">デモユーザー読み込み中...</div>
+                </>
+              )}
             </>
           ) : (
             <>
