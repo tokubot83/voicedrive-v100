@@ -4,6 +4,8 @@ import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { Card } from '../components/ui/Card';
 import { AuditService } from '../services/AuditService';
+import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 interface SystemSetting {
   key: string;
@@ -364,6 +366,10 @@ export const SystemSettingsPage: React.FC = () => {
           </button>
         </div>
       </div>
+      
+      {/* フッター */}
+      <MobileFooter />
+      <DesktopFooter />
     </div>
   );
 };

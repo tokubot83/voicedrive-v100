@@ -4,6 +4,8 @@ import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { Card } from '../components/ui/Card';
 import { AuditService, AuditLog } from '../services/AuditService';
+import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 export const AuditLogPage: React.FC = () => {
   const { user } = useAuth();
@@ -329,6 +331,10 @@ export const AuditLogPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* フッター */}
+      <MobileFooter />
+      <DesktopFooter />
     </div>
   );
 };

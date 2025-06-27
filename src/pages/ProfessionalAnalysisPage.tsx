@@ -5,6 +5,7 @@ import { useDemoMode } from '../components/demo/DemoModeController';
 import { facilities } from '../data/medical/facilities';
 import { departments } from '../data/medical/departments';
 import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
 import { getAnalysisTitle, getAnalysisScopeByPermission, getDepartmentDisplayName, getFacilityDisplayName, getPositionByLevel } from '../utils/analysisUtils';
 
 interface AnalysisScope {
@@ -584,6 +585,7 @@ const ProfessionalAnalysisPage: React.FC = () => {
       
       {/* Mobile Footer */}
       <MobileFooter />
+      <DesktopFooter />
     </div>
   );
 };

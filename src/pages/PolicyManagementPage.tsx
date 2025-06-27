@@ -4,6 +4,8 @@ import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { Card } from '../components/ui/Card';
 import { AuditService } from '../services/AuditService';
+import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 interface Policy {
   id: string;
@@ -363,6 +365,10 @@ const PolicyManagementPage: React.FC = () => {
           })}
         </div>
       </div>
+      
+      {/* フッター */}
+      <MobileFooter />
+      <DesktopFooter />
     </div>
   );
 };

@@ -5,6 +5,8 @@ import { usePermissions } from '../hooks/usePermissions';
 import { Card } from '../components/ui/Card';
 import { AuthorityManagementService } from '../services/AuthorityManagementService';
 import { AuditService } from '../services/AuditService';
+import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 interface UserData {
   id: string;
@@ -348,6 +350,10 @@ export const UserManagementPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* フッター */}
+      <MobileFooter />
+      <DesktopFooter />
     </div>
   );
 };

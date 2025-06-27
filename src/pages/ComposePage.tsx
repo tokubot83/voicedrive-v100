@@ -2,6 +2,8 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ComposeForm from '../components/ComposeForm';
 import { PostType } from '../types';
+import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 const ComposePage: React.FC = () => {
   const { type } = useParams<{ type: string }>();
@@ -71,6 +73,10 @@ const ComposePage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* フッター */}
+      <MobileFooter />
+      <DesktopFooter />
     </div>
   );
 };

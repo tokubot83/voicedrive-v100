@@ -7,6 +7,8 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Calendar, Users, CheckCircle, Clock, FolderOpen, ArrowLeft } from 'lucide-react';
+import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 // 日付フォーマット関数（date-fnsの代替）
 const formatDate = (date: Date, formatStr: string, options?: { locale?: any }): string => {
@@ -484,6 +486,10 @@ export const ProjectDetailPage: React.FC = () => {
         </div>
         </Card>
       </div>
+      
+      {/* フッター */}
+      <MobileFooter />
+      <DesktopFooter />
     </div>
   );
 };

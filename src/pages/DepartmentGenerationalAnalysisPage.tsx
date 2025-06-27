@@ -5,6 +5,7 @@ import { useDemoMode } from '../components/demo/DemoModeController';
 import { facilities } from '../data/medical/facilities';
 import { departments } from '../data/medical/departments';
 import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 interface AnalysisScope {
   type: 'department';
@@ -300,6 +301,7 @@ const DepartmentGenerationalAnalysisPage: React.FC = () => {
       </div>
 
       <MobileFooter />
+      <DesktopFooter />
     </div>
   );
 };

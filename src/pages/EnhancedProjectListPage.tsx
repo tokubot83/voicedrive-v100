@@ -5,6 +5,8 @@ import { usePermissions } from '../hooks/usePermissions';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { projectDemoPosts } from '../data/demo/projectDemoData';
 import { Post, ProjectLevel, ApprovalStatus } from '../types';
+import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 interface EnhancedProject {
   id: string;
@@ -531,6 +533,10 @@ const EnhancedProjectListPage: React.FC = () => {
           </div>
         )}
       </div>
+      
+      {/* フッター */}
+      <MobileFooter />
+      <DesktopFooter />
     </div>
   );
 };
