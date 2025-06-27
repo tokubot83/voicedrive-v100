@@ -77,20 +77,23 @@ const UserAnalysisPage: React.FC = () => {
   const { isDemoMode, currentUser } = useDemoMode();
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState<'overview' | 'generations' | 'hierarchies' | 'rankings' | 'facilities'>('overview');
-  const [analysisScope, setAnalysisScope] = useState<AnalysisScope>({ type: 'corporate' });
+  const [analysisScope, setAnalysisScope] = useState<AnalysisScope>(() => {
+    // レベル3ユーザーは部門スコープ、レベル7以上は法人スコープをデフォルトに
+    return currentUser?.permissionLevel >= 7 ? { type: 'corporate' } : { type: 'department' };
+  });
   const [analysisResult, setAnalysisResult] = useState<UserAnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedFacilityId, setSelectedFacilityId] = useState<string | 'all'>('all');
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<string | 'all'>('all');
 
-  // レベル7以上のみアクセス可能
-  if (!currentUser || currentUser.permissionLevel < 7) {
+  // レベル3以上のみアクセス可能
+  if (!currentUser || currentUser.permissionLevel < 3) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
         <div className="bg-red-900/20 border border-red-500/30 rounded-3xl p-8 text-center max-w-md">
           <h1 className="text-2xl font-bold text-red-400 mb-4">アクセス権限がありません</h1>
           <p className="text-gray-300 mb-6">
-            ユーザー分析にはレベル7以上の権限が必要です。
+            ユーザー分析にはレベル3以上の権限が必要です。
           </p>
           <button
             onClick={() => navigate('/')}

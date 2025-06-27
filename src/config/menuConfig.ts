@@ -263,7 +263,7 @@ export const MENU_STRUCTURE: MenuStructure = {
       id: 'dept_generation_analysis',
       label: '所属部門世代間分析',
       icon: '📊',
-      path: '/generational-analysis',
+      path: '/department-generational-analysis',
       requiredLevel: 3,
       category: 'analytics'
     },

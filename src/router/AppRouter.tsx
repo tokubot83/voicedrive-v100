@@ -91,6 +91,7 @@ import Step4CompletionNotification from '../components/retirement/Step4Completio
 
 // Generational Analysis
 import GenerationalAnalysisPage from '../pages/GenerationalAnalysisPage';
+import DepartmentGenerationalAnalysisPage from '../pages/DepartmentGenerationalAnalysisPage';
 
 // Hierarchical Analysis
 import HierarchicalAnalysisPage from '../pages/HierarchicalAnalysisPage';
@@ -457,8 +458,13 @@ const AppRouter: React.FC = () => {
       
       {/* Analysis Pages - Full width without sidebar */}
       <Route path="generational-analysis" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
           <GenerationalAnalysisPage />
+        </ProtectedRoute>
+      } />
+      <Route path="department-generational-analysis" element={
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
+          <DepartmentGenerationalAnalysisPage />
         </ProtectedRoute>
       } />
       <Route path="hierarchical-analysis" element={
