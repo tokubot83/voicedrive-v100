@@ -238,32 +238,38 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
 
       {/* ユーザー情報（最下部） */}
       <div className="p-4">
-        {isDemoMode ? (
-          <div className="bg-gray-800/50 rounded-lg p-3 backdrop-blur">
-            <div className="flex items-center gap-2 mb-1">
-              <Avatar 
-                avatarData={generatePersonalAvatar(currentUser)}
-                size="sm"
-              />
+        <div className="bg-gray-800/50 rounded-lg p-3 backdrop-blur">
+          {isDemoMode ? (
+            <>
+              <div className="flex items-center gap-2 mb-1">
+                <Avatar 
+                  avatarData={generatePersonalAvatar(currentUser)}
+                  size="sm"
+                />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-white">{currentUser.name}</div>
+                  <div className="text-xs text-gray-400">{currentUser.position}</div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-500">{currentUser.department}</span>
+                <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full">
+                  Lv.{currentUser.permissionLevel}
+                </span>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-xs font-bold text-white">V</span>
+              </div>
               <div className="flex-1">
-                <div className="text-sm font-medium text-white">{currentUser.name}</div>
-                <div className="text-xs text-gray-400">{currentUser.position}</div>
+                <div className="text-sm font-medium text-white">VoiceDrive User</div>
+                <div className="text-xs text-gray-400">権限レベル {userPermissionLevel}</div>
               </div>
             </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-500">{currentUser.department}</span>
-              <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full">
-                Lv.{currentUser.permissionLevel}
-              </span>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center">
-            <div className="text-xs text-gray-500">
-              VoiceDrive
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
