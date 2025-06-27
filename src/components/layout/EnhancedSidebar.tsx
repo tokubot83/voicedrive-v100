@@ -52,16 +52,9 @@ const categoryLabels: Record<MenuCategory, string> = {
 };
 
 export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, onNavigate }) => {
-  console.log('🚨 EnhancedSidebar: コンポーネント初期化開始');
-  console.log('🚨 EnhancedSidebar: currentPath =', currentPath);
-  
   const { userLevel: userPermissionLevel } = usePermissions();
   const { isDemoMode, currentUser } = useDemoMode();
   const [expandedCategories, setExpandedCategories] = useState<Set<MenuCategory>>(() => new Set(['station']));
-  
-  console.log('🚨 EnhancedSidebar: userPermissionLevel =', userPermissionLevel);
-  console.log('🚨 EnhancedSidebar: isDemoMode =', isDemoMode);
-  console.log('🚨 EnhancedSidebar: currentUser =', currentUser);
 
   const toggleCategory = (category: MenuCategory) => {
     const newExpanded = new Set(expandedCategories);
@@ -162,11 +155,8 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
     return levelNames[userPermissionLevel as keyof typeof levelNames] || `レベル${userPermissionLevel}`;
   };
 
-  console.log('🚨 EnhancedSidebar: レンダリング開始');
-  
   return (
     <div className="w-80 bg-slate-800/95 backdrop-blur-xl shadow-lg h-full flex flex-col border-r border-slate-700/50">
-      {console.log('🚨 EnhancedSidebar: DOMレンダリング実行中')}
       {/* ヘッダー */}
       <div className="p-4 border-b border-slate-700/50">
         <div className="flex items-center gap-3">
@@ -247,53 +237,35 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       </div>
 
       {/* ユーザー情報（最下部） */}
-      <div className="p-4" style={{ backgroundColor: '#ff0000', border: '2px solid #00ff00', minHeight: '100px' }}>
-        {console.log('🔧 EnhancedSidebar: isDemoMode =', isDemoMode)}
-        {console.log('🔧 EnhancedSidebar: currentUser =', currentUser)}
-        <div className="bg-yellow-500 rounded-lg p-3 backdrop-blur" style={{ backgroundColor: '#ffff00', border: '3px solid #ff00ff', minHeight: '80px', position: 'relative', zIndex: 9999 }}>
-          {console.log('🚨 EnhancedSidebar: プロフィール表示判定 isDemoMode =', isDemoMode)}
-          {console.log('🚨 EnhancedSidebar: currentUser詳細 =', JSON.stringify(currentUser, null, 2))}
+      <div className="p-4">
+        <div className="bg-gray-800/50 rounded-lg p-3 backdrop-blur">
           {isDemoMode ? (
             <>
-              {console.log('🚨 EnhancedSidebar: デモモードプロフィール表示実行')}
-              {currentUser ? (
-                <div style={{ backgroundColor: '#00ffff', border: '2px solid #000000', padding: '10px', color: '#000000' }}>
-                  {console.log('🚨 EnhancedSidebar: currentUser存在確認OK')}
-                  <div className="flex items-center gap-2 mb-1" style={{ backgroundColor: '#ff8888', padding: '5px' }}>
-                    <Avatar 
-                      avatarData={generatePersonalAvatar(currentUser)}
-                      size="sm"
-                    />
-                    <div className="flex-1">
-                      <div className="text-sm font-medium text-black">{currentUser.name}</div>
-                      <div className="text-xs text-black">{currentUser.position}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between text-xs" style={{ backgroundColor: '#88ff88', padding: '5px' }}>
-                    <span className="text-black">{currentUser.department}</span>
-                    <span className="px-2 py-0.5 bg-blue-500 text-white rounded-full">
-                      Lv.{currentUser.permissionLevel}
-                    </span>
-                  </div>
+              <div className="flex items-center gap-2 mb-1">
+                <Avatar 
+                  avatarData={generatePersonalAvatar(currentUser)}
+                  size="sm"
+                />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-white">{currentUser.name}</div>
+                  <div className="text-xs text-gray-400">{currentUser.position}</div>
                 </div>
-              ) : (
-                <>
-                  {console.log('🚨 EnhancedSidebar: currentUserが存在しません')}
-                  <div className="text-white text-sm">デモユーザー読み込み中...</div>
-                </>
-              )}
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-500">{currentUser.department}</span>
+                <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full">
+                  Lv.{currentUser.permissionLevel}
+                </span>
+              </div>
             </>
           ) : (
-            <div style={{ backgroundColor: '#ff00ff', border: '2px solid #000000', padding: '10px' }}>
-              {console.log('🔧 EnhancedSidebar: 非デモモード表示実行')}
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-xs font-bold text-white">V</span>
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-black">VoiceDrive User</div>
-                  <div className="text-xs text-black">権限レベル {userPermissionLevel}</div>
-                </div>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-xs font-bold text-white">V</span>
+              </div>
+              <div className="flex-1">
+                <div className="text-sm font-medium text-white">VoiceDrive User</div>
+                <div className="text-xs text-gray-400">権限レベル {userPermissionLevel}</div>
               </div>
             </div>
           )}
