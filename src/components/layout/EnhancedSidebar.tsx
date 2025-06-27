@@ -245,15 +245,6 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
         </button>
       </div>
 
-      {/* フッター情報 */}
-      <div className="p-4 border-t border-slate-700/50 mt-auto">
-        <div className="text-xs text-slate-400 space-y-1">
-          <div>権限レベル: {userPermissionLevel}/13</div>
-          <div>アクセス可能機能: {Object.values(MENU_STRUCTURE).flatMap(category => 
-            Object.values(category).filter(item => item.requiredLevel <= userPermissionLevel)
-          ).length}件</div>
-        </div>
-      </div>
     </div>
   );
 };
