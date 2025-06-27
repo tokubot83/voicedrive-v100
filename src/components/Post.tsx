@@ -198,10 +198,10 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
 
       {/* 投稿内容 */}
       <div className="px-4 pb-3">
-        {post.content.length > 300 ? (
+        {post.content.length > 100 ? (
           <div>
             <p className="text-gray-900 leading-relaxed">
-              {isExpanded ? post.content : `${post.content.slice(0, 300)}...`}
+              {isExpanded ? post.content : `${post.content.slice(0, 100)}...`}
             </p>
             <button
               onClick={() => setIsExpanded(!isExpanded)}
