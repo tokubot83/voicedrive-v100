@@ -34,6 +34,7 @@ import StrategicInitiativesPage from '../pages/StrategicInitiativesPage';
 import OrganizationAnalyticsPage from '../pages/OrganizationAnalyticsPage';
 import BoardReportsPage from '../pages/BoardReportsPage';
 import GovernancePage from '../pages/GovernancePage';
+import VotingSystemGuide from '../pages/VotingSystemGuide';
 
 // Dashboard pages
 import PersonalDashboardPage from '../pages/PersonalDashboardPage';
@@ -404,6 +405,7 @@ const AppRouter: React.FC = () => {
         
 
         {/* Common pages */}
+        <Route path="voting-system-guide" element={<VotingSystemGuide />} />
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="settings" element={<SettingsPage />} />
         

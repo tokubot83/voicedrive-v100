@@ -101,6 +101,7 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
     { id: 'divider2', isDivider: true },
     
     // システム機能（全レベルでアクセス可能）
+    { id: 'voting-system-guide', path: '/voting-system-guide', icon: '📚', label: '投票システムガイド', section: 'system' },
     { id: 'notifications', path: '/notifications', icon: '🔔', label: '通知', section: 'system' },
     { id: 'settings', path: '/settings', icon: '⚙️', label: '設定', section: 'system' },
   ];
