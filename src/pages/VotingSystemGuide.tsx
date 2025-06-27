@@ -1,8 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Chart, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
-
-Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const VotingSystemGuide: React.FC = () => {
   const [progressWidth, setProgressWidth] = useState(0);
@@ -32,50 +28,13 @@ const VotingSystemGuide: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  // 重み付けチャートデータ
-  const weightChartData = {
-    labels: ['医師', '看護師', 'その他医療職', '事務職'],
-    datasets: [
-      {
-        label: '重み付け倍率',
-        data: [3.0, 2.0, 1.5, 1.0],
-        backgroundColor: [
-          'rgba(220, 38, 127, 0.8)',
-          'rgba(59, 130, 246, 0.8)', 
-          'rgba(16, 185, 129, 0.8)',
-          'rgba(245, 158, 11, 0.8)'
-        ],
-        borderColor: [
-          'rgb(220, 38, 127)',
-          'rgb(59, 130, 246)',
-          'rgb(16, 185, 129)', 
-          'rgb(245, 158, 11)'
-        ],
-        borderWidth: 2,
-        borderRadius: 8
-      }
-    ]
-  };
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      title: { display: false }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 3.5,
-        grid: { color: 'rgba(75, 85, 99, 0.3)' },
-        ticks: { color: 'rgb(156, 163, 175)' }
-      },
-      x: {
-        grid: { display: false },
-        ticks: { color: 'rgb(156, 163, 175)' }
-      }
-    }
-  };
+  // 重み付けチャートデータ（CSS実装用）
+  const weightData = [
+    { name: '医師', weight: 3.0, color: 'rgba(220, 38, 127, 0.8)', percentage: 100 },
+    { name: '看護師', weight: 2.0, color: 'rgba(59, 130, 246, 0.8)', percentage: 67 },
+    { name: 'その他医療職', weight: 1.5, color: 'rgba(16, 185, 129, 0.8)', percentage: 50 },
+    { name: '事務職', weight: 1.0, color: 'rgba(245, 158, 11, 0.8)', percentage: 33 }
+  ];
 
   const votingScale = [
     { value: -2, label: '強く反対', color: 'from-red-500 to-red-600', icon: '👎' },
@@ -178,7 +137,29 @@ const VotingSystemGuide: React.FC = () => {
             {/* チャート */}
             <div className="bg-gray-700/30 rounded-xl p-6">
               <h3 className="text-xl font-bold text-white mb-4">職種別重み付け倍率</h3>
-              <Bar data={weightChartData} options={chartOptions} />
+              <div className="space-y-4">
+                {weightData.map((item, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white font-medium">{item.name}</span>
+                      <span className="text-blue-400 font-bold">{item.weight}倍</span>
+                    </div>
+                    <div className="w-full bg-gray-600 rounded-full h-6 relative overflow-hidden">
+                      <div 
+                        className="h-full rounded-full transition-all duration-1000 ease-out"
+                        style={{ 
+                          backgroundColor: item.color,
+                          width: `${item.percentage}%`,
+                          animationDelay: `${index * 200}ms`
+                        }}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center text-white font-semibold text-sm">
+                        {item.weight}倍
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* 詳細説明 */}
