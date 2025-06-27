@@ -6,6 +6,7 @@ import MobileOverlay from '../MobileOverlay';
 import Breadcrumb from '../Breadcrumb';
 import Header from '../Header';
 import { MobileFooter } from './MobileFooter';
+import { DesktopFooter } from './DesktopFooter';
 import useSwipe from '../../hooks/useSwipe';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 import { UserRole } from '../../types';
@@ -203,6 +204,9 @@ const Layout: React.FC = () => {
       
       {/* モバイルフッター */}
       <MobileFooter />
+      
+      {/* PC用フッター（管理画面でのみ表示） */}
+      {isManagementPage && <DesktopFooter />}
     </div>
   );
 };
