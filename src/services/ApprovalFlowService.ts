@@ -9,12 +9,14 @@ import {
 import { HierarchicalUser } from '../types';
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 import { AuthorityManagementService } from './AuthorityManagementService';
+import { NotificationService } from './NotificationService';
 import { v4 as uuidv4 } from 'uuid';
 
 export class ApprovalFlowService {
   private static instance: ApprovalFlowService;
   private approvalRequests: Map<string, ApprovalRequest> = new Map();
   private authorityService: AuthorityManagementService;
+  private notificationService: NotificationService;
 
   // Budget tier configurations with auto-approval and manual approval thresholds（10段階システム対応）
   private readonly APPROVAL_TIERS: ApprovalFlowConfig[] = [
@@ -75,7 +77,43 @@ export class ApprovalFlowService {
 
   private constructor() {
     this.authorityService = AuthorityManagementService.getInstance();
+    this.notificationService = NotificationService.getInstance();
+    this.registerNotificationCallbacks();
     this.startEscalationMonitor();
+  }
+
+  // 通知システムのコールバックを登録
+  private registerNotificationCallbacks(): void {
+    this.notificationService.registerActionCallback(
+      'approval',
+      async (userId: string, actionId: string, metadata: any, comment?: string) => {
+        if (!metadata?.requestId || !comment) return false;
+
+        // ユーザー情報を取得（実際の実装では適切なユーザー取得ロジックを使用）
+        const user = await this.findUserById(userId);
+        if (!user) return false;
+
+        const decision = actionId === 'approve' ? 'approved' : 'rejected';
+        const result = await this.processApproval(user, metadata.requestId, decision, comment);
+        
+        return result.success;
+      }
+    );
+  }
+
+  // ユーザーIDからユーザー情報を取得（簡易実装）
+  private async findUserById(userId: string): Promise<HierarchicalUser | null> {
+    // 実際の実装では適切なユーザー管理サービスを使用
+    // ここでは簡易的にモックデータを返す
+    return {
+      id: userId,
+      name: 'User',
+      department: 'Operations',
+      role: 'Manager',
+      accountType: 'DEPARTMENT_HEAD',
+      permissionLevel: PermissionLevel.LEVEL_3,
+      budgetApprovalLimit: 500000
+    };
   }
 
   static getInstance(): ApprovalFlowService {
@@ -437,11 +475,57 @@ export class ApprovalFlowService {
     request: ApprovalRequest,
     isEscalation: boolean = false
   ): Promise<void> {
-    // In production, this would send actual notifications
-    console.log(`Notification sent to ${approverId} for approval ${request.id}`);
-    if (isEscalation) {
-      console.log('This is an ESCALATED approval request');
-    }
+    const currentApprover = request.approvalChain.find(
+      node => node.approverId === approverId
+    );
+
+    const notificationTitle = isEscalation 
+      ? `🚨 エスカレーション承認依頼 - プロジェクト ${request.projectId}`
+      : `📋 承認依頼 - プロジェクト ${request.projectId}`;
+
+    const notificationMessage = `
+予算: ¥${request.budgetAmount.toLocaleString()}
+理由: ${request.reason}
+
+${currentApprover?.role}による承認が必要です。
+${isEscalation ? '⚠️ この承認依頼は期限切れによりエスカレーションされました。' : ''}
+    `.trim();
+
+    await this.notificationService.createActionableNotification(
+      approverId,
+      isEscalation ? 'ESCALATION' : 'APPROVAL_REQUIRED',
+      {
+        title: notificationTitle,
+        message: notificationMessage,
+        actions: [
+          {
+            id: 'approve',
+            label: '承認',
+            action: 'approve',
+            type: 'primary'
+          },
+          {
+            id: 'reject',
+            label: '差し戻し',
+            action: 'reject',
+            type: 'danger'
+          },
+          {
+            id: 'view',
+            label: '詳細確認',
+            action: 'view_project',
+            type: 'secondary'
+          }
+        ],
+        metadata: {
+          requestId: request.id,
+          projectId: request.projectId,
+          budgetAmount: request.budgetAmount,
+          isEscalation
+        },
+        dueDate: request.deadline
+      }
+    );
   }
 
   // Get pending approvals for user

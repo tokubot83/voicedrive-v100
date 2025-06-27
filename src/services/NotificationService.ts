@@ -83,6 +83,7 @@ export class NotificationService {
   private static instance: NotificationService;
   private notifications: Map<string, ActionableNotification[]> = new Map();
   private notificationListeners: Set<(userId: string) => void> = new Set();
+  private actionCallbacks: Map<string, (userId: string, actionId: string, metadata: any, comment?: string) => Promise<boolean>> = new Map();
 
   private constructor() {}
 
@@ -97,6 +98,14 @@ export class NotificationService {
   subscribeToNotifications(callback: (userId: string) => void): () => void {
     this.notificationListeners.add(callback);
     return () => this.notificationListeners.delete(callback);
+  }
+
+  // アクションコールバック登録
+  registerActionCallback(
+    actionType: string,
+    callback: (userId: string, actionId: string, metadata: any, comment?: string) => Promise<boolean>
+  ): void {
+    this.actionCallbacks.set(actionType, callback);
   }
 
   private notifyListeners(userId: string): void {
@@ -244,7 +253,23 @@ export class NotificationService {
       return { success: false, message: 'コメントが必要です' };
     }
 
-    // アクションを実行（実際の実装では各アクションタイプに応じた処理を行う）
+    // 特定のアクションタイプに対してコールバックを実行
+    if (action.action === 'approve' || action.action === 'reject') {
+      const callback = this.actionCallbacks.get('approval');
+      if (callback) {
+        try {
+          const success = await callback(userId, action.action, notification.metadata, comment);
+          if (!success) {
+            return { success: false, message: '承認処理に失敗しました' };
+          }
+        } catch (error) {
+          console.error('承認アクション実行エラー:', error);
+          return { success: false, message: '承認処理でエラーが発生しました' };
+        }
+      }
+    }
+
+    // アクションを実行
     notification.isActioned = true;
     this.notifyListeners(userId);
 

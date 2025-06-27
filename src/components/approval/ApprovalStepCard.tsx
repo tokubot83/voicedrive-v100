@@ -57,11 +57,14 @@ const ApprovalStepCard = ({ step, isActive, stepNumber }: ApprovalStepCardProps)
             <div key={index} className="flex items-center justify-between p-2 bg-gray-800/50 rounded-lg">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
-                  {approver.name.charAt(0)}
+                  {approver.role.includes('院長') || approver.role.includes('施設長') ? '🏥' :
+                   approver.role.includes('部長') || approver.role.includes('課長') ? '👔' :
+                   approver.role.includes('師長') ? '👩‍⚕️' :
+                   approver.role.includes('主任') ? '👨‍💼' : '👤'}
                 </div>
                 <div>
-                  <div className="text-white font-medium">{approver.name}</div>
-                  <div className="text-xs text-gray-400">{approver.role} - {approver.department}</div>
+                  <div className="text-white font-medium">{approver.role}</div>
+                  <div className="text-xs text-gray-400">{approver.department}</div>
                 </div>
               </div>
               <div className="text-right">
@@ -95,7 +98,7 @@ const ApprovalStepCard = ({ step, isActive, stepNumber }: ApprovalStepCardProps)
           <h4 className="text-sm font-medium text-blue-300 mb-2">💬 承認者コメント</h4>
           {step.approvers.filter(a => a.comment).map((approver, index) => (
             <div key={index} className="text-sm text-gray-300 mb-1">
-              <span className="font-medium text-white">{approver.name}:</span> {approver.comment}
+              <span className="font-medium text-white">{approver.role}:</span> {approver.comment}
             </div>
           ))}
         </div>

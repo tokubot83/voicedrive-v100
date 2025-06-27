@@ -6,6 +6,7 @@ import { usePermissions } from '../../hooks/usePermissions';
 import { ApprovalFlowService } from '../../services/ApprovalFlowService';
 import { ApprovalRequest, ApprovalNode } from '../../types/authority';
 import { PermissionLevel } from '../../permissions/types/PermissionTypes';
+import CurrentApprovalCard from '../approval/CurrentApprovalCard';
 
 const ApprovalFlowPanel: React.FC = () => {
   const { currentUser } = usePermissions();
@@ -41,15 +42,16 @@ const ApprovalFlowPanel: React.FC = () => {
 
   const handleApprovalDecision = async (
     requestId: string, 
-    decision: 'approved' | 'rejected'
+    decision: 'approved' | 'rejected',
+    reason: string
   ) => {
-    if (!currentUser || !approvalReason) return;
+    if (!currentUser || !reason) return;
 
     const result = await approvalService.processApproval(
       currentUser,
       requestId,
       decision,
-      approvalReason
+      reason
     );
 
     if (result.success) {
@@ -126,83 +128,27 @@ const ApprovalFlowPanel: React.FC = () => {
         </div>
       )}
 
-      {/* Pending Approvals */}
+      {/* Current Approval Card */}
       {pendingApprovals.length > 0 && (
         <div className="bg-gray-800 rounded-lg p-6">
           <h3 className="text-lg font-medium text-white mb-4 flex items-center">
             <Clock className="w-5 h-5 mr-2 text-yellow-400" />
-            Pending Approvals
+            承認待ち
           </h3>
           
-          <div className="space-y-4">
-            {pendingApprovals.map((request) => (
-              <ApprovalRequestCard
-                key={request.id}
-                request={request}
-                isSelected={selectedRequest?.id === request.id}
-                onSelect={() => setSelectedRequest(request)}
-              />
-            ))}
-          </div>
+          <CurrentApprovalCard
+            request={pendingApprovals[0]}
+            onApprove={(requestId, reason) => handleApprovalDecision(requestId, 'approved', reason)}
+            onReject={(requestId, reason) => handleApprovalDecision(requestId, 'rejected', reason)}
+            isActionable={true}
+          />
 
-          {/* Approval Decision Form */}
-          {selectedRequest && (
-            <div className="mt-6 bg-gray-700 rounded-lg p-4">
-              <h4 className="text-white font-medium mb-3">
-                Approval Decision for Project {selectedRequest.projectId}
-              </h4>
-              
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Decision Reason
-                </label>
-                <textarea
-                  value={approvalReason}
-                  onChange={(e) => setApprovalReason(e.target.value)}
-                  className="w-full bg-gray-600 text-white rounded px-3 py-2 h-24"
-                  placeholder="Provide reason for your decision..."
-                />
-              </div>
-
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => handleApprovalDecision(selectedRequest.id, 'approved')}
-                  disabled={!approvalReason}
-                  className={`
-                    flex-1 py-2 rounded font-medium transition-colors flex items-center justify-center
-                    ${approvalReason
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                    }
-                  `}
-                >
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  Approve
-                </button>
-                <button
-                  onClick={() => handleApprovalDecision(selectedRequest.id, 'rejected')}
-                  disabled={!approvalReason}
-                  className={`
-                    flex-1 py-2 rounded font-medium transition-colors flex items-center justify-center
-                    ${approvalReason
-                      ? 'bg-red-600 text-white hover:bg-red-700'
-                      : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                    }
-                  `}
-                >
-                  <XCircle className="w-4 h-4 mr-2" />
-                  Reject
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedRequest(null);
-                    setApprovalReason('');
-                  }}
-                  className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
+          {/* 複数の承認待ちがある場合の表示 */}
+          {pendingApprovals.length > 1 && (
+            <div className="mt-4 p-3 bg-gray-700 rounded-lg">
+              <p className="text-gray-300 text-sm">
+                他に {pendingApprovals.length - 1} 件の承認待ちがあります
+              </p>
             </div>
           )}
         </div>
