@@ -5,6 +5,7 @@ import { useDemoMode } from '../components/demo/DemoModeController';
 import { facilities } from '../data/medical/facilities';
 import { departments } from '../data/medical/departments';
 import { MobileFooter } from '../components/layout/MobileFooter';
+import { getAnalysisTitle, getAnalysisScopeByPermission, getDepartmentDisplayName, getFacilityDisplayName, getPositionByLevel } from '../utils/analysisUtils';
 
 interface AnalysisScope {
   type: 'facility' | 'department' | 'corporate';
@@ -78,8 +79,14 @@ const UserAnalysisPage: React.FC = () => {
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState<'overview' | 'generations' | 'hierarchies' | 'rankings' | 'facilities'>('overview');
   const [analysisScope, setAnalysisScope] = useState<AnalysisScope>(() => {
-    // レベル3ユーザーは部門スコープ、レベル7以上は法人スコープをデフォルトに
-    return currentUser?.permissionLevel >= 7 ? { type: 'corporate' } : { type: 'department' };
+    // 権限レベルに応じたデフォルトスコープを設定
+    if (currentUser?.permissionLevel >= 7) {
+      return { type: 'corporate' };
+    } else if (currentUser?.permissionLevel >= 4) {
+      return { type: 'facility', facilityId: currentUser.facility_id };
+    } else {
+      return { type: 'department', departmentId: currentUser.department };
+    }
   });
   const [analysisResult, setAnalysisResult] = useState<UserAnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -146,15 +153,19 @@ const UserAnalysisPage: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-white">ユーザー分析（全体）</h1>
-              <p className="text-gray-400 text-sm">包括的人材分析・世代間・階層間・パフォーマンス統合分析</p>
+              <h1 className="text-2xl font-bold text-white">
+                {getAnalysisTitle('user', currentUser?.permissionLevel || 1, getDepartmentDisplayName(currentUser?.department || ''), getFacilityDisplayName(currentUser?.facility_id || ''))}
+              </h1>
+              <p className="text-gray-400 text-sm">
+                {getAnalysisScopeByPermission(currentUser?.permissionLevel || 1, getDepartmentDisplayName(currentUser?.department || ''), getFacilityDisplayName(currentUser?.facility_id || '')).description}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <div className="text-sm text-gray-400">権限レベル</div>
-              <div className="text-2xl font-bold text-blue-400">Lv.{currentUser?.permissionLevel || 1}</div>
-              <div className="text-sm text-gray-500">{currentUser?.name || 'ゲスト'}</div>
+              <div className="text-sm text-gray-400">役職</div>
+              <div className="text-lg font-bold text-blue-400">{getPositionByLevel(currentUser?.permissionLevel || 1)}</div>
+              <div className="text-sm text-gray-500">Lv.{currentUser?.permissionLevel || 1} • {currentUser?.name || 'ゲスト'}</div>
             </div>
           </div>
         </div>

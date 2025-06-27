@@ -80,8 +80,8 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
     { id: 'analytics', path: '/analytics', icon: '📊', label: '分析', section: 'facility', menuKey: 'analytics' },
     { id: 'user_analysis', path: '/user-analysis', icon: '👤', label: 'ユーザー分析', section: 'facility', requiredLevel: 3 },
     { id: 'generational_analysis', path: '/generational-analysis', icon: '👥', label: '世代間分析（全体）', section: 'facility', requiredLevel: 7 },
-    { id: 'hierarchical_analysis', path: '/hierarchical-analysis', icon: '🏢', label: '階層間分析（全体）', section: 'facility', requiredLevel: 7 },
-    { id: 'professional_analysis', path: '/professional-analysis', icon: '👩‍⚕️', label: '職種間分析（全体）', section: 'facility', requiredLevel: 7 },
+    { id: 'hierarchical_analysis', path: '/hierarchical-analysis', icon: '🏢', label: '階層間分析（全体）', section: 'facility', requiredLevel: 5 },
+    { id: 'professional_analysis', path: '/professional-analysis', icon: '👩‍⚕️', label: '職種間分析（全体）', section: 'facility', requiredLevel: 5 },
     { id: 'executive_reports', path: '/executive-reports', icon: '📄', label: 'エグゼクティブレポート', section: 'facility', menuKey: 'executive_reports' },
     
     // 経営層機能（レベル8）

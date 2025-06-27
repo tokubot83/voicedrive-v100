@@ -5,6 +5,7 @@ import { useDemoMode } from '../components/demo/DemoModeController';
 import { facilities } from '../data/medical/facilities';
 import { departments } from '../data/medical/departments';
 import { MobileFooter } from '../components/layout/MobileFooter';
+import { getAnalysisTitle, getAnalysisScopeByPermission, getDepartmentDisplayName, getFacilityDisplayName, getPositionByLevel } from '../utils/analysisUtils';
 
 interface AnalysisScope {
   type: 'facility' | 'department' | 'corporate';
@@ -255,14 +256,18 @@ const ProfessionalAnalysisPage: React.FC = () => {
       <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">職種間分析（全体）</h1>
-            <p className="text-gray-400 text-sm">全施設・全部門の職種間特性・協働・専門性分析</p>
+            <h1 className="text-2xl font-bold text-white">
+              {getAnalysisTitle('professional', currentUser?.permissionLevel || 1, getDepartmentDisplayName(currentUser?.department || ''), getFacilityDisplayName(currentUser?.facility_id || ''))}
+            </h1>
+            <p className="text-gray-400 text-sm">
+              {getAnalysisScopeByPermission(currentUser?.permissionLevel || 1, getDepartmentDisplayName(currentUser?.department || ''), getFacilityDisplayName(currentUser?.facility_id || '')).description}
+            </p>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <div className="text-sm text-gray-400">権限レベル</div>
-              <div className="text-2xl font-bold text-blue-400">Lv.{currentUser?.permissionLevel || 1}</div>
-              <div className="text-sm text-gray-500">{currentUser?.name || 'ゲスト'}</div>
+              <div className="text-sm text-gray-400">役職</div>
+              <div className="text-lg font-bold text-blue-400">{getPositionByLevel(currentUser?.permissionLevel || 1)}</div>
+              <div className="text-sm text-gray-500">Lv.{currentUser?.permissionLevel || 1} • {currentUser?.name || 'ゲスト'}</div>
             </div>
           </div>
         </div>
