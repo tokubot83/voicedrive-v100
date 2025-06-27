@@ -59,19 +59,13 @@ const CurrentApprovalCard: React.FC<CurrentApprovalCardProps> = ({
     <div className="space-y-4">
       {/* メインカード */}
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-              <Clock className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="text-sm opacity-90">承認待ち</div>
-              <div className="text-xl font-bold">プロジェクト {request.projectId}</div>
-            </div>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+            <Clock className="w-5 h-5" />
           </div>
-          <div className="text-right">
-            <div className="text-sm opacity-90">予算</div>
-            <div className="text-lg font-bold">¥{request.budgetAmount.toLocaleString()}</div>
+          <div>
+            <div className="text-sm opacity-90">承認プロセス</div>
+            <div className="text-xl font-bold">承認待ち</div>
           </div>
         </div>
 

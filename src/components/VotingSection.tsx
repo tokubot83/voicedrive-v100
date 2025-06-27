@@ -5,7 +5,7 @@ import UnifiedProgressBar from './UnifiedProgressBar';
 import { ConsensusInsightGenerator } from '../utils/consensusInsights';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 import ProjectLevelBadge from './projects/ProjectLevelBadge';
-import CurrentApprovalCard from './approval/CurrentApprovalCard';
+import SimpleApprovalCard from './approval/SimpleApprovalCard';
 
 interface VotingSectionProps {
   post: Post;
@@ -184,7 +184,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
           };
 
           return (
-            <CurrentApprovalCard
+            <SimpleApprovalCard
               request={mockApprovalRequest}
               onApprove={(requestId, reason) => {
                 console.log('承認:', requestId, reason);
