@@ -66,7 +66,12 @@ const Layout: React.FC = () => {
     '/facility-management',
     '/team-management',
     '/org-development',
-    '/admin'
+    '/admin',
+    // ステーション系ページ
+    '/personal-station',
+    '/leader-station',
+    '/department-station',
+    '/section-station'
   ];
   
   // 現在のパスが専用管理画面かどうかを判定
