@@ -157,6 +157,37 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
 
   return (
     <div className="w-80 bg-slate-800/95 backdrop-blur-xl shadow-lg h-full flex flex-col border-r border-slate-700/50">
+      {/* ユーザー情報（上部） */}
+      <div className="p-4 hover:bg-slate-700/30 transition-colors cursor-pointer border-b border-slate-700/50">
+        {isDemoMode ? (
+          <div className="flex items-center gap-3">
+            <Avatar 
+              avatarData={generatePersonalAvatar(currentUser)}
+              size="md"
+            />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <div className="text-sm font-medium text-white truncate">{currentUser.name}</div>
+                <span className="text-xs text-slate-500">Lv.{currentUser.permissionLevel}</span>
+              </div>
+              <div className="text-xs text-slate-400 truncate">@{currentUser.position.replace(/\s+/g, '_').toLowerCase()}</div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+              <span className="text-sm font-bold text-white">V</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-white">VoiceDrive User</div>
+              <div className="text-xs text-slate-400">@voicedrive_user</div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </div>
+        )}
+      </div>
+
       {/* ヘッダー */}
       <div className="p-4 border-b border-slate-700/50">
         <div className="flex items-center gap-3">
@@ -234,37 +265,6 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
             Object.values(category).filter(item => item.requiredLevel <= userPermissionLevel)
           ).length}件</div>
         </div>
-      </div>
-
-      {/* ユーザー情報（最下部） */}
-      <div className="p-4 hover:bg-slate-700/30 transition-colors cursor-pointer">
-        {isDemoMode ? (
-          <div className="flex items-center gap-3">
-            <Avatar 
-              avatarData={generatePersonalAvatar(currentUser)}
-              size="md"
-            />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <div className="text-sm font-medium text-white truncate">{currentUser.name}</div>
-                <span className="text-xs text-slate-500">Lv.{currentUser.permissionLevel}</span>
-              </div>
-              <div className="text-xs text-slate-400 truncate">@{currentUser.position.replace(/\s+/g, '_').toLowerCase()}</div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
-          </div>
-        ) : (
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-              <span className="text-sm font-bold text-white">V</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white">VoiceDrive User</div>
-              <div className="text-xs text-slate-400">@voicedrive_user</div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
-          </div>
-        )}
       </div>
     </div>
   );
