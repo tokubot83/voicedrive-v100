@@ -13,6 +13,8 @@ import { projects } from '../data/demo/projects';
 import { Card } from '../components/ui/Card';
 import { Home, User, MessageSquare, TrendingUp } from 'lucide-react';
 import { PostType, VoteOption, Comment } from '../types';
+import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 export const PersonalStationPage: React.FC = () => {
   const { user } = useAuth();
@@ -303,6 +305,10 @@ export const PersonalStationPage: React.FC = () => {
           {activeTab === 'activity' && renderActivity()}
         </div>
       </div>
+      
+      {/* フッター */}
+      <MobileFooter />
+      <DesktopFooter />
     </div>
   );
 };

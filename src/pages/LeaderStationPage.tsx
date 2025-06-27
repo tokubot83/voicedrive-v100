@@ -10,6 +10,8 @@ import { demoUsers } from '../data/demo/users';
 import EnhancedPost from '../components/EnhancedPost';
 import ProjectProgressIndicator from '../components/ProjectProgressIndicator';
 import { VoteOption, Comment } from '../types';
+import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 export const LeaderStationPage: React.FC = () => {
   const { user } = useAuth();
@@ -339,6 +341,10 @@ export const LeaderStationPage: React.FC = () => {
           {activeTab === 'pending_approvals' && renderPendingApprovals()}
         </div>
       </div>
+      
+      {/* フッター */}
+      <MobileFooter />
+      <DesktopFooter />
     </div>
   );
 };

@@ -8,6 +8,8 @@ import { projects } from '../data/demo/projects';
 import { demoUsers } from '../data/demo/users';
 import { EnhancedPost } from '../components/EnhancedPost';
 import ProjectProgressIndicator from '../components/ProjectProgressIndicator';
+import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 export const SectionStationPage: React.FC = () => {
   const { user } = useAuth();
@@ -388,6 +390,10 @@ export const SectionStationPage: React.FC = () => {
           {activeTab === 'performance' && renderSectionAnalytics()}
         </div>
       </div>
+      
+      {/* フッター */}
+      <MobileFooter />
+      <DesktopFooter />
     </div>
   );
 };
