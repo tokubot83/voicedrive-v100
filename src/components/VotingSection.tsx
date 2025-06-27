@@ -244,7 +244,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
       {(canVote && !showTransparencyOnly) ? (
         <div className="bg-white border border-emerald-300 rounded-xl p-6">
           <h3 className="text-emerald-700 font-medium mb-4 flex items-center gap-2">
-            💬 あなたの意見をお聞かせください
+            🗳️ 投票
           </h3>
           
           {/* 洗練された投票ボタン */}
@@ -361,7 +361,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
         /* 投票権限なし - 透明性表示のみ */
         <div className="bg-gray-50 border border-gray-300 rounded-xl p-6">
           <h3 className="text-gray-600 font-medium mb-4 flex items-center gap-2">
-            🔍 投票結果の透明性表示
+            🗳️ 投票
           </h3>
           <div className="text-center py-2 text-gray-500 bg-gray-100 rounded-lg border border-gray-200 mb-4">
             <div className="text-sm mb-1">
