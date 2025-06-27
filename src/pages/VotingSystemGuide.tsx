@@ -97,10 +97,74 @@ const VotingSystemGuide: React.FC = () => {
           </p>
         </div>
 
-        {/* 5段階投票システム */}
-        <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
+        {/* VoiceDriveの特徴 */}
+        <div className={`animate-section bg-gradient-to-br from-green-900/50 to-blue-900/50 rounded-2xl p-8 backdrop-blur border border-green-500/20 mb-8 transition-all duration-700 ${
           visibleSections.has(0) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`} data-section="0">
+          <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+            <span className="text-4xl">✨</span>
+            VoiceDriveの特徴
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <span className="text-2xl">🎯</span>
+                <div>
+                  <h3 className="text-xl font-bold text-white">客観的評価システム</h3>
+                  <p className="text-gray-300">専門性と経験に基づく重み付けで公正な評価</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4">
+                <span className="text-2xl">🔒</span>
+                <div>
+                  <h3 className="text-xl font-bold text-white">完全匿名保証</h3>
+                  <p className="text-gray-300">5段階の匿名レベルで安心して投票</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4">
+                <span className="text-2xl">⚡</span>
+                <div>
+                  <h3 className="text-xl font-bold text-white">自動化された承認フロー</h3>
+                  <p className="text-gray-300">スコアに応じて適切な承認者を自動設定</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <span className="text-2xl">📊</span>
+                <div>
+                  <h3 className="text-xl font-bold text-white">透明性の高い可視化</h3>
+                  <p className="text-gray-300">リアルタイムでスコアと進捗を確認</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4">
+                <span className="text-2xl">🌟</span>
+                <div>
+                  <h3 className="text-xl font-bold text-white">組織レベルでの意思決定</h3>
+                  <p className="text-gray-300">個人から戦略レベルまで幅広くカバー</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4">
+                <span className="text-2xl">🚀</span>
+                <div>
+                  <h3 className="text-xl font-bold text-white">継続的改善促進</h3>
+                  <p className="text-gray-300">現場の声を組織運営に直接反映</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 5段階投票システム */}
+        <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
+          visibleSections.has(1) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="1">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">📊</span>
             5段階投票システム
@@ -353,8 +417,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 承認フロー */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has(5) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="5">
+          visibleSections.has(7) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="7">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">🔄</span>
             承認フロー
