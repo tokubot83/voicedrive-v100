@@ -3,6 +3,8 @@ import { ChevronDown, User, Shield, Briefcase, UserCheck, Building2, Users } fro
 import { demoUsers, DemoUser, ACCOUNT_TYPE_MAPPING } from '../../data/demo/users';
 import { AccountHierarchyService } from '../../services/AccountHierarchyService';
 import { FACILITIES } from '../../data/medical/facilities';
+import Avatar from '../common/Avatar';
+import { generatePersonalAvatar } from '../../utils/avatarGenerator';
 
 interface DemoUserSwitcherProps {
   currentUser: DemoUser;
@@ -43,10 +45,9 @@ export const DemoUserSwitcher: React.FC<DemoUserSwitcherProps> = ({ currentUser,
         onClick={() => setIsOpen(!isOpen)}
         className={`flex items-center gap-2 ${isMobile ? 'px-2 py-1.5' : 'px-4 py-2'} bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-full`}
       >
-        <img
-          src={currentUser.avatar}
-          alt={currentUser.name}
-          className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full`}
+        <Avatar
+          avatarData={generatePersonalAvatar(currentUser)}
+          size={isMobile ? 'xs' : 'sm'}
         />
         <div className="text-left flex-1 min-w-0">
           <div className={`font-medium text-gray-900 ${isMobile ? 'text-sm' : ''} truncate`}>{currentUser.name}</div>
@@ -155,10 +156,9 @@ export const DemoUserSwitcher: React.FC<DemoUserSwitcherProps> = ({ currentUser,
                             currentUser.id === user.id ? 'bg-blue-50' : ''
                           }`}
                         >
-                          <img
-                            src={user.avatar}
-                            alt={user.name}
-                            className="w-8 h-8 rounded-full"
+                          <Avatar
+                            avatarData={generatePersonalAvatar(user)}
+                            size="sm"
                           />
                           <div className="flex-1 text-left">
                             <div className="font-medium text-gray-900">{user.name}</div>
@@ -231,10 +231,9 @@ const HierarchicalUserList: React.FC<HierarchicalUserListProps> = ({ users, curr
             currentUser.id === user.id ? 'bg-blue-50' : ''
           }`}
         >
-          <img
-            src={user.avatar}
-            alt={user.name}
-            className="w-8 h-8 rounded-full"
+          <Avatar
+            avatarData={generatePersonalAvatar(user)}
+            size="sm"
           />
           <div className="flex-1 text-left">
             <div className="flex items-center gap-2">

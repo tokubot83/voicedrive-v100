@@ -59,6 +59,7 @@ const Layout: React.FC = () => {
     '/talent-analytics',
     '/governance',
     '/policy-management',
+    '/policy',
     '/budget',
     '/budget-planning',
     '/facility-management',

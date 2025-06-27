@@ -3,6 +3,8 @@ import { usePermissions } from '../permissions/hooks/usePermissions';
 import { PermissionLevel, PERMISSION_METADATA } from '../permissions/types/PermissionTypes';
 import { useDemoMode } from './demo/DemoModeController';
 import { Link, useLocation } from 'react-router-dom';
+import Avatar from './common/Avatar';
+import { generatePersonalAvatar } from '../utils/avatarGenerator';
 
 interface SidebarProps {
   currentPath?: string;
@@ -165,13 +167,10 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
       {isDemoMode ? (
         <Link to="/profile" className="block mb-6 bg-gray-800/50 rounded-lg p-3 sm:p-4 backdrop-blur hover:bg-gray-800/70 transition-colors">
           <div className="flex items-center gap-2 sm:gap-3 mb-2">
-            <img 
-              src={currentUser.avatar} 
-              alt={currentUser.name}
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-blue-500"
-              onError={(e) => {
-                e.currentTarget.src = '/default-avatar.svg';
-              }}
+            <Avatar 
+              avatarData={generatePersonalAvatar(currentUser)}
+              size="sm"
+              className="border-2 border-blue-500"
             />
             <div className="flex-1 min-w-0">
               <div className="text-xs sm:text-sm font-medium text-white truncate">{currentUser.name}</div>

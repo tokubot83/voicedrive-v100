@@ -255,12 +255,6 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
         
-        {/* Policy Management (Level 5+) */}
-        <Route path="policy" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-            <PolicyManagementPage />
-          </ProtectedRoute>
-        } />
         
         {/* Talent Analytics (Level 5+) */}
         <Route path="talent" element={
@@ -497,6 +491,13 @@ const AppRouter: React.FC = () => {
       <Route path="admin/audit-logs" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
           <AuditLogPage />
+        </ProtectedRoute>
+      } />
+      
+      {/* Policy Management - Full width without sidebar */}
+      <Route path="policy" element={
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
+          <PolicyManagementPage />
         </ProtectedRoute>
       } />
     </Routes>

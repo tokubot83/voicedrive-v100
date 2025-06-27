@@ -6,6 +6,8 @@ import { MENU_STRUCTURE, MENU_VISIBILITY } from '../../config/menuConfig';
 import { MenuItem, MenuCategory } from '../../types/menuTypes';
 import { PermissionLevel } from '../../permissions/types/PermissionTypes';
 import { EnhancedSidebarMenuItem } from './EnhancedSidebarMenuItem';
+import Avatar from '../common/Avatar';
+import { generatePersonalAvatar } from '../../utils/avatarGenerator';
 import { 
   ChevronDown, 
   ChevronRight, 
@@ -239,13 +241,9 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
         {isDemoMode ? (
           <div className="bg-gray-800/50 rounded-lg p-3 backdrop-blur">
             <div className="flex items-center gap-2 mb-1">
-              <img 
-                src={currentUser.avatar} 
-                alt={currentUser.name}
-                className="w-8 h-8 rounded-full"
-                onError={(e) => {
-                  e.currentTarget.src = '/default-avatar.svg';
-                }}
+              <Avatar 
+                avatarData={generatePersonalAvatar(currentUser)}
+                size="sm"
               />
               <div className="flex-1">
                 <div className="text-sm font-medium text-white">{currentUser.name}</div>
