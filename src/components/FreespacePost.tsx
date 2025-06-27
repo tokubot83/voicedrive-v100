@@ -19,6 +19,7 @@ interface FreespacePostProps {
 const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePostProps) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(userVote?.optionId || null);
   const [showComments, setShowComments] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const hasVoted = !!userVote;
   const { currentUser } = useDemoMode();
 
@@ -115,7 +116,21 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
 
       {/* 投稿内容 */}
       <div className="px-4 pb-3">
-        <p className="text-gray-900 leading-relaxed">{post.content}</p>
+        {post.content.length > 300 ? (
+          <div>
+            <p className="text-gray-900 leading-relaxed">
+              {isExpanded ? post.content : `${post.content.slice(0, 300)}...`}
+            </p>
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-blue-500 hover:text-blue-600 text-sm mt-2 font-medium transition-colors"
+            >
+              {isExpanded ? '表示を縮小' : 'さらに表示'}
+            </button>
+          </div>
+        ) : (
+          <p className="text-gray-900 leading-relaxed">{post.content}</p>
+        )}
       </div>
 
       {/* 投票セクション */}
