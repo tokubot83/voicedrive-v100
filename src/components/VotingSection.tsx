@@ -5,6 +5,7 @@ import UnifiedProgressBar from './UnifiedProgressBar';
 import { ConsensusInsightGenerator } from '../utils/consensusInsights';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 import ProjectLevelBadge from './projects/ProjectLevelBadge';
+import CurrentApprovalCard from './approval/CurrentApprovalCard';
 
 interface VotingSectionProps {
   post: Post;
@@ -153,44 +154,50 @@ const VotingSection: React.FC<VotingSectionProps> = ({
         />
         
         {/* 承認プロセス（条件付き） */}
-        {(post.priority === 'high' || post.approvalFlow) && (
-          <UnifiedProgressBar
-            type="approval"
-            title="承認プロセス"
-            percentage={post.approvalFlow ? 
-              (post.approvalFlow.history.filter(h => h.status === 'approved').length / post.approvalFlow.history.length) * 100 :
-              30
-            }
-            status={post.approvalFlow?.status === 'approved' ? 'completed' : 
-                   post.approvalFlow?.status === 'in_progress' ? 'pending' : 
-                   'pending'
-            }
-            quickInsights={post.approvalFlow ? [
-              post.approvalFlow.status === 'approved' ? '✅ 承認完了' : '📋 承認進行中',
-              `${post.approvalFlow.currentLevel} レベル`,
-              post.approvalFlow.status === 'approved' ? '全ての承認を取得' : '承認待ち'
-            ] : [
-              '📋 施設長確認中',
-              `⏰ 残り${Math.floor((approvalData.deadline.getTime() - Date.now()) / (1000 * 60 * 60))}時間`,
-              'LEVEL_4承認待ち'
-            ]}
-            details={post.approvalFlow ? [
-              { label: '現在レベル', value: post.approvalFlow.currentLevel },
-              { label: 'ステータス', value: post.approvalFlow.status === 'approved' ? '承認済み' : '進行中' },
-              { label: '承認履歴', value: `${post.approvalFlow.history.filter(h => h.status === 'approved').length}/${post.approvalFlow.history.length}` }
-            ] : [
-              { label: '現在レベル', value: `LEVEL_${approvalData.currentLevel}` },
-              { label: '必要レベル', value: `LEVEL_${approvalData.requiredLevel}` },
-              { label: '承認者', value: approvalData.approvers.join(', ') },
-              { label: '期限', value: approvalData.deadline.toLocaleDateString('ja-JP') }
-            ]}
-            detailsData={{ post, ...(post.approvalFlow || approvalData) }}
-            description={post.approvalFlow ? 
-              (post.approvalFlow.status === 'approved' ? '承認プロセス完了' : '承認プロセス進行中') :
-              "高優先度案件のため承認が必要です"
-            }
-          />
-        )}
+        {(post.priority === 'high' || post.approvalFlow) && (() => {
+          // モックの承認リクエストデータを作成
+          const mockApprovalRequest = {
+            id: `approval-${post.id}`,
+            projectId: post.id,
+            budgetAmount: 1500000, // 150万円相当
+            reason: post.content,
+            status: post.approvalFlow?.status === 'approved' ? 'approved' as const : 'pending' as const,
+            approvalChain: [
+              {
+                approverId: 'manager-001',
+                level: 3 as any,
+                role: '師長',
+                department: '看護部',
+                status: post.approvalFlow?.status === 'approved' ? 'approved' as const : 'pending' as const
+              },
+              {
+                approverId: 'head-001',
+                level: 4 as any,
+                role: '部長',
+                department: '管理部',
+                status: 'pending' as const
+              }
+            ],
+            currentApproverId: 'manager-001',
+            createdAt: new Date(),
+            deadline: approvalData.deadline
+          };
+
+          return (
+            <CurrentApprovalCard
+              request={mockApprovalRequest}
+              onApprove={(requestId, reason) => {
+                console.log('承認:', requestId, reason);
+                // ここで実際の承認処理を実装
+              }}
+              onReject={(requestId, reason) => {
+                console.log('差し戻し:', requestId, reason);
+                // ここで実際の差し戻し処理を実装
+              }}
+              isActionable={currentUser?.permissionLevel ? currentUser.permissionLevel >= 3 : false}
+            />
+          );
+        })()}
         
         {/* プロジェクト進捗（改善提案以外で表示） */}
         {(post.type !== 'improvement' && (post.projectStatus === 'active' || post.enhancedProjectStatus)) && (
