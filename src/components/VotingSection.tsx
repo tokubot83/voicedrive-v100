@@ -364,22 +364,29 @@ const VotingSection: React.FC<VotingSectionProps> = ({
             🔍 投票結果の透明性表示
           </h3>
           <div className="text-center py-2 text-gray-500 bg-gray-100 rounded-lg border border-gray-200 mb-4">
-            <div className="text-sm">
-              <span className="text-orange-500">ℹ️</span> この投稿への投票権限はありませんが、透明性のため結果を表示しています
-            </div>
-            <div className="text-xs mt-1">
-              {(() => {
+            <div className="text-sm mb-1">
+              <span className="text-orange-500">ℹ️</span> 投票権限なし（{(() => {
                 const postAuthorFacility = post.author.facility_id;
                 const currentUserFacility = currentUser?.facility_id;
+                const postAuthorDepartment = post.author.department;
+                const currentUserDepartment = currentUser?.department;
                 
+                // 施設が異なる場合
                 if (postAuthorFacility !== currentUserFacility) {
-                  return `異なる施設の投稿です（投稿施設: ${postAuthorFacility}）`;
+                  return '他施設の投稿';
                 }
-                return '投票権限の制限により参加できません';
-              })()}
+                // 同じ施設だが部署が異なる場合
+                else if (postAuthorDepartment !== currentUserDepartment) {
+                  return '他部署の投稿';
+                }
+                // その他の理由
+                else {
+                  return '権限制限';
+                }
+              })()}）
             </div>
-            <div className="text-xs mt-1 text-blue-600">
-              💡 将来的に法人プロジェクト化された場合は投票権限が発生する可能性があります
+            <div className="text-xs text-blue-600">
+              ※プロジェクト昇格時に権限付与の可能性あり
             </div>
           </div>
         </div>
