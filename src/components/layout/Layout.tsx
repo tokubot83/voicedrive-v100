@@ -79,6 +79,11 @@ const Layout: React.FC = () => {
     location.pathname.includes(path)
   );
 
+  // デバッグ用ログ
+  console.log('Current path:', location.pathname);
+  console.log('Is management page:', isManagementPage);
+  console.log('Management paths:', managementPaths);
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };

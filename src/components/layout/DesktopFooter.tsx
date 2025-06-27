@@ -6,8 +6,11 @@ export function DesktopFooter() {
   const location = useLocation();
   const isHome = location.pathname === '/';
 
+  // デバッグ用ログ
+  console.log('DesktopFooter rendered for path:', location.pathname);
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur border-t border-gray-800 hidden md:block z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-red-500/80 backdrop-blur border-t border-gray-800 hidden md:block z-50">
       <nav className="flex items-center justify-center h-12">
         <Link
           to="/"
