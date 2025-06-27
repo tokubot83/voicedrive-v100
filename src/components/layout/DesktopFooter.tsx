@@ -3,15 +3,18 @@ import { Link, useLocation } from 'react-router-dom';
 import { Home } from 'lucide-react';
 
 export function DesktopFooter() {
-  console.log('🔧 DesktopFooter: レンダリング開始');
+  console.log('🔧 DesktopFooter: ================================ レンダリング開始 ================================');
   
   const location = useLocation();
   const isHome = location.pathname === '/';
 
-  // 詳細デバッグログ
-  console.log('🔧 DesktopFooter: 現在のパス =', location.pathname);
+  // 詳細デバッグログ（最強化版）
+  console.log('🔧 DesktopFooter: 現在のパス =', `"${location.pathname}"`);
   console.log('🔧 DesktopFooter: ホーム判定 =', isHome);
+  console.log('🔧 DesktopFooter: window.innerWidth =', window.innerWidth);
+  console.log('🔧 DesktopFooter: window.innerWidth >= 768 =', window.innerWidth >= 768);
   console.log('🔧 DesktopFooter: コンポーネント表示準備完了');
+  console.log('🔧 DesktopFooter: ================================ レンダリング処理 ================================');
 
   return (
     <div 
