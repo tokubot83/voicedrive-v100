@@ -146,27 +146,6 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
         
         <div className="ml-auto">
           <div className="flex items-center gap-2">
-          {/* プロジェクトレベルバッジ（改善提案で高レベルの場合のみ表示） */}
-          {post.type === 'improvement' && currentScore >= 100 && (
-            <div className={`
-              px-2 py-1 rounded-full text-xs font-bold text-white shadow-md
-              bg-gradient-to-r ${
-                currentScore >= 600 ? 'from-orange-400 to-orange-600' :
-                currentScore >= 300 ? 'from-purple-400 to-purple-600' :
-                'from-blue-400 to-blue-600'
-              }
-              flex items-center gap-1
-            `}>
-              <span className="text-xs">
-                {currentScore >= 600 ? '🏛️' :
-                 currentScore >= 300 ? '🏥' : '🏢'}
-              </span>
-              <span>
-                {currentScore >= 600 ? '法人' :
-                 currentScore >= 300 ? '施設' : '部署'}
-              </span>
-            </div>
-          )}
           
           {/* メインタイプバッジ */}
           <div className={`
