@@ -3,29 +3,40 @@ import { Link, useLocation } from 'react-router-dom';
 import { Home } from 'lucide-react';
 
 export function DesktopFooter() {
+  console.log('🔧 DesktopFooter: レンダリング開始');
+  
   const location = useLocation();
   const isHome = location.pathname === '/';
 
-  // デバッグ用ログ
-  console.log('DesktopFooter rendered for path:', location.pathname);
+  // 詳細デバッグログ
+  console.log('🔧 DesktopFooter: 現在のパス =', location.pathname);
+  console.log('🔧 DesktopFooter: ホーム判定 =', isHome);
+  console.log('🔧 DesktopFooter: コンポーネント表示準備完了');
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-red-500/80 backdrop-blur border-t border-gray-800 hidden md:block z-50">
-      <nav className="flex items-center justify-center h-12">
+    <div 
+      className="fixed bottom-0 left-0 right-0 w-full h-16 bg-red-500 border-t-4 border-yellow-400 hidden md:block z-[9999]"
+      style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        width: '100%',
+        height: '64px',
+        backgroundColor: '#ef4444',
+        borderTop: '4px solid #facc15',
+        zIndex: 9999,
+        display: window.innerWidth >= 768 ? 'block' : 'none'
+      }}
+    >
+      <nav className="flex items-center justify-center h-full w-full bg-blue-600 text-white text-xl font-bold">
+        PC用フッター表示テスト - ホームに戻る
         <Link
           to="/"
-          className={`flex items-center justify-center space-x-2 px-6 py-2 rounded-lg transition-colors ${
-            isHome 
-              ? 'text-blue-500 bg-blue-500/10' 
-              : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-          }`}
+          className="ml-4 bg-white text-black px-4 py-2 rounded font-bold hover:bg-gray-200"
         >
-          <Home 
-            className="w-5 h-5" 
-            fill={isHome ? 'currentColor' : 'none'}
-            strokeWidth={isHome ? 0 : 2}
-          />
-          <span className="text-sm font-medium">ホーム</span>
+          <Home className="w-5 h-5 inline mr-2" />
+          ホーム
         </Link>
       </nav>
     </div>

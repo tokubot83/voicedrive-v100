@@ -79,10 +79,19 @@ const Layout: React.FC = () => {
     location.pathname.includes(path)
   );
 
-  // デバッグ用ログ
-  console.log('Current path:', location.pathname);
-  console.log('Is management page:', isManagementPage);
-  console.log('Management paths:', managementPaths);
+  // 詳細デバッグログ
+  console.log('🔧 Layout: 現在のパス =', location.pathname);
+  console.log('🔧 Layout: 管理画面判定結果 =', isManagementPage);
+  console.log('🔧 Layout: managementPaths配列の長さ =', managementPaths.length);
+  console.log('🔧 Layout: ステーション系パス確認:');
+  console.log('  - /personal-station 含まれている?', managementPaths.includes('/personal-station'));
+  console.log('  - /leader-station 含まれている?', managementPaths.includes('/leader-station'));
+  console.log('  - /department-station 含まれている?', managementPaths.includes('/department-station'));
+  console.log('  - /section-station 含まれている?', managementPaths.includes('/section-station'));
+  
+  // パス判定の詳細確認
+  const matchedPaths = managementPaths.filter(path => location.pathname.includes(path));
+  console.log('🔧 Layout: マッチしたパス =', matchedPaths);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -216,7 +225,14 @@ const Layout: React.FC = () => {
       <MobileFooter />
       
       {/* PC用フッター（管理画面でのみ表示） */}
-      {isManagementPage && <DesktopFooter />}
+      {console.log('🔧 Layout: DesktopFooter表示判定 =', isManagementPage)}
+      {isManagementPage && (
+        <>
+          {console.log('🔧 Layout: DesktopFooter レンダリング実行')}
+          <DesktopFooter />
+        </>
+      )}
+      {!isManagementPage && console.log('🔧 Layout: DesktopFooter 非表示（管理画面ではない）')}
     </div>
   );
 };
