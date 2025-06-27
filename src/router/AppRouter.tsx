@@ -457,22 +457,22 @@ const AppRouter: React.FC = () => {
       
       {/* Analysis Pages - Full width without sidebar */}
       <Route path="generational-analysis" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
           <GenerationalAnalysisPage />
         </ProtectedRoute>
       } />
       <Route path="hierarchical-analysis" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
           <HierarchicalAnalysisPage />
         </ProtectedRoute>
       } />
       <Route path="user-analysis" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
           <UserAnalysisPage />
         </ProtectedRoute>
       } />
       <Route path="professional-analysis" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
           <ProfessionalAnalysisPage />
         </ProtectedRoute>
       } />
