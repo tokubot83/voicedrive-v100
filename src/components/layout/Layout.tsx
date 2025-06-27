@@ -78,16 +78,31 @@ const Layout: React.FC = () => {
   const isManagementPage = managementPaths.some(path => 
     location.pathname === path || location.pathname.startsWith(path + '/')
   );
+  
+  // ステーション系ページの確実な判定（追加対策）
+  const isStationPage = ['/personal-station', '/leader-station', '/department-station', '/section-station']
+    .includes(location.pathname);
+  
+  // 最終的な表示判定（管理画面またはステーション系ページ）
+  const shouldShowDesktopFooter = isManagementPage || isStationPage;
 
-  // 詳細デバッグログ（修正版）
+  // 詳細デバッグログ（強化版）
+  console.log('🔧 Layout: ==================== パス判定開始 ====================');
   console.log('🔧 Layout: 現在のパス =', location.pathname);
   console.log('🔧 Layout: 管理画面判定結果 =', isManagementPage);
+  console.log('🔧 Layout: ステーション画面判定結果 =', isStationPage);
+  console.log('🔧 Layout: 最終表示判定結果 =', shouldShowDesktopFooter);
   console.log('🔧 Layout: managementPaths配列の長さ =', managementPaths.length);
+  
+  // ステーション系パスの詳細確認
   console.log('🔧 Layout: ステーション系パス確認:');
-  console.log('  - /personal-station 含まれている?', managementPaths.includes('/personal-station'));
-  console.log('  - /leader-station 含まれている?', managementPaths.includes('/leader-station'));
-  console.log('  - /department-station 含まれている?', managementPaths.includes('/department-station'));
-  console.log('  - /section-station 含まれている?', managementPaths.includes('/section-station'));
+  const stationPaths = ['/personal-station', '/leader-station', '/department-station', '/section-station'];
+  stationPaths.forEach(stationPath => {
+    const inArray = managementPaths.includes(stationPath);
+    const exactMatch = location.pathname === stationPath;
+    const startsWithMatch = location.pathname.startsWith(stationPath + '/');
+    console.log(`  - ${stationPath}:`, { inArray, exactMatch, startsWithMatch });
+  });
   
   // パス判定の詳細確認（修正版）
   const matchedPaths = managementPaths.filter(path => 
@@ -95,14 +110,13 @@ const Layout: React.FC = () => {
   );
   console.log('🔧 Layout: マッチしたパス（修正版） =', matchedPaths);
   
-  // 各パスの個別チェック
-  managementPaths.forEach(path => {
-    const exactMatch = location.pathname === path;
-    const startsWithMatch = location.pathname.startsWith(path + '/');
-    if (exactMatch || startsWithMatch) {
-      console.log('🔧 Layout: パスマッチ発見 =', path, { exactMatch, startsWithMatch });
-    }
-  });
+  // 現在のパスが特定のステーションパスと一致するかチェック
+  if (stationPaths.includes(location.pathname)) {
+    console.log('🔧 Layout: ⭐️ ステーションページ検出! =', location.pathname);
+    console.log('🔧 Layout: ⭐️ 管理画面判定結果 =', isManagementPage);
+  }
+  
+  console.log('🔧 Layout: ==================== パス判定終了 ====================');
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -235,15 +249,15 @@ const Layout: React.FC = () => {
       {/* モバイルフッター */}
       <MobileFooter />
       
-      {/* PC用フッター（管理画面でのみ表示） */}
-      {console.log('🔧 Layout: DesktopFooter表示判定 =', isManagementPage)}
-      {isManagementPage && (
+      {/* PC用フッター（管理画面またはステーション系ページで表示） */}
+      {console.log('🔧 Layout: DesktopFooter表示判定 =', shouldShowDesktopFooter)}
+      {shouldShowDesktopFooter && (
         <>
           {console.log('🔧 Layout: DesktopFooter レンダリング実行')}
           <DesktopFooter />
         </>
       )}
-      {!isManagementPage && console.log('🔧 Layout: DesktopFooter 非表示（管理画面ではない）')}
+      {!shouldShowDesktopFooter && console.log('🔧 Layout: DesktopFooter 非表示（対象ページではない）')}
     </div>
   );
 };
