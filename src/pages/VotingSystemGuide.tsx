@@ -4,7 +4,7 @@ import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 const VotingSystemGuide: React.FC = () => {
   const [progressWidth, setProgressWidth] = useState(0);
-  const [visibleSections, setVisibleSections] = useState<Set<number>>(new Set());
+  const [visibleSections, setVisibleSections] = useState<Set<string | number>>(new Set());
 
   useEffect(() => {
     // プログレスバーアニメーション
@@ -13,13 +13,16 @@ const VotingSystemGuide: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    // 初期表示のため、すべてのセクションを表示状態にする（アニメーション効果は残す）
+    setVisibleSections(new Set([0, 1, 2, '2.5', 3, 4, 5, 6, 7]));
+    
     // スクロールアニメーションの監視
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const index = parseInt(entry.target.getAttribute('data-section') || '0');
-            setVisibleSections(prev => new Set(prev).add(index));
+            const sectionId = entry.target.getAttribute('data-section') || '0';
+            setVisibleSections(prev => new Set(prev).add(sectionId));
           }
         });
       },
@@ -299,7 +302,7 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 投票中立性と比較 */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has(2.5) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          visibleSections.has('2.5') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`} data-section="2.5">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">⚖️</span>
