@@ -213,10 +213,15 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
         <div className="flex space-x-6">
           <button 
             onClick={() => setShowComments(!showComments)}
-            className="flex items-center space-x-2 text-gray-500 hover:text-blue-600 transition-colors"
+            className="relative flex items-center space-x-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 rounded-full transition-all duration-200 hover:shadow-md group"
           >
-            <MessageCircle className="w-5 h-5" />
-            <span>{post.comments?.length || 0}</span>
+            <span className="text-lg group-hover:scale-110 transition-transform">💬</span>
+            <span className="text-sm font-medium text-gray-700">コメント</span>
+            {post.comments && post.comments.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
+                {post.comments.length}
+              </span>
+            )}
           </button>
         </div>
         {poll && (
