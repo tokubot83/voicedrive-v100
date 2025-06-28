@@ -213,12 +213,36 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
         <div className="flex space-x-6">
           <button 
             onClick={() => setShowComments(!showComments)}
-            className="relative flex items-center space-x-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 rounded-full transition-all duration-200 hover:shadow-md group"
+            className="relative inline-flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200 group"
+            style={{
+              backgroundColor: '#eff6ff',
+              border: '1px solid #e5e7eb',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#dbeafe';
+              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#eff6ff';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
           >
-            <span className="text-lg group-hover:scale-110 transition-transform">💬</span>
-            <span className="text-sm font-medium text-gray-700">コメント</span>
+            <span className="text-lg transition-transform group-hover:scale-110">💬</span>
+            <span style={{ color: '#374151', fontWeight: '500' }}>コメント</span>
             {post.comments && post.comments.length > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
+              <span 
+                className="absolute flex items-center justify-center text-xs text-white rounded-full animate-pulse"
+                style={{
+                  top: '-8px',
+                  right: '-8px',
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: '#ef4444',
+                  fontSize: '11px'
+                }}
+              >
                 {post.comments.length}
               </span>
             )}
