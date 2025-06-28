@@ -306,35 +306,95 @@ const VotingSystemGuide: React.FC = () => {
         }`} data-section="2.5">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">⚖️</span>
-            投票中立性と従来システムとの比較
+            真の投票中立性の実現
           </h2>
           <p className="text-gray-300 mb-8 text-lg">
-            重み付けシステムがもたらす公正性と専門性の反映について
+            多様性を尊重し、構造的不公平を解消する革新的投票システム
           </p>
 
-          {/* 中立性の原則 */}
-          <div className="bg-blue-900/30 border border-blue-500/30 rounded-xl p-6 mb-8">
+          {/* VoiceDriveが解決する構造的問題 */}
+          <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/30 rounded-xl p-6 mb-8">
             <div className="flex items-start gap-4">
-              <span className="text-3xl">🎯</span>
+              <span className="text-3xl">🌐</span>
               <div>
-                <h3 className="text-xl font-bold text-white mb-4">投票中立性の原則</h3>
+                <h3 className="text-xl font-bold text-white mb-4">VoiceDriveが解決する構造的不公平</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <h4 className="font-semibold text-purple-400 mb-2">世代間格差の解消</h4>
+                    <ul className="text-gray-300 space-y-1 text-sm">
+                      <li>• Z世代の革新的視点を適切に評価</li>
+                      <li>• ベテランの経験知を尊重</li>
+                      <li>• 年齢による発言力の偏りを是正</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-purple-400 mb-2">職種間公平性の実現</h4>
+                    <ul className="text-gray-300 space-y-1 text-sm">
+                      <li>• 現場職員の声を適切に反映</li>
+                      <li>• 管理職の戦略的視点を活用</li>
+                      <li>• 職種の人数差による不利益を解消</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-purple-400 mb-2">経験差の適正評価</h4>
+                    <ul className="text-gray-300 space-y-1 text-sm">
+                      <li>• 新人の新鮮な視点を重視</li>
+                      <li>• 中堅職員のバランス感覚を活用</li>
+                      <li>• 経験年数による序列主義を排除</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* カテゴリ別重み付け調整 */}
+          <div className="bg-gradient-to-r from-green-900/50 to-teal-900/50 border border-green-500/30 rounded-xl p-6 mb-8">
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">🎛️</span>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-4">カテゴリ別適応的重み付けシステム</h3>
+                <p className="text-gray-300 mb-4 text-sm">
+                  投稿カテゴリの特性に応じて、各グループの発言力を動的に調整する革新的機能
+                </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-semibold text-blue-400 mb-2">専門性の尊重</h4>
-                    <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• 医療分野の専門知識を適切に評価</li>
-                      <li>• 責任と権限に応じた意見の重み付け</li>
-                      <li>• 経験による洞察力の考慮</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-blue-400 mb-2">公平性の確保</h4>
-                    <ul className="text-gray-300 space-y-1 text-sm">
-                      <li>• 職種に関係なくすべての意見を収集</li>
-                      <li>• 透明な重み付け基準の公開</li>
-                      <li>• 組織階層による偏見の排除</li>
-                    </ul>
-                  </div>
+                  {[
+                    {
+                      category: '業務改善提案',
+                      weights: [
+                        { group: '現場スタッフ', weight: '50%', reason: '実際の業務経験' },
+                        { group: 'ベテラン職員', weight: '30%', reason: '改善ノウハウ' },
+                        { group: '管理職', weight: '15%', reason: '実現可能性' },
+                        { group: 'Z世代', weight: '5%', reason: '新しい視点' }
+                      ],
+                      color: 'bg-blue-500/20'
+                    },
+                    {
+                      category: 'イノベーション提案',
+                      weights: [
+                        { group: 'Z世代', weight: '40%', reason: '新技術親和性' },
+                        { group: '現場スタッフ', weight: '30%', reason: '実用性評価' },
+                        { group: '管理職', weight: '20%', reason: '導入判断' },
+                        { group: 'ベテラン職員', weight: '10%', reason: '変化適応' }
+                      ],
+                      color: 'bg-purple-500/20'
+                    }
+                  ].map((item, index) => (
+                    <div key={index} className={`${item.color} rounded-lg p-4`}>
+                      <h4 className="font-semibold text-white mb-3">{item.category}</h4>
+                      <div className="space-y-2">
+                        {item.weights.map((weight, wIndex) => (
+                          <div key={wIndex} className="flex justify-between items-center text-sm">
+                            <div>
+                              <span className="text-gray-200">{weight.group}</span>
+                              <div className="text-xs text-gray-400">{weight.reason}</div>
+                            </div>
+                            <span className="text-yellow-400 font-bold">{weight.weight}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -351,25 +411,27 @@ const VotingSystemGuide: React.FC = () => {
               
               <div className="space-y-4">
                 <div className="bg-black/20 p-4 rounded-lg">
-                  <h4 className="font-semibold text-white mb-2">投票結果（例）</h4>
+                  <h4 className="font-semibold text-white mb-2">投票結果例：「業務効率化システム導入」</h4>
                   <div className="space-y-2 text-gray-300 text-sm">
-                    <div>医師2名: 賛成(+1) = 2票</div>
-                    <div>看護師5名: 強く賛成(+2) = 10票</div>
-                    <div>事務職20名: 反対(-1) = -20票</div>
+                    <div>Z世代（20名）: 強く賛成(+2) = 40票</div>
+                    <div>中堅職員（15名）: 賛成(+1) = 15票</div>
+                    <div>ベテラン（30名）: 反対(-1) = -30票</div>
+                    <div>管理職（5名）: 賛成(+1) = 5票</div>
                   </div>
                 </div>
                 
                 <div className="bg-black/30 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-orange-400">合計: -8票</div>
-                  <div className="text-sm text-gray-300 mt-2">❌ 否決（専門性が反映されない）</div>
+                  <div className="text-2xl font-bold text-orange-400">合計: +30票</div>
+                  <div className="text-sm text-gray-300 mt-2">✅ 数の論理で承認</div>
                 </div>
 
                 <div className="bg-red-900/30 p-3 rounded-lg">
-                  <h5 className="text-red-400 font-semibold mb-1">課題</h5>
+                  <h5 className="text-red-400 font-semibold mb-1">構造的問題</h5>
                   <ul className="text-gray-300 text-xs space-y-1">
-                    <li>• 専門知識の差が考慮されない</li>
-                    <li>• 数の多い職種の意見が支配的</li>
-                    <li>• 医療安全に関わる重要な判断が軽視</li>
+                    <li>• 世代間の人数差が結果を左右</li>
+                    <li>• ベテランの経験知が軽視される</li>
+                    <li>• 組織の多様性が反映されない</li>
+                    <li>• 実施責任者の判断が軽視される</li>
                   </ul>
                 </div>
               </div>
@@ -379,30 +441,32 @@ const VotingSystemGuide: React.FC = () => {
             <div className="bg-gradient-to-br from-green-900/50 to-blue-900/50 p-6 rounded-xl border border-green-500/30">
               <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <span className="text-2xl">⚖️</span>
-                VoiceDrive重み付けシステム
+                VoiceDrive多様性重視システム
               </h3>
               
               <div className="space-y-4">
                 <div className="bg-black/20 p-4 rounded-lg">
-                  <h4 className="font-semibold text-white mb-2">重み付け後の結果</h4>
+                  <h4 className="font-semibold text-white mb-2">カテゴリ別重み付け後の結果</h4>
                   <div className="space-y-2 text-gray-300 text-sm">
-                    <div>医師2名: 2×(+1)×3.0 = 6点</div>
-                    <div>看護師5名: 5×(+2)×2.0 = 20点</div>
-                    <div>事務職20名: 20×(-1)×1.0 = -20点</div>
+                    <div>Z世代: 40点 × 40% = 16点 (技術親和性)</div>
+                    <div>現場職員: 15点 × 30% = 4.5点 (実用性)</div>
+                    <div>ベテラン: -30点 × 10% = -3点 (変化適応)</div>
+                    <div>管理職: 5点 × 20% = 1点 (導入責任)</div>
                   </div>
                 </div>
                 
                 <div className="bg-black/30 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-green-400">合計: +6点</div>
-                  <div className="text-sm text-gray-300 mt-2">✅ 承認（専門性が適切に反映）</div>
+                  <div className="text-2xl font-bold text-green-400">合計: +18.5点</div>
+                  <div className="text-sm text-gray-300 mt-2">✅ 多様性を考慮した適切な判断</div>
                 </div>
 
                 <div className="bg-green-900/30 p-3 rounded-lg">
-                  <h5 className="text-green-400 font-semibold mb-1">利点</h5>
+                  <h5 className="text-green-400 font-semibold mb-1">多様性の実現</h5>
                   <ul className="text-gray-300 text-xs space-y-1">
-                    <li>• 医療専門性が適切に評価</li>
-                    <li>• 患者安全の観点が重視</li>
-                    <li>• バランスの取れた意思決定</li>
+                    <li>• 各世代の特性が適切に反映</li>
+                    <li>• 少数派の重要な視点も評価</li>
+                    <li>• カテゴリに応じた柔軟な判断</li>
+                    <li>• 組織全体のバランスを考慮</li>
                   </ul>
                 </div>
               </div>
@@ -477,15 +541,29 @@ const VotingSystemGuide: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-6 p-4 bg-blue-900/30 border border-blue-500/30 rounded-lg">
+            <div className="mt-6 p-4 bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-lg">
               <div className="flex items-start gap-3">
-                <span className="text-2xl">💡</span>
+                <span className="text-2xl">🌈</span>
                 <div>
-                  <h4 className="font-semibold text-blue-400 mb-2">重み付けシステムの効果</h4>
-                  <p className="text-gray-300 text-sm">
-                    同じ投票内容でも、専門性を考慮することで医療現場により適した判断が可能になります。
-                    これにより、患者安全や医療の質向上に直結する提案が適切に評価されます。
+                  <h4 className="font-semibold text-blue-400 mb-2">真の中立性実現による効果</h4>
+                  <p className="text-gray-300 text-sm mb-3">
+                    VoiceDriveの適応的重み付けシステムにより、世代・職種・経験年数による構造的不公平が解消され、
+                    組織の多様性を活かした最適な意思決定が実現されます。
                   </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    <div className="bg-white/5 rounded p-2">
+                      <div className="text-purple-400 font-semibold">世代間調和</div>
+                      <div className="text-gray-400">革新性と安定性のバランス</div>
+                    </div>
+                    <div className="bg-white/5 rounded p-2">
+                      <div className="text-purple-400 font-semibold">職種間連携</div>
+                      <div className="text-gray-400">専門性と現場性の融合</div>
+                    </div>
+                    <div className="bg-white/5 rounded p-2">
+                      <div className="text-purple-400 font-semibold">経験値活用</div>
+                      <div className="text-gray-400">新鮮さと熟練の統合</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
