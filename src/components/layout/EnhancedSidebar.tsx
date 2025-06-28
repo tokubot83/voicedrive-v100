@@ -158,7 +158,10 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
   return (
     <div className="w-80 bg-slate-800/95 backdrop-blur-xl shadow-lg h-full flex flex-col border-r border-slate-700/50 relative">
       {/* ユーザー情報（上部） */}
-      <div className="p-4 hover:bg-slate-700/30 transition-colors cursor-pointer border-b border-slate-700/50">
+      <div 
+        className="p-4 hover:bg-slate-700/30 transition-colors cursor-pointer border-b border-slate-700/50"
+        onClick={() => onNavigate('/profile')}
+      >
         {isDemoMode ? (
           <div className="flex items-center gap-3">
             <Avatar 

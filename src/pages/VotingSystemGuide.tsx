@@ -297,6 +297,198 @@ const VotingSystemGuide: React.FC = () => {
           </div>
         </div>
 
+        {/* 投票中立性と比較 */}
+        <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
+          visibleSections.has(2.5) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="2.5">
+          <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+            <span className="text-4xl">⚖️</span>
+            投票中立性と従来システムとの比較
+          </h2>
+          <p className="text-gray-300 mb-8 text-lg">
+            重み付けシステムがもたらす公正性と専門性の反映について
+          </p>
+
+          {/* 中立性の原則 */}
+          <div className="bg-blue-900/30 border border-blue-500/30 rounded-xl p-6 mb-8">
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">🎯</span>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-4">投票中立性の原則</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold text-blue-400 mb-2">専門性の尊重</h4>
+                    <ul className="text-gray-300 space-y-1 text-sm">
+                      <li>• 医療分野の専門知識を適切に評価</li>
+                      <li>• 責任と権限に応じた意見の重み付け</li>
+                      <li>• 経験による洞察力の考慮</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-blue-400 mb-2">公平性の確保</h4>
+                    <ul className="text-gray-300 space-y-1 text-sm">
+                      <li>• 職種に関係なくすべての意見を収集</li>
+                      <li>• 透明な重み付け基準の公開</li>
+                      <li>• 組織階層による偏見の排除</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 比較例 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* 従来の1人1票システム */}
+            <div className="bg-gradient-to-br from-orange-900/50 to-red-900/50 p-6 rounded-xl border border-orange-500/30">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">🗳️</span>
+                従来の1人1票システム
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">投票結果（例）</h4>
+                  <div className="space-y-2 text-gray-300 text-sm">
+                    <div>医師2名: 賛成(+1) = 2票</div>
+                    <div>看護師5名: 強く賛成(+2) = 10票</div>
+                    <div>事務職20名: 反対(-1) = -20票</div>
+                  </div>
+                </div>
+                
+                <div className="bg-black/30 p-4 rounded-lg text-center">
+                  <div className="text-2xl font-bold text-orange-400">合計: -8票</div>
+                  <div className="text-sm text-gray-300 mt-2">❌ 否決（専門性が反映されない）</div>
+                </div>
+
+                <div className="bg-red-900/30 p-3 rounded-lg">
+                  <h5 className="text-red-400 font-semibold mb-1">課題</h5>
+                  <ul className="text-gray-300 text-xs space-y-1">
+                    <li>• 専門知識の差が考慮されない</li>
+                    <li>• 数の多い職種の意見が支配的</li>
+                    <li>• 医療安全に関わる重要な判断が軽視</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* VoiceDriveの重み付けシステム */}
+            <div className="bg-gradient-to-br from-green-900/50 to-blue-900/50 p-6 rounded-xl border border-green-500/30">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">⚖️</span>
+                VoiceDrive重み付けシステム
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">重み付け後の結果</h4>
+                  <div className="space-y-2 text-gray-300 text-sm">
+                    <div>医師2名: 2×(+1)×3.0 = 6点</div>
+                    <div>看護師5名: 5×(+2)×2.0 = 20点</div>
+                    <div>事務職20名: 20×(-1)×1.0 = -20点</div>
+                  </div>
+                </div>
+                
+                <div className="bg-black/30 p-4 rounded-lg text-center">
+                  <div className="text-2xl font-bold text-green-400">合計: +6点</div>
+                  <div className="text-sm text-gray-300 mt-2">✅ 承認（専門性が適切に反映）</div>
+                </div>
+
+                <div className="bg-green-900/30 p-3 rounded-lg">
+                  <h5 className="text-green-400 font-semibold mb-1">利点</h5>
+                  <ul className="text-gray-300 text-xs space-y-1">
+                    <li>• 医療専門性が適切に評価</li>
+                    <li>• 患者安全の観点が重視</li>
+                    <li>• バランスの取れた意思決定</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* スコア分布の視覚的比較 */}
+          <div className="bg-gray-700/30 rounded-xl p-6">
+            <h3 className="text-xl font-bold text-white mb-6 text-center">同じ投票内容でのスコア比較</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* 1人1票システムのグラフ */}
+              <div className="space-y-4">
+                <h4 className="text-lg font-semibold text-orange-400 text-center">1人1票システム</h4>
+                <div className="space-y-3">
+                  {[
+                    { name: '医師', votes: 2, color: 'bg-blue-500', percentage: 7 },
+                    { name: '看護師', votes: 10, color: 'bg-green-500', percentage: 37 },
+                    { name: '事務職', votes: -20, color: 'bg-red-500', percentage: -74 }
+                  ].map((item, index) => (
+                    <div key={index} className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-white">{item.name}</span>
+                        <span className="text-gray-300">{item.votes}票</span>
+                      </div>
+                      <div className="w-full bg-gray-600 rounded-full h-4 relative">
+                        <div 
+                          className={`h-full rounded-full ${item.color} ${item.votes < 0 ? 'ml-auto' : ''}`}
+                          style={{ width: `${Math.abs(item.percentage)}%` }}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center text-white text-xs font-semibold">
+                          {item.percentage > 0 ? '+' : ''}{item.percentage}%
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-center mt-4">
+                  <div className="text-2xl font-bold text-red-400">結果: -8票 (否決)</div>
+                </div>
+              </div>
+
+              {/* 重み付けシステムのグラフ */}
+              <div className="space-y-4">
+                <h4 className="text-lg font-semibold text-green-400 text-center">重み付けシステム</h4>
+                <div className="space-y-3">
+                  {[
+                    { name: '医師', score: 6, color: 'bg-blue-500', percentage: 23 },
+                    { name: '看護師', score: 20, color: 'bg-green-500', percentage: 77 },
+                    { name: '事務職', score: -20, color: 'bg-red-500', percentage: -77 }
+                  ].map((item, index) => (
+                    <div key={index} className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-white">{item.name}</span>
+                        <span className="text-gray-300">{item.score}点</span>
+                      </div>
+                      <div className="w-full bg-gray-600 rounded-full h-4 relative">
+                        <div 
+                          className={`h-full rounded-full ${item.color} ${item.score < 0 ? 'ml-auto' : ''}`}
+                          style={{ width: `${Math.abs(item.percentage)}%` }}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center text-white text-xs font-semibold">
+                          {item.percentage > 0 ? '+' : ''}{item.percentage}%
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-center mt-4">
+                  <div className="text-2xl font-bold text-green-400">結果: +6点 (承認)</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 p-4 bg-blue-900/30 border border-blue-500/30 rounded-lg">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">💡</span>
+                <div>
+                  <h4 className="font-semibold text-blue-400 mb-2">重み付けシステムの効果</h4>
+                  <p className="text-gray-300 text-sm">
+                    同じ投票内容でも、専門性を考慮することで医療現場により適した判断が可能になります。
+                    これにより、患者安全や医療の質向上に直結する提案が適切に評価されます。
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* プロジェクトレベル階層 */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
           visibleSections.has(3) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
