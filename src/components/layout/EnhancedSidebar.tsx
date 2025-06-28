@@ -156,7 +156,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
   };
 
   return (
-    <div className="w-80 bg-slate-800/95 backdrop-blur-xl shadow-lg h-full flex flex-col border-r border-slate-700/50">
+    <div className="w-80 bg-slate-800/95 backdrop-blur-xl shadow-lg h-full flex flex-col border-r border-slate-700/50 relative">
       {/* ユーザー情報（上部） */}
       <div className="p-4 hover:bg-slate-700/30 transition-colors cursor-pointer border-b border-slate-700/50">
         {isDemoMode ? (
@@ -190,7 +190,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
 
 
       {/* メニューセクション */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+      <div className="flex-1 overflow-y-auto p-4 pb-40 space-y-2">
         {/* ステーション系 */}
         {renderCategory('station')}
         
@@ -213,8 +213,8 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
         {userPermissionLevel >= 11 && renderCategory('executive')}
       </div>
 
-      {/* システム機能 */}
-      <div className="p-4 space-y-1 border-t border-slate-700/50">
+      {/* システム機能（下部固定） */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 space-y-1 border-t border-slate-700/50 bg-slate-800/95 backdrop-blur-xl">
         <button
           onClick={() => onNavigate('/voting-system-guide')}
           className={`
