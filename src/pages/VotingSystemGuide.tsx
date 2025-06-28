@@ -14,7 +14,7 @@ const VotingSystemGuide: React.FC = () => {
 
   useEffect(() => {
     // 初期表示のため、すべてのセクションを表示状態にする（アニメーション効果は残す）
-    setVisibleSections(new Set(['agenda', 0, '1', '2', '3', '4', '5', '6', '7', '8', 9, 10, 11, 12, 13]));
+    setVisibleSections(new Set(['agenda', 0, 'vote-system', 'weight-system', 'anonymous-system', 'coexistence', 'neutrality', 'safety', 'collective', 'equality', 'transparency', 'empowerment', 'governance', 'levels', 'calculation', 'approval', 'features']));
     
     // スクロールアニメーションの監視
     const observer = new IntersectionObserver(
@@ -216,8 +216,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 5段階投票システム */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has(1) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="1">
+          visibleSections.has('vote-system') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="vote-system">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">📊</span>
             5段階投票システム
@@ -242,8 +242,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 重み付けシステム */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has(1) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="1">
+          visibleSections.has('weight-system') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="weight-system">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">⚖️</span>
             重み付けシステム
@@ -305,8 +305,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 匿名システム */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has(2) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="2">
+          visibleSections.has('anonymous-system') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="anonymous-system">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">🔒</span>
             完全匿名投票システム
@@ -352,8 +352,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 1. 全ての立場の共存 */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has('1') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="1">
+          visibleSections.has('coexistence') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="coexistence">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">🤝</span>
             1. 全ての立場の共存
@@ -622,8 +622,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 2. 適応的公平性 */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has('2') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="2">
+          visibleSections.has('neutrality') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="neutrality">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">⚖️</span>
             2. 適応的公平性
@@ -733,8 +733,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 3. 心理的安全性 */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has('3') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="3">
+          visibleSections.has('safety') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="safety">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">🛡️</span>
             3. 心理的安全性
@@ -860,8 +860,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 4. 集合知の最大化 */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has('4') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="4">
+          visibleSections.has('collective') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="collective">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">🧠</span>
             4. 集合知の最大化
@@ -1000,8 +1000,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 5. 構造的不公平の解消 */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has('5') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="5">
+          visibleSections.has('equality') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="equality">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">🌈</span>
             5. 構造的不公平の解消
@@ -1125,8 +1125,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 6. 透明な意思決定 */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has('6') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="6">
+          visibleSections.has('transparency') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="transparency">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">🔍</span>
             6. 透明な意思決定
@@ -1264,8 +1264,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 7. エンパワーメント */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has('7') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="7">
+          visibleSections.has('empowerment') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="empowerment">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">💪</span>
             7. エンパワーメント
@@ -1389,8 +1389,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 8. デジタルガバナンス */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has('8') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="8">
+          visibleSections.has('governance') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="governance">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">🤖</span>
             8. デジタルガバナンス
@@ -1544,8 +1544,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* プロジェクトレベル階層 */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has(9) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="9">
+          visibleSections.has('levels') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="levels">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">📈</span>
             プロジェクトレベル階層
@@ -1588,8 +1588,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 実例計算 */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has(4) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="4">
+          visibleSections.has('calculation') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="calculation">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">🧮</span>
             実例計算デモ
@@ -1662,8 +1662,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* 承認フロー */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has(7) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="7">
+          visibleSections.has('approval') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="approval">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">🔄</span>
             承認フロー
@@ -1698,8 +1698,8 @@ const VotingSystemGuide: React.FC = () => {
 
         {/* まとめ */}
         <div className={`animate-section bg-gradient-to-br from-green-900/50 to-blue-900/50 rounded-2xl p-8 backdrop-blur border border-green-500/20 transition-all duration-700 ${
-          visibleSections.has(6) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="6">
+          visibleSections.has('features') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="features">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">✨</span>
             VoiceDriveの特徴
