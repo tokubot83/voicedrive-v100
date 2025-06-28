@@ -14,7 +14,7 @@ const VotingSystemGuide: React.FC = () => {
 
   useEffect(() => {
     // 初期表示のため、すべてのセクションを表示状態にする（アニメーション効果は残す）
-    setVisibleSections(new Set(['agenda', 0, '1', '2', '3', 3, 4, 5, 6, 7]));
+    setVisibleSections(new Set(['agenda', 0, '1', '2', '3', '4', '5', '6', '7', '8', 9, 10, 11, 12, 13]));
     
     // スクロールアニメーションの監視
     const observer = new IntersectionObserver(
@@ -858,10 +858,694 @@ const VotingSystemGuide: React.FC = () => {
           </div>
         </div>
 
+        {/* 4. 集合知の最大化 */}
+        <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
+          visibleSections.has('4') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="4">
+          <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+            <span className="text-4xl">🧠</span>
+            4. 集合知の最大化
+          </h2>
+          <p className="text-gray-300 mb-8 text-lg">
+            組織全体の知恵と経験を結集し、個人では到達できない高次の判断を実現
+          </p>
+
+          {/* 従来との比較 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* 従来システムの限界 */}
+            <div className="bg-gradient-to-br from-red-900/50 to-orange-900/50 p-6 rounded-xl border border-red-500/30">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">🏰</span>
+                従来の意思決定構造
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">情報の分散・断片化</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 部門ごとの情報サイロ化</li>
+                    <li>• 階層による情報の歪曲・遅延</li>
+                    <li>• 重要な現場情報の見落とし</li>
+                    <li>• 一部の人の経験に依存</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">具体例：電子カルテ更新</h4>
+                  <div className="text-gray-300 text-sm space-y-1">
+                    <div>• 管理職：「コスト削減効果大」</div>
+                    <div>• 現場：「操作性に大きな課題」</div>
+                    <div>• 結果：一方的な判断で導入失敗</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* VoiceDriveの集合知 */}
+            <div className="bg-gradient-to-br from-green-900/50 to-blue-900/50 p-6 rounded-xl border border-green-500/30">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">🌐</span>
+                VoiceDriveの集合知システム
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">全方位からの知見集約</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• リアルタイムで全職員の意見収集</li>
+                    <li>• 多角的視点による総合判断</li>
+                    <li>• データに基づく客観的分析</li>
+                    <li>• 潜在的問題の早期発見</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">同じ例でのVoiceDrive結果</h4>
+                  <div className="text-gray-300 text-sm space-y-1">
+                    <div>• 管理・現場・IT・各世代の総合判断</div>
+                    <div>• 隠れた課題とメリットを同時発見</div>
+                    <div>• 最適な導入戦略を集合知で構築</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 集合知の力の可視化 */}
+          <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-500/30 rounded-xl p-6 mb-8">
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">⚡</span>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-4">集合知の力：1+1=3以上の効果</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    {
+                      title: 'Z世代の提案',
+                      content: 'チャットボット導入',
+                      insight: '利用者視点での操作性',
+                      color: 'bg-blue-500/20'
+                    },
+                    {
+                      title: 'ベテランの知見', 
+                      content: '過去の失敗事例',
+                      insight: '導入時の注意点・リスク',
+                      color: 'bg-green-500/20'
+                    },
+                    {
+                      title: '管理職の視点',
+                      content: '予算・ROI分析',
+                      insight: '投資対効果とタイミング',
+                      color: 'bg-orange-500/20'
+                    }
+                  ].map((item, index) => (
+                    <div key={index} className={`${item.color} rounded-lg p-4`}>
+                      <h4 className="font-semibold text-white mb-2">{item.title}</h4>
+                      <div className="text-gray-300 text-sm mb-2">{item.content}</div>
+                      <div className="text-blue-400 text-xs">{item.insight}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 p-4 bg-gradient-to-r from-yellow-900/30 to-green-900/30 rounded-lg">
+                  <div className="text-center">
+                    <div className="text-xl font-bold text-white mb-2">→ 統合された集合知</div>
+                    <div className="text-gray-300 text-sm">
+                      「利用者目線で設計され、過去の失敗を回避し、適切なタイミングで導入される最適なチャットボットシステム」
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* データドリブン意思決定 */}
+          <div className="bg-gray-700/30 rounded-xl p-6">
+            <h3 className="text-xl font-bold text-white mb-6 text-center">データドリブン集合知の実現</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {[
+                { step: '1', title: '多様な意見収集', icon: '📊', desc: '全職員からの5段階評価' },
+                { step: '2', title: '重み付け処理', icon: '⚖️', desc: 'カテゴリ別専門性反映' },
+                { step: '3', title: 'データ分析', icon: '🔍', desc: 'AI支援による傾向分析' },
+                { step: '4', title: '最適解導出', icon: '💎', desc: '集合知による最良判断' }
+              ].map((item, index) => (
+                <div key={index} className="bg-gray-600/30 rounded-lg p-4 text-center">
+                  <div className="text-3xl mb-2">{item.icon}</div>
+                  <div className="font-bold text-white text-sm mb-1">STEP {item.step}</div>
+                  <div className="text-blue-400 text-sm mb-2">{item.title}</div>
+                  <div className="text-gray-400 text-xs">{item.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 5. 構造的不公平の解消 */}
+        <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
+          visibleSections.has('5') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="5">
+          <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+            <span className="text-4xl">🌈</span>
+            5. 構造的不公平の解消
+          </h2>
+          <p className="text-gray-300 mb-8 text-lg">
+            固定観念や既存の権力構造に基づく偏見を排除し、真に公正な組織運営を実現
+          </p>
+
+          {/* 構造的不公平の例 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* 従来の構造的問題 */}
+            <div className="bg-gradient-to-br from-red-900/50 to-orange-900/50 p-6 rounded-xl border border-red-500/30">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">🚧</span>
+                従来の構造的不公平
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">世代による偏見</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 「若い人は経験不足」</li>
+                    <li>• 「ベテランは変化を嫌う」</li>
+                    <li>• 年功序列による発言権の偏り</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">職種による格差</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 「事務職は現場を知らない」</li>
+                    <li>• 「技術職は経営が分からない」</li>
+                    <li>• 職種間のヒエラルキー意識</li>
+                  </ul>
+                </div>
+
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">結果として起こること</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 優秀なアイデアの見落とし</li>
+                    <li>• 組織内の分断と対立</li>
+                    <li>• イノベーションの阻害</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* VoiceDriveの公平性実現 */}
+            <div className="bg-gradient-to-br from-green-900/50 to-blue-900/50 p-6 rounded-xl border border-green-500/30">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">🌟</span>
+                VoiceDriveの公平性設計
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">偏見を排除する仕組み</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 匿名性による先入観の除去</li>
+                    <li>• データ重視の客観的評価</li>
+                    <li>• 提案内容のみでの純粋判断</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">多様性を活かす設計</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 各グループの強みを適切に評価</li>
+                    <li>• 状況に応じた柔軟な重み調整</li>
+                    <li>• 少数派の重要な声も確実に反映</li>
+                  </ul>
+                </div>
+
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">実現される組織文化</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 相互尊重と協働の促進</li>
+                    <li>• 多様な才能の最大活用</li>
+                    <li>• 持続的なイノベーション創出</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 実際の変化事例 */}
+          <div className="bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border border-indigo-500/30 rounded-xl p-6">
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">🔄</span>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-4">組織文化の変革事例</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="bg-red-900/20 rounded-lg p-4 border border-red-500/30">
+                      <h4 className="font-semibold text-red-400 mb-2">導入前の組織</h4>
+                      <ul className="text-gray-300 text-sm space-y-1">
+                        <li>• 「またベテランの反対で改善案が潰された」</li>
+                        <li>• 「事務職の意見は軽視される」</li>
+                        <li>• 「若手のアイデアが採用されない」</li>
+                        <li>• → 提案意欲の低下、組織の停滞</li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-green-900/20 rounded-lg p-4 border border-green-500/30">
+                      <h4 className="font-semibold text-green-400 mb-2">導入後の組織</h4>
+                      <ul className="text-gray-300 text-sm space-y-1">
+                        <li>• 「アイデアが公平に評価される」</li>
+                        <li>• 「どの職種の声も価値がある」</li>
+                        <li>• 「経験に関係なく良い提案は採用」</li>
+                        <li>• → 積極的な提案、継続的改善</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 6. 透明な意思決定 */}
+        <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
+          visibleSections.has('6') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="6">
+          <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+            <span className="text-4xl">🔍</span>
+            6. 透明な意思決定
+          </h2>
+          <p className="text-gray-300 mb-8 text-lg">
+            すべてのプロセスが可視化され、説明可能で追跡可能な公正な意思決定システム
+          </p>
+
+          {/* 従来との比較 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* 従来の不透明な意思決定 */}
+            <div className="bg-gradient-to-br from-red-900/50 to-orange-900/50 p-6 rounded-xl border border-red-500/30">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">🫥</span>
+                従来のブラックボックス決定
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">見えない意思決定</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 「なぜこの決定になったのか分からない」</li>
+                    <li>• 「誰がどんな基準で判断したのか不明」</li>
+                    <li>• 「裏で決まっている感じがする」</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">不信と不満の蓄積</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 組織運営への不信増大</li>
+                    <li>• 「どうせ決まっている」という諦め</li>
+                    <li>• エンゲージメントの低下</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* VoiceDriveの透明性 */}
+            <div className="bg-gradient-to-br from-green-900/50 to-blue-900/50 p-6 rounded-xl border border-green-500/30">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">💎</span>
+                VoiceDriveの完全透明性
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">すべてが見える化</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• リアルタイム投票状況の表示</li>
+                    <li>• 重み付け基準の完全公開</li>
+                    <li>• 判断プロセスの段階的表示</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">信頼と納得の向上</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 「なぜその決定になったか理解できる」</li>
+                    <li>• 「公正なプロセスで決まった」という安心</li>
+                    <li>• 組織運営への信頼向上</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 透明性の具体的実現 */}
+          <div className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-blue-500/30 rounded-xl p-6 mb-8">
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">📊</span>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-4">透明性の具体的実現方法</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    {
+                      title: 'リアルタイム表示',
+                      features: ['投票状況の即座反映', '合意形成度の可視化', '参加者数の表示'],
+                      color: 'bg-blue-500/20'
+                    },
+                    {
+                      title: '判断基準の公開',
+                      features: ['重み付けロジックの説明', 'カテゴリ別設定理由', '計算過程の表示'],
+                      color: 'bg-green-500/20'
+                    },
+                    {
+                      title: '完全な監査証跡',
+                      features: ['全ての変更履歴記録', 'タイムスタンプ付き', '承認者の明確化'],
+                      color: 'bg-purple-500/20'
+                    }
+                  ].map((item, index) => (
+                    <div key={index} className={`${item.color} rounded-lg p-4`}>
+                      <h4 className="font-semibold text-white mb-3">{item.title}</h4>
+                      <ul className="text-gray-300 text-sm space-y-1">
+                        {item.features.map((feature, fIndex) => (
+                          <li key={fIndex}>• {feature}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 透明性がもたらす効果 */}
+          <div className="bg-gray-700/30 rounded-xl p-6">
+            <h3 className="text-xl font-bold text-white mb-6 text-center">透明性がもたらす組織への効果</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h4 className="font-semibold text-blue-400 mb-3">短期的効果</h4>
+                <div className="space-y-2">
+                  {['決定への納得度向上', 'プロセスへの信頼増加', '参加意欲の向上', '不満・噂の減少'].map((effect, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <span className="text-green-400">✓</span>
+                      <span className="text-gray-300 text-sm">{effect}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h4 className="font-semibold text-purple-400 mb-3">長期的効果</h4>
+                <div className="space-y-2">
+                  {['組織文化の変革', 'エンゲージメント向上', '自律的な改善文化', 'ガバナンス強化'].map((effect, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <span className="text-green-400">✓</span>
+                      <span className="text-gray-300 text-sm">{effect}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 7. エンパワーメント */}
+        <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
+          visibleSections.has('7') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="7">
+          <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+            <span className="text-4xl">💪</span>
+            7. エンパワーメント
+          </h2>
+          <p className="text-gray-300 mb-8 text-lg">
+            すべての職員が組織の意思決定に実質的な影響力を持ち、自分の声が価値ある貢献として認められる環境
+          </p>
+
+          {/* 従来との比較 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* 従来の無力感 */}
+            <div className="bg-gradient-to-br from-red-900/50 to-orange-900/50 p-6 rounded-xl border border-red-500/30">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">😔</span>
+                従来の無力感・諦め
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">よくある職員の声</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 「どうせ提案しても変わらない」</li>
+                    <li>• 「上の人が決めるから関係ない」</li>
+                    <li>• 「私の意見なんて聞いてもらえない」</li>
+                    <li>• 「現場のことを分かってもらえない」</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">組織への影響</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 改善提案の減少</li>
+                    <li>• 問題の隠蔽・放置</li>
+                    <li>• 受動的な業務姿勢</li>
+                    <li>• 人材の流出</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* VoiceDriveによるエンパワーメント */}
+            <div className="bg-gradient-to-br from-green-900/50 to-blue-900/50 p-6 rounded-xl border border-green-500/30">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">🚀</span>
+                VoiceDriveでの変化
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">実感される変化</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 「私の提案が実際に検討される」</li>
+                    <li>• 「匿名だから遠慮なく言える」</li>
+                    <li>• 「新人でも良いアイデアは評価される」</li>
+                    <li>• 「組織が本当に変わっていく」</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">組織の活性化</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 積極的な改善提案</li>
+                    <li>• 早期の問題発見</li>
+                    <li>• 主体的な業務取組</li>
+                    <li>• 人材の定着・成長</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* エンパワーメントの段階 */}
+          <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-500/30 rounded-xl p-6 mb-8">
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">📈</span>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-4">エンパワーメントの段階的発展</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  {[
+                    { stage: 'STEP 1', title: '発言の勇気', icon: '🗣️', desc: '匿名性により安心して意見表明' },
+                    { stage: 'STEP 2', title: '影響力の実感', icon: '⚡', desc: '自分の声が実際に結果に反映' },
+                    { stage: 'STEP 3', title: '主体性の向上', icon: '🎯', desc: '積極的な問題発見・解決提案' },
+                    { stage: 'STEP 4', title: '変革リーダー', icon: '👑', desc: '組織変革の担い手として成長' }
+                  ].map((item, index) => (
+                    <div key={index} className="bg-white/5 rounded-lg p-4 text-center">
+                      <div className="text-3xl mb-2">{item.icon}</div>
+                      <div className="font-bold text-white text-sm mb-1">{item.stage}</div>
+                      <div className="text-purple-400 text-sm mb-2">{item.title}</div>
+                      <div className="text-gray-400 text-xs">{item.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 成功事例 */}
+          <div className="bg-gray-700/30 rounded-xl p-6">
+            <h3 className="text-xl font-bold text-white mb-6 text-center">エンパワーメント成功事例</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gradient-to-r from-blue-900/30 to-cyan-900/30 rounded-lg p-4 border border-blue-500/30">
+                <h4 className="font-semibold text-cyan-400 mb-2">事例1：新人職員Bさん</h4>
+                <p className="text-gray-300 text-sm mb-3">
+                  入職6ヶ月で業務効率化のアイデアを提案。従来なら「経験不足」で却下されたが、
+                  VoiceDriveでは内容重視で評価され、全社導入に至る。
+                </p>
+                <div className="text-blue-400 text-xs">→ 自信向上、更なる改善提案意欲の増大</div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-lg p-4 border border-green-500/30">
+                <h4 className="font-semibold text-emerald-400 mb-2">事例2：事務職Cさん</h4>
+                <p className="text-gray-300 text-sm mb-3">
+                  「事務職は現場を知らない」と言われ続けたが、VoiceDriveで患者目線での
+                  サービス改善を提案。高評価を得て改善チームリーダーに抜擢。
+                </p>
+                <div className="text-green-400 text-xs">→ 多角的視点の価値認識、組織貢献の実感</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 8. デジタルガバナンス */}
+        <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
+          visibleSections.has('8') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="8">
+          <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+            <span className="text-4xl">🤖</span>
+            8. デジタルガバナンス
+          </h2>
+          <p className="text-gray-300 mb-8 text-lg">
+            テクノロジーの力で人間の偏見や感情に左右されない、客観的で公正な組織運営を実現
+          </p>
+
+          {/* 従来との比較 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* 従来の人的依存システム */}
+            <div className="bg-gradient-to-br from-red-900/50 to-orange-900/50 p-6 rounded-xl border border-red-500/30">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">👥</span>
+                従来の人的依存ガバナンス
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">人的バイアスの問題</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 個人の感情や好み影響</li>
+                    <li>• 政治的配慮による判断歪曲</li>
+                    <li>• 過去の経験による先入観</li>
+                    <li>• 処理能力の限界</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">一貫性の欠如</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 同じ案件でも判断がブレる</li>
+                    <li>• 担当者により基準が変わる</li>
+                    <li>• 時期により判断が異なる</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* VoiceDriveのデジタルガバナンス */}
+            <div className="bg-gradient-to-br from-green-900/50 to-blue-900/50 p-6 rounded-xl border border-green-500/30">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">⚙️</span>
+                VoiceDriveのデジタル統治
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">客観的・一貫的判断</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• アルゴリズムによる公正な処理</li>
+                    <li>• データに基づく客観的評価</li>
+                    <li>• 24時間365日安定した判断</li>
+                    <li>• 大量データの高速処理</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <h4 className="font-semibold text-white mb-2">完全な一貫性</h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• 同一基準による公平な評価</li>
+                    <li>• 透明なルールベース判断</li>
+                    <li>• 継続的な品質保証</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* テクノロジー活用の詳細 */}
+          <div className="bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border border-indigo-500/30 rounded-xl p-6 mb-8">
+            <div className="flex items-start gap-4">
+              <span className="text-3xl">🔬</span>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-4">VoiceDriveの技術的基盤</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    {
+                      tech: 'AI分析エンジン',
+                      features: ['パターン認識', '傾向分析', '予測モデル'],
+                      benefit: '隠れた洞察の発見',
+                      color: 'bg-blue-500/20'
+                    },
+                    {
+                      tech: 'ブロックチェーン',
+                      features: ['改ざん防止', '完全な監査証跡', '分散台帳'],
+                      benefit: '絶対的な透明性確保',
+                      color: 'bg-green-500/20'
+                    },
+                    {
+                      tech: '機械学習',
+                      features: ['重み最適化', '不正検知', '品質向上'],
+                      benefit: '継続的システム改善',
+                      color: 'bg-purple-500/20'
+                    }
+                  ].map((item, index) => (
+                    <div key={index} className={`${item.color} rounded-lg p-4`}>
+                      <h4 className="font-semibold text-white mb-2">{item.tech}</h4>
+                      <ul className="text-gray-300 text-xs space-y-1 mb-3">
+                        {item.features.map((feature, fIndex) => (
+                          <li key={fIndex}>• {feature}</li>
+                        ))}
+                      </ul>
+                      <div className="text-yellow-400 text-xs font-semibold">{item.benefit}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 未来の可能性 */}
+          <div className="bg-gray-700/30 rounded-xl p-6">
+            <h3 className="text-xl font-bold text-white mb-6 text-center">デジタルガバナンスが描く未来</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <h4 className="font-semibold text-blue-400">近未来の発展</h4>
+                <div className="space-y-2">
+                  {[
+                    'リアルタイム予測による先回り改善',
+                    '自動的な最適解提案システム',
+                    '組織学習の自動化',
+                    'クロス組織での知見共有'
+                  ].map((future, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <span className="text-blue-400">→</span>
+                      <span className="text-gray-300 text-sm">{future}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-3">
+                <h4 className="font-semibold text-purple-400">長期ビジョン</h4>
+                <div className="space-y-2">
+                  {[
+                    '完全自律型組織運営',
+                    'AIとヒューマンの完全協働',
+                    '業界標準ガバナンスモデル',
+                    '社会インフラとしての展開'
+                  ].map((vision, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <span className="text-purple-400">✦</span>
+                      <span className="text-gray-300 text-sm">{vision}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* プロジェクトレベル階層 */}
         <div className={`animate-section bg-gray-800/50 rounded-2xl p-8 backdrop-blur border border-gray-700/50 mb-8 transition-all duration-700 ${
-          visibleSections.has(4) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} data-section="4">
+          visibleSections.has(9) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} data-section="9">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
             <span className="text-4xl">📈</span>
             プロジェクトレベル階層
