@@ -35,6 +35,7 @@ import OrganizationAnalyticsPage from '../pages/OrganizationAnalyticsPage';
 import BoardReportsPage from '../pages/BoardReportsPage';
 import GovernancePage from '../pages/GovernancePage';
 import VotingSystemGuide from '../pages/VotingSystemGuide';
+import StaffVotingGuide from '../pages/StaffVotingGuide';
 
 // Dashboard pages
 import PersonalDashboardPage from '../pages/PersonalDashboardPage';
@@ -425,6 +426,7 @@ const AppRouter: React.FC = () => {
       <Route path="compose/:type" element={<ComposePage />} />
       <Route path="project/:projectId" element={<ProjectDetailPage />} />
       <Route path="personal-station" element={<PersonalStationPage />} />
+      <Route path="staff-voting-guide" element={<StaffVotingGuide />} />
       <Route path="voting-system-guide" element={<VotingSystemGuide />} />
       <Route path="leader-station" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_2}>
