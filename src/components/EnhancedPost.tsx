@@ -158,12 +158,12 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
             <span className="text-sm">
               {post.type === 'improvement' ? '💡' : 
                post.type === 'community' ? '💬' : 
-               '🚨'}
+               post.type === 'report' ? '🚨' : '📝'}
             </span>
             <span>
               {post.type === 'improvement' ? 'アイデアボイス' : 
                post.type === 'community' ? 'フリーボイス' : 
-               'コンプライアンス窓口'}
+               post.type === 'report' ? 'コンプライアンス窓口' : 'その他'}
             </span>
           </div>
         </div>

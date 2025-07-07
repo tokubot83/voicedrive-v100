@@ -159,6 +159,7 @@ const VotingSection: React.FC<VotingSectionProps> = ({
           const mockApprovalRequest = {
             id: `approval-${post.id}`,
             projectId: post.id,
+            requesterId: post.author.id,
             budgetAmount: 1500000, // 150万円相当
             reason: post.content,
             status: post.approvalFlow?.status === 'approved' ? 'approved' as const : 'pending' as const,
