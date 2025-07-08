@@ -200,6 +200,93 @@ const StaffVotingGuide: React.FC = () => {
                 <p className="text-blue-400 mt-3 font-bold">
                   ✨ でも、みんなの意見が必ず反映される！
                 </p>
+                
+                {/* 経験年数による重み付け */}
+                <div className="mt-6 p-4 bg-gray-700/30 rounded-lg border border-gray-600/30">
+                  <h4 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                    <span className="text-xl">📚</span>
+                    経験年数も考慮されるよ！
+                  </h4>
+                  <p className="text-gray-100 mb-3 text-sm">
+                    長い経験で培った知識や判断力も大切にします
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-purple-900/30 p-2 rounded-lg text-center">
+                      <span className="text-lg">🏆</span>
+                      <p className="text-white font-bold text-sm">20年以上</p>
+                      <p className="text-purple-400 text-xs">+0.3倍</p>
+                    </div>
+                    <div className="bg-indigo-900/30 p-2 rounded-lg text-center">
+                      <span className="text-lg">⭐</span>
+                      <p className="text-white font-bold text-sm">10-19年</p>
+                      <p className="text-indigo-400 text-xs">+0.2倍</p>
+                    </div>
+                    <div className="bg-cyan-900/30 p-2 rounded-lg text-center">
+                      <span className="text-lg">💪</span>
+                      <p className="text-white font-bold text-sm">5-9年</p>
+                      <p className="text-cyan-400 text-xs">+0.1倍</p>
+                    </div>
+                    <div className="bg-gray-600/30 p-2 rounded-lg text-center">
+                      <span className="text-lg">🌱</span>
+                      <p className="text-white font-bold text-sm">5年未満</p>
+                      <p className="text-gray-400 text-xs">基準値</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 役職による重み付け */}
+                <div className="mt-4 p-4 bg-gray-700/30 rounded-lg border border-gray-600/30">
+                  <h4 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                    <span className="text-xl">👑</span>
+                    責任の重さも反映！
+                  </h4>
+                  <p className="text-gray-100 mb-3 text-sm">
+                    組織運営や意思決定の責任も考慮されます
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="bg-amber-900/30 p-2 rounded-lg text-center">
+                      <span className="text-lg">👔</span>
+                      <p className="text-white font-bold text-sm">管理職</p>
+                      <p className="text-amber-400 text-xs">+0.2倍</p>
+                    </div>
+                    <div className="bg-orange-900/30 p-2 rounded-lg text-center">
+                      <span className="text-lg">📋</span>
+                      <p className="text-white font-bold text-sm">主任・係長</p>
+                      <p className="text-orange-400 text-xs">+0.1倍</p>
+                    </div>
+                    <div className="bg-gray-600/30 p-2 rounded-lg text-center">
+                      <span className="text-lg">👤</span>
+                      <p className="text-white font-bold text-sm">一般職</p>
+                      <p className="text-gray-400 text-xs">基準値</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 世代バランス */}
+                <div className="mt-4 p-4 bg-gray-700/30 rounded-lg border border-gray-600/30">
+                  <h4 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                    <span className="text-xl">🌈</span>
+                    世代の多様性も大切！
+                  </h4>
+                  <p className="text-gray-100 mb-3 text-sm">
+                    異なる世代の視点や価値観も投票に反映されます
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <div className="bg-emerald-900/30 px-3 py-2 rounded-full">
+                      <span className="text-emerald-400 text-sm font-bold">🧓 ベテラン世代の経験</span>
+                    </div>
+                    <div className="bg-blue-900/30 px-3 py-2 rounded-full">
+                      <span className="text-blue-400 text-sm font-bold">💼 中堅世代の実践力</span>
+                    </div>
+                    <div className="bg-violet-900/30 px-3 py-2 rounded-full">
+                      <span className="text-violet-400 text-sm font-bold">✨ 若手世代の新しい視点</span>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-green-400 mt-4 font-bold text-center">
+                  🎯 みんなの経験・立場・世代が合わさって、最高の意思決定に！
+                </p>
               </div>
             </div>
 
