@@ -247,6 +247,48 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
           <span>投票システムガイド</span>
         </button>
         <button
+          onClick={() => onNavigate('/free-voice-guide')}
+          className={`
+            w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+            transition-all duration-150
+            ${currentPath === '/free-voice-guide' 
+              ? 'bg-green-600 text-white shadow-lg' 
+              : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+            }
+          `}
+        >
+          <span className="text-base">💬</span>
+          <span>フリーボイスガイド</span>
+        </button>
+        <button
+          onClick={() => onNavigate('/compliance-guide')}
+          className={`
+            w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+            transition-all duration-150
+            ${currentPath === '/compliance-guide' 
+              ? 'bg-red-600 text-white shadow-lg' 
+              : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+            }
+          `}
+        >
+          <span className="text-base">🛡️</span>
+          <span>コンプライアンス窓口</span>
+        </button>
+        <button
+          onClick={() => onNavigate('/interview-guide')}
+          className={`
+            w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+            transition-all duration-150
+            ${currentPath === '/interview-guide' 
+              ? 'bg-purple-600 text-white shadow-lg' 
+              : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+            }
+          `}
+        >
+          <span className="text-base">📅</span>
+          <span>面談予約ガイド</span>
+        </button>
+        <button
           onClick={() => onNavigate('/notifications')}
           className={`
             w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
