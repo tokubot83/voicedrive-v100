@@ -1,23 +1,51 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MobileFooter } from '../components/layout/MobileFooter';
 import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 const StaffVotingGuide: React.FC = () => {
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    // 初期表示のため、すべてのセクションを表示状態にする
+    setVisibleSections(new Set(['header', 'why', 'flow', 'fairness', 'weight', 'transparent', 'summary']));
+    
+    // スクロールアニメーションの監視
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const sectionId = entry.target.getAttribute('data-section') || '';
+            setVisibleSections(prev => new Set(prev).add(sectionId));
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    );
+
+    document.querySelectorAll('.animate-section').forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-900 w-full flex flex-col">
-      <div className="flex-1 w-full p-6 pb-20 lg:pb-16 max-w-4xl mx-auto">
+      <div className="flex-1 w-full p-6 pb-20 lg:pb-16">
         {/* ヘッダー */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mb-8 text-center">
-          <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-            🗳️ VoiceDriveの投票はこうして公平になる！
+        <div className={`bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-2xl p-8 backdrop-blur-xl border border-blue-500/20 mb-8 animate-section transition-all duration-1000 ${
+          visibleSections.has('header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`} data-section="header">
+          <h1 className="text-4xl font-bold text-white mb-4 flex items-center gap-4">
+            <span className="text-5xl">🗳️</span>
+            VoiceDriveの投票はこうして公平になる！
           </h1>
-          <p className="text-xl text-white/90">
+          <p className="text-xl text-gray-300">
             みんなの意見が平等に反映される仕組み
           </p>
         </div>
 
         {/* なぜ投票が大切？ */}
-        <div className="bg-gray-800 rounded-xl p-6 mb-6 border-2 border-blue-500">
+        <div className={`bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 mb-6 border border-blue-500/30 animate-section transition-all duration-1000 ${
+          visibleSections.has('why') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`} data-section="why">
           <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
             <span className="text-3xl">🤔</span>
             なぜ投票が大切なの？
@@ -44,7 +72,9 @@ const StaffVotingGuide: React.FC = () => {
         </div>
 
         {/* 投票の流れ */}
-        <div className="bg-gray-800 rounded-xl p-6 mb-6 border-2 border-green-500">
+        <div className={`bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 mb-6 border border-green-500/30 animate-section transition-all duration-1000 ${
+          visibleSections.has('flow') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`} data-section="flow">
           <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
             <span className="text-3xl">📝</span>
             投票はとってもカンタン！
@@ -81,7 +111,9 @@ const StaffVotingGuide: React.FC = () => {
         </div>
 
         {/* 公平性の説明 */}
-        <div className="bg-gray-800 rounded-xl p-6 mb-6 border-2 border-purple-500">
+        <div className={`bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 mb-6 border border-purple-500/30 animate-section transition-all duration-1000 ${
+          visibleSections.has('fairness') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`} data-section="fairness">
           <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
             <span className="text-3xl">⚖️</span>
             どうして公平なの？
@@ -212,7 +244,9 @@ const StaffVotingGuide: React.FC = () => {
         </div>
 
         {/* まとめ */}
-        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-xl p-6 border-2 border-white/20">
+        <div className={`bg-gradient-to-r from-green-900/50 to-blue-900/50 backdrop-blur-xl rounded-xl p-6 border border-green-500/20 animate-section transition-all duration-1000 ${
+          visibleSections.has('summary') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`} data-section="summary">
           <h2 className="text-2xl font-bold text-white mb-4 text-center">
             🎉 VoiceDriveの投票なら安心！
           </h2>
