@@ -408,7 +408,6 @@ const AppRouter: React.FC = () => {
         {/* Common pages */}
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="settings" element={<SettingsPage />} />
-        <Route path="staff-voting-guide" element={<StaffVotingGuide />} />
         
         {/* Demo pages */}
         <Route path="demo">
@@ -427,6 +426,7 @@ const AppRouter: React.FC = () => {
       <Route path="compose/:type" element={<ComposePage />} />
       <Route path="project/:projectId" element={<ProjectDetailPage />} />
       <Route path="personal-station" element={<PersonalStationPage />} />
+      <Route path="staff-voting-guide" element={<StaffVotingGuide />} />
       <Route path="voting-system-guide" element={<VotingSystemGuide />} />
       <Route path="leader-station" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_2}>
