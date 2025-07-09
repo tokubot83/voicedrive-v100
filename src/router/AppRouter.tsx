@@ -36,6 +36,7 @@ import BoardReportsPage from '../pages/BoardReportsPage';
 import GovernancePage from '../pages/GovernancePage';
 import VotingSystemGuide from '../pages/VotingSystemGuide';
 import StaffVotingGuide from '../pages/StaffVotingGuide';
+import IdeaVoiceGuide from '../pages/IdeaVoiceGuide';
 import FreeVoiceGuide from '../pages/FreeVoiceGuide';
 import ComplianceGuide from '../pages/ComplianceGuide';
 import InterviewGuide from '../pages/InterviewGuide';
@@ -431,6 +432,7 @@ const AppRouter: React.FC = () => {
       <Route path="personal-station" element={<PersonalStationPage />} />
       <Route path="staff-voting-guide" element={<StaffVotingGuide />} />
       <Route path="voting-system-guide" element={<VotingSystemGuide />} />
+      <Route path="idea-voice-guide" element={<IdeaVoiceGuide />} />
       <Route path="free-voice-guide" element={<FreeVoiceGuide />} />
       <Route path="compliance-guide" element={<ComplianceGuide />} />
       <Route path="interview-guide" element={<InterviewGuide />} />
