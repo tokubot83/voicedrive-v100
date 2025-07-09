@@ -219,32 +219,18 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       {/* システム機能（下部固定） */}
       <div className="absolute bottom-0 left-0 right-0 p-4 space-y-1 border-t border-slate-700/50 bg-slate-800/95 backdrop-blur-xl">
         <button
-          onClick={() => onNavigate('/staff-voting-guide')}
+          onClick={() => onNavigate('/idea-voice-guide')}
           className={`
             w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
             transition-all duration-150
-            ${currentPath === '/staff-voting-guide' 
+            ${currentPath === '/idea-voice-guide' 
               ? 'bg-blue-600 text-white shadow-lg' 
               : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
             }
           `}
         >
-          <span className="text-base">🗳️</span>
-          <span>投票のしくみ（職員向け）</span>
-        </button>
-        <button
-          onClick={() => onNavigate('/voting-system-guide')}
-          className={`
-            w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
-            transition-all duration-150
-            ${currentPath === '/voting-system-guide' 
-              ? 'bg-blue-600 text-white shadow-lg' 
-              : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
-            }
-          `}
-        >
-          <BarChart3 className="w-4 h-4" />
-          <span>投票システムガイド</span>
+          <span className="text-base">💡</span>
+          <span>アイデアボイスガイド</span>
         </button>
         <button
           onClick={() => onNavigate('/free-voice-guide')}
