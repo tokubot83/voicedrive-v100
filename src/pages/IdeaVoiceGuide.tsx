@@ -4,7 +4,7 @@ import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 const IdeaVoiceGuide: React.FC = () => {
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'overview' | 'system' | 'flow' | 'examples' | 'faq' | 'support'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'system' | 'flow' | 'proposal-examples' | 'examples' | 'faq' | 'support'>('overview');
   const [progressWidth, setProgressWidth] = useState(0);
 
   useEffect(() => {
@@ -19,6 +19,7 @@ const IdeaVoiceGuide: React.FC = () => {
       'header', 'intro', 'why', 'fairness', 'transparent', 'summary',
       'system-header', 'weight-system', 'anonymous-system', 'calculation', 'levels', 'approval',
       'flow-header', 'step1', 'step2', 'step3', 'step4', 'step5', 'flow-timeline',
+      'proposal-examples-header', 'operational-examples', 'communication-examples', 'innovation-examples', 'strategic-examples',
       'examples-header', 'nurse-cases', 'doctor-cases', 'admin-cases', 'tech-cases', 'examples-stats',
       'faq-header', 'faq1', 'faq2', 'faq3', 'faq4', 'faq5', 'faq6', 'faq-footer',
       'support-header', 'pre-support', 'post-support', 'project-support', 'training-support', 'support-contact'
@@ -97,6 +98,7 @@ const IdeaVoiceGuide: React.FC = () => {
               { id: 'overview' as const, label: 'アイデアボイスとは', icon: '🌟' },
               { id: 'system' as const, label: '投票システム', icon: '🗳️' },
               { id: 'flow' as const, label: '投票の流れ', icon: '📝' },
+              { id: 'proposal-examples' as const, label: '投稿例', icon: '💡' },
               { id: 'examples' as const, label: '成功事例', icon: '🏆' },
               { id: 'faq' as const, label: 'よくある質問', icon: '❓' },
               { id: 'support' as const, label: 'サポート体制', icon: '🤝' }
@@ -427,6 +429,308 @@ const IdeaVoiceGuide: React.FC = () => {
                   <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
                     <p className="text-white font-semibold mb-2">🔄 継続的改善</p>
                     <p className="text-gray-300 text-sm">実行後も継続的に投票を受け付け、改善を続けます</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* 投稿例 */}
+          {activeTab === 'proposal-examples' && (
+            <>
+              <div className={`bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-blue-500/30 animate-section transition-all duration-1000 ${
+                visibleSections.has('proposal-examples-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`} data-section="proposal-examples-header">
+                <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-blue-400">💡</span>
+                  カテゴリ別投稿例
+                </h2>
+                <p className="text-lg text-gray-300">
+                  各カテゴリの特徴と投稿例をご紹介します。あなたのアイデアに最適なカテゴリを見つけましょう。
+                </p>
+              </div>
+
+              {/* 業務改善 */}
+              <div className={`bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-green-500/30 animate-section transition-all duration-1000 ${
+                visibleSections.has('operational-examples') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`} data-section="operational-examples">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-green-400">🏥</span>
+                  業務改善
+                </h3>
+                <div className="mb-6 bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+                  <p className="text-gray-300 mb-2">
+                    <span className="text-green-400 font-semibold">対象：</span>
+                    診療業務・介護業務・事務作業の効率化や品質向上
+                  </p>
+                  <p className="text-gray-300">
+                    <span className="text-green-400 font-semibold">重み付け：</span>
+                    現場スタッフ重視（現場50%、ベテラン30%、管理職15%、Z世代5%）
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  {[
+                    {
+                      title: '電子カルテ入力時間の短縮',
+                      content: '定型文やテンプレートを充実させることで、カルテ入力時間を30%削減できると思います。特に退院サマリーや処方箋の作成で効果が大きいはず。',
+                      submitter: '看護師（5年目）',
+                      expectedEffect: '1日あたり各職員30分の時間短縮',
+                      difficulty: '実現可能性：高'
+                    },
+                    {
+                      title: '薬剤在庫管理の自動化',
+                      content: 'バーコードシステムを導入し、薬剤の入出庫を自動記録することで、在庫チェックの時間を大幅に削減できます。期限切れの防止にも効果的。',
+                      submitter: '薬剤師（10年目）',
+                      expectedEffect: '薬剤部の業務効率20%向上',
+                      difficulty: '実現可能性：中'
+                    },
+                    {
+                      title: 'ナースコールシステムの改善',
+                      content: '緊急度を3段階に分類し、優先度に応じた対応ができるシステムを提案します。患者様の安全向上と職員の負担軽減の両立が可能。',
+                      submitter: '看護師（12年目）',
+                      expectedEffect: '患者満足度向上、職員ストレス軽減',
+                      difficulty: '実現可能性：中'
+                    }
+                  ].map((example, index) => (
+                    <div key={index} className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30">
+                      <h4 className="text-xl font-semibold text-white mb-3">{example.title}</h4>
+                      <p className="text-gray-300 mb-4">{example.content}</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-blue-400 font-semibold">👤</span>
+                          <span className="text-gray-300">{example.submitter}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-400 font-semibold">💡</span>
+                          <span className="text-gray-300">{example.expectedEffect}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-purple-400 font-semibold">📊</span>
+                          <span className="text-gray-300">{example.difficulty}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* コミュニケーション */}
+              <div className={`bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-yellow-500/30 animate-section transition-all duration-1000 ${
+                visibleSections.has('communication-examples') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`} data-section="communication-examples">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-yellow-400">👥</span>
+                  コミュニケーション
+                </h3>
+                <div className="mb-6 bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+                  <p className="text-gray-300 mb-2">
+                    <span className="text-yellow-400 font-semibold">対象：</span>
+                    職場環境・福利厚生・人間関係の改善
+                  </p>
+                  <p className="text-gray-300">
+                    <span className="text-yellow-400 font-semibold">重み付け：</span>
+                    現場とZ世代重視（現場35%、Z世代35%、ベテラン20%、管理職10%）
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  {[
+                    {
+                      title: '部署間コミュニケーション向上',
+                      content: '月1回の部署間ランチミーティングを提案します。リラックスした環境で情報共有することで、業務連携がスムーズになり、職場の雰囲気も良くなると思います。',
+                      submitter: '介護職員（3年目）',
+                      expectedEffect: '部署間連携20%向上',
+                      difficulty: '実現可能性：高'
+                    },
+                    {
+                      title: '新人職員サポート制度',
+                      content: 'メンター制度を導入し、新人1人につき先輩1人がサポートする体制を作りませんか？定期的な面談で不安を解消し、早期離職を防げます。',
+                      submitter: '看護師（2年目）',
+                      expectedEffect: '新人定着率向上、職場満足度向上',
+                      difficulty: '実現可能性：高'
+                    },
+                    {
+                      title: 'ストレス解消スペースの設置',
+                      content: '休憩室にマッサージチェアやアロマディフューザーを設置し、短時間でリフレッシュできる環境を作ってほしいです。夜勤明けの疲労回復にも効果的。',
+                      submitter: '看護師（6年目）',
+                      expectedEffect: '職員満足度向上、離職率低下',
+                      difficulty: '実現可能性：中'
+                    }
+                  ].map((example, index) => (
+                    <div key={index} className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30">
+                      <h4 className="text-xl font-semibold text-white mb-3">{example.title}</h4>
+                      <p className="text-gray-300 mb-4">{example.content}</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-blue-400 font-semibold">👤</span>
+                          <span className="text-gray-300">{example.submitter}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-400 font-semibold">💡</span>
+                          <span className="text-gray-300">{example.expectedEffect}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-purple-400 font-semibold">📊</span>
+                          <span className="text-gray-300">{example.difficulty}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* イノベーション */}
+              <div className={`bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-purple-500/30 animate-section transition-all duration-1000 ${
+                visibleSections.has('innovation-examples') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`} data-section="innovation-examples">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-purple-400">💡</span>
+                  イノベーション
+                </h3>
+                <div className="mb-6 bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+                  <p className="text-gray-300 mb-2">
+                    <span className="text-purple-400 font-semibold">対象：</span>
+                    新技術導入・新サービス開発・制度改革
+                  </p>
+                  <p className="text-gray-300">
+                    <span className="text-purple-400 font-semibold">重み付け：</span>
+                    Z世代重視（Z世代40%、現場30%、管理職20%、ベテラン10%）
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  {[
+                    {
+                      title: 'AI活用による診断支援システム',
+                      content: '画像診断にAIを活用し、医師の診断精度向上と負担軽減を実現しませんか？最新の深層学習技術を使えば、早期発見率の向上も期待できます。',
+                      submitter: '医師（4年目）',
+                      expectedEffect: '診断精度10%向上、診断時間30%短縮',
+                      difficulty: '実現可能性：中'
+                    },
+                    {
+                      title: 'VR技術を活用したリハビリ',
+                      content: 'VRゲームを使った楽しいリハビリプログラムを提案します。患者様のモチベーション向上と、従来より効果的な機能回復が期待できます。',
+                      submitter: '理学療法士（3年目）',
+                      expectedEffect: '患者満足度向上、回復率20%向上',
+                      difficulty: '実現可能性：低'
+                    },
+                    {
+                      title: 'IoTセンサーによる患者見守り',
+                      content: 'ベッドサイドにIoTセンサーを設置し、患者様の状態を24時間モニタリング。異常の早期発見と職員の負担軽減が同時に実現できます。',
+                      submitter: '看護師（2年目）',
+                      expectedEffect: '事故防止、職員負担軽減',
+                      difficulty: '実現可能性：中'
+                    }
+                  ].map((example, index) => (
+                    <div key={index} className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30">
+                      <h4 className="text-xl font-semibold text-white mb-3">{example.title}</h4>
+                      <p className="text-gray-300 mb-4">{example.content}</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-blue-400 font-semibold">👤</span>
+                          <span className="text-gray-300">{example.submitter}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-400 font-semibold">💡</span>
+                          <span className="text-gray-300">{example.expectedEffect}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-purple-400 font-semibold">📊</span>
+                          <span className="text-gray-300">{example.difficulty}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 戦略提案 */}
+              <div className={`bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-orange-500/30 animate-section transition-all duration-1000 ${
+                visibleSections.has('strategic-examples') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`} data-section="strategic-examples">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-orange-400">🎯</span>
+                  戦略提案
+                </h3>
+                <div className="mb-6 bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+                  <p className="text-gray-300 mb-2">
+                    <span className="text-orange-400 font-semibold">対象：</span>
+                    組織運営・経営戦略・事業展開
+                  </p>
+                  <p className="text-gray-300">
+                    <span className="text-orange-400 font-semibold">重み付け：</span>
+                    管理職重視（管理職60%、ベテラン25%、現場10%、Z世代5%）
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  {[
+                    {
+                      title: '地域包括ケアシステムの構築',
+                      content: '近隣の医療機関・介護施設と連携し、地域一体型のケアシステムを構築しませんか？患者様の継続的なケアと、地域での存在感向上が期待できます。',
+                      submitter: '看護部長（20年目）',
+                      expectedEffect: '地域連携強化、患者継続率向上',
+                      difficulty: '実現可能性：中'
+                    },
+                    {
+                      title: '人材確保・育成戦略の見直し',
+                      content: '看護師不足解消のため、奨学金制度の拡充と働きやすい環境づくりを戦略的に進めてはどうでしょうか？長期的な人材確保に必要な投資です。',
+                      submitter: '事務長（15年目）',
+                      expectedEffect: '人材確保率向上、離職率低下',
+                      difficulty: '実現可能性：高'
+                    },
+                    {
+                      title: '新規事業：在宅医療の強化',
+                      content: '高齢化社会に対応し、在宅医療部門を強化することを提案します。医師・看護師の訪問体制を整備し、地域のニーズに応えられる体制を。',
+                      submitter: '医師（部長・25年目）',
+                      expectedEffect: '収益源多様化、地域貢献',
+                      difficulty: '実現可能性：中'
+                    }
+                  ].map((example, index) => (
+                    <div key={index} className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30">
+                      <h4 className="text-xl font-semibold text-white mb-3">{example.title}</h4>
+                      <p className="text-gray-300 mb-4">{example.content}</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-blue-400 font-semibold">👤</span>
+                          <span className="text-gray-300">{example.submitter}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-400 font-semibold">💡</span>
+                          <span className="text-gray-300">{example.expectedEffect}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-purple-400 font-semibold">📊</span>
+                          <span className="text-gray-300">{example.difficulty}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 投稿のコツ */}
+              <div className={`bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-2xl p-8 border border-blue-500/30 animate-section transition-all duration-1000 ${
+                visibleSections.has('proposal-tips') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`} data-section="proposal-tips">
+                <h3 className="text-2xl font-bold text-white mb-4">💡 効果的な投稿のコツ</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="bg-gray-800/50 rounded-xl p-4 text-center">
+                    <div className="text-3xl mb-2">🎯</div>
+                    <div className="text-white font-semibold mb-2">目的を明確に</div>
+                    <div className="text-sm text-gray-300">なぜ必要か、誰のためかを明確に</div>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-xl p-4 text-center">
+                    <div className="text-3xl mb-2">📊</div>
+                    <div className="text-white font-semibold mb-2">データを活用</div>
+                    <div className="text-sm text-gray-300">具体的な数値や根拠を提示</div>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-xl p-4 text-center">
+                    <div className="text-3xl mb-2">🔄</div>
+                    <div className="text-white font-semibold mb-2">実現可能性</div>
+                    <div className="text-sm text-gray-300">段階的な実施計画を提案</div>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-xl p-4 text-center">
+                    <div className="text-3xl mb-2">🤝</div>
+                    <div className="text-white font-semibold mb-2">協力体制</div>
+                    <div className="text-sm text-gray-300">関係者との連携を考慮</div>
                   </div>
                 </div>
               </div>
