@@ -36,6 +36,9 @@ import BoardReportsPage from '../pages/BoardReportsPage';
 import GovernancePage from '../pages/GovernancePage';
 import VotingSystemGuide from '../pages/VotingSystemGuide';
 import StaffVotingGuide from '../pages/StaffVotingGuide';
+import FreeVoiceGuide from '../pages/FreeVoiceGuide';
+import ComplianceGuide from '../pages/ComplianceGuide';
+import InterviewGuide from '../pages/InterviewGuide';
 
 // Dashboard pages
 import PersonalDashboardPage from '../pages/PersonalDashboardPage';
@@ -428,6 +431,9 @@ const AppRouter: React.FC = () => {
       <Route path="personal-station" element={<PersonalStationPage />} />
       <Route path="staff-voting-guide" element={<StaffVotingGuide />} />
       <Route path="voting-system-guide" element={<VotingSystemGuide />} />
+      <Route path="free-voice-guide" element={<FreeVoiceGuide />} />
+      <Route path="compliance-guide" element={<ComplianceGuide />} />
+      <Route path="interview-guide" element={<InterviewGuide />} />
       <Route path="leader-station" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_2}>
           <LeaderStationPage />
