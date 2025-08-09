@@ -10,6 +10,13 @@ import {
 } from '../../types/interview';
 import { InterviewBookingService } from '../../services/InterviewBookingService';
 import InterviewReminderService from '../../services/InterviewReminderService';
+import {
+  normalizeInterviewType,
+  shouldShowCategorySelection,
+  getAvailableCategories,
+  getInterviewTypeDisplayName,
+  INTERVIEW_CLASSIFICATIONS
+} from '../../utils/interviewMappingUtils';
 
 interface InterviewBookingCalendarProps {
   employeeId?: string;
@@ -26,8 +33,8 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [selectedSlots, setSelectedSlots] = useState<TimeSlot[]>([]);
-  const [interviewType, setInterviewType] = useState<InterviewType>('ad_hoc');
-  const [interviewCategory, setInterviewCategory] = useState<InterviewCategory>('career_path');
+  const [interviewType, setInterviewType] = useState<InterviewType>('individual_consultation');
+  const [interviewCategory, setInterviewCategory] = useState<InterviewCategory | null>(null);
   const [description, setDescription] = useState('');
   const [availableSlots, setAvailableSlots] = useState<Map<string, TimeSlot[]>>(new Map());
   const [loading, setLoading] = useState(false);
@@ -48,26 +55,21 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
     { id: 'slot5', startTime: '16:20', endTime: '16:50', label: '16:20-16:50' }
   ];
 
-  // 面談タイプの選択肢（医療介護系法人向け）
+  // 面談タイプの選択肢（新体系10種類）
   const interviewTypes = [
-    { value: 'new_employee_monthly', label: '新入職員月次面談', icon: '🩺', description: '新入職員の月次フォローアップ面談' },
-    { value: 'regular_annual', label: '年次定期面談', icon: '📅', description: '年1回の定期面談' },
-    { value: 'management_biannual', label: '管理職面談', icon: '👔', description: '管理職・リーダー向け半年面談' },
-    { value: 'ad_hoc', label: '随時面談', icon: '💬', description: '必要に応じた相談面談' },
-    { value: 'incident_followup', label: 'インシデント後面談', icon: '⚠️', description: '医療事故・インシデント後のフォローアップ' },
-    { value: 'return_to_work', label: '復職面談', icon: '🔄', description: '長期休暇からの復職時面談' },
-    { value: 'career_development', label: 'キャリア開発面談', icon: '🎯', description: 'キャリア形成・専門性向上相談' },
-    { value: 'stress_care', label: 'ストレスケア面談', icon: '🧘', description: 'メンタルヘルス・ストレス相談' },
-    { value: 'performance_review', label: '人事評価面談', icon: '📊', description: '業績評価・目標設定面談' },
-    { value: 'grievance', label: '苦情・相談面談', icon: '💭', description: '職場での悩み・苦情相談' },
-    { value: 'exit_interview', label: '退職面談', icon: '👋', description: '退職時の最終面談' },
-    // 後方互換性のため旧タイプも残す
-    { value: 'regular', label: '定期面談（旧）', icon: '📅', description: '従来の定期面談' },
-    { value: 'career', label: 'キャリア相談（旧）', icon: '🎯', description: '従来のキャリア相談' },
-    { value: 'concern', label: '悩み相談（旧）', icon: '💭', description: '従来の悩み相談' },
-    { value: 'evaluation', label: '評価面談（旧）', icon: '📊', description: '従来の評価面談' },
-    { value: 'development', label: '能力開発（旧）', icon: '📚', description: '従来の能力開発' },
-    { value: 'other', label: 'その他', icon: '📝', description: 'その他の面談' }
+    // 定期面談（3種類）
+    { value: 'new_employee_monthly', label: '新入職員月次面談', icon: '🩺', description: '新入職員の月次フォローアップ面談', category: 'regular' },
+    { value: 'regular_annual', label: '一般職員年次面談', icon: '📅', description: '年1回の定期面談', category: 'regular' },
+    { value: 'management_biannual', label: '管理職半年面談', icon: '👔', description: '管理職・リーダー向け半年面談', category: 'regular' },
+    // 特別面談（3種類）
+    { value: 'return_to_work', label: '復職面談', icon: '🔄', description: '長期休暇からの復職時面談', category: 'special' },
+    { value: 'incident_followup', label: 'インシデント後面談', icon: '⚠️', description: '医療事故・インシデント後のフォローアップ', category: 'special' },
+    { value: 'exit_interview', label: '退職面談', icon: '👋', description: '退職時の最終面談', category: 'special' },
+    // サポート面談（4種類）
+    { value: 'feedback', label: 'フィードバック面談', icon: '📊', description: '人事評価後のフィードバック', category: 'support' },
+    { value: 'career_support', label: 'キャリア系面談', icon: '🎯', description: 'キャリア形成・スキル開発相談', category: 'support' },
+    { value: 'workplace_support', label: '職場環境系面談', icon: '🧘', description: '職場環境・人間関係の相談', category: 'support' },
+    { value: 'individual_consultation', label: '個別相談面談', icon: '💬', description: 'その他の個別相談', category: 'support' }
   ];
 
   // カテゴリの選択肢
@@ -254,6 +256,13 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
       return;
     }
 
+    // カテゴリ選択のバリデーション
+    const normalizedType = normalizeInterviewType(interviewType);
+    if (shouldShowCategorySelection(normalizedType) && !interviewCategory) {
+      setError('この面談種別ではカテゴリの選択が必要です');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -262,8 +271,8 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
         employeeId,
         preferredDates: selectedDates,
         preferredTimes: selectedSlots.map(slot => `${slot.startTime}-${slot.endTime}`),
-        interviewType,
-        interviewCategory,
+        interviewType: normalizedType,
+        interviewCategory: interviewCategory || 'other',
         requestedTopics: [],
         description,
         urgencyLevel: 'medium'
@@ -526,18 +535,40 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
         )}
       </div>
 
-      <div className="bg-green-50 p-6 rounded-lg border border-green-200">
-        <h3 className="font-semibold text-lg mb-4">詳細カテゴリ</h3>
-        <select
-          value={interviewCategory}
-          onChange={(e) => setInterviewCategory(e.target.value as InterviewCategory)}
-          className="w-full p-3 text-lg border border-gray-300 rounded-lg"
-        >
-          {Object.entries(categoryOptions).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
-        </select>
-      </div>
+      {/* カテゴリ選択（条件付き表示） */}
+      {shouldShowCategorySelection(interviewType) && (
+        <div className="bg-green-50 p-6 rounded-lg border border-green-200">
+          <h3 className="font-semibold text-lg mb-4">詳細カテゴリ（必須）</h3>
+          <p className="text-sm text-gray-600 mb-3">
+            {interviewType === 'career_support' && 'キャリアに関する相談内容を選択してください'}
+            {interviewType === 'workplace_support' && '職場環境に関する相談内容を選択してください'}
+            {interviewType === 'individual_consultation' && '個別相談の内容を選択してください'}
+          </p>
+          <select
+            value={interviewCategory || ''}
+            onChange={(e) => setInterviewCategory(e.target.value as InterviewCategory)}
+            className="w-full p-3 text-lg border border-gray-300 rounded-lg"
+            required={shouldShowCategorySelection(interviewType)}
+          >
+            <option value="">カテゴリを選択してください</option>
+            {getAvailableCategories(interviewType).map((category) => (
+              <option key={category} value={category}>
+                {categoryOptions[category]}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      
+      {/* カテゴリ不要な面談の説明表示 */}
+      {!shouldShowCategorySelection(interviewType) && (
+        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+          <p className="text-sm text-blue-800">
+            <strong>{getInterviewTypeDisplayName(interviewType)}</strong>はカテゴリ選択は不要です。
+            直接相談内容をご記入ください。
+          </p>
+        </div>
+      )}
 
       <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
         <h3 className="font-semibold text-lg mb-4">相談内容（任意）</h3>

@@ -61,17 +61,27 @@ export interface InterviewBooking {
 }
 
 export type InterviewType = 
+  // === 新体系（10種類）===
+  // 定期面談（3種類）- カテゴリ選択不要
   | 'new_employee_monthly'    // 新入職員月次面談
   | 'regular_annual'          // 一般職員年次面談
   | 'management_biannual'     // 管理職半年面談
-  | 'ad_hoc'                  // 随時面談
-  | 'incident_followup'       // インシデント後面談
+  // 特別面談（3種類）- カテゴリ選択不要
   | 'return_to_work'          // 復職面談
-  | 'career_development'      // キャリア開発面談
-  | 'stress_care'             // ストレスケア面談
-  | 'performance_review'      // 人事評価面談
-  | 'grievance'               // 苦情・相談面談
+  | 'incident_followup'       // インシデント後面談
   | 'exit_interview'          // 退職面談
+  // サポート面談（4種類）
+  | 'feedback'                // フィードバック面談 - カテゴリ選択不要
+  | 'career_support'          // キャリア系面談 - カテゴリ選択必要
+  | 'workplace_support'       // 職場環境系面談 - カテゴリ選択必要
+  | 'individual_consultation' // 個別相談面談 - カテゴリ選択必要
+  
+  // === 旧体系（後方互換性のため保持）===
+  | 'ad_hoc'                  // → individual_consultationに移行
+  | 'career_development'      // → career_supportに移行
+  | 'stress_care'             // → workplace_supportに移行
+  | 'performance_review'      // → feedbackに移行
+  | 'grievance'               // → workplace_supportに移行
   | 'regular'                 // 定期面談（旧）
   | 'career'                  // キャリア相談（旧）
   | 'concern'                 // 悩み相談（旧）

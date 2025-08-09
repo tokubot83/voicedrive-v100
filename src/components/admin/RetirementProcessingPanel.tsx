@@ -107,6 +107,7 @@ const RetirementProcessingPanel = ({ currentUser }: RetirementProcessingPanelPro
           
           <div className="space-y-4">
             {/* 匿名化レベル */}
+         
             <div>
               <label className="block text-gray-300 mb-2">匿名化レベル</label>
               <select
