@@ -12,7 +12,9 @@
     "build:vercel": "vite build",
     "build:strict": "tsc --noEmit --skipLibCheck && vite build",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit --skipLibCheck"
+    "type-check": "tsc --noEmit --skipLibCheck",
+    "watch:mcp": "node scripts/watch-mcp-shared.js",
+    "mcp:sync": "node mcp-integration-server/scripts/check-mcp-sync.js"
   },
   "dependencies": {
     "@types/react-router-dom": "^5.3.3",

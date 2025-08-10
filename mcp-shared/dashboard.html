@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP共有状況ダッシュボード</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .status-success { background: #10b981; color: white; }
+        .status-pending { background: #f59e0b; color: white; }
+        .status-error { background: #ef4444; color: white; }
+        .status-healthy { background: #10b981; color: white; }
+        .status-unhealthy { background: #f59e0b; color: white; }
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .file-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .sync-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+        .sync-active { background: #10b981; }
+        .sync-inactive { background: #ef4444; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        .timestamp {
+            color: #6b7280;
+            font-size: 0.85em;
+            text-align: right;
+            margin-top: 10px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 MCP共有状況ダッシュボード</h1>
+        
+        <div class="grid">
+            <!-- MCPサーバー状態 -->
+            <div class="card">
+                <h2>🖥️ MCPサーバー状態</h2>
+                <div class="status-item">
+                    <span>MCPサーバー</span>
+                    <span class="status-badge status-healthy">稼働中</span>
+                    <span class="sync-indicator sync-active"></span>
+                </div>
+                <div class="status-item">
+                    <span>医療システム</span>
+                    <span class="status-badge status-unhealthy" id="medical-status">起動待機</span>
+                </div>
+                <div class="status-item">
+                    <span>VoiceDrive</span>
+                    <span class="status-badge status-healthy" id="voicedrive-status">稼働中</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 66%"></div>
+                </div>
+                <div class="timestamp">最終確認: <span id="last-check">2025-08-10 15:41:00</span></div>
+            </div>
+
+            <!-- 共有ファイル状況 -->
+            <div class="card">
+                <h2>📁 共有ファイル</h2>
+                <div class="file-list">
+                    <div class="file-item">
+                        <span class="file-icon">📄</span>
+                        <span>interview-types.json</span>
+                        <span class="status-badge status-success" style="margin-left: auto;">同期済</span>
+                    </div>
+                    <div class="file-item">
+                        <span class="file-icon">📘</span>
+                        <span>interview.interface.ts</span>
+                        <span class="status-badge status-success" style="margin-left: auto;">同期済</span>
+                    </div>
+                    <div class="file-item">
+                        <span class="file-icon">🔧</span>
+                        <span>api-version-manager.ts</span>
+                        <span class="status-badge status-pending" style="margin-left: auto;">保留中</span>
+                    </div>
+                    <div class="file-item">
+                        <span class="file-icon">📊</span>
+                        <span>master-table-design.md</span>
+                        <span class="status-badge status-success" style="margin-left: auto;">同期済</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="syncAll()">全て同期</button>
+                    <button class="btn btn-secondary" onclick="checkStatus()">状態確認</button>
+                </div>
+            </div>
+
+            <!-- 同期統計 -->
+            <div class="card">
+                <h2>📊 同期統計</h2>
+                <div class="status-item">
+                    <span>総ファイル数</span>
+                    <strong>4</strong>
+                </div>
+                <div class="status-item">
+                    <span>同期成功</span>
+                    <strong style="color: #10b981;">3</strong>
+                </div>
+                <div class="status-item">
+                    <span>保留中</span>
+                    <strong style="color: #f59e0b;">1</strong>
+                </div>
+                <div class="status-item">
+                    <span>失敗</span>
+                    <strong style="color: #ef4444;">0</strong>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 75%"></div>
+                </div>
+                <div style="text-align: center; margin-top: 10px;">
+                    <strong>75%</strong> 完了
+                </div>
+            </div>
+
+            <!-- リアルタイムログ -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <h2>📝 リアルタイムログ</h2>
+                <div style="background: #1f2937; color: #10b981; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 0.9em; height: 200px; overflow-y: auto;">
+                    <div>[2025-08-10 15:40:00] MCP Server started</div>
+                    <div>[2025-08-10 15:40:01] Medical System: Connection pending</div>
+                    <div>[2025-08-10 15:40:02] VoiceDrive: Connected</div>
+                    <div>[2025-08-10 15:40:05] Syncing interview-types.json...</div>
+                    <div>[2025-08-10 15:40:06] ✓ interview-types.json synced to medical-system</div>
+                    <div>[2025-08-10 15:40:07] ✓ interview-types.json synced to voicedrive</div>
+                    <div>[2025-08-10 15:40:10] Syncing interview.interface.ts...</div>
+                    <div>[2025-08-10 15:40:11] ✓ interview.interface.ts synced</div>
+                    <div>[2025-08-10 15:40:15] Waiting for medical-system to start...</div>
+                    <div>[2025-08-10 15:41:00] Health check performed</div>
+                    <div id="log-container"></div>
+                </div>
+            </div>
+
+            <!-- 確認方法 -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <h2>🔍 確認方法</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div>
+                        <h3 style="color: #667eea; margin-bottom: 10px;">1. コマンドライン</h3>
+                        <pre style="background: #f3f4f6; padding: 10px; border-radius: 5px; font-size: 0.9em;">
+# 状態確認
+node scripts/check-mcp-sync.js
+
+# 手動同期
+npm run mcp:sync</pre>
+                    </div>
+                    <div>
+                        <h3 style="color: #667eea; margin-bottom: 10px;">2. API確認</h3>
+                        <pre style="background: #f3f4f6; padding: 10px; border-radius: 5px; font-size: 0.9em;">
+# ステータス確認
+curl http://localhost:8080/api/status
+
+# 同期状態
+curl http://localhost:8080/api/sync-status</pre>
+                    </div>
+                    <div>
+                        <h3 style="color: #667eea; margin-bottom: 10px;">3. ファイル確認</h3>
+                        <pre style="background: #f3f4f6; padding: 10px; border-radius: 5px; font-size: 0.9em;">
+# 共有フォルダ
+ls mcp-shared/
+
+# 同期ログ
+cat mcp-shared/sync-status.json</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 自動更新
+        setInterval(() => {
+            const now = new Date();
+            const timeStr = now.toISOString().replace('T', ' ').substr(0, 19);
+            document.getElementById('last-check').textContent = timeStr;
+            
+            // ログに追加
+            const logContainer = document.getElementById('log-container');
+            const newLog = document.createElement('div');
+            newLog.textContent = `[${timeStr}] Health check performed`;
+            logContainer.appendChild(newLog);
+            
+            // スクロール
+            logContainer.parentElement.scrollTop = logContainer.parentElement.scrollHeight;
+        }, 10000);
+
+        function syncAll() {
+            alert('同期を開始します...\n\nコマンド: npm run mcp:sync');
+        }
+
+        function checkStatus() {
+            alert('状態を確認中...\n\nコマンド: node scripts/check-mcp-sync.js');
+        }
+    </script>
+</body>
+</html>

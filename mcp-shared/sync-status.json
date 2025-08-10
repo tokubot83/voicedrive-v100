@@ -1,0 +1,40 @@
+{
+  "lastSync": "2025-08-10T15:40:00Z",
+  "syncedFiles": {
+    "config": {
+      "interview-types.json": {
+        "path": "mcp-shared/config/interview-types.json",
+        "lastModified": "2025-08-10T15:40:00Z",
+        "size": 3842,
+        "checksum": "a7b9c3d2",
+        "syncStatus": "success",
+        "syncedTo": ["medical-system", "voicedrive"]
+      }
+    },
+    "interfaces": {
+      "interview.interface.ts": {
+        "path": "mcp-shared/interfaces/interview.interface.ts",
+        "lastModified": "2025-08-10T15:40:00Z",
+        "size": 4521,
+        "checksum": "e5f2a8b1",
+        "syncStatus": "success",
+        "syncedTo": ["medical-system", "voicedrive"]
+      }
+    },
+    "api": {
+      "api-version-manager.ts": {
+        "path": "mcp-shared/api/api-version-manager.ts",
+        "lastModified": "2025-08-10T15:40:00Z",
+        "size": 6234,
+        "checksum": "c9d1f3e4",
+        "syncStatus": "pending",
+        "syncedTo": []
+      }
+    }
+  },
+  "totalFiles": 3,
+  "successfulSyncs": 2,
+  "pendingSyncs": 1,
+  "failedSyncs": 0,
+  "nextSyncScheduled": "2025-08-10T16:00:00Z"
+}

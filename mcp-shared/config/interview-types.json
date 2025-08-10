@@ -1,0 +1,148 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-08-10",
+  "classifications": [
+    {
+      "id": "regular",
+      "name": "定期面談",
+      "description": "月次・年次・半期などの定期的な面談",
+      "icon": "📅",
+      "color": "#4CAF50",
+      "sortOrder": 1
+    },
+    {
+      "id": "special",
+      "name": "特別面談",
+      "description": "特定の状況で実施する面談",
+      "icon": "⚠️",
+      "color": "#FF9800",
+      "sortOrder": 2
+    },
+    {
+      "id": "support",
+      "name": "サポート面談",
+      "description": "職員の希望に応じて実施する支援面談",
+      "icon": "💬",
+      "color": "#2196F3",
+      "sortOrder": 3
+    }
+  ],
+  "interviewTypes": [
+    {
+      "id": "new_employee_monthly",
+      "name": "新入職員月次面談",
+      "classification": "regular",
+      "target": "入職1年未満",
+      "frequency": "月1回",
+      "requiresCategory": false,
+      "active": true,
+      "sortOrder": 1
+    },
+    {
+      "id": "regular_annual",
+      "name": "一般職員年次面談",
+      "classification": "regular",
+      "target": "全職員",
+      "frequency": "年1回",
+      "requiresCategory": false,
+      "active": true,
+      "sortOrder": 2
+    },
+    {
+      "id": "management_biannual",
+      "name": "管理職半年面談",
+      "classification": "regular",
+      "target": "管理職",
+      "frequency": "半年1回",
+      "requiresCategory": false,
+      "active": true,
+      "sortOrder": 3
+    },
+    {
+      "id": "return_to_work",
+      "name": "復職面談",
+      "classification": "special",
+      "target": "休職からの復職者",
+      "trigger": "復職時",
+      "requiresCategory": false,
+      "active": true,
+      "sortOrder": 4
+    },
+    {
+      "id": "incident_followup",
+      "name": "インシデント後面談",
+      "classification": "special",
+      "target": "当事者職員",
+      "trigger": "インシデント発生後",
+      "requiresCategory": false,
+      "active": true,
+      "sortOrder": 5
+    },
+    {
+      "id": "exit_interview",
+      "name": "退職面談",
+      "classification": "special",
+      "target": "退職予定者",
+      "trigger": "退職前",
+      "requiresCategory": false,
+      "active": true,
+      "sortOrder": 6
+    },
+    {
+      "id": "feedback",
+      "name": "フィードバック面談",
+      "classification": "support",
+      "target": "評価開示後の希望者",
+      "requiresCategory": false,
+      "active": true,
+      "sortOrder": 7
+    },
+    {
+      "id": "career_support",
+      "name": "キャリア系面談",
+      "classification": "support",
+      "target": "全職員",
+      "requiresCategory": true,
+      "active": true,
+      "sortOrder": 8
+    },
+    {
+      "id": "workplace_support",
+      "name": "職場環境系面談",
+      "classification": "support",
+      "target": "全職員",
+      "requiresCategory": true,
+      "active": true,
+      "sortOrder": 9
+    },
+    {
+      "id": "individual_consultation",
+      "name": "個別相談面談",
+      "classification": "support",
+      "target": "全職員",
+      "requiresCategory": true,
+      "active": true,
+      "sortOrder": 10
+    }
+  ],
+  "categories": {
+    "career_support": [
+      "キャリアプラン相談",
+      "資格取得支援",
+      "異動・転職相談",
+      "スキルアップ相談"
+    ],
+    "workplace_support": [
+      "人間関係の悩み",
+      "ハラスメント相談",
+      "業務負荷相談",
+      "職場改善提案",
+      "勤務体制相談"
+    ],
+    "individual_consultation": [
+      "プライベート相談",
+      "健康相談",
+      "その他の相談"
+    ]
+  }
+}
