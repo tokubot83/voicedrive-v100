@@ -17,6 +17,8 @@ import {
   getInterviewTypeDisplayName,
   INTERVIEW_CLASSIFICATIONS
 } from '../../utils/interviewMappingUtils';
+import InterviewFlowContainer from './InterviewFlowContainer';
+import { InterviewFlowState } from './InterviewFlowContainer';
 
 interface InterviewBookingCalendarProps {
   employeeId?: string;
@@ -30,6 +32,7 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
   const bookingService = InterviewBookingService.getInstance();
   const reminderService = InterviewReminderService.getInstance();
   
+  const [useNewFlow, setUseNewFlow] = useState(true); // Phase 2の新フローを使用
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [selectedSlots, setSelectedSlots] = useState<TimeSlot[]>([]);
@@ -45,6 +48,46 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
   const [employeeProfile, setEmployeeProfile] = useState<MedicalEmployeeProfile | null>(null);
   const [availableInterviewTypes, setAvailableInterviewTypes] = useState<InterviewType[]>([]);
   const [reminderStatus, setReminderStatus] = useState<any>(null);
+
+  // Phase 2: 新しいフロー完了時のハンドラー
+  const handleFlowComplete = async (flowState: InterviewFlowState) => {
+    if (!flowState.selectedType || !flowState.selectedDateTime || !flowState.selectedStaff) {
+      setError('必要な情報が不足しています');
+      return;
+    }
+
+    const bookingRequest: BookingRequest = {
+      employeeId,
+      interviewType: flowState.selectedType,
+      category: flowState.selectedCategory || undefined,
+      preferredDates: [flowState.selectedDateTime],
+      preferredSlots: [],
+      description: `${getInterviewTypeDisplayName(flowState.selectedType)}の予約`,
+      isUrgent: false
+    };
+
+    try {
+      setLoading(true);
+      const booking = await bookingService.createBooking(bookingRequest);
+      
+      if (booking) {
+        // リマインダー設定
+        await reminderService.createReminder(booking.id, {
+          notificationChannels: ['email'],
+          reminderTimes: ['1_day_before', '1_hour_before']
+        });
+        
+        if (onBookingComplete) {
+          onBookingComplete();
+        }
+      }
+    } catch (err) {
+      setError('予約の作成に失敗しました');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 時間枠の定義
   const timeSlots = [
@@ -749,21 +792,47 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      {renderReminderStatus()}
-      {renderExistingBookings()}
-      
-      <div className="mb-8">
-        <div className="flex justify-center space-x-4">
-          {[1, 2, 3].map(step => (
-            <div
-              key={step}
-              className={`
-                flex items-center justify-center w-12 h-12 rounded-full text-lg font-medium
-                ${currentStep === step
-                  ? 'bg-blue-600 text-white'
-                  : currentStep > step
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-300 text-gray-600'
+      {/* Phase 2の新しいフローとPhase 1の既存フローを切り替え可能 */}
+      {useNewFlow ? (
+        <div>
+          <div className="mb-4 flex justify-end">
+            <button
+              onClick={() => setUseNewFlow(false)}
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              従来の予約方法に切り替える
+            </button>
+          </div>
+          <InterviewFlowContainer
+            onComplete={handleFlowComplete}
+            employeeId={employeeId}
+          />
+        </div>
+      ) : (
+        <>
+          <div className="mb-4 flex justify-end">
+            <button
+              onClick={() => setUseNewFlow(true)}
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              新しい予約方法を試す
+            </button>
+          </div>
+          {renderReminderStatus()}
+          {renderExistingBookings()}
+          
+          <div className="mb-8">
+            <div className="flex justify-center space-x-4">
+              {[1, 2, 3].map(step => (
+                <div
+                  key={step}
+                  className={`
+                    flex items-center justify-center w-12 h-12 rounded-full text-lg font-medium
+                    ${currentStep === step
+                      ? 'bg-blue-600 text-white'
+                      : currentStep > step
+                        ? 'bg-green-600 text-white'
+                        : 'bg-gray-300 text-gray-600'
                 }
               `}
             >
@@ -778,9 +847,11 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
         </div>
       </div>
 
-      {currentStep === 1 && renderStep1()}
-      {currentStep === 2 && renderStep2()}
-      {currentStep === 3 && renderStep3()}
+          {currentStep === 1 && renderStep1()}
+          {currentStep === 2 && renderStep2()}
+          {currentStep === 3 && renderStep3()}
+        </>
+      )}
     </div>
   );
 };

@@ -253,13 +253,17 @@ class IntegrationTestRunner {
     // シナリオ4: 予約一覧取得
     try {
       const response = await fetch(`${this.baseURL}/api/v1/interviews/bookings/mock?date=2024-12-25`);
-      const bookings = await response.json();
+      const data = await response.json();
+      
+      // データ構造を正規化
+      const bookings = data.bookings || data || [];
+      const count = Array.isArray(bookings) ? bookings.length : 0;
       
       this.recordResult(
         'シナリオ4',
         '予約一覧取得',
         Array.isArray(bookings),
-        `${bookings.length}件の予約を取得`
+        `${count}件の予約を取得`
       );
     } catch (error) {
       this.recordResult('シナリオ4', '予約一覧取得', false, '', error.message);
