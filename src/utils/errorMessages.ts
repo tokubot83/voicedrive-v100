@@ -9,7 +9,10 @@ export const errorMessages = {
     time: '時間を選択してください',
     classification: '面談分類を選択してください',
     type: '面談種別を選択してください',
-    category: 'カテゴリを選択してください'
+    category: 'カテゴリを選択してください',
+    evaluationPeriod: '評価期間を選択してください',
+    appealCategory: '申し立てカテゴリを選択してください',
+    appealReason: '申し立て理由を入力してください'
   },
 
   // バリデーション
@@ -64,6 +67,27 @@ export const errorMessages = {
     maintenance: 'システムメンテナンス中です',
     sessionExpired: 'セッションの有効期限が切れました',
     reloadRequired: 'ページの再読み込みが必要です'
+  },
+
+  // 異議申し立て関連
+  appeal: {
+    invalidReason: '申し立て理由は100文字以上入力してください',
+    invalidReasonMax: '申し立て理由は2000文字以内で入力してください',
+    invalidScore: '評価点は0〜100の範囲で入力してください',
+    fileTooLarge: 'ファイルサイズは10MBまでです',
+    invalidFileType: '許可されていないファイル形式です（PDF、画像のみ）',
+    tooManyFiles: 'ファイルは最大5個まで添付できます',
+    submissionFailed: '異議申し立ての送信に失敗しました',
+    updateFailed: '異議申し立ての更新に失敗しました',
+    withdrawFailed: '異議申し立ての取り下げに失敗しました',
+    notEligible: '申し立て期限を過ぎています',
+    e002: '有効な評価期間が見つかりません',
+    periodExpired: '申し立て期限を過ぎています（評価開示から14日以内）',
+    alreadySubmitted: 'この評価期間の異議申し立ては既に提出されています',
+    invalidStatus: '現在のステータスでは更新できません',
+    alreadyResolved: 'すでに完了または取り下げ済みです',
+    noReviewer: '審査者の割り当てに失敗しました。管理者に連絡してください',
+    defaultReviewerAssigned: 'デフォルト審査者が割り当てられました'
   }
 };
 
@@ -92,7 +116,14 @@ export const getErrorMessageByCode = (errorCode: string): string => {
     'ERR_FORBIDDEN': errorMessages.api.forbidden,
     'ERR_NOT_FOUND': errorMessages.booking.notFound,
     'ERR_CONFLICT': errorMessages.booking.conflict,
-    'ERR_EXPIRED': errorMessages.booking.expired
+    'ERR_EXPIRED': errorMessages.booking.expired,
+    // 異議申し立て関連
+    'INVALID_REASON': errorMessages.appeal.invalidReason,
+    'E002': errorMessages.appeal.e002,
+    'INVALID_STATUS': errorMessages.appeal.invalidStatus,
+    'ALREADY_RESOLVED': errorMessages.appeal.alreadyResolved,
+    'NO_REVIEWER': errorMessages.appeal.noReviewer,
+    'DEFAULT_REVIEWER': errorMessages.appeal.defaultReviewerAssigned
   };
 
   return errorCodeMap[errorCode] || errorMessages.system.unexpectedError;

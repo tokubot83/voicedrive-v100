@@ -7,6 +7,20 @@ import {
 } from '../types/appeal';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const MEDICAL_SYSTEM_URL = import.meta.env.VITE_MEDICAL_API_URL || 'http://localhost:3000';
+
+// 評価期間の型定義
+interface EvaluationPeriod {
+  id: string;
+  name: string;
+  startDate?: string;
+  endDate?: string;
+  evaluationStartDate?: string;
+  evaluationEndDate?: string;
+  disclosureDate?: string;
+  appealDeadline: string;
+  status: 'active' | 'closed';
+}
 
 class AppealService {
   private apiClient = axios.create({
@@ -170,29 +184,83 @@ class AppealService {
   }
 
   /**
-   * 評価期間リストを取得
+   * 評価期間リストを取得（医療システムAPIから）
    */
-  async getEvaluationPeriods(): Promise<string[]> {
+  async getEvaluationPeriods(): Promise<EvaluationPeriod[]> {
     try {
-      const response = await this.apiClient.get<{ periods: string[] }>('/evaluation-periods');
-      return response.data.periods || ['2025年度上期', '2024年度下期', '2024年度上期'];
-    } catch (error) {
+      // 医療システムAPIから評価期間マスタを取得
+      const response = await axios.get<{ 
+        success: boolean;
+        periods: EvaluationPeriod[] 
+      }>(`${MEDICAL_SYSTEM_URL}/api/v1/evaluation/periods`);
+      
+      if (response.data.success) {
+        // appealDeadlineが未来日付のものだけフィルター
+        const now = new Date();
+        return response.data.periods.filter(p => 
+          new Date(p.appealDeadline) > now && p.status === 'active'
+        );
+      }
+      
       // フォールバック
-      return ['2025年度上期', '2024年度下期', '2024年度上期'];
+      return this.getDefaultEvaluationPeriods();
+    } catch (error) {
+      console.error('評価期間取得エラー:', error);
+      return this.getDefaultEvaluationPeriods();
     }
+  }
+
+  /**
+   * デフォルトの評価期間（フォールバック用）
+   */
+  private getDefaultEvaluationPeriods(): EvaluationPeriod[] {
+    return [
+      {
+        id: '2025-H1',
+        name: '2025年度上期',
+        appealDeadline: '2025-11-03',
+        status: 'active'
+      },
+      {
+        id: '2024-H2',
+        name: '2024年度下期',
+        appealDeadline: '2025-05-04',
+        status: 'active'
+      }
+    ];
   }
 
   /**
    * 異議申し立て可能かチェック
    */
-  async checkEligibility(evaluationPeriod: string): Promise<{ eligible: boolean; reason?: string }> {
+  async checkEligibility(evaluationPeriodId: string): Promise<{ eligible: boolean; reason?: string }> {
     try {
-      const response = await this.apiClient.post<{ eligible: boolean; reason?: string }>('/check-eligibility', {
-        evaluationPeriod
-      });
-      return response.data;
+      // 評価期間情報を取得
+      const periods = await this.getEvaluationPeriods();
+      const period = periods.find(p => p.id === evaluationPeriodId);
+      
+      if (!period) {
+        return { 
+          eligible: false, 
+          reason: 'E002: 有効な評価期間が見つかりません' 
+        };
+      }
+      
+      // 期限チェック
+      const deadline = new Date(period.appealDeadline);
+      const now = new Date();
+      
+      if (now > deadline) {
+        return { 
+          eligible: false, 
+          reason: `申し立て期限を過ぎています（期限: ${period.appealDeadline}）` 
+        };
+      }
+      
+      return { eligible: true };
     } catch (error) {
-      return { eligible: true }; // デフォルトは申し立て可能
+      console.error('資格確認エラー:', error);
+      return { eligible: true }; // エラー時はデフォルトで可能とする
     }
   }
 
