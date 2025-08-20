@@ -1,0 +1,66 @@
+{
+  "startTime": "2025-08-20T14:55:01.249Z",
+  "version": "v3.0.0",
+  "systemType": "100-point-evaluation",
+  "tests": [
+    {
+      "testName": "V3評価期間取得",
+      "status": "passed",
+      "timestamp": "2025-08-20T14:55:01.295Z",
+      "details": {
+        "periodsCount": 2,
+        "version": "v3.0.0"
+      }
+    },
+    {
+      "testName": "V3高優先度異議申し立て",
+      "status": "passed",
+      "timestamp": "2025-08-20T14:55:01.299Z",
+      "details": {
+        "appealId": "V3-APPEAL-1755701701296",
+        "priority": "high",
+        "scoreDiff": 26,
+        "gradeChange": "B+ → S"
+      }
+    },
+    {
+      "testName": "V3中優先度異議申し立て",
+      "status": "passed",
+      "timestamp": "2025-08-20T14:55:01.301Z",
+      "details": {
+        "appealId": "V3-APPEAL-1755701701299"
+      }
+    },
+    {
+      "testName": "V3低優先度異議申し立て",
+      "status": "passed",
+      "timestamp": "2025-08-20T14:55:01.303Z",
+      "details": {
+        "appealId": "V3-APPEAL-1755701701302"
+      }
+    },
+    {
+      "testName": "V3審査者割り当て",
+      "status": "passed",
+      "timestamp": "2025-08-20T14:55:01.305Z",
+      "details": {
+        "reviewer": "V3部門長テスト",
+        "workflow": "2/4"
+      }
+    },
+    {
+      "testName": "V3バリデーションエラー",
+      "status": "failed",
+      "timestamp": "2025-08-20T14:55:01.307Z",
+      "details": {
+        "error": "No validation error occurred"
+      }
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "passed": 5,
+    "failed": 1,
+    "skipped": 0
+  }
+}

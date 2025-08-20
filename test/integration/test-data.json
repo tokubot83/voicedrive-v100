@@ -1,0 +1,183 @@
+{
+  "testEmployees": [
+    {
+      "employeeId": "TEST-E001",
+      "employeeName": "テスト太郎",
+      "departmentId": "DEPT-001",
+      "jobCategory": "manager",
+      "description": "高優先度テスト用（管理職）"
+    },
+    {
+      "employeeId": "TEST-E002", 
+      "employeeName": "テスト花子",
+      "departmentId": "DEPT-002",
+      "jobCategory": "senior",
+      "description": "中優先度テスト用（中堅職員）"
+    },
+    {
+      "employeeId": "TEST-E003",
+      "employeeName": "テスト次郎",
+      "departmentId": "DEPT-003",
+      "jobCategory": "staff",
+      "description": "低優先度テスト用（一般職員）"
+    },
+    {
+      "employeeId": "TEST-E004",
+      "employeeName": "テスト四郎",
+      "departmentId": "DEPT-001",
+      "jobCategory": "staff",
+      "description": "エラーテスト用"
+    },
+    {
+      "employeeId": "TEST-E005",
+      "employeeName": "テスト五郎",
+      "departmentId": "DEPT-002",
+      "jobCategory": "staff",
+      "description": "バリデーションテスト用"
+    }
+  ],
+  
+  "testEvaluationPeriods": [
+    {
+      "id": "2025-H1",
+      "name": "2025年度上期",
+      "startDate": "2025-04-01",
+      "endDate": "2025-09-30",
+      "evaluationStartDate": "2025-09-15",
+      "evaluationEndDate": "2025-10-15",
+      "disclosureDate": "2025-10-20",
+      "appealDeadline": "2025-11-03",
+      "status": "active"
+    },
+    {
+      "id": "2024-H2",
+      "name": "2024年度下期",
+      "startDate": "2024-10-01",
+      "endDate": "2025-03-31",
+      "evaluationStartDate": "2025-03-15",
+      "evaluationEndDate": "2025-04-15",
+      "disclosureDate": "2025-04-20",
+      "appealDeadline": "2025-05-04",
+      "status": "active"
+    },
+    {
+      "id": "2023-H1",
+      "name": "2023年度上期（期限切れ）",
+      "startDate": "2023-04-01",
+      "endDate": "2023-09-30",
+      "disclosureDate": "2023-10-20",
+      "appealDeadline": "2023-11-03",
+      "status": "closed"
+    },
+    {
+      "id": "TEST-2025",
+      "name": "テスト評価期間",
+      "appealDeadline": "2025-12-31",
+      "status": "active"
+    }
+  ],
+  
+  "testAppeals": [
+    {
+      "type": "high_priority",
+      "appealCategory": "calculation_error",
+      "appealReason": "評価計算に明らかな誤りがあります。具体的には、研修講師として10回実施した実績が0回として計算されています。これは明確な計算ミスであり、早急な修正を求めます。証拠として研修実施記録を添付します。",
+      "originalScore": 60,
+      "requestedScore": 75,
+      "expectedPriority": "high"
+    },
+    {
+      "type": "medium_priority_achievement",
+      "appealCategory": "achievement_oversight",
+      "appealReason": "今期実施した改善提案プロジェクト3件が評価に反映されていません。各プロジェクトは部門の効率化に大きく貢献し、年間200万円のコスト削減を実現しました。改善提案書と実績報告書を証拠として提出します。",
+      "originalScore": 70,
+      "requestedScore": 77,
+      "evidenceDocuments": ["doc1.pdf", "doc2.pdf", "doc3.pdf"],
+      "expectedPriority": "medium"
+    },
+    {
+      "type": "medium_priority_score_diff",
+      "appealCategory": "other",
+      "appealReason": "評価結果について再検討をお願いします。特に、プロジェクト管理能力と技術的貢献度の評価が実際のパフォーマンスと乖離していると感じます。上半期に完了させた3つの重要プロジェクトの成果を考慮していただきたく存じます。",
+      "originalScore": 68,
+      "requestedScore": 75,
+      "expectedPriority": "medium"
+    },
+    {
+      "type": "low_priority",
+      "appealCategory": "other",
+      "appealReason": "評価面談時に説明された内容と実際の評価結果に若干の相違があると感じています。特に、チームワークの項目について、期待していた評価より低い結果となりました。再度検討をお願いいたします。",
+      "originalScore": 72,
+      "requestedScore": 75,
+      "expectedPriority": "low"
+    },
+    {
+      "type": "period_error",
+      "appealCategory": "period_error",
+      "appealReason": "評価対象期間に誤りがあります。私は2025年4月1日から勤務開始しましたが、評価には1月からの実績が含まれているようです。正しい期間での再評価をお願いします。これは明確な期間設定のエラーです。",
+      "originalScore": 65,
+      "requestedScore": 72,
+      "expectedPriority": "high"
+    }
+  ],
+  
+  "testReviewers": [
+    {
+      "reviewerId": "DEPT_HEAD_001",
+      "reviewerName": "部門長テスト",
+      "reviewerRole": "department_head",
+      "assignedPriority": "high"
+    },
+    {
+      "reviewerId": "SECTION_CHIEF_001",
+      "reviewerName": "課長テスト",
+      "reviewerRole": "section_chief",
+      "assignedPriority": "medium"
+    },
+    {
+      "reviewerId": "TEAM_LEADER_001",
+      "reviewerName": "リーダーテスト",
+      "reviewerRole": "team_leader",
+      "assignedPriority": "low"
+    },
+    {
+      "reviewerId": "DEFAULT_REVIEWER",
+      "reviewerName": "デフォルト審査者",
+      "reviewerRole": "default",
+      "assignedPriority": "fallback"
+    },
+    {
+      "reviewerId": "TEST-R001",
+      "reviewerName": "テスト審査者",
+      "reviewerRole": "test_reviewer",
+      "maxCapacity": 10
+    }
+  ],
+  
+  "errorTestCases": [
+    {
+      "name": "理由文字数不足",
+      "appealReason": "短い理由",
+      "expectedError": "INVALID_REASON",
+      "expectedMessage": "申し立て理由は100文字以上入力してください"
+    },
+    {
+      "name": "期限切れ",
+      "evaluationPeriod": "2023-H1",
+      "expectedError": "E002",
+      "expectedMessage": "有効な評価期間が見つかりません"
+    },
+    {
+      "name": "無効なカテゴリ",
+      "appealCategory": "invalid_category",
+      "expectedError": "INVALID_CATEGORY",
+      "expectedMessage": "無効なカテゴリです"
+    },
+    {
+      "name": "スコア範囲外",
+      "originalScore": 150,
+      "expectedError": "INVALID_SCORE",
+      "expectedMessage": "評価点は0〜100の範囲で入力してください"
+    }
+  ]
+}

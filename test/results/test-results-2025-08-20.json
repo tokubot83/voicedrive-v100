@@ -1,0 +1,89 @@
+{
+  "startTime": "2025-08-20T14:39:16.153Z",
+  "tests": [
+    {
+      "name": "評価期間マスタデータ取得",
+      "category": "API連携",
+      "priority": "high",
+      "status": "failed",
+      "timestamp": "2025-08-20T14:39:16.200Z",
+      "details": {
+        "error": ""
+      }
+    },
+    {
+      "name": "高優先度異議申し立て送信（計算誤り）",
+      "category": "異議申し立て送信",
+      "priority": "high",
+      "status": "skipped",
+      "timestamp": "2025-08-20T14:39:16.200Z",
+      "details": {}
+    },
+    {
+      "name": "中優先度異議申し立て送信（成果見落とし）",
+      "category": "異議申し立て送信",
+      "priority": "medium",
+      "status": "skipped",
+      "timestamp": "2025-08-20T14:39:16.200Z",
+      "details": {}
+    },
+    {
+      "name": "低優先度異議申し立て送信（その他）",
+      "category": "異議申し立て送信",
+      "priority": "low",
+      "status": "skipped",
+      "timestamp": "2025-08-20T14:39:16.200Z",
+      "details": {}
+    },
+    {
+      "name": "期限切れ評価期間でのエラー確認",
+      "category": "エラーハンドリング",
+      "priority": "high",
+      "status": "failed",
+      "timestamp": "2025-08-20T14:39:16.204Z",
+      "details": {}
+    },
+    {
+      "name": "審査者自動割り当て確認",
+      "category": "ステータス管理",
+      "priority": "high",
+      "status": "skipped",
+      "timestamp": "2025-08-20T14:39:16.204Z",
+      "details": {}
+    },
+    {
+      "name": "バリデーションエラー（理由100文字未満）",
+      "category": "バリデーション",
+      "priority": "medium",
+      "status": "failed",
+      "timestamp": "2025-08-20T14:39:16.206Z",
+      "details": {}
+    },
+    {
+      "name": "異議申し立て取り下げ",
+      "category": "ステータス管理",
+      "priority": "medium",
+      "status": "skipped",
+      "timestamp": "2025-08-20T14:39:16.206Z",
+      "details": {}
+    },
+    {
+      "name": "通知機能動作確認",
+      "category": "通知",
+      "priority": "low",
+      "status": "skipped",
+      "timestamp": "2025-08-20T14:39:16.207Z",
+      "details": {
+        "reason": "ログファイル未確認"
+      }
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "passed": 0,
+    "failed": 3,
+    "skipped": 6
+  },
+  "endTime": "2025-08-20T14:39:16.207Z",
+  "duration": 54
+}
