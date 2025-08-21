@@ -7,7 +7,7 @@ import {
 } from '../types/appeal';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-const MEDICAL_SYSTEM_URL = import.meta.env.VITE_MEDICAL_API_URL || 'http://localhost:3000';
+const MEDICAL_SYSTEM_URL = import.meta.env.VITE_MEDICAL_API_URL || 'http://localhost:8080';
 
 // 評価期間の型定義
 interface EvaluationPeriod {
@@ -192,7 +192,7 @@ class AppealService {
       const response = await axios.get<{ 
         success: boolean;
         periods: EvaluationPeriod[] 
-      }>(`${MEDICAL_SYSTEM_URL}/api/v1/evaluation/periods`);
+      }>(`${MEDICAL_SYSTEM_URL}/api/v3/evaluation/periods`);
       
       if (response.data.success) {
         // appealDeadlineが未来日付のものだけフィルター

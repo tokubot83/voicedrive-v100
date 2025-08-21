@@ -113,6 +113,9 @@ import { UserManagementPage } from '../pages/UserManagementPage';
 import { SystemSettingsPage } from '../pages/SystemSettingsPage';
 import { AuditLogPage } from '../pages/AuditLogPage';
 
+// Appeal pages
+import AppealV3Page from '../pages/AppealV3Page';
+
 // Error pages
 import NotFoundPage from '../pages/NotFoundPage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
@@ -518,6 +521,9 @@ const AppRouter: React.FC = () => {
           <PolicyManagementPage />
         </ProtectedRoute>
       } />
+      
+      {/* V3 Appeal Page - Accessible to all authenticated users */}
+      <Route path="appeal-v3" element={<AppealV3Page />} />
     </Routes>
   );
 };

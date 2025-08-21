@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V3 ディープリンクテスト - 医療システムからの遷移シミュレーション</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .test-section h2 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .link-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .test-link {
+            display: inline-block;
+            padding: 12px 20px;
+            background: #4c6ef5;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .test-link:hover {
+            background: #364fc7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 110, 245, 0.3);
+        }
+        .medical-link {
+            background: #20c997;
+        }
+        .medical-link:hover {
+            background: #12b886;
+        }
+        .description {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+        .code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 V3 異議申立ディープリンクテスト</h1>
+        
+        <div class="test-section">
+            <h2>1️⃣ 基本的なページアクセス</h2>
+            <div class="link-group">
+                <a href="http://localhost:5173/appeal-v3" class="test-link" target="_blank">
+                    通常のV3異議申立ページ
+                </a>
+                <p class="description">
+                    パラメータなしでページにアクセスします。
+                </p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>2️⃣ 医療システムからの遷移（パラメータ付き）</h2>
+            <div class="link-group">
+                <a href="http://localhost:5173/appeal-v3?period=2025_summer&employee=EMP001&from=medical" 
+                   class="test-link medical-link" target="_blank">
+                    医療システムから遷移（2025年夏期・EMP001）
+                </a>
+                <p class="description">
+                    URLパラメータ: <span class="code">period=2025_summer</span>, 
+                    <span class="code">employee=EMP001</span>, 
+                    <span class="code">from=medical</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>3️⃣ 評価期間のみ指定</h2>
+            <div class="link-group">
+                <a href="http://localhost:5173/appeal-v3?period=2025_winter" 
+                   class="test-link" target="_blank">
+                    2025年冬期評価
+                </a>
+                <p class="description">
+                    URLパラメータ: <span class="code">period=2025_winter</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>4️⃣ 従業員IDのみ指定</h2>
+            <div class="link-group">
+                <a href="http://localhost:5173/appeal-v3?employee=EMP12345" 
+                   class="test-link" target="_blank">
+                    従業員ID: EMP12345
+                </a>
+                <p class="description">
+                    URLパラメータ: <span class="code">employee=EMP12345</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>5️⃣ 複雑なテストケース</h2>
+            <div class="link-group">
+                <a href="http://localhost:5173/appeal-v3?period=2025_Q1&employee=NURSE_001&from=medical" 
+                   class="test-link medical-link" target="_blank">
+                    看護師（NURSE_001）2025年Q1評価
+                </a>
+                <p class="description">
+                    URLパラメータ: <span class="code">period=2025_Q1</span>, 
+                    <span class="code">employee=NURSE_001</span>, 
+                    <span class="code">from=medical</span>
+                </p>
+                
+                <a href="http://localhost:5173/appeal-v3?period=2025_annual&employee=DOCTOR_789&from=medical" 
+                   class="test-link medical-link" target="_blank">
+                    医師（DOCTOR_789）2025年年次評価
+                </a>
+                <p class="description">
+                    URLパラメータ: <span class="code">period=2025_annual</span>, 
+                    <span class="code">employee=DOCTOR_789</span>, 
+                    <span class="code">from=medical</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 テスト確認項目</h2>
+            <p class="description">
+                ✅ URLパラメータが正しく解析されているか<br>
+                ✅ 医療システムからの遷移通知が表示されるか<br>
+                ✅ 初期値（評価期間・従業員ID）が自動設定されるか<br>
+                ✅ コンソールにデバッグ情報が出力されるか<br>
+                ✅ フォームタブが自動的に開かれるか
+            </p>
+        </div>
+    </div>
+</body>
+</html>

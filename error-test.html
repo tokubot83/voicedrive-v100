@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V3 エラーハンドリングテスト - Phase 2機能確認</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .test-section h2 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #28a745;
+        }
+        .feature-item.error {
+            border-left-color: #dc3545;
+        }
+        .feature-item.warning {
+            border-left-color: #ffc107;
+        }
+        .feature-item.info {
+            border-left-color: #17a2b8;
+        }
+        .status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .status.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.in-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .test-link {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #4c6ef5;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-left: auto;
+        }
+        .test-link:hover {
+            background: #364fc7;
+        }
+        .instructions {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 V3 Phase 2 エラーハンドリング機能テスト</h1>
+        
+        <div class="test-section">
+            <h2>✅ 実装完了機能一覧</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <span class="status completed">完了</span>
+                    <div>
+                        <strong>ディープリンク機能</strong>
+                        <p>医療システムからのURLパラメータ付き遷移に対応</p>
+                    </div>
+                    <a href="http://localhost:5173/appeal-v3?period=2025_summer&employee=EMP001&from=medical" 
+                       class="test-link" target="_blank">テスト</a>
+                </div>
+                
+                <div class="feature-item">
+                    <span class="status completed">完了</span>
+                    <div>
+                        <strong>一時保存機能</strong>
+                        <p>30秒ごとの自動保存、手動保存、読み込み、削除機能</p>
+                    </div>
+                    <a href="http://localhost:5173/appeal-v3" 
+                       class="test-link" target="_blank">テスト</a>
+                </div>
+                
+                <div class="feature-item">
+                    <span class="status completed">完了</span>
+                    <div>
+                        <strong>リトライロジック</strong>
+                        <p>指数バックオフ付き最大3回リトライ（タイムアウト、503、504、ネットワークエラー）</p>
+                    </div>
+                    <a href="http://localhost:5173/appeal-v3" 
+                       class="test-link" target="_blank">テスト</a>
+                </div>
+                
+                <div class="feature-item">
+                    <span class="status completed">完了</span>
+                    <div>
+                        <strong>フォールバック処理</strong>
+                        <p>エラータイプ別のユーザーフレンドリーなメッセージ表示</p>
+                    </div>
+                    <a href="http://localhost:5173/appeal-v3" 
+                       class="test-link" target="_blank">テスト</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 テスト手順</h2>
+            
+            <div class="instructions">
+                <h3>1. ディープリンク機能テスト</h3>
+                <ol>
+                    <li>上記の「医療システムからの遷移」リンクをクリック</li>
+                    <li>青色の通知バナーが表示されることを確認</li>
+                    <li>評価期間と従業員IDが自動入力されることを確認</li>
+                    <li>ブラウザコンソールでパラメータログを確認</li>
+                </ol>
+            </div>
+
+            <div class="instructions">
+                <h3>2. 一時保存機能テスト</h3>
+                <ol>
+                    <li>V3異議申立ページを開く</li>
+                    <li>申し立て理由を入力（10文字以上）</li>
+                    <li>「下書き保存」ボタンをクリック</li>
+                    <li>ページをリロード</li>
+                    <li>「下書き読み込み」ボタンで復元を確認</li>
+                    <li>30秒待機して自動保存を確認</li>
+                </ol>
+            </div>
+
+            <div class="instructions">
+                <h3>3. エラーハンドリングテスト</h3>
+                <ol>
+                    <li>MCPサーバーを停止: <span class="code">cd mcp-integration-server && npm stop</span></li>
+                    <li>V3異議申立フォームを送信</li>
+                    <li>ネットワークエラーメッセージが表示されることを確認</li>
+                    <li>「再試行」ボタンが表示されることを確認</li>
+                    <li>下書きが自動保存されることを確認</li>
+                </ol>
+            </div>
+
+            <div class="instructions">
+                <h3>4. リトライ機能テスト</h3>
+                <ol>
+                    <li>ブラウザの開発者ツールでネットワークを「Slow 3G」に設定</li>
+                    <li>フォームを送信</li>
+                    <li>コンソールで「リトライ 1/3...」メッセージを確認</li>
+                    <li>指数バックオフ（1秒→2秒→4秒）の動作を確認</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 期待される動作</h2>
+            <div class="feature-list">
+                <div class="feature-item info">
+                    <span class="status completed">✓</span>
+                    <div>
+                        <strong>ユーザーフレンドリーなエラーメッセージ</strong>
+                        <p>技術的なエラーではなく、分かりやすい日本語メッセージ</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item info">
+                    <span class="status completed">✓</span>
+                    <div>
+                        <strong>データ保護</strong>
+                        <p>エラー発生時も入力内容が失われない</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item info">
+                    <span class="status completed">✓</span>
+                    <div>
+                        <strong>インタラクティブな復旧</strong>
+                        <p>再試行ボタンで簡単に復旧試行が可能</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item info">
+                    <span class="status completed">✓</span>
+                    <div>
+                        <strong>自動機能</strong>
+                        <p>ユーザーが意識せずに下書き保存・リトライが動作</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Phase 3準備状況</h2>
+            <div class="instructions">
+                <p><strong>Phase 2完了条件:</strong></p>
+                <ul>
+                    <li>✅ ディープリンク機能実装完了</li>
+                    <li>✅ エラーハンドリング統合テスト合格</li>
+                    <li>✅ ユーザビリティテスト準備完了</li>
+                </ul>
+                <p><strong>Phase 3 (8月26日以降) 予定:</strong></p>
+                <ul>
+                    <li>🔄 本番環境連携</li>
+                    <li>🔄 ユーザー向け資料作成</li>
+                    <li>🔄 運用監視体制確立</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>⚙️ 開発サーバー確認</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div>
+                        <strong>VoiceDrive</strong>
+                        <p>http://localhost:5173/</p>
+                    </div>
+                    <a href="http://localhost:5173/" class="test-link" target="_blank">確認</a>
+                </div>
+                
+                <div class="feature-item">
+                    <div>
+                        <strong>MCPサーバー</strong>
+                        <p>http://localhost:8080/dashboard</p>
+                    </div>
+                    <a href="http://localhost:8080/dashboard" class="test-link" target="_blank">確認</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,11 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import AppealFormV3 from '../components/appeal/AppealFormV3';
 import AppealStatusListV3 from '../components/appeal/AppealStatusListV3';
 import { toast } from 'react-toastify';
 
 const AppealV3Page: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<'form' | 'status'>('form');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [deepLinkParams, setDeepLinkParams] = useState<{
+    period?: string;
+    employeeId?: string;
+    fromMedical?: boolean;
+  }>({});
+
+  // URLパラメータの解析
+  useEffect(() => {
+    const period = searchParams.get('period');
+    const employeeId = searchParams.get('employee');
+    const fromMedical = searchParams.get('from') === 'medical';
+
+    if (period || employeeId || fromMedical) {
+      setDeepLinkParams({
+        period: period || undefined,
+        employeeId: employeeId || undefined,
+        fromMedical
+      });
+
+      // 医療システムから遷移してきた場合は自動的にフォームタブを開く
+      if (fromMedical) {
+        setActiveTab('form');
+        toast.info('医療システムから異議申し立てページに遷移しました');
+      }
+
+      // パラメータをログに出力（デバッグ用）
+      console.log('Deep link parameters:', {
+        period,
+        employeeId,
+        fromMedical,
+        fullUrl: window.location.href
+      });
+    }
+  }, [searchParams]);
 
   const handleAppealSuccess = (appealId: string) => {
     toast.success(`V3異議申し立てが正常に送信されました（ID: ${appealId}）`);
@@ -76,6 +113,22 @@ const AppealV3Page: React.FC = () => {
         {/* タブコンテンツ */}
         <div className="bg-white rounded-b-lg shadow-lg">
           <div className="p-8">
+            {/* 医療システムからの遷移通知 */}
+            {deepLinkParams.fromMedical && (
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-blue-800">
+                    医療システムから遷移しました。
+                    {deepLinkParams.period && <span className="font-semibold ml-1">評価期間: {deepLinkParams.period}</span>}
+                    {deepLinkParams.employeeId && <span className="font-semibold ml-1">/ 従業員ID: {deepLinkParams.employeeId}</span>}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {activeTab === 'form' ? (
               <div>
                 <div className="mb-8">
@@ -91,6 +144,9 @@ const AppealV3Page: React.FC = () => {
                 <AppealFormV3
                   onSuccess={handleAppealSuccess}
                   onCancel={handleFormCancel}
+                  initialPeriod={deepLinkParams.period}
+                  initialEmployeeId={deepLinkParams.employeeId}
+                  fromMedicalSystem={deepLinkParams.fromMedical}
                 />
               </div>
             ) : (

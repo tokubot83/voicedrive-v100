@@ -89,6 +89,25 @@ app.use('/api/voicedrive', createProxyMiddleware({
   }
 }));
 
+// V3 API endpoints - 医療チーム提案の新フロー対応
+app.post('/api/v3/appeals/submit', (req, res) => {
+  logger.info('V3 Appeal submission received:', req.body);
+  
+  // V3異議申立受信の模擬レスポンス
+  const appealId = `APL${Date.now()}`;
+  const response = {
+    appealId,
+    status: 'received',
+    assignedTo: 'MGR002',
+    estimatedResponseDate: '2025-08-28',
+    message: 'V3異議申立を受理しました',
+    voiceDriveCallbackUrl: `/api/v3/appeals/${appealId}/status`
+  };
+  
+  logger.info('V3 Appeal response:', response);
+  res.json(response);
+});
+
 // 統合API - 両システムの状態を取得
 app.get('/api/status', async (req, res) => {
   const status = {

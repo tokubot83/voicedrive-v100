@@ -12,6 +12,7 @@ import {
 } from '../../types/appeal-v3';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'react-toastify';
+import { appealServiceV3 } from '../../services/appealServiceV3';
 
 interface AppealFormV3Props {
   onSuccess?: (appealId: string) => void;
@@ -20,18 +21,24 @@ interface AppealFormV3Props {
     period: string;
     score: number;
   };
+  initialPeriod?: string;
+  initialEmployeeId?: string;
+  fromMedicalSystem?: boolean;
 }
 
 const AppealFormV3: React.FC<AppealFormV3Props> = ({ 
   onSuccess, 
   onCancel,
-  evaluationData 
+  evaluationData,
+  initialPeriod,
+  initialEmployeeId,
+  fromMedicalSystem
 }) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState<V3AppealFormData>({
-    employeeId: user?.employeeId || '',
+    employeeId: initialEmployeeId || user?.employeeId || '',
     employeeName: user?.name || '',
-    evaluationPeriod: evaluationData?.period || '',
+    evaluationPeriod: initialPeriod || evaluationData?.period || '',
     appealCategory: AppealCategory.OTHER,
     appealReason: '',
     originalScore: evaluationData?.score || 0,
@@ -50,7 +57,30 @@ const AppealFormV3: React.FC<AppealFormV3Props> = ({
 
   useEffect(() => {
     loadV3EvaluationPeriods();
+    
+    // 医療システムから遷移してきた場合のログ
+    if (fromMedicalSystem) {
+      console.log('Medical system deep link detected:', {
+        initialPeriod,
+        initialEmployeeId,
+        fromMedicalSystem
+      });
+    }
+    
+    // 下書きを読み込み
+    loadDraft();
   }, []);
+  
+  // 定期的に下書きを保存
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (formData.appealReason && formData.appealReason.length > 10) {
+        appealServiceV3.saveDraft(formData);
+      }
+    }, 30000); // 30秒ごと
+    
+    return () => clearInterval(interval);
+  }, [formData]);
 
   useEffect(() => {
     // スコア変更時にグレードを自動更新
@@ -75,6 +105,30 @@ const AppealFormV3: React.FC<AppealFormV3Props> = ({
       }));
     }
   }, [formData.originalScore, formData.requestedScore, formData.appealCategory]);
+
+  const loadDraft = () => {
+    try {
+      const draft = appealServiceV3.getDraft();
+      if (draft && window.confirm('保存された下書きが見つかりました。読み込みますか？')) {
+        setFormData(prev => ({
+          ...prev,
+          ...draft,
+          employeeId: initialEmployeeId || draft.employeeId || prev.employeeId,
+          evaluationPeriod: initialPeriod || draft.evaluationPeriod || prev.evaluationPeriod
+        }));
+        toast.info('下書きを読み込みました');
+      }
+    } catch (error) {
+      console.error('下書き読み込みエラー:', error);
+    }
+  };
+
+  const clearDraft = () => {
+    if (window.confirm('下書きを削除しますか？')) {
+      appealServiceV3.clearDraft();
+      toast.info('下書きを削除しました');
+    }
+  };
 
   const loadV3EvaluationPeriods = async () => {
     try {
@@ -147,7 +201,7 @@ const AppealFormV3: React.FC<AppealFormV3Props> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, isRetry = false) => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -156,6 +210,9 @@ const AppealFormV3: React.FC<AppealFormV3Props> = ({
     }
 
     setIsSubmitting(true);
+    
+    // 手動保存
+    appealServiceV3.saveDraft(formData);
 
     try {
       const submitData: V3AppealRequest = {
@@ -166,29 +223,50 @@ const AppealFormV3: React.FC<AppealFormV3Props> = ({
         appealReason: formData.appealReason,
         originalScore: formData.originalScore,
         requestedScore: formData.requestedScore,
-        evidenceDocuments: formData.evidenceDocuments
+        evidenceDocuments: formData.evidenceDocuments,
+        scores: {
+          currentTotal: formData.originalScore,
+          disputedItems: []
+        },
+        relativeEvaluation: {
+          facilityGrade: formData.originalGrade,
+          corporateGrade: formData.originalGrade,
+          disputeReason: formData.appealReason
+        }
       };
 
-      const response = await fetch('http://localhost:8080/api/v3/appeals', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submitData)
-      });
+      // V3サービスを使用してリトライ機能付き送信
+      const response = await appealServiceV3.submitAppealV3(submitData);
 
-      const result = await response.json();
-
-      if (result.success) {
-        toast.success(`V3異議申し立てを受理しました（ID: ${result.appealId}）`);
-        onSuccess?.(result.appealId);
+      if (response.success) {
+        toast.success(`V3異議申し立てを受理しました（ID: ${response.appealId}）`);
+        // 送信成功時は下書きをクリア
+        appealServiceV3.clearDraft();
+        onSuccess?.(response.appealId);
       } else {
-        throw new Error(result.error?.message || 'V3異議申し立てに失敗しました');
+        throw response.error;
       }
 
     } catch (error: any) {
       console.error('V3異議申し立てエラー:', error);
-      toast.error(error.message || 'V3異議申し立ての送信に失敗しました');
+      
+      // エラータイプに応じた処理
+      if (error.retryable) {
+        toast.error(
+          <div className="space-y-2">
+            <p>{error.message}</p>
+            <button
+              onClick={() => handleSubmit(e, true)}
+              className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+            >
+              再試行
+            </button>
+          </div>,
+          { autoClose: false }
+        );
+      } else {
+        toast.error(error.message || 'V3異議申し立ての送信に失敗しました');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -397,6 +475,40 @@ const AppealFormV3: React.FC<AppealFormV3Props> = ({
           {errors.appealReason && <p className="text-red-600 text-sm mt-1">{errors.appealReason}</p>}
           <p className="text-gray-500 text-sm mt-1">
             最低{V3_APPEAL_VALIDATION_RULES.appealReason.minLength}文字以上入力してください
+          </p>
+        </div>
+
+        {/* 下書き機能 */}
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <h4 className="font-medium text-gray-900 mb-3">📝 下書き機能</h4>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                appealServiceV3.saveDraft(formData);
+                toast.success('下書きを保存しました');
+              }}
+              className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
+            >
+              下書き保存
+            </button>
+            <button
+              type="button"
+              onClick={loadDraft}
+              className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+            >
+              下書き読み込み
+            </button>
+            <button
+              type="button"
+              onClick={clearDraft}
+              className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+            >
+              下書き削除
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            30秒ごとに自動保存されます。送信成功時は自動削除されます。
           </p>
         </div>
 
