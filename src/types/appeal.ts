@@ -1,11 +1,79 @@
 // VoiceDrive側の異議申し立て型定義
-import { 
-  AppealRequest, 
-  AppealResponse, 
-  AppealStatus, 
-  AppealCategory,
-  AppealRecord
-} from '../../mcp-shared/interfaces/appeal.interface';
+
+// 異議申し立てカテゴリー
+export enum AppealCategory {
+  CRITERIA_MISINTERPRETATION = 'evaluation_criteria_misinterpretation', // 評価基準の誤解釈
+  ACHIEVEMENT_OVERSIGHT = 'achievement_oversight',     // 成果の見落とし
+  PERIOD_ERROR = 'period_error',                      // 評価期間の誤り
+  CALCULATION_ERROR = 'calculation_error',            // 点数計算の誤り
+  OTHER = 'other'                                     // その他
+}
+
+// 異議申し立てステータス
+export enum AppealStatus {
+  RECEIVED = 'received',           // 受理済み
+  UNDER_REVIEW = 'under_review',   // 審査中
+  ADDITIONAL_INFO = 'additional_info', // 追加情報待ち
+  RESOLVED = 'resolved',           // 解決済み
+  WITHDRAWN = 'withdrawn',         // 取り下げ
+  REJECTED = 'rejected'            // 却下
+}
+
+// 異議申し立てリクエスト
+export interface AppealRequest {
+  employeeId: string;
+  employeeName: string;
+  evaluationPeriod: string;
+  appealCategory: AppealCategory;
+  appealReason: string;
+  originalScore?: number;
+  requestedScore?: number;
+  evidenceDocuments?: string[];
+  preferredContactMethod?: string;
+  departmentId?: string;
+  jobCategory?: string;
+}
+
+// 異議申し立てレスポンス
+export interface AppealResponse {
+  success: boolean;
+  appealId: string;
+  message: string;
+  expectedResponseDate?: string;
+  details?: {
+    status: AppealStatus;
+    processedAt: string;
+    assignedTo?: string;
+    priority?: 'high' | 'medium' | 'low';
+  };
+  error?: {
+    code: string;
+    message: string;
+    details?: any;
+  };
+}
+
+// 異議申し立てレコード
+export interface AppealRecord {
+  appealId: string;
+  employeeId: string;
+  employeeName: string;
+  departmentId?: string;
+  evaluationPeriod: string;
+  appealCategory: AppealCategory;
+  appealReason: string;
+  originalScore?: number;
+  requestedScore?: number;
+  finalScore?: number;
+  status: AppealStatus;
+  evidenceDocuments?: string[];
+  createdAt: Date;
+  updatedAt: Date;
+  submittedVia: 'voicedrive' | 'paper' | 'email' | 'system';
+  reviewStartDate?: Date;
+  reviewEndDate?: Date;
+  reviewerComments?: string;
+}
 
 // フロントエンド用の拡張型
 export interface AppealFormData extends Partial<AppealRequest> {
@@ -96,5 +164,4 @@ export const APPEAL_VALIDATION_RULES = {
   submissionDeadline: 14 // 評価開示後14日以内
 };
 
-// Re-export from MCP shared
-export { AppealRequest, AppealResponse, AppealStatus, AppealCategory, AppealRecord };
+// 既に上で定義しているため、re-exportは不要
