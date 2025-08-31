@@ -106,7 +106,7 @@ const GradeDisplay: React.FC<{ grade: string; score: number }> = ({ grade, score
   );
 };
 
-const MyEvaluationCenter: React.FC = () => {
+const EvaluationStation: React.FC = () => {
   const { userLevel: userPermissionLevel } = usePermissions();
   const { isDemoMode, currentUser } = useDemoMode();
   const [evaluationData, setEvaluationData] = useState<any>(null);
@@ -174,7 +174,7 @@ const MyEvaluationCenter: React.FC = () => {
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
               <Award className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-800">マイ評価センター</h1>
+            <h1 className="text-3xl font-bold text-gray-800">評価ステーション</h1>
           </div>
           <p className="text-gray-600">
             あなたの評価情報、成長分析、面談予約を一元管理
@@ -217,14 +217,14 @@ const MyEvaluationCenter: React.FC = () => {
                     </div>
                     <div className="flex flex-col gap-2 ml-4">
                       <Link 
-                        to={`/my-evaluation/notifications/${notification.id}`}
+                        to={`/evaluation-station/notifications/${notification.id}`}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm text-center"
                       >
                         詳細確認
                       </Link>
                       {notification.canAppeal && (
                         <Link 
-                          to={`/my-evaluation/appeals/new?evaluation=${notification.id}`}
+                          to={`/evaluation-station/appeals/new?evaluation=${notification.id}`}
                           className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm text-center"
                         >
                           異議申立
@@ -269,7 +269,7 @@ const MyEvaluationCenter: React.FC = () => {
                 <h3 className="text-lg font-semibold text-gray-800">評価履歴</h3>
               </div>
               <Link 
-                to="/my-evaluation/history"
+                to="/evaluation-station/history"
                 className="text-sm text-blue-600 hover:text-blue-700 font-medium"
               >
                 すべて見る
@@ -296,7 +296,7 @@ const MyEvaluationCenter: React.FC = () => {
                 <h3 className="text-lg font-semibold text-gray-800">面談予約</h3>
               </div>
               <Link 
-                to="/my-evaluation/interviews"
+                to="/evaluation-station/interviews"
                 className="text-sm text-blue-600 hover:text-blue-700 font-medium"
               >
                 予約管理
@@ -323,7 +323,7 @@ const MyEvaluationCenter: React.FC = () => {
                 <Calendar className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                 <p className="text-sm text-gray-500 mb-3">予定された面談はありません</p>
                 <Link 
-                  to="/my-evaluation/interviews/new"
+                  to="/evaluation-station/interviews/new"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
                 >
                   <Calendar className="w-4 h-4" />
@@ -337,7 +337,7 @@ const MyEvaluationCenter: React.FC = () => {
         {/* メインナビゲーション */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Link 
-            to="/my-evaluation/notifications"
+            to="/evaluation-station/notifications"
             className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all group"
           >
             <div className="flex flex-col items-center text-center">
@@ -350,7 +350,7 @@ const MyEvaluationCenter: React.FC = () => {
           </Link>
 
           <Link 
-            to="/my-evaluation/history"
+            to="/evaluation-station/history"
             className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all group"
           >
             <div className="flex flex-col items-center text-center">
@@ -363,7 +363,7 @@ const MyEvaluationCenter: React.FC = () => {
           </Link>
 
           <Link 
-            to="/my-evaluation/appeals"
+            to="/evaluation-station/appeals"
             className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all group"
           >
             <div className="flex flex-col items-center text-center">
@@ -376,7 +376,7 @@ const MyEvaluationCenter: React.FC = () => {
           </Link>
 
           <Link 
-            to="/my-evaluation/interviews"
+            to="/evaluation-station/interviews"
             className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all group"
           >
             <div className="flex flex-col items-center text-center">
@@ -393,4 +393,4 @@ const MyEvaluationCenter: React.FC = () => {
   );
 };
 
-export default MyEvaluationCenter;
+export default EvaluationStation;

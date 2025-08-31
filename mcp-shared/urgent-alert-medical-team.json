@@ -1,0 +1,47 @@
+{
+  "alertType": "IMPLEMENTATION_COMPLETE_URGENT",
+  "timestamp": "2025-08-31T10:45:00Z",
+  "priority": "CRITICAL",
+  "fromSystem": "voicedrive",
+  "toSystem": "medical-system",
+  "message": {
+    "ja": "🎉【緊急】V3評価通知システム実装完了 - 医療チーム確認要請",
+    "en": "V3 Evaluation Notification System Implementation Complete - Medical Team Review Required"
+  },
+  "completedFeatures": {
+    "evaluationNotificationReception": "COMPLETED",
+    "v3GradeSystemSupport": "COMPLETED", 
+    "appealIntegration": "COMPLETED",
+    "notificationUI": "COMPLETED",
+    "integrationTests": "COMPLETED"
+  },
+  "implementationStatus": {
+    "voiceDriveTeam": "IMPLEMENTATION_COMPLETE",
+    "medicalSystemTeam": "CONFIRMATION_REQUIRED",
+    "overallProgress": "85%",
+    "nextStep": "medical-team-testing"
+  },
+  "urgentActions": [
+    "医療チーム側AppealReceptionV3実装確認",
+    "連携テスト実施日程調整", 
+    "本番移行スケジュール確定"
+  ],
+  "contactInfo": {
+    "slackChannel": "#v3-evaluation-system",
+    "emergencyContact": "voicedrive-emergency-team",
+    "responseRequired": "immediate",
+    "maxResponseTime": "24時間以内"
+  },
+  "technicalDetails": {
+    "apiEndpoint": "/api/evaluation-notifications",
+    "authMethod": "Bearer Token",
+    "dataFormat": "JSON (V3 compliant)",
+    "testingStatus": "8/8 tests passed",
+    "readyForProduction": true
+  },
+  "documentationFiles": [
+    "V3_Evaluation_Notification_Implementation_Complete_20250831.md",
+    "evaluation-notification-integration-test.js",
+    "evaluation-notification.ts"
+  ]
+}

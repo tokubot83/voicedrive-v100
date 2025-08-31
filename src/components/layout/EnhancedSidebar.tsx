@@ -192,10 +192,48 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       </div>
 
 
+      {/* ステーション系メニュー（上部） */}
+      <div className="p-4 border-b border-slate-700/50">
+        <div className="space-y-1">
+          {/* パーソナルステーション */}
+          <button
+            onClick={() => onNavigate('/personal-station')}
+            className={`
+              w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+              transition-all duration-150
+              ${currentPath === '/personal-station' 
+                ? 'bg-gradient-to-r from-green-600 to-blue-600 text-white shadow-lg' 
+                : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+              }
+            `}
+          >
+            <span className="text-base">👤</span>
+            <span>パーソナルステーション</span>
+          </button>
+
+          {/* 評価ステーション（Level 1-3のみ表示） */}
+          {userPermissionLevel <= 3 && (
+            <button
+              onClick={() => onNavigate('/evaluation-station')}
+              className={`
+                w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+                transition-all duration-150
+                ${currentPath.startsWith('/evaluation-station') 
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' 
+                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                }
+              `}
+            >
+              <span className="text-base">📊</span>
+              <span>評価ステーション</span>
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* メニューセクション */}
       <div className="flex-1 overflow-y-auto p-4 pb-40 space-y-2">
-        {/* ステーション系 */}
-        {renderCategory('station')}
+        {/* その他のカテゴリメニュー（ステーション系は上部に移動済み） */}
         
         {/* 管理機能 */}
         {userPermissionLevel >= 2 && renderCategory('management')}
@@ -288,23 +326,6 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
           <Bell className="w-4 h-4" />
           <span>通知</span>
         </button>
-        {/* 評価センター（Level 1-3のみ表示） */}
-        {userPermissionLevel <= 3 && (
-          <button
-            onClick={() => onNavigate('/my-evaluation')}
-            className={`
-              w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
-              transition-all duration-150
-              ${currentPath.startsWith('/my-evaluation') 
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' 
-                : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
-              }
-            `}
-          >
-            <span className="text-base">📊</span>
-            <span>マイ評価センター</span>
-          </button>
-        )}
         <button
           onClick={() => onNavigate('/settings')}
           className={`

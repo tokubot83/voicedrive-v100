@@ -116,7 +116,7 @@ import { AuditLogPage } from '../pages/AuditLogPage';
 // Appeal pages
 import AppealV3Page from '../pages/AppealV3Page';
 import EvaluationNotificationPage from '../pages/EvaluationNotificationPage';
-import MyEvaluationCenter from '../pages/MyEvaluationCenter';
+import EvaluationStation from '../pages/EvaluationStation';
 
 // Error pages
 import NotFoundPage from '../pages/NotFoundPage';
@@ -530,11 +530,11 @@ const AppRouter: React.FC = () => {
       {/* Evaluation Notifications - Accessible to all authenticated users */}
       <Route path="evaluation/notifications" element={<EvaluationNotificationPage />} />
       
-      {/* My Evaluation Center - Level 1-3 only (evaluation targets) */}
-      <Route path="my-evaluation/*" element={
+      {/* Evaluation Station - Level 1-3 only (evaluation targets) */}
+      <Route path="evaluation-station/*" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_1} maxLevel={PermissionLevel.LEVEL_3}>
           <Routes>
-            <Route index element={<MyEvaluationCenter />} />
+            <Route index element={<EvaluationStation />} />
             <Route path="notifications" element={<EvaluationNotificationPage />} />
             <Route path="notifications/:id" element={<div>評価通知詳細（未実装）</div>} />
             <Route path="history" element={<div>評価履歴（未実装）</div>} />
