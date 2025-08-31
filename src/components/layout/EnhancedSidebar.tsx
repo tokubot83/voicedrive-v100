@@ -288,20 +288,23 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
           <Bell className="w-4 h-4" />
           <span>通知</span>
         </button>
-        <button
-          onClick={() => onNavigate('/evaluation/notifications')}
-          className={`
-            w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
-            transition-all duration-150
-            ${currentPath === '/evaluation/notifications' 
-              ? 'bg-blue-600 text-white shadow-lg' 
-              : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
-            }
-          `}
-        >
-          <Bell className="w-4 h-4" />
-          <span>評価通知</span>
-        </button>
+        {/* 評価センター（Level 1-3のみ表示） */}
+        {userPermissionLevel <= 3 && (
+          <button
+            onClick={() => onNavigate('/my-evaluation')}
+            className={`
+              w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+              transition-all duration-150
+              ${currentPath.startsWith('/my-evaluation') 
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' 
+                : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+              }
+            `}
+          >
+            <span className="text-base">📊</span>
+            <span>マイ評価センター</span>
+          </button>
+        )}
         <button
           onClick={() => onNavigate('/settings')}
           className={`

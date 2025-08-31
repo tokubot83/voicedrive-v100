@@ -6,6 +6,7 @@ import { PermissionLevel } from '../../permissions/types/PermissionTypes';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredLevel?: PermissionLevel;
+  maxLevel?: PermissionLevel;
   exactLevel?: boolean;
   fallbackPath?: string;
 }
@@ -13,6 +14,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requiredLevel,
+  maxLevel,
   exactLevel = false,
   fallbackPath = '/'
 }) => {
@@ -46,6 +48,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         );
       }
     }
+  }
+  
+  // Check maximum level constraint (for evaluation target restrictions)
+  if (maxLevel && userLevel > maxLevel) {
+    return (
+      <Navigate 
+        to={fallbackPath} 
+        state={{ from: location.pathname }} 
+        replace 
+      />
+    );
   }
   
   return <>{children}</>;
