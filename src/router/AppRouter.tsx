@@ -115,6 +115,7 @@ import { AuditLogPage } from '../pages/AuditLogPage';
 
 // Appeal pages
 import AppealV3Page from '../pages/AppealV3Page';
+import EvaluationNotificationPage from '../pages/EvaluationNotificationPage';
 
 // Error pages
 import NotFoundPage from '../pages/NotFoundPage';
@@ -524,6 +525,9 @@ const AppRouter: React.FC = () => {
       
       {/* V3 Appeal Page - Accessible to all authenticated users */}
       <Route path="appeal-v3" element={<AppealV3Page />} />
+      
+      {/* Evaluation Notifications - Accessible to all authenticated users */}
+      <Route path="evaluation/notifications" element={<EvaluationNotificationPage />} />
     </Routes>
   );
 };
