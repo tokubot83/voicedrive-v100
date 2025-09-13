@@ -106,8 +106,8 @@ class AssistedBookingService {
   private baseUrl: string;
 
   constructor() {
-    // 医療システムのAPIエンドポイント
-    this.baseUrl = process.env.REACT_APP_MEDICAL_SYSTEM_API || 'http://localhost:8080/api/v1';
+    // 医療システムの実APIエンドポイント（Pattern D統合完了）
+    this.baseUrl = process.env.REACT_APP_MEDICAL_SYSTEM_API || 'http://medical-dev.hospital.jp/api';
   }
 
   // おまかせ予約申込送信
@@ -115,7 +115,7 @@ class AssistedBookingService {
     request: EnhancedInterviewRequest
   ): Promise<{ requestId: string; estimatedTime: string; status: string }> {
     try {
-      const response = await fetch(`${this.baseUrl}/interview/assisted-booking`, {
+      const response = await fetch(`${this.baseUrl}/interviews/assisted-booking`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,18 +132,30 @@ class AssistedBookingService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const result = await response.json();
+      const data = result.data || result; // 医療システムのレスポンス構造に対応
       return {
         requestId: data.requestId,
         estimatedTime: data.estimatedCompletionTime || '1時間以内',
-        status: 'accepted'
+        status: data.status || 'accepted'
       };
     } catch (error: any) {
       console.error('おまかせ予約申込エラー:', error);
 
-      // エラー時は即時予約へのフォールバック提案
+      // 医療システム特有のエラーハンドリング
+      if (error.message?.includes('401') || error.message?.includes('403')) {
+        throw new Error('認証エラーが発生しました。再ログインをお試しください。');
+      }
+      if (error.message?.includes('503') || error.message?.includes('502')) {
+        throw new Error('医療システムのメンテナンス中です。しばらく後でお試しください。');
+      }
+      if (error.message?.includes('timeout')) {
+        throw new Error('処理がタイムアウトしました。即時予約をお試しください。');
+      }
+
+      // 一般的なフォールバック
       throw new Error(
-        error.message || '申込の送信に失敗しました。即時予約をお試しください。'
+        error.message || '申込の送信に失敗しました。即時予約をお試しいただくか、しばらく後で再度お試しください。'
       );
     }
   }
@@ -151,7 +163,7 @@ class AssistedBookingService {
   // 調整中リクエストの取得
   async getPendingRequests(staffId: string): Promise<AssistedBookingRequest[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/interview/pending-requests/${staffId}`, {
+      const response = await fetch(`${this.baseUrl}/interviews/pending-requests/${staffId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -163,8 +175,9 @@ class AssistedBookingService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      return data.map((req: any) => this.formatForStaffView(req));
+      const result = await response.json();
+      const data = result.data || result; // 医療システムのレスポンス構造に対応
+      return (Array.isArray(data) ? data : []).map((req: any) => this.formatForStaffView(req));
     } catch (error) {
       console.error('調整中リクエスト取得エラー:', error);
       return [];
@@ -174,7 +187,7 @@ class AssistedBookingService {
   // 提案候補取得
   async getBookingProposals(requestId: string): Promise<StaffFriendlyRecommendation[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/interview/proposals/${requestId}`, {
+      const response = await fetch(`${this.baseUrl}/interviews/proposals/${requestId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -186,7 +199,8 @@ class AssistedBookingService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const result = await response.json();
+      const data = result.data || result; // 医療システムのレスポンス構造に対応
       // 職員向けに情報を簡素化
       return this.simplifyProposalsForStaff(data.proposals || []);
     } catch (error) {
@@ -202,7 +216,7 @@ class AssistedBookingService {
     staffFeedback?: string
   ): Promise<any> {
     try {
-      const response = await fetch(`${this.baseUrl}/interview/confirm-choice`, {
+      const response = await fetch(`${this.baseUrl}/interviews/confirm-choice`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -231,7 +245,7 @@ class AssistedBookingService {
   // おまかせ予約のキャンセル
   async cancelAssistedRequest(requestId: string, reason?: string): Promise<void> {
     try {
-      const response = await fetch(`${this.baseUrl}/interview/cancel-assisted`, {
+      const response = await fetch(`${this.baseUrl}/interviews/cancel-assisted`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -254,10 +268,20 @@ class AssistedBookingService {
     }
   }
 
-  // 認証トークン取得（仮実装）
+  // 認証トークン取得（JWT対応）
   private getAuthToken(): string {
-    // 実装時は localStorage や auth context から取得
-    return localStorage.getItem('authToken') || 'demo-token';
+    // VoiceDriveのJWTトークンを取得
+    const token = localStorage.getItem('voicedrive_jwt_token') ||
+                  sessionStorage.getItem('voicedrive_jwt_token') ||
+                  localStorage.getItem('authToken');
+
+    // 開発環境・デモ環境用のフォールバック
+    if (!token && process.env.NODE_ENV === 'development') {
+      console.warn('医療システム連携: 開発環境用のデモトークンを使用中');
+      return 'dev-demo-token-for-medical-integration';
+    }
+
+    return token || '';
   }
 
   // 職員向けの表示形式に変換
@@ -329,8 +353,11 @@ class AssistedBookingService {
         }
       },
       whyRecommended: {
-        summary: this.generateSimpleSummary(proposal.aiReasoning?.matchingFactors || []),
-        points: this.simplifyReasoningPoints(proposal.aiReasoning?.matchingFactors || [])
+        // 医療システム側で既に簡素化された表示を優先使用
+        summary: proposal.staffFriendlyDisplay?.summary ||
+                this.generateSimpleSummary(proposal.aiReasoning?.matchingFactors || []),
+        points: proposal.staffFriendlyDisplay?.highlights ||
+               this.simplifyReasoningPoints(proposal.aiReasoning?.matchingFactors || [])
       },
       alternatives: proposal.aiReasoning?.alternativeOptions ? {
         timeOptions: proposal.aiReasoning.alternativeOptions,
