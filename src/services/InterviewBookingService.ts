@@ -179,7 +179,19 @@ export class InterviewBookingService {
     booking.status = 'confirmed';
     booking.lastModified = new Date();
     booking.modifiedBy = adminId;
-    
+
+    // 職員への確定通知
+    await this.notificationService.sendBookingConfirmationNotification({
+      employeeId: booking.employeeId,
+      employeeName: booking.employeeName,
+      bookingDate: booking.bookingDate,
+      timeSlot: `${booking.timeSlot.startTime} - ${booking.timeSlot.endTime}`,
+      interviewType: booking.interviewType,
+      interviewerName: booking.interviewerName,
+      bookingId: booking.id,
+      facility: booking.facility
+    });
+
     await this.sendBookingNotification(booking, 'booking_confirmed');
     
     return {
@@ -932,10 +944,80 @@ export class InterviewBookingService {
 
     try {
       const todaysReminders = await this.getTodaysReminders();
+      const interviewReminders = await this.getInterviewRemindersForToday();
+
+      await Promise.all(interviewReminders);
+
       console.log(`✅ 本日のリマインダー処理完了: ${todaysReminders.length}件`);
+      console.log(`✅ 面談リマインダー処理完了: ${interviewReminders.length}件`);
     } catch (error) {
       console.error('❌ 日次リマインダーバッチ処理でエラーが発生:', error);
     }
+  }
+
+  // 今日送信すべき面談リマインダーを取得・送信
+  private async getInterviewRemindersForToday(): Promise<Promise<void>[]> {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const allBookings = Array.from(this.bookings.values());
+    const reminderPromises: Promise<void>[] = [];
+
+    for (const booking of allBookings) {
+      if (booking.status !== 'confirmed') continue;
+
+      const bookingDate = new Date(booking.bookingDate);
+      const bookingDateOnly = new Date(bookingDate.getFullYear(), bookingDate.getMonth(), bookingDate.getDate());
+
+      // 面談前日リマインダー（明日の面談）
+      if (bookingDateOnly.getTime() === tomorrow.getTime()) {
+        const hoursUntil = Math.floor((bookingDate.getTime() - now.getTime()) / (1000 * 60 * 60));
+
+        reminderPromises.push(
+          this.notificationService.sendInterviewReminderBeforeInterview({
+            employeeId: booking.employeeId,
+            employeeName: booking.employeeName,
+            interviewDateTime: booking.bookingDate,
+            timeSlot: `${booking.timeSlot.startTime} - ${booking.timeSlot.endTime}`,
+            interviewType: booking.interviewType,
+            interviewerName: booking.interviewerName || '担当者',
+            facility: booking.facility,
+            bookingId: booking.id,
+            hoursUntil: Math.max(hoursUntil, 24) // 最低24時間前として送信
+          })
+        );
+      }
+
+      // 面談2時間前リマインダー（今日の面談）
+      if (bookingDateOnly.getTime() === today.getTime()) {
+        const [hours, minutes] = booking.timeSlot.startTime.split(':').map(Number);
+        const interviewTime = new Date(bookingDate);
+        interviewTime.setHours(hours, minutes, 0, 0);
+
+        const hoursUntil = Math.floor((interviewTime.getTime() - now.getTime()) / (1000 * 60 * 60));
+
+        // 2時間前±30分の範囲でリマインダー送信
+        if (hoursUntil <= 2.5 && hoursUntil >= 1.5) {
+          reminderPromises.push(
+            this.notificationService.sendInterviewReminderBeforeInterview({
+              employeeId: booking.employeeId,
+              employeeName: booking.employeeName,
+              interviewDateTime: booking.bookingDate,
+              timeSlot: `${booking.timeSlot.startTime} - ${booking.timeSlot.endTime}`,
+              interviewType: booking.interviewType,
+              interviewerName: booking.interviewerName || '担当者',
+              facility: booking.facility,
+              bookingId: booking.id,
+              hoursUntil: Math.max(hoursUntil, 2)
+            })
+          );
+        }
+      }
+    }
+
+    return reminderPromises;
   }
 
   // === キャンセル・変更機能 ===
@@ -1306,25 +1388,68 @@ export class InterviewBookingService {
 
   // 通知送信
   private async sendCancellationNotifications(booking: InterviewBooking): Promise<void> {
+    // 職員への通知
+    await this.notificationService.sendBookingCancellationNotification({
+      employeeId: booking.employeeId,
+      employeeName: booking.employeeName,
+      originalBookingDate: booking.bookingDate,
+      timeSlot: `${booking.timeSlot.startTime} - ${booking.timeSlot.endTime}`,
+      interviewType: booking.interviewType,
+      cancellationReason: booking.cancellationReason || 'キャンセルされました',
+      cancelledBy: booking.cancelledBy || booking.employeeId,
+      bookingId: booking.id
+    });
+
+    // 従来の通知も併用
     await this.sendBookingNotification(booking, 'booking_cancelled');
-    // 面談者への通知
-    if (booking.interviewerId) {
-      console.log(`面談者通知: キャンセル - ${booking.interviewerName}`);
-    }
   }
 
   private async sendRescheduleApprovalRequest(booking: InterviewBooking, request: RescheduleRequest): Promise<void> {
+    // 管理者への承認依頼通知
+    const adminIds = ['user-1', 'user-2', 'interviewer_001']; // 実装では権限レベルに応じて取得
+
+    await this.notificationService.sendRescheduleRequestNotification({
+      employeeId: booking.employeeId,
+      employeeName: booking.employeeName,
+      currentDateTime: booking.bookingDate,
+      preferredDates: request.preferredDates,
+      reason: request.reason,
+      requestId: request.id,
+      bookingId: booking.id,
+      adminIds
+    });
+
     console.log(`承認依頼通知: 日時変更 - ${booking.id} - ${request.id}`);
-    // TODO: 管理者への承認依頼通知実装
   }
 
   private async sendRescheduleApprovalNotification(booking: InterviewBooking, request: RescheduleRequest): Promise<void> {
+    // 職員への承認通知
+    await this.notificationService.sendRescheduleApprovalNotification({
+      employeeId: booking.employeeId,
+      employeeName: booking.employeeName,
+      newDateTime: booking.bookingDate,
+      timeSlot: `${booking.timeSlot.startTime} - ${booking.timeSlot.endTime}`,
+      approvedBy: request.reviewedBy || '管理者',
+      bookingId: booking.id,
+      requestId: request.id
+    });
+
     await this.sendBookingNotification(booking, 'booking_rescheduled');
   }
 
   private async sendRescheduleRejectionNotification(booking: InterviewBooking, request: RescheduleRequest): Promise<void> {
+    // 職員への拒否通知
+    await this.notificationService.sendRescheduleRejectionNotification({
+      employeeId: booking.employeeId,
+      employeeName: booking.employeeName,
+      rejectedBy: request.reviewedBy || '管理者',
+      rejectionReason: request.rejectionReason || '変更を承認できませんでした',
+      originalDateTime: booking.bookingDate,
+      bookingId: booking.id,
+      requestId: request.id
+    });
+
     console.log(`変更拒否通知: ${booking.employeeId} - ${request.rejectionReason}`);
-    // TODO: 拒否通知実装
   }
 
   // ユーティリティ

@@ -3,10 +3,10 @@ import { ProjectWorkflow, WorkflowStage } from './ApprovalWorkflowEngine';
 
 export type NotificationChannel = 'IN_APP' | 'EMAIL' | 'SLACK' | 'SMS';
 export type NotificationUrgency = 'NORMAL' | 'HIGH' | 'URGENT';
-export type NotificationType = 
-  | 'APPROVAL_REQUIRED' 
-  | 'MEMBER_SELECTION' 
-  | 'VOTE_REQUIRED' 
+export type NotificationType =
+  | 'APPROVAL_REQUIRED'
+  | 'MEMBER_SELECTION'
+  | 'VOTE_REQUIRED'
   | 'EMERGENCY_ACTION'
   | 'PROJECT_UPDATE'
   | 'DEADLINE_REMINDER'
@@ -17,7 +17,14 @@ export type NotificationType =
   | 'INTERVIEW_REMINDER_MONTHLY'    // 新入職員月次面談リマインダー
   | 'INTERVIEW_REMINDER_ANNUAL'     // 一般職員年次面談リマインダー
   | 'INTERVIEW_OVERDUE'             // 面談期限超過通知
-  | 'INTERVIEW_AUTO_SCHEDULED';     // 自動スケジュール面談通知
+  | 'INTERVIEW_AUTO_SCHEDULED'      // 自動スケジュール面談通知
+  | 'INTERVIEW_BOOKING_CONFIRMED'   // 予約確定通知
+  | 'INTERVIEW_BOOKING_CANCELLED'   // キャンセル通知
+  | 'INTERVIEW_RESCHEDULE_REQUEST'  // 日時変更リクエスト通知
+  | 'INTERVIEW_RESCHEDULE_APPROVED' // 日時変更承認通知
+  | 'INTERVIEW_RESCHEDULE_REJECTED' // 日時変更拒否通知
+  | 'INTERVIEW_REMINDER_24H'        // 面談前日リマインダー
+  | 'INTERVIEW_REMINDER_2H';        // 面談2時間前リマインダー
 
 export interface NotificationRecipient {
   id: string;
@@ -204,8 +211,11 @@ export class NotificationService {
     const types: NotificationType[] = [
       'APPROVAL_REQUIRED', 'MEMBER_SELECTION', 'VOTE_REQUIRED',
       'EMERGENCY_ACTION', 'PROJECT_UPDATE', 'DEADLINE_REMINDER', 'ESCALATION',
-      'INTERVIEW_REMINDER_FIRST', 'INTERVIEW_REMINDER_MONTHLY', 
-      'INTERVIEW_REMINDER_ANNUAL', 'INTERVIEW_OVERDUE', 'INTERVIEW_AUTO_SCHEDULED'
+      'INTERVIEW_REMINDER_FIRST', 'INTERVIEW_REMINDER_MONTHLY',
+      'INTERVIEW_REMINDER_ANNUAL', 'INTERVIEW_OVERDUE', 'INTERVIEW_AUTO_SCHEDULED',
+      'INTERVIEW_BOOKING_CONFIRMED', 'INTERVIEW_BOOKING_CANCELLED',
+      'INTERVIEW_RESCHEDULE_REQUEST', 'INTERVIEW_RESCHEDULE_APPROVED',
+      'INTERVIEW_RESCHEDULE_REJECTED', 'INTERVIEW_REMINDER_24H', 'INTERVIEW_REMINDER_2H'
     ];
     
     types.forEach(type => {
@@ -280,16 +290,24 @@ export class NotificationService {
     if (type === 'EMERGENCY_ACTION') return 'URGENT';
     if (type === 'ESCALATION') return 'URGENT';
     if (type === 'INTERVIEW_OVERDUE') return 'URGENT';
-    
+    if (type === 'INTERVIEW_REMINDER_2H') return 'URGENT';
+
     if (type === 'INTERVIEW_REMINDER_FIRST') return 'HIGH';
     if (type === 'INTERVIEW_AUTO_SCHEDULED') return 'HIGH';
-    
+    if (type === 'INTERVIEW_RESCHEDULE_REQUEST') return 'HIGH';
+    if (type === 'INTERVIEW_BOOKING_CANCELLED') return 'HIGH';
+
+    if (type === 'INTERVIEW_BOOKING_CONFIRMED') return 'NORMAL';
+    if (type === 'INTERVIEW_RESCHEDULE_APPROVED') return 'NORMAL';
+    if (type === 'INTERVIEW_RESCHEDULE_REJECTED') return 'NORMAL';
+    if (type === 'INTERVIEW_REMINDER_24H') return 'NORMAL';
+
     if (dueDate) {
       const hoursUntilDue = (dueDate.getTime() - Date.now()) / (1000 * 60 * 60);
       if (hoursUntilDue < 2) return 'URGENT';
       if (hoursUntilDue < 24) return 'HIGH';
     }
-    
+
     return 'NORMAL';
   }
   async sendWorkflowNotification(
@@ -619,6 +637,35 @@ export class NotificationService {
       interview_auto_scheduled: (data) => ({
         subject: '🔔 面談が自動スケジュールされました',
         body: `${data.interviewType}が${data.scheduledDate}に自動スケジュールされました。詳細は人事部までお問い合わせください。`
+      }),
+      // 新しい面談予約関連テンプレート
+      interview_booking_confirmed: (data) => ({
+        subject: '✅ 面談予約が確定しました',
+        body: `面談予約が確定しました。日時: ${data.bookingDate} ${data.timeSlot}`
+      }),
+      interview_booking_cancelled: (data) => ({
+        subject: '❌ 面談がキャンセルされました',
+        body: `面談がキャンセルされました。理由: ${data.cancellationReason}`
+      }),
+      interview_reschedule_request: (data) => ({
+        subject: '📅 面談日時変更リクエスト',
+        body: `${data.employeeName}さんから面談日時の変更リクエストが届きました。`
+      }),
+      interview_reschedule_approved: (data) => ({
+        subject: '✅ 面談日時変更が承認されました',
+        body: `面談日時の変更が承認されました。新しい日時: ${data.newDateTime}`
+      }),
+      interview_reschedule_rejected: (data) => ({
+        subject: '❌ 面談日時変更が拒否されました',
+        body: `面談日時の変更リクエストが拒否されました。理由: ${data.rejectionReason}`
+      }),
+      interview_reminder_24h: (data) => ({
+        subject: '📅 明日は面談日です',
+        body: `明日の面談のリマインダーです。日時: ${data.interviewDateTime} ${data.timeSlot}`
+      }),
+      interview_reminder_2h: (data) => ({
+        subject: '🔔 面談まであと2時間です',
+        body: `面談まであと2時間です。お時間に遅れないようお気をつけください。`
       })
     };
     
@@ -930,7 +977,7 @@ export class NotificationService {
     daysBefore?: number;
     daysOverdue?: number;
   }>): Promise<void> {
-    const promises = reminders.map(reminder => 
+    const promises = reminders.map(reminder =>
       this.sendInterviewReminder(reminder.employeeId, reminder.reminderType, {
         employeeName: reminder.employeeName,
         interviewType: reminder.interviewType,
@@ -942,6 +989,407 @@ export class NotificationService {
 
     await Promise.all(promises);
     console.log(`✅ 一括面談リマインダー送信完了: ${reminders.length}件`);
+  }
+
+  // === 面談予約関連通知 ===
+
+  // 予約確定通知
+  async sendBookingConfirmationNotification(bookingData: {
+    employeeId: string;
+    employeeName: string;
+    bookingDate: Date;
+    timeSlot: string;
+    interviewType: string;
+    interviewerName?: string;
+    bookingId: string;
+    facility: string;
+  }): Promise<void> {
+    const actions = [
+      {
+        id: 'view_booking',
+        label: '予約詳細確認',
+        type: 'primary' as const,
+        action: 'view_booking'
+      },
+      {
+        id: 'prepare_interview',
+        label: '面談準備',
+        type: 'secondary' as const,
+        action: 'prepare'
+      }
+    ];
+
+    await this.createActionableNotification(bookingData.employeeId, 'INTERVIEW_BOOKING_CONFIRMED', {
+      title: '✅ 面談予約が確定しました',
+      message: `${bookingData.employeeName}さん、面談予約が確定しました。\n\n` +
+               `📅 日時: ${this.formatDateJP(bookingData.bookingDate)} ${bookingData.timeSlot}\n` +
+               `🏥 場所: ${bookingData.facility}\n` +
+               `💼 面談種類: ${bookingData.interviewType}\n` +
+               `👤 担当者: ${bookingData.interviewerName || '未定'}\n\n` +
+               `面談前日にもリマインダーをお送りします。`,
+      dueDate: bookingData.bookingDate,
+      actions,
+      metadata: {
+        bookingId: bookingData.bookingId,
+        urgencyLevel: 1
+      }
+    });
+
+    // MCP連携：職員カルテシステムに予約確定を通知
+    await this.notifyMCPBookingEvent('BOOKING_CONFIRMED', bookingData);
+
+    console.log(`✅ 予約確定通知送信完了: ${bookingData.employeeId} - ${bookingData.bookingId}`);
+  }
+
+  // キャンセル通知
+  async sendBookingCancellationNotification(cancellationData: {
+    employeeId: string;
+    employeeName: string;
+    originalBookingDate: Date;
+    timeSlot: string;
+    interviewType: string;
+    cancellationReason: string;
+    cancelledBy: string;
+    bookingId: string;
+    alternativeSuggestions?: any[];
+  }): Promise<void> {
+    const actions = [
+      {
+        id: 'book_alternative',
+        label: '代替日時予約',
+        type: 'primary' as const,
+        action: 'book_alternative'
+      },
+      {
+        id: 'contact_support',
+        label: 'サポート連絡',
+        type: 'secondary' as const,
+        action: 'contact'
+      }
+    ];
+
+    await this.createActionableNotification(cancellationData.employeeId, 'INTERVIEW_BOOKING_CANCELLED', {
+      title: '❌ 面談がキャンセルされました',
+      message: `${cancellationData.employeeName}さん、面談がキャンセルされました。\n\n` +
+               `📅 キャンセルされた日時: ${this.formatDateJP(cancellationData.originalBookingDate)} ${cancellationData.timeSlot}\n` +
+               `💼 面談種類: ${cancellationData.interviewType}\n` +
+               `📝 理由: ${cancellationData.cancellationReason}\n\n` +
+               `必要に応じて、新しい日時での面談予約をお願いします。`,
+      actions,
+      metadata: {
+        bookingId: cancellationData.bookingId,
+        urgencyLevel: 2
+      }
+    });
+
+    // 面談者・管理者への通知（該当する場合）
+    await this.notifyInterviewerAndAdmins('CANCELLATION', cancellationData);
+
+    // MCP連携：職員カルテシステムにキャンセルを記録
+    await this.notifyMCPBookingEvent('BOOKING_CANCELLED', cancellationData);
+
+    console.log(`✅ キャンセル通知送信完了: ${cancellationData.employeeId} - ${cancellationData.bookingId}`);
+  }
+
+  // 日時変更リクエスト通知（管理者向け）
+  async sendRescheduleRequestNotification(rescheduleData: {
+    employeeId: string;
+    employeeName: string;
+    currentDateTime: Date;
+    preferredDates: Date[];
+    reason: string;
+    requestId: string;
+    bookingId: string;
+    adminIds: string[];
+  }): Promise<void> {
+    const actions = [
+      {
+        id: 'approve_reschedule',
+        label: '変更承認',
+        type: 'primary' as const,
+        action: 'approve',
+        requiresComment: true
+      },
+      {
+        id: 'reject_reschedule',
+        label: '変更拒否',
+        type: 'danger' as const,
+        action: 'reject',
+        requiresComment: true
+      },
+      {
+        id: 'view_details',
+        label: '詳細確認',
+        type: 'secondary' as const,
+        action: 'view'
+      }
+    ];
+
+    const preferredDatesText = rescheduleData.preferredDates
+      .map((date, index) => `第${index + 1}希望: ${this.formatDateJP(date)}`)
+      .join('\n');
+
+    // 管理者全員に通知
+    const promises = rescheduleData.adminIds.map(adminId =>
+      this.createActionableNotification(adminId, 'INTERVIEW_RESCHEDULE_REQUEST', {
+        title: '📅 面談日時変更リクエスト',
+        message: `${rescheduleData.employeeName}さんから面談日時の変更リクエストが届きました。\n\n` +
+                 `📅 現在の予定: ${this.formatDateJP(rescheduleData.currentDateTime)}\n\n` +
+                 `🔄 希望日時:\n${preferredDatesText}\n\n` +
+                 `📝 変更理由: ${rescheduleData.reason}\n\n` +
+                 `承認または拒否をお願いします。`,
+        actions,
+        metadata: {
+          requestId: rescheduleData.requestId,
+          bookingId: rescheduleData.bookingId,
+          employeeId: rescheduleData.employeeId,
+          urgencyLevel: 2
+        }
+      })
+    );
+
+    await Promise.all(promises);
+
+    // MCP連携：職員カルテシステムに変更リクエストを記録
+    await this.notifyMCPBookingEvent('RESCHEDULE_REQUESTED', rescheduleData);
+
+    console.log(`✅ 日時変更リクエスト通知送信完了: ${rescheduleData.employeeId} - ${rescheduleData.requestId}`);
+  }
+
+  // 日時変更承認通知
+  async sendRescheduleApprovalNotification(approvalData: {
+    employeeId: string;
+    employeeName: string;
+    newDateTime: Date;
+    timeSlot: string;
+    approvedBy: string;
+    bookingId: string;
+    requestId: string;
+  }): Promise<void> {
+    const actions = [
+      {
+        id: 'view_new_booking',
+        label: '新しい予約確認',
+        type: 'primary' as const,
+        action: 'view_booking'
+      },
+      {
+        id: 'prepare_interview',
+        label: '面談準備',
+        type: 'secondary' as const,
+        action: 'prepare'
+      }
+    ];
+
+    await this.createActionableNotification(approvalData.employeeId, 'INTERVIEW_RESCHEDULE_APPROVED', {
+      title: '✅ 面談日時変更が承認されました',
+      message: `${approvalData.employeeName}さん、面談日時の変更が承認されました。\n\n` +
+               `📅 新しい日時: ${this.formatDateJP(approvalData.newDateTime)} ${approvalData.timeSlot}\n` +
+               `👤 承認者: ${approvalData.approvedBy}\n\n` +
+               `新しい日時での面談をお待ちしています。`,
+      dueDate: approvalData.newDateTime,
+      actions,
+      metadata: {
+        bookingId: approvalData.bookingId,
+        requestId: approvalData.requestId,
+        urgencyLevel: 1
+      }
+    });
+
+    // MCP連携：職員カルテシステムに変更承認を記録
+    await this.notifyMCPBookingEvent('RESCHEDULE_APPROVED', approvalData);
+
+    console.log(`✅ 日時変更承認通知送信完了: ${approvalData.employeeId} - ${approvalData.requestId}`);
+  }
+
+  // 日時変更拒否通知
+  async sendRescheduleRejectionNotification(rejectionData: {
+    employeeId: string;
+    employeeName: string;
+    rejectedBy: string;
+    rejectionReason: string;
+    originalDateTime: Date;
+    bookingId: string;
+    requestId: string;
+  }): Promise<void> {
+    const actions = [
+      {
+        id: 'contact_admin',
+        label: '管理者に連絡',
+        type: 'primary' as const,
+        action: 'contact'
+      },
+      {
+        id: 'view_original_booking',
+        label: '元の予約確認',
+        type: 'secondary' as const,
+        action: 'view_booking'
+      }
+    ];
+
+    await this.createActionableNotification(rejectionData.employeeId, 'INTERVIEW_RESCHEDULE_REJECTED', {
+      title: '❌ 面談日時変更が拒否されました',
+      message: `${rejectionData.employeeName}さん、面談日時の変更リクエストが拒否されました。\n\n` +
+               `📅 元の日時: ${this.formatDateJP(rejectionData.originalDateTime)}\n` +
+               `👤 判断者: ${rejectionData.rejectedBy}\n` +
+               `📝 理由: ${rejectionData.rejectionReason}\n\n` +
+               `元の日時での面談となります。ご質問がある場合は管理者までお問い合わせください。`,
+      dueDate: rejectionData.originalDateTime,
+      actions,
+      metadata: {
+        bookingId: rejectionData.bookingId,
+        requestId: rejectionData.requestId,
+        urgencyLevel: 2
+      }
+    });
+
+    // MCP連携：職員カルテシステムに変更拒否を記録
+    await this.notifyMCPBookingEvent('RESCHEDULE_REJECTED', rejectionData);
+
+    console.log(`✅ 日時変更拒否通知送信完了: ${rejectionData.employeeId} - ${rejectionData.requestId}`);
+  }
+
+  // 面談前日リマインダー
+  async sendInterviewReminderBeforeInterview(reminderData: {
+    employeeId: string;
+    employeeName: string;
+    interviewDateTime: Date;
+    timeSlot: string;
+    interviewType: string;
+    interviewerName: string;
+    facility: string;
+    bookingId: string;
+    hoursUntil: number;
+  }): Promise<void> {
+    const notificationType = reminderData.hoursUntil <= 2 ? 'INTERVIEW_REMINDER_2H' : 'INTERVIEW_REMINDER_24H';
+    const title = reminderData.hoursUntil <= 2 ? '🔔 面談まであと2時間です' : '📅 明日は面談日です';
+
+    const actions = [
+      {
+        id: 'confirm_attendance',
+        label: '出席確認',
+        type: 'primary' as const,
+        action: 'confirm'
+      },
+      {
+        id: 'view_location',
+        label: '場所確認',
+        type: 'secondary' as const,
+        action: 'location'
+      },
+      {
+        id: 'emergency_contact',
+        label: '緊急連絡',
+        type: 'secondary' as const,
+        action: 'emergency'
+      }
+    ];
+
+    await this.createActionableNotification(reminderData.employeeId, notificationType, {
+      title,
+      message: `${reminderData.employeeName}さん、面談のリマインダーです。\n\n` +
+               `📅 日時: ${this.formatDateJP(reminderData.interviewDateTime)} ${reminderData.timeSlot}\n` +
+               `🏥 場所: ${reminderData.facility}\n` +
+               `💼 面談種類: ${reminderData.interviewType}\n` +
+               `👤 担当者: ${reminderData.interviewerName}\n\n` +
+               `お時間に遅れないようお気をつけください。`,
+      dueDate: reminderData.interviewDateTime,
+      actions,
+      metadata: {
+        bookingId: reminderData.bookingId,
+        urgencyLevel: reminderData.hoursUntil <= 2 ? 3 : 2
+      }
+    });
+
+    console.log(`✅ 面談リマインダー送信完了: ${reminderData.employeeId} - ${reminderData.hoursUntil}時間前`);
+  }
+
+  // === プライベートメソッド ===
+
+  // MCP連携通知（職員カルテシステム）
+  private async notifyMCPBookingEvent(eventType: string, data: any): Promise<void> {
+    try {
+      // 職員カルテシステムへの通知（実際の実装ではMCPサーバー経由）
+      const mcpPayload = {
+        eventType,
+        timestamp: new Date().toISOString(),
+        employeeId: data.employeeId,
+        bookingId: data.bookingId || data.requestId,
+        interviewData: {
+          type: data.interviewType,
+          date: data.bookingDate || data.originalBookingDate || data.currentDateTime,
+          status: this.mapEventTypeToStatus(eventType),
+          facility: data.facility || '本院',
+          reason: data.reason || data.cancellationReason || data.rejectionReason
+        },
+        mcpVersion: '1.0',
+        systemId: 'voicedrive-interview-system'
+      };
+
+      // 実際の実装ではMCPサーバーのAPIを呼び出し
+      console.log(`📡 MCP通知: ${eventType} - ${data.employeeId}`, mcpPayload);
+
+      // TODO: 実際のMCP連携実装
+      // await mcpClient.sendNotification('EMPLOYEE_INTERVIEW_EVENT', mcpPayload);
+
+    } catch (error) {
+      console.error(`❌ MCP通知エラー: ${eventType}`, error);
+      // MCP連携エラーは本機能を停止させない
+    }
+  }
+
+  // 面談者・管理者への通知
+  private async notifyInterviewerAndAdmins(eventType: string, data: any): Promise<void> {
+    // 実装では面談者と管理者のIDを取得して通知
+    const stakeholders = await this.getInterviewStakeholders(data.bookingId);
+
+    const promises = stakeholders.map(stakeholder =>
+      this.createActionableNotification(stakeholder.id, 'INTERVIEW_BOOKING_CANCELLED', {
+        title: `📋 職員面談${eventType === 'CANCELLATION' ? 'キャンセル' : '変更'}通知`,
+        message: `${data.employeeName}さんの面談が${eventType === 'CANCELLATION' ? 'キャンセル' : '変更'}されました。`,
+        actions: [{
+          id: 'view_schedule',
+          label: 'スケジュール確認',
+          type: 'primary' as const,
+          action: 'view'
+        }],
+        metadata: {
+          bookingId: data.bookingId,
+          urgencyLevel: 1
+        }
+      })
+    );
+
+    await Promise.all(promises);
+  }
+
+  // ユーティリティメソッド
+  private formatDateJP(date: Date): string {
+    return new Date(date).toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short'
+    });
+  }
+
+  private mapEventTypeToStatus(eventType: string): string {
+    const statusMap: Record<string, string> = {
+      'BOOKING_CONFIRMED': 'confirmed',
+      'BOOKING_CANCELLED': 'cancelled',
+      'RESCHEDULE_REQUESTED': 'reschedule_pending',
+      'RESCHEDULE_APPROVED': 'rescheduled',
+      'RESCHEDULE_REJECTED': 'confirmed'
+    };
+    return statusMap[eventType] || 'unknown';
+  }
+
+  private async getInterviewStakeholders(bookingId: string): Promise<Array<{ id: string; name: string; role: string }>> {
+    // 実装では該当する面談の関係者（面談者、管理者）を取得
+    return [
+      { id: 'interviewer_001', name: '田中 キャリア支援部門長', role: 'interviewer' },
+      { id: 'user-2', name: '佐藤 花子', role: 'hr_admin' }
+    ];
   }
 }
 
