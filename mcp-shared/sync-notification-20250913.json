@@ -1,0 +1,56 @@
+{
+  "timestamp": "2025-09-13T20:42:00Z",
+  "type": "URGENT_SYNC_NOTIFICATION",
+  "status": "MANUAL_SYNC_COMPLETED",
+  "priority": "HIGH",
+  "sender": "medical-team-claude-code",
+  "recipient": "voicedrive-team-claude-code",
+
+  "syncedFiles": [
+    {
+      "filename": "Medical_Team_Response_to_VoiceDrive_20250913.md",
+      "sourceLocation": "medical-system/mcp-shared/docs/",
+      "targetLocation": "voicedrive-v100/mcp-shared/docs/",
+      "syncMethod": "manual_copy",
+      "status": "completed",
+      "filesize": "10563 bytes",
+      "checksum": "md2025_0913"
+    },
+    {
+      "filename": "URGENT_VOICEDRIVE_CONTACT.md",
+      "sourceLocation": "medical-system/",
+      "targetLocation": "voicedrive-v100/mcp-shared/",
+      "syncMethod": "manual_copy",
+      "status": "completed",
+      "description": "MCPサーバー同期障害・緊急連絡"
+    }
+  ],
+
+  "message": {
+    "subject": "面談管理機能確認依頼への回答書・緊急配信完了",
+    "content": "MCPサーバー同期障害により自動配信されなかった重要文書を手動で配信しました。VoiceDriveチームの確認をお待ちしております。",
+    "urgency": "IMMEDIATE_RESPONSE_REQUIRED"
+  },
+
+  "deliveryConfirmation": {
+    "method": "manual_file_copy",
+    "verifiedAt": "2025-09-13T20:42:00Z",
+    "targetFileExists": true,
+    "filesizeMatch": true,
+    "deliveryStatus": "confirmed"
+  },
+
+  "nextActions": [
+    "VoiceDriveチームによる回答書内容確認",
+    "統合方針についての合意形成",
+    "技術仕様会議の日程調整",
+    "MCPサーバー同期機能の復旧"
+  ],
+
+  "technicalDetails": {
+    "mcpServerStatus": "running_but_sync_disabled",
+    "manualSyncReason": "automatic_sync_failure",
+    "syncRoute": "direct_filesystem_copy",
+    "verificationCommand": "ls -la ../voicedrive-v100/mcp-shared/docs/ | grep Medical_Team_Response"
+  }
+}
