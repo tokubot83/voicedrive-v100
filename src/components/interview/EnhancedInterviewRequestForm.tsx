@@ -125,12 +125,15 @@ const EnhancedInterviewRequestForm: React.FC<EnhancedInterviewRequestFormProps> 
       ];
     } else if (requestType === 'special') {
       return [
+        { value: 'incident_followup', label: 'インシデント後面談' },
         { value: 'harassment', label: 'ハラスメント相談' },
         { value: 'urgent_issue', label: '緊急の問題・トラブル' },
         { value: 'disciplinary', label: '人事・処分に関する相談' },
         { value: 'resignation', label: '退職・転職相談' },
         { value: 'conflict', label: '深刻な対人トラブル' },
-        { value: 'legal_matter', label: '法的事項・コンプライアンス' }
+        { value: 'legal_matter', label: '法的事項・コンプライアンス' },
+        { value: 'return_to_work', label: '復職面談' },
+        { value: 'performance_issue', label: '業績改善面談' }
       ];
     }
 

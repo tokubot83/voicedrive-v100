@@ -67,8 +67,8 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
       return;
     }
     if (type === 'interview') {
-      // 面談予約の場合は面談予約ページに遷移
-      navigate('/interview-booking');
+      // 面談予約の場合は面談ステーションに遷移し、予約モーダルを自動開くパラメータを追加
+      navigate('/interview-station?action=book');
       return;
     }
     // 改善提案とフリースペースは全幅レイアウトのページに遷移
