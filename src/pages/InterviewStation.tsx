@@ -14,6 +14,7 @@ import { usePushNotificationSettings, useOnlineStatus } from '../hooks/usePushNo
 import BookingModeSelector from '../components/interview/BookingModeSelector';
 import PendingBookingCard from '../components/interview/PendingBookingCard';
 import StaffRecommendationDisplay from '../components/interview/StaffRecommendationDisplay';
+import EnhancedInterviewRequestForm from '../components/interview/EnhancedInterviewRequestForm';
 import AssistedBookingService, { AssistedBookingRequest, StaffFriendlyRecommendation } from '../services/AssistedBookingService';
 
 const InterviewStation: React.FC = () => {
@@ -226,6 +227,25 @@ const InterviewStation: React.FC = () => {
   // 人事部への連絡（デモ用）
   const handleContactHR = (requestId: string) => {
     alert('人事部への連絡機能（内線:1234）\n実装予定: 直接電話・メール送信');
+  };
+
+  // おまかせ予約フォーム送信処理
+  const handleEnhancedRequestSubmit = async (requestData: any) => {
+    try {
+      // AssistedBookingServiceを使って医療システムに送信
+      const response = await assistedBookingService.submitAssistedBookingRequest(requestData);
+
+      // 送信成功後、予約モーダルを閉じて調整中リストを更新
+      setShowBookingModal(false);
+      setBookingMode(null);
+      loadInterviewData(); // 調整中リクエストを再取得
+
+      // 成功通知
+      alert('おまかせ予約を受け付けました。人事部で最適な面談を調整いたします。');
+    } catch (error) {
+      console.error('おまかせ予約送信エラー:', error);
+      alert('申し込みの送信に失敗しました。しばらく後で再度お試しください。');
+    }
   };
 
   const handleCancelClick = (booking: InterviewBooking) => {
@@ -706,20 +726,11 @@ const InterviewStation: React.FC = () => {
 
               {/* おまかせ予約（新規実装） */}
               {bookingMode === 'assisted' && (
-                <div className="text-center py-8">
-                  <span className="text-6xl mb-4 block">🎯</span>
-                  <h3 className="text-xl font-semibold text-white mb-2">おまかせ予約</h3>
-                  <p className="text-gray-400 mb-6">
-                    詳細希望入力フォームを実装中です。<br/>
-                    しばらくお待ちください。
-                  </p>
-                  <button
-                    onClick={() => setBookingMode('select')}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    戻る
-                  </button>
-                </div>
+                <EnhancedInterviewRequestForm
+                  employeeId={activeUser?.id || ''}
+                  onSubmit={handleEnhancedRequestSubmit}
+                  onCancel={() => setBookingMode('select')}
+                />
               )}
             </div>
           </div>
