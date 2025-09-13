@@ -6,7 +6,7 @@ import {
   APPEAL_CATEGORY_LABELS,
   AppealCommunication
 } from '../../types/appeal';
-import appealService from '../../services/appealService';
+import { appealServiceV3 as appealService } from '../../services/appealServiceV3';
 import { formatDate } from '../../utils/dateUtils';
 
 interface AppealDetailProps {

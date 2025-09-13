@@ -5,7 +5,7 @@ import {
   APPEAL_STATUS_CONFIG,
   APPEAL_CATEGORY_LABELS
 } from '../../types/appeal';
-import appealService from '../../services/appealService';
+import { appealServiceV3 as appealService } from '../../services/appealServiceV3';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate } from '../../utils/dateUtils';
 
