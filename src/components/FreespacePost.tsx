@@ -6,7 +6,6 @@ import ThreadedCommentSystem from './comments/ThreadedCommentSystem';
 import Avatar from './common/Avatar';
 import { generateAvatarByAnonymity, getDisplayName } from '../utils/avatarGenerator';
 import { useDemoMode } from './demo/DemoModeController';
-import { safeTotalValues } from '../utils/safeObjectHelpers';
 
 interface FreespacePostProps {
   post: Post;
