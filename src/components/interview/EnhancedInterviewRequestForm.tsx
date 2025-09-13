@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { EnhancedInterviewRequest } from '../../services/AssistedBookingService';
+import ProgressIndicator from './ProgressIndicator';
 
 interface EnhancedInterviewRequestFormProps {
   employeeId: string;
@@ -459,138 +460,84 @@ const EnhancedInterviewRequestForm: React.FC<EnhancedInterviewRequestFormProps> 
   );
 
   return (
-    <div className="bg-slate-800 rounded-xl p-6 max-w-4xl w-full">
-      {/* ヘッダー - 即時予約と統一したスタイル */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <span className="text-3xl">🎯</span>
-            おまかせ予約
-          </h2>
-          <div className="text-right">
-            <div className="text-sm text-gray-400 mb-1">ステップ</div>
-            <div className="text-xl font-semibold text-purple-400">
-              {currentStep}/3
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          {/* ヘッダー - 即時予約と完全統一 */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
+              <span className="text-4xl">🎯</span>
+              おまかせ予約
+            </h1>
+            <p className="text-gray-600">あなたの希望を詳しくお聞かせください。人事部が最適な面談候補をご提案します。</p>
           </div>
-        </div>
-        <p className="text-gray-400 text-sm">
-          あなたの希望を詳しくお聞かせください。人事部が最適な面談候補をご提案します。
-        </p>
-      </div>
 
-      {/* プログレス - 即時予約と統一したデザイン */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-3">
-          {[
-            { step: 1, label: '面談内容', icon: '📝' },
-            { step: 2, label: '希望日時', icon: '📅' },
-            { step: 3, label: '担当者希望', icon: '👤' }
-          ].map(({ step, label, icon }) => (
-            <div key={step} className="flex flex-col items-center">
-              <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-semibold mb-2 transition-colors ${
-                  step <= currentStep
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-slate-600 text-gray-400'
-                }`}
-              >
-                {step <= currentStep ? '✓' : icon}
-              </div>
-              <span className={`text-xs ${
-                step <= currentStep ? 'text-purple-400' : 'text-gray-500'
-              }`}>
-                {label}
-              </span>
-            </div>
-          ))}
-        </div>
-        <div className="w-full bg-slate-700 rounded-full h-2">
-          <div
-            className="bg-gradient-to-r from-purple-600 to-purple-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / 3) * 100}%` }}
-          />
-        </div>
-      </div>
+          {/* プログレスインジケーター - 即時予約と統一 */}
+          <ProgressIndicator currentStep={currentStep} />
 
-      {/* フォーム内容 */}
-      <form onSubmit={handleSubmit}>
+          {/* ステップコンテンツ */}
+          <div className="mt-8 min-h-[400px]">
+            {/* フォーム内容 */}
+            <form onSubmit={handleSubmit}>
         {currentStep === 1 && renderStep1()}
         {currentStep === 2 && renderStep2()}
         {currentStep === 3 && renderStep3()}
 
-        {/* ボタン - 即時予約と統一したスタイル */}
-        <div className="flex justify-between items-center mt-8 pt-6 border-t border-slate-600">
-          <div>
-            {currentStep > 1 && (
-              <button
-                type="button"
-                onClick={prevStep}
-                className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white transition-colors"
-              >
-                <span>←</span>
-                戻る
-              </button>
-            )}
-          </div>
+              {/* ナビゲーションボタン - 即時予約と完全統一 */}
+              <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+                <div>
+                  {currentStep > 1 && (
+                    <button
+                      type="button"
+                      onClick={prevStep}
+                      className="flex items-center gap-2 px-6 py-3 text-gray-600 hover:text-gray-800 transition-colors"
+                    >
+                      ← 戻る
+                    </button>
+                  )}
+                </div>
 
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-6 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-slate-700 transition-colors"
-            >
-              キャンセル
-            </button>
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={onCancel}
+                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    キャンセル
+                  </button>
 
-            {currentStep < 3 ? (
-              <button
-                type="button"
-                onClick={nextStep}
-                className="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-8 py-2 rounded-lg hover:from-purple-500 hover:to-purple-400 transition-all transform hover:scale-105 flex items-center gap-2"
-              >
-                次へ
-                <span>→</span>
-              </button>
-            ) : (
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-green-600 to-green-500 text-white px-8 py-2 rounded-lg hover:from-green-500 hover:to-green-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 flex items-center gap-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <span className="animate-spin">🔄</span>
-                    送信中...
-                  </>
-                ) : (
-                  <>
-                    <span>🎯</span>
-                    おまかせ予約を申し込む
-                  </>
-                )}
-              </button>
-            )}
-          </div>
-        </div>
-      </form>
-
-      {/* 注意事項 */}
-      <div className="mt-6 bg-slate-700 rounded-lg p-4">
-        <div className="flex items-start">
-          <span className="text-blue-400 mr-3 text-lg">💡</span>
-          <div className="text-sm text-gray-300">
-            <p className="font-medium mb-1">おまかせ予約について</p>
-            <ul className="space-y-1 text-xs">
-              <li>• 送信後、人事部にて最適な担当者・時間を検討いたします</li>
-              <li>• 通常3-5分で候補をご提案します</li>
-              <li>• 最終的な選択はあなたが決定できます</li>
-              <li>• 緊急の場合は人事部（内線:1234）まで直接ご連絡ください</li>
-            </ul>
+                  {currentStep < 3 ? (
+                    <button
+                      type="button"
+                      onClick={nextStep}
+                      className="flex items-center gap-2 bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+                    >
+                      次へ →
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <span className="animate-spin">🔄</span>
+                          送信中...
+                        </>
+                      ) : (
+                        <>
+                          🎯 おまかせ予約を申し込む
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

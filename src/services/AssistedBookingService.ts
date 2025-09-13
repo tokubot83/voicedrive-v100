@@ -107,7 +107,7 @@ class AssistedBookingService {
 
   constructor() {
     // 医療システムの実APIエンドポイント（Pattern D統合完了）
-    this.baseUrl = process.env.REACT_APP_MEDICAL_SYSTEM_API || 'http://medical-dev.hospital.jp/api';
+    this.baseUrl = import.meta.env.REACT_APP_MEDICAL_SYSTEM_API || 'http://medical-dev.hospital.jp/api';
   }
 
   // おまかせ予約申込送信
@@ -276,7 +276,7 @@ class AssistedBookingService {
                   localStorage.getItem('authToken');
 
     // 開発環境・デモ環境用のフォールバック
-    if (!token && process.env.NODE_ENV === 'development') {
+    if (!token && import.meta.env.MODE === 'development') {
       console.warn('医療システム連携: 開発環境用のデモトークンを使用中');
       return 'dev-demo-token-for-medical-integration';
     }
