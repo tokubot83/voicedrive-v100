@@ -1,4 +1,4 @@
-// 通知サービス - Phase 2 実装
+// 通知サービス - Phase 2 実装 + Pattern D リアルタイム通知統合
 import { ProjectWorkflow, WorkflowStage } from './ApprovalWorkflowEngine';
 
 export type NotificationChannel = 'IN_APP' | 'EMAIL' | 'SLACK' | 'SMS';
@@ -24,7 +24,11 @@ export type NotificationType =
   | 'INTERVIEW_RESCHEDULE_APPROVED' // 日時変更承認通知
   | 'INTERVIEW_RESCHEDULE_REJECTED' // 日時変更拒否通知
   | 'INTERVIEW_REMINDER_24H'        // 面談前日リマインダー
-  | 'INTERVIEW_REMINDER_2H';        // 面談2時間前リマインダー
+  | 'INTERVIEW_REMINDER_2H'         // 面談2時間前リマインダー
+  | 'ASSISTED_BOOKING_UPDATE'       // おまかせ予約状況更新
+  | 'PROPOSAL_READY'                // 面談候補準備完了
+  | 'BOOKING_STATUS_CHANGE'         // 予約ステータス変更
+  | 'REALTIME_SYSTEM_MESSAGE';      // リアルタイムシステムメッセージ
 
 export interface NotificationRecipient {
   id: string;
@@ -92,7 +96,21 @@ export class NotificationService {
   private notificationListeners: Set<(userId: string) => void> = new Set();
   private actionCallbacks: Map<string, (userId: string, actionId: string, metadata: any, comment?: string) => Promise<boolean>> = new Map();
 
-  private constructor() {}
+  // Pattern D リアルタイム通知用のWebSocket機能
+  private websocket: WebSocket | null = null;
+  private reconnectAttempts: number = 0;
+  private maxReconnectAttempts: number = 5;
+  private reconnectDelay: number = 2000;
+  private realtimeListeners: Map<string, Set<(data: any) => void>> = new Map();
+  private isConnected: boolean = false;
+  private heartbeatInterval: NodeJS.Timeout | null = null;
+
+  private constructor() {
+    // WebSocket接続の初期化（ブラウザ環境のみ）
+    if (typeof window !== 'undefined') {
+      this.initializeWebSocketConnection();
+    }
+  }
 
   public static getInstance(): NotificationService {
     if (!NotificationService.instance) {
@@ -1390,6 +1408,358 @@ export class NotificationService {
       { id: 'interviewer_001', name: '田中 キャリア支援部門長', role: 'interviewer' },
       { id: 'user-2', name: '佐藤 花子', role: 'hr_admin' }
     ];
+  }
+
+  // === Pattern D リアルタイム通知システム ===
+
+  // WebSocket接続の初期化
+  private initializeWebSocketConnection() {
+    try {
+      // 医療システムのWebSocketエンドポイント
+      const wsUrl = process.env.REACT_APP_MEDICAL_SYSTEM_WS ||
+                   'ws://medical-dev.hospital.jp/ws/notifications';
+
+      this.websocket = new WebSocket(wsUrl);
+
+      this.websocket.onopen = this.handleWebSocketOpen.bind(this);
+      this.websocket.onmessage = this.handleWebSocketMessage.bind(this);
+      this.websocket.onclose = this.handleWebSocketClose.bind(this);
+      this.websocket.onerror = this.handleWebSocketError.bind(this);
+
+    } catch (error) {
+      console.error('WebSocket接続初期化エラー:', error);
+      this.scheduleWebSocketReconnect();
+    }
+  }
+
+  // WebSocket接続開始時の処理
+  private handleWebSocketOpen() {
+    console.log('医療システム通知サービスに接続しました');
+    this.isConnected = true;
+    this.reconnectAttempts = 0;
+
+    // 認証メッセージ送信
+    this.sendWebSocketAuthMessage();
+
+    // ハートビート開始
+    this.startWebSocketHeartbeat();
+  }
+
+  // WebSocketメッセージ受信時の処理
+  private handleWebSocketMessage(event: MessageEvent) {
+    try {
+      const data = JSON.parse(event.data);
+
+      // ハートビート応答の場合はスキップ
+      if (data.type === 'pong') {
+        return;
+      }
+
+      // おまかせ予約状況更新の処理
+      if (data.type === 'booking_status_update') {
+        this.handleAssistedBookingUpdate(data.payload);
+      }
+
+      // 提案候補準備完了通知
+      if (data.type === 'proposal_ready') {
+        this.handleProposalReadyUpdate(data.payload);
+      }
+
+      // 一般通知の処理
+      if (data.type === 'notification') {
+        this.handleRealtimeNotification(data.payload);
+      }
+
+    } catch (error) {
+      console.error('WebSocket通知メッセージ解析エラー:', error);
+    }
+  }
+
+  // WebSocket接続終了時の処理
+  private handleWebSocketClose(event: CloseEvent) {
+    console.log('医療システム通知サービスから切断されました', event.code);
+    this.isConnected = false;
+    this.stopWebSocketHeartbeat();
+
+    // 正常終了でなければ再接続を試行
+    if (event.code !== 1000) {
+      this.scheduleWebSocketReconnect();
+    }
+  }
+
+  // WebSocketエラー時の処理
+  private handleWebSocketError(error: Event) {
+    console.error('WebSocket接続エラー:', error);
+    this.isConnected = false;
+  }
+
+  // WebSocket認証メッセージ送信
+  private sendWebSocketAuthMessage() {
+    const authMessage = {
+      type: 'auth',
+      token: this.getWebSocketAuthToken(),
+      clientType: 'voicedrive',
+      subscriptions: [
+        'assisted_booking_updates',
+        'proposal_notifications',
+        'booking_status_changes',
+        'system_messages'
+      ]
+    };
+
+    this.sendWebSocketMessage(authMessage);
+  }
+
+  // WebSocketハートビート開始
+  private startWebSocketHeartbeat() {
+    this.heartbeatInterval = setInterval(() => {
+      if (this.isConnected && this.websocket?.readyState === WebSocket.OPEN) {
+        this.sendWebSocketMessage({ type: 'ping' });
+      }
+    }, 30000); // 30秒間隔
+  }
+
+  // WebSocketハートビート停止
+  private stopWebSocketHeartbeat() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
+    }
+  }
+
+  // WebSocketメッセージ送信
+  private sendWebSocketMessage(message: any) {
+    if (this.websocket?.readyState === WebSocket.OPEN) {
+      this.websocket.send(JSON.stringify(message));
+    }
+  }
+
+  // WebSocket再接続スケジュール
+  private scheduleWebSocketReconnect() {
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      console.error('最大再接続回数に達しました。リアルタイム通知機能が無効になります。');
+      return;
+    }
+
+    this.reconnectAttempts++;
+    const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1); // 指数バックオフ
+
+    console.log(`${delay}ms後にWebSocket再接続を試行します (試行回数: ${this.reconnectAttempts})`);
+
+    setTimeout(() => {
+      this.initializeWebSocketConnection();
+    }, delay);
+  }
+
+  // WebSocket認証トークン取得
+  private getWebSocketAuthToken(): string {
+    return localStorage.getItem('voicedrive_jwt_token') ||
+           sessionStorage.getItem('voicedrive_jwt_token') ||
+           'dev-demo-token';
+  }
+
+  // おまかせ予約状況更新の処理
+  private handleAssistedBookingUpdate(payload: any) {
+    const notification = {
+      id: `assisted_${payload.requestId}_${Date.now()}`,
+      type: 'ASSISTED_BOOKING_UPDATE',
+      requestId: payload.requestId,
+      title: this.getAssistedBookingUpdateTitle(payload.newStatus),
+      message: payload.message,
+      urgency: payload.actionRequired ? 'high' : 'medium',
+      timestamp: new Date().toISOString(),
+      actionRequired: payload.actionRequired,
+      data: payload
+    };
+
+    // ブラウザ通知の表示
+    this.showRealtimeBrowserNotification(notification);
+
+    // リアルタイムリスナーに通知
+    this.notifyRealtimeListeners('assistedBookingUpdate', payload);
+
+    // カスタムイベントを発火
+    this.dispatchCustomEvent('assistedBookingUpdate', payload);
+  }
+
+  // 提案候補準備完了通知の処理
+  private handleProposalReadyUpdate(payload: any) {
+    const notification = {
+      id: `proposal_${payload.requestId}_${Date.now()}`,
+      type: 'PROPOSAL_READY',
+      requestId: payload.requestId,
+      title: '💡 面談候補をご用意しました！',
+      message: `${payload.proposalCount || 2}つの面談候補から選択できます`,
+      urgency: 'high',
+      timestamp: new Date().toISOString(),
+      actionRequired: true,
+      data: payload
+    };
+
+    // ブラウザ通知の表示
+    this.showRealtimeBrowserNotification(notification);
+
+    // リアルタイムリスナーに通知
+    this.notifyRealtimeListeners('proposalReady', payload);
+
+    // カスタムイベントを発火してInterviewStationに通知
+    this.dispatchCustomEvent('proposalReady', payload);
+  }
+
+  // リアルタイム通知の処理
+  private handleRealtimeNotification(payload: any) {
+    // ブラウザ通知の表示
+    this.showRealtimeBrowserNotification(payload);
+
+    // リアルタイムリスナーに通知
+    this.notifyRealtimeListeners('realtimeNotification', payload);
+  }
+
+  // ブラウザ通知の表示（リアルタイム用）
+  private showRealtimeBrowserNotification(payload: any) {
+    if (!('Notification' in window)) {
+      return;
+    }
+
+    if (Notification.permission === 'granted') {
+      const notification = new Notification(payload.title, {
+        body: payload.message,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        tag: payload.id,
+        requireInteraction: payload.urgency === 'high',
+        silent: payload.urgency === 'low'
+      });
+
+      // 通知クリック時の処理
+      notification.onclick = () => {
+        window.focus();
+        if (payload.actionUrl) {
+          window.location.href = payload.actionUrl;
+        }
+        notification.close();
+      };
+
+      // 自動消去 (高優先度以外)
+      if (payload.urgency !== 'high') {
+        setTimeout(() => notification.close(), 5000);
+      }
+    }
+  }
+
+  // おまかせ予約ステータス更新タイトルの取得
+  private getAssistedBookingUpdateTitle(status: string): string {
+    const titles: Record<string, string> = {
+      'pending_review': '📋 面談調整中',
+      'proposals_ready': '💡 面談候補準備完了！',
+      'awaiting_selection': '⚡ 選択をお待ちしています',
+      'confirmed': '✅ 面談予約確定',
+      'failed': '❌ 面談調整困難',
+      'expired': '⏰ 選択期限切れ'
+    };
+
+    return titles[status] || '📢 面談状況更新';
+  }
+
+  // カスタムイベントの発火
+  private dispatchCustomEvent(eventName: string, data: any) {
+    const customEvent = new CustomEvent(eventName, {
+      detail: data
+    });
+    window.dispatchEvent(customEvent);
+  }
+
+  // リアルタイムリスナーへの通知
+  private notifyRealtimeListeners(eventType: string, data: any) {
+    const listeners = this.realtimeListeners.get(eventType);
+    if (listeners) {
+      listeners.forEach(callback => {
+        try {
+          callback(data);
+        } catch (error) {
+          console.error('リアルタイム通知リスナーエラー:', error);
+        }
+      });
+    }
+  }
+
+  // === 公開メソッド（リアルタイム通知用） ===
+
+  // リアルタイムイベントリスナーの登録
+  public addRealtimeListener(eventType: string, callback: (data: any) => void) {
+    if (!this.realtimeListeners.has(eventType)) {
+      this.realtimeListeners.set(eventType, new Set());
+    }
+    this.realtimeListeners.get(eventType)!.add(callback);
+  }
+
+  // リアルタイムイベントリスナーの削除
+  public removeRealtimeListener(eventType: string, callback: (data: any) => void) {
+    const listeners = this.realtimeListeners.get(eventType);
+    if (listeners) {
+      listeners.delete(callback);
+    }
+  }
+
+  // WebSocket接続状態の確認
+  public isWebSocketConnected(): boolean {
+    return this.isConnected && this.websocket?.readyState === WebSocket.OPEN;
+  }
+
+  // WebSocket手動接続
+  public connectWebSocket() {
+    if (!this.isConnected) {
+      this.initializeWebSocketConnection();
+    }
+  }
+
+  // WebSocket手動切断
+  public disconnectWebSocket() {
+    this.stopWebSocketHeartbeat();
+    if (this.websocket) {
+      this.websocket.close(1000, 'Manual disconnect');
+      this.websocket = null;
+    }
+    this.isConnected = false;
+  }
+
+  // 特定リクエストの通知購読
+  public subscribeToAssistedBooking(requestId: string) {
+    const message = {
+      type: 'subscribe',
+      target: 'assisted_booking',
+      requestId: requestId
+    };
+    this.sendWebSocketMessage(message);
+  }
+
+  // 特定リクエストの通知購読解除
+  public unsubscribeFromAssistedBooking(requestId: string) {
+    const message = {
+      type: 'unsubscribe',
+      target: 'assisted_booking',
+      requestId: requestId
+    };
+    this.sendWebSocketMessage(message);
+  }
+
+  // ブラウザ通知許可の要求
+  public async requestRealtimeNotificationPermission(): Promise<boolean> {
+    if (!('Notification' in window)) {
+      console.warn('このブラウザはブラウザ通知をサポートしていません');
+      return false;
+    }
+
+    if (Notification.permission === 'granted') {
+      return true;
+    }
+
+    if (Notification.permission === 'denied') {
+      return false;
+    }
+
+    const permission = await Notification.requestPermission();
+    return permission === 'granted';
   }
 }
 

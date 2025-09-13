@@ -9,6 +9,7 @@ import CancelBookingModal from '../components/interview/CancelBookingModal';
 import RescheduleModal from '../components/interview/RescheduleModal';
 import OfflineBookingViewer from '../components/interview/OfflineBookingViewer';
 import { usePushNotificationSettings, useOnlineStatus } from '../hooks/usePushNotifications';
+import NotificationService from '../services/NotificationService';
 
 // Pattern D 統合コンポーネント
 import BookingModeSelector from '../components/interview/BookingModeSelector';
@@ -33,6 +34,7 @@ const InterviewStation: React.FC = () => {
   const activeUser = demoUser || currentUser;
   const bookingService = InterviewBookingService.getInstance();
   const assistedBookingService = new AssistedBookingService();
+  const notificationService = NotificationService.getInstance();
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking' | 'history' | 'reminder' | 'offline'>('dashboard');
   const [upcomingBookings, setUpcomingBookings] = useState<InterviewBooking[]>([]);
@@ -67,6 +69,51 @@ const InterviewStation: React.FC = () => {
       registerForPushNotifications();
     }
   }, [activeUser, isOnline]);
+
+  // Pattern D リアルタイム通知の設定
+  useEffect(() => {
+    if (!activeUser) return;
+
+    // リアルタイム通知許可の要求
+    notificationService.requestRealtimeNotificationPermission();
+
+    // おまかせ予約状況更新のリスナー
+    const handleAssistedBookingUpdate = (data: any) => {
+      console.log('おまかせ予約状況更新:', data);
+      // 調整中リクエストの再取得
+      loadInterviewData();
+    };
+
+    // 提案候補準備完了のリスナー
+    const handleProposalReady = (data: any) => {
+      console.log('提案候補準備完了:', data);
+      // 調整中リクエストの再取得とモーダル表示
+      loadInterviewData();
+
+      // 自動的に推薦候補を表示
+      if (data.requestId) {
+        setTimeout(() => {
+          handleViewProposals(data.requestId);
+        }, 1000);
+      }
+    };
+
+    // カスタムイベントリスナーを登録
+    window.addEventListener('assistedBookingUpdate', handleAssistedBookingUpdate as EventListener);
+    window.addEventListener('proposalReady', handleProposalReady as EventListener);
+
+    // リアルタイム通知サービスのリスナー登録
+    notificationService.addRealtimeListener('assistedBookingUpdate', handleAssistedBookingUpdate);
+    notificationService.addRealtimeListener('proposalReady', handleProposalReady);
+
+    // クリーンアップ
+    return () => {
+      window.removeEventListener('assistedBookingUpdate', handleAssistedBookingUpdate as EventListener);
+      window.removeEventListener('proposalReady', handleProposalReady as EventListener);
+      notificationService.removeRealtimeListener('assistedBookingUpdate', handleAssistedBookingUpdate);
+      notificationService.removeRealtimeListener('proposalReady', handleProposalReady);
+    };
+  }, [activeUser]);
 
   const registerForPushNotifications = async () => {
     if (!pushNotifications.state.isSubscribed) {
