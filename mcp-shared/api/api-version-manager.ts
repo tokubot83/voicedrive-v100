@@ -4,7 +4,7 @@
  */
 
 export interface APIVersionConfig {
-  version: 'v1' | 'v2';
+  version: 'v2' | 'v3';
   endpoints: {
     medical: string;
     voicedrive: string;
@@ -13,23 +13,11 @@ export interface APIVersionConfig {
 }
 
 export class APIVersionManager {
-  private currentVersion: APIVersionConfig['version'] = 'v1';
+  private currentVersion: APIVersionConfig['version'] = 'v3';
   private versionConfigs: Map<APIVersionConfig['version'], APIVersionConfig>;
 
   constructor() {
     this.versionConfigs = new Map([
-      ['v1', {
-        version: 'v1',
-        endpoints: {
-          medical: 'http://localhost:3000/api/v1',
-          voicedrive: 'http://localhost:3001/api/v1'
-        },
-        features: [
-          'basic-interview-booking',
-          'calendar-view',
-          'staff-list'
-        ]
-      }],
       ['v2', {
         version: 'v2',
         endpoints: {
@@ -44,6 +32,25 @@ export class APIVersionManager {
           'bulk-operations',
           'real-time-updates',
           'ai-suggestions'
+        ]
+      }],
+      ['v3', {
+        version: 'v3',
+        endpoints: {
+          medical: 'http://localhost:3000/api/v3',
+          voicedrive: 'http://localhost:3001/api/v3'
+        },
+        features: [
+          'basic-interview-booking',
+          'calendar-view',
+          'staff-list',
+          'advanced-filtering',
+          'bulk-operations',
+          'real-time-updates',
+          'ai-suggestions',
+          'enhanced-security',
+          'performance-optimizations',
+          'modernized-architecture'
         ]
       }]
     ]);
