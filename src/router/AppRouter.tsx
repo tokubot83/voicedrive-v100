@@ -84,6 +84,7 @@ import ComposePage from '../pages/ComposePage';
 
 // Interview Booking
 import InterviewBookingPage from '../pages/InterviewBookingPage';
+import InterviewStation from '../pages/InterviewStation';
 import InterviewManagementPage from '../pages/InterviewManagementPage';
 
 // Approvals & Notifications
@@ -435,6 +436,8 @@ const AppRouter: React.FC = () => {
       <Route path="compose/:type" element={<ComposePage />} />
       <Route path="project/:projectId" element={<ProjectDetailPage />} />
       <Route path="personal-station" element={<PersonalStationPage />} />
+      <Route path="interview-station" element={<InterviewStation />} />
+      <Route path="evaluation-station" element={<EvaluationStation />} />
       <Route path="staff-voting-guide" element={<StaffVotingGuide />} />
       <Route path="voting-system-guide" element={<VotingSystemGuide />} />
       <Route path="idea-voice-guide" element={<IdeaVoiceGuide />} />

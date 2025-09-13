@@ -35,8 +35,10 @@ const Sidebar = ({ isOpen, closeSidebar, userRole = 'employee', userId }: Sideba
   const allNavItems: NavItem[] = [
     // 基本機能（全レベルでアクセス可能）
     { id: 'home', path: '/', icon: '🏠', label: 'ホーム', section: 'main' },
-    { id: 'interview-booking', path: '/interview-booking', icon: '🗣️', label: '面談情報', section: 'main' },
-    { id: 'my-projects', path: '/my-projects', icon: '⭐', label: 'マイプロジェクト', section: 'main' },
+    { id: 'personal-station', path: '/personal-station', icon: '👤', label: 'パーソナルステーション', section: 'main' },
+    { id: 'interview-station', path: '/interview-station', icon: '🗣️', label: '面談ステーション', section: 'main' },
+    { id: 'evaluation-station', path: '/evaluation-station', icon: '⭐', label: '評価ステーション', section: 'main' },
+    { id: 'my-projects', path: '/my-projects', icon: '📋', label: 'マイプロジェクト', section: 'main' },
     { id: 'projects', path: '/projects', icon: '📁', label: '全プロジェクト', section: 'main' },
     
     { id: 'divider0', isDivider: true },
