@@ -103,6 +103,40 @@ const EnhancedInterviewRequestForm: React.FC<EnhancedInterviewRequestFormProps> 
     }
   };
 
+  // 面談タイプに応じたカテゴリ選択肢を取得
+  const getCategoryOptions = () => {
+    const requestType = formData.requestType;
+
+    if (requestType === 'regular') {
+      return [
+        { value: 'performance', label: '業績・評価について' },
+        { value: 'goal_setting', label: '目標設定・進捗確認' },
+        { value: 'skill_dev', label: 'スキル向上・研修' },
+        { value: 'general_check', label: '一般的な状況確認' }
+      ];
+    } else if (requestType === 'support') {
+      return [
+        { value: 'workplace_stress', label: '職場でのストレス' },
+        { value: 'interpersonal', label: '人間関係の悩み' },
+        { value: 'workload', label: '業務負荷・時間管理' },
+        { value: 'mental_health', label: 'メンタルヘルス' },
+        { value: 'work_life_balance', label: 'ワークライフバランス' },
+        { value: 'personal_issues', label: '個人的な問題' }
+      ];
+    } else if (requestType === 'special') {
+      return [
+        { value: 'harassment', label: 'ハラスメント相談' },
+        { value: 'urgent_issue', label: '緊急の問題・トラブル' },
+        { value: 'disciplinary', label: '人事・処分に関する相談' },
+        { value: 'resignation', label: '退職・転職相談' },
+        { value: 'conflict', label: '深刻な対人トラブル' },
+        { value: 'legal_matter', label: '法的事項・コンプライアンス' }
+      ];
+    }
+
+    return [{ value: 'general', label: '一般的な相談' }];
+  };
+
   // Step 1: 基本情報・相談内容
   const renderStep1 = () => (
     <div className="space-y-6">
@@ -120,7 +154,7 @@ const EnhancedInterviewRequestForm: React.FC<EnhancedInterviewRequestFormProps> 
         </label>
         <div className="space-y-2">
           {[
-            { id: 'regular', label: '定期面談', description: '通常の定期的な面談' },
+            { id: 'regular', label: '定期面談', description: '通常の定期的な面談・業績評価' },
             { id: 'support', label: 'サポート面談', description: '悩み相談・支援が必要な場合' },
             { id: 'special', label: '特別面談', description: '緊急・特別な事情がある場合' }
           ].map(type => (
@@ -130,7 +164,11 @@ const EnhancedInterviewRequestForm: React.FC<EnhancedInterviewRequestFormProps> 
                 name="requestType"
                 value={type.id}
                 checked={formData.requestType === type.id}
-                onChange={(e) => setFormData(prev => ({ ...prev, requestType: e.target.value as any }))}
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  requestType: e.target.value as any,
+                  category: '' // 面談タイプ変更時にカテゴリをリセット
+                }))}
                 className="mt-1"
               />
               <div>
@@ -171,19 +209,25 @@ const EnhancedInterviewRequestForm: React.FC<EnhancedInterviewRequestFormProps> 
       </div>
 
       <div>
-        <label className="block text-white font-medium mb-2">相談カテゴリ</label>
+        <label className="block text-white font-medium mb-2">
+          相談カテゴリ <span className="text-red-400">*</span>
+        </label>
         <select
-          value={formData.category || 'general'}
+          value={formData.category || ''}
           onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
           className="w-full bg-slate-700 text-white rounded-lg px-4 py-3 border border-slate-600 focus:border-blue-500"
+          required
         >
-          <option value="general">一般的な相談</option>
-          <option value="career">キャリア・将来について</option>
-          <option value="workplace">職場環境・人間関係</option>
-          <option value="workload">業務負荷・ストレス</option>
-          <option value="education">研修・教育について</option>
-          <option value="personal">プライベート・健康</option>
+          <option value="">選択してください</option>
+          {getCategoryOptions().map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
+        <p className="text-gray-400 text-sm mt-1">
+          面談の種類に応じた相談内容を選択してください
+        </p>
       </div>
     </div>
   );

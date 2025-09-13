@@ -757,7 +757,7 @@ const InterviewStation: React.FC = () => {
                 </button>
               </div>
 
-              {/* ⭐ 強制的にBookingModeSelectorを最初に表示（デバッグ） */}
+              {/* Pattern D: 予約方式選択画面 */}
               {bookingMode === null && (
                 <BookingModeSelector
                   onModeSelect={handleModeSelect}
