@@ -43,7 +43,7 @@ class InterviewAvailabilityAPI {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v3';
   }
 
   /**
