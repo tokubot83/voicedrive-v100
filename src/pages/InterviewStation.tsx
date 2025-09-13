@@ -757,8 +757,8 @@ const InterviewStation: React.FC = () => {
                 </button>
               </div>
 
-              {/* Pattern D: 予約方式選択画面 */}
-              {(!bookingMode || bookingMode === 'select') && (
+              {/* ⭐ 強制的にBookingModeSelectorを最初に表示（デバッグ） */}
+              {bookingMode === null && (
                 <BookingModeSelector
                   onModeSelect={handleModeSelect}
                   onCancel={() => {
@@ -785,7 +785,7 @@ const InterviewStation: React.FC = () => {
                 <EnhancedInterviewRequestForm
                   employeeId={activeUser?.id || ''}
                   onSubmit={handleEnhancedRequestSubmit}
-                  onCancel={() => setBookingMode('select')}
+                  onCancel={() => setBookingMode(null)}
                 />
               )}
             </div>
