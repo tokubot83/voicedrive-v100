@@ -23,6 +23,8 @@ import {
 } from '../types/interview';
 import InterviewReminderService from './InterviewReminderService';
 import NotificationService from './NotificationService';
+import { mobilePushNotificationService } from './MobilePushNotificationService';
+import { employeeProfileMCPService } from './EmployeeProfileMCPService';
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 
 export class InterviewBookingService {
@@ -37,6 +39,10 @@ export class InterviewBookingService {
   // 新機能：リマインダーサービスとの連携
   private reminderService: InterviewReminderService;
   private notificationService: NotificationService;
+
+  // モバイル対応強化機能
+  private pushNotificationService = mobilePushNotificationService;
+  private mcpService = employeeProfileMCPService;
   
   private constructor() {
     this.initializeDefaultConfig();
@@ -193,6 +199,27 @@ export class InterviewBookingService {
     });
 
     await this.sendBookingNotification(booking, 'booking_confirmed');
+
+    // モバイル対応強化：プッシュ通知送信
+    try {
+      await this.pushNotificationService.sendBookingConfirmedNotification(booking);
+    } catch (error) {
+      console.error('プッシュ通知送信エラー:', error);
+    }
+
+    // MCP連携：職員カルテシステムに同期
+    try {
+      await this.mcpService.syncInterviewBookingWithMCP(booking);
+    } catch (error) {
+      console.error('MCP同期エラー:', error);
+    }
+
+    // 自動リマインダー設定
+    try {
+      await this.pushNotificationService.scheduleAutomaticReminders(booking);
+    } catch (error) {
+      console.error('自動リマインダー設定エラー:', error);
+    }
     
     return {
       success: true,
@@ -1067,6 +1094,13 @@ export class InterviewBookingService {
       // 関係者への通知
       await this.sendCancellationNotifications(booking);
 
+      // モバイル対応強化：プッシュ通知送信
+      try {
+        await this.pushNotificationService.sendCancellationNotification(booking);
+      } catch (error) {
+        console.error('キャンセル通知プッシュ送信エラー:', error);
+      }
+
       // 代替案の提案
       const alternatives = await this.getSuggestedAlternatives({
         employeeId: booking.employeeId,
@@ -1241,6 +1275,20 @@ export class InterviewBookingService {
 
       // 職員への承認通知
       await this.sendRescheduleApprovalNotification(targetBooking, targetRequest);
+
+      // モバイル対応強化：プッシュ通知送信
+      try {
+        await this.pushNotificationService.sendRescheduleApprovedNotification(targetBooking);
+      } catch (error) {
+        console.error('変更承認通知プッシュ送信エラー:', error);
+      }
+
+      // 新しい日時での自動リマインダー再設定
+      try {
+        await this.pushNotificationService.scheduleAutomaticReminders(targetBooking);
+      } catch (error) {
+        console.error('変更後リマインダー設定エラー:', error);
+      }
 
       return {
         success: true,

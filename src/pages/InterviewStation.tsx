@@ -7,6 +7,8 @@ import { InterviewBooking } from '../types/interview';
 import InterviewBookingCalendar from '../components/interview/InterviewBookingCalendar';
 import CancelBookingModal from '../components/interview/CancelBookingModal';
 import RescheduleModal from '../components/interview/RescheduleModal';
+import OfflineBookingViewer from '../components/interview/OfflineBookingViewer';
+import { usePushNotificationSettings, useOnlineStatus } from '../hooks/usePushNotifications';
 
 const InterviewStation: React.FC = () => {
   const navigate = useNavigate();
@@ -24,7 +26,7 @@ const InterviewStation: React.FC = () => {
   const activeUser = demoUser || currentUser;
   const bookingService = InterviewBookingService.getInstance();
   
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'booking' | 'history' | 'reminder'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'booking' | 'history' | 'reminder' | 'offline'>('dashboard');
   const [upcomingBookings, setUpcomingBookings] = useState<InterviewBooking[]>([]);
   const [pastBookings, setPastBookings] = useState<InterviewBooking[]>([]);
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -34,16 +36,51 @@ const InterviewStation: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [reminders, setReminders] = useState<any[]>([]);
 
+  // モバイル対応強化
+  const isOnline = useOnlineStatus();
+  const pushNotifications = usePushNotificationSettings(activeUser?.id || '');
+
   useEffect(() => {
     if (activeUser) {
       loadInterviewData();
     }
   }, [activeUser]);
 
+  // プッシュ通知サービス登録
+  useEffect(() => {
+    if (activeUser && isOnline && pushNotifications.state.isSupported) {
+      registerForPushNotifications();
+    }
+  }, [activeUser, isOnline]);
+
+  const registerForPushNotifications = async () => {
+    if (!pushNotifications.state.isSubscribed) {
+      try {
+        const success = await pushNotifications.subscribe(activeUser!.id);
+        if (success) {
+          console.log('プッシュ通知に登録しました');
+        }
+      } catch (error) {
+        console.error('プッシュ通知登録エラー:', error);
+      }
+    }
+  };
+
   const loadInterviewData = async () => {
     setLoading(true);
     try {
-      const bookings = await bookingService.getEmployeeInterviewHistory(activeUser!.id);
+      let bookings: InterviewBooking[];
+
+      if (isOnline) {
+        // オンライン時：サーバーから最新データ取得
+        bookings = await bookingService.getEmployeeInterviewHistory(activeUser!.id);
+
+        // データをローカルキャッシュに保存
+        saveBookingsToCache(bookings);
+      } else {
+        // オフライン時：キャッシュデータ取得
+        bookings = loadBookingsFromCache();
+      }
       
       // 予約を分類
       const upcoming = bookings.filter(b => 
@@ -73,6 +110,44 @@ const InterviewStation: React.FC = () => {
       console.error('Failed to load interview data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // オフライン対応：データキャッシュ関数
+  const saveBookingsToCache = (bookings: InterviewBooking[]) => {
+    try {
+      const cacheData = {
+        data: bookings,
+        timestamp: new Date().toISOString(),
+        version: '1.0'
+      };
+      localStorage.setItem('cachedInterviewBookings', JSON.stringify(cacheData));
+    } catch (error) {
+      console.error('データキャッシュ保存エラー:', error);
+    }
+  };
+
+  const loadBookingsFromCache = (): InterviewBooking[] => {
+    try {
+      const cached = localStorage.getItem('cachedInterviewBookings');
+      if (cached) {
+        const cacheData = JSON.parse(cached);
+        const cacheAge = Date.now() - new Date(cacheData.timestamp).getTime();
+
+        // 24時間以内のキャッシュのみ有効
+        if (cacheAge < 24 * 60 * 60 * 1000) {
+          return cacheData.data || [];
+        }
+      }
+    } catch (error) {
+      console.error('キャッシュデータ読み込みエラー:', error);
+    }
+    return [];
+  };
+
+  const handleSyncRequest = async () => {
+    if (isOnline) {
+      await loadInterviewData();
     }
   };
 
@@ -458,6 +533,18 @@ const InterviewStation: React.FC = () => {
             >
               リマインダー
             </button>
+            {!isOnline && (
+              <button
+                onClick={() => setActiveTab('offline')}
+                className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-1 ${
+                  activeTab === 'offline'
+                    ? 'border-orange-500 text-orange-500'
+                    : 'border-transparent text-orange-400 hover:text-orange-300'
+                }`}
+              >
+                📱 オフライン
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -469,6 +556,13 @@ const InterviewStation: React.FC = () => {
           {activeTab === 'booking' && <BookingListView />}
           {activeTab === 'history' && <HistoryView />}
           {activeTab === 'reminder' && <ReminderView />}
+          {activeTab === 'offline' && (
+            <OfflineBookingViewer
+              isOnline={isOnline}
+              onSyncRequest={handleSyncRequest}
+              currentUserId={activeUser?.id || ''}
+            />
+          )}
         </div>
       </div>
 
