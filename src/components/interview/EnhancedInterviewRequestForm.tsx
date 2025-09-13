@@ -460,38 +460,54 @@ const EnhancedInterviewRequestForm: React.FC<EnhancedInterviewRequestFormProps> 
 
   return (
     <div className="bg-slate-800 rounded-xl p-6 max-w-4xl w-full">
-      {/* ヘッダー */}
+      {/* ヘッダー - 即時予約と統一したスタイル */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-white mb-2">🎯 おまかせ予約</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+            <span className="text-3xl">🎯</span>
+            おまかせ予約
+          </h2>
+          <div className="text-right">
+            <div className="text-sm text-gray-400 mb-1">ステップ</div>
+            <div className="text-xl font-semibold text-purple-400">
+              {currentStep}/3
+            </div>
+          </div>
+        </div>
         <p className="text-gray-400 text-sm">
-          あなたの希望を詳しくお聞きして、最適な面談をご提案します
+          あなたの希望を詳しくお聞かせください。人事部が最適な面談候補をご提案します。
         </p>
       </div>
 
-      {/* プログレス */}
+      {/* プログレス - 即時予約と統一したデザイン */}
       <div className="mb-8">
-        <div className="flex justify-between items-center mb-2">
-          {[1, 2, 3].map(step => (
-            <div
-              key={step}
-              className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                step <= currentStep
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-600 text-gray-400'
-              }`}
-            >
-              {step}
+        <div className="flex items-center justify-between mb-3">
+          {[
+            { step: 1, label: '面談内容', icon: '📝' },
+            { step: 2, label: '希望日時', icon: '📅' },
+            { step: 3, label: '担当者希望', icon: '👤' }
+          ].map(({ step, label, icon }) => (
+            <div key={step} className="flex flex-col items-center">
+              <div
+                className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-semibold mb-2 transition-colors ${
+                  step <= currentStep
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-slate-600 text-gray-400'
+                }`}
+              >
+                {step <= currentStep ? '✓' : icon}
+              </div>
+              <span className={`text-xs ${
+                step <= currentStep ? 'text-purple-400' : 'text-gray-500'
+              }`}>
+                {label}
+              </span>
             </div>
           ))}
         </div>
-        <div className="flex justify-between text-xs text-gray-400">
-          <span>基本情報</span>
-          <span>時期・時間</span>
-          <span>担当者希望</span>
-        </div>
-        <div className="w-full bg-slate-600 h-1 rounded-full mt-2">
+        <div className="w-full bg-slate-700 rounded-full h-2">
           <div
-            className="bg-blue-600 h-1 rounded-full transition-all duration-300"
+            className="bg-gradient-to-r from-purple-600 to-purple-500 h-2 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep / 3) * 100}%` }}
           />
         </div>
@@ -503,16 +519,17 @@ const EnhancedInterviewRequestForm: React.FC<EnhancedInterviewRequestFormProps> 
         {currentStep === 2 && renderStep2()}
         {currentStep === 3 && renderStep3()}
 
-        {/* ボタン */}
+        {/* ボタン - 即時予約と統一したスタイル */}
         <div className="flex justify-between items-center mt-8 pt-6 border-t border-slate-600">
           <div>
             {currentStep > 1 && (
               <button
                 type="button"
                 onClick={prevStep}
-                className="px-6 py-2 text-gray-400 hover:text-white transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white transition-colors"
               >
-                ← 戻る
+                <span>←</span>
+                戻る
               </button>
             )}
           </div>
@@ -521,7 +538,7 @@ const EnhancedInterviewRequestForm: React.FC<EnhancedInterviewRequestFormProps> 
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-2 text-gray-400 hover:text-white transition-colors"
+              className="px-6 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-slate-700 transition-colors"
             >
               キャンセル
             </button>
@@ -530,17 +547,28 @@ const EnhancedInterviewRequestForm: React.FC<EnhancedInterviewRequestFormProps> 
               <button
                 type="button"
                 onClick={nextStep}
-                className="bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                className="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-8 py-2 rounded-lg hover:from-purple-500 hover:to-purple-400 transition-all transform hover:scale-105 flex items-center gap-2"
               >
-                次へ →
+                次へ
+                <span>→</span>
               </button>
             ) : (
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-green-600 text-white px-8 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="bg-gradient-to-r from-green-600 to-green-500 text-white px-8 py-2 rounded-lg hover:from-green-500 hover:to-green-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 flex items-center gap-2"
               >
-                {isSubmitting ? '送信中...' : '🎯 おまかせ予約を申し込む'}
+                {isSubmitting ? (
+                  <>
+                    <span className="animate-spin">🔄</span>
+                    送信中...
+                  </>
+                ) : (
+                  <>
+                    <span>🎯</span>
+                    おまかせ予約を申し込む
+                  </>
+                )}
               </button>
             )}
           </div>
