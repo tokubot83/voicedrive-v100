@@ -10,6 +10,12 @@ import RescheduleModal from '../components/interview/RescheduleModal';
 import OfflineBookingViewer from '../components/interview/OfflineBookingViewer';
 import { usePushNotificationSettings, useOnlineStatus } from '../hooks/usePushNotifications';
 
+// Pattern D 統合コンポーネント
+import BookingModeSelector from '../components/interview/BookingModeSelector';
+import PendingBookingCard from '../components/interview/PendingBookingCard';
+import StaffRecommendationDisplay from '../components/interview/StaffRecommendationDisplay';
+import AssistedBookingService, { AssistedBookingRequest, StaffFriendlyRecommendation } from '../services/AssistedBookingService';
+
 const InterviewStation: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -25,7 +31,8 @@ const InterviewStation: React.FC = () => {
   
   const activeUser = demoUser || currentUser;
   const bookingService = InterviewBookingService.getInstance();
-  
+  const assistedBookingService = new AssistedBookingService();
+
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking' | 'history' | 'reminder' | 'offline'>('dashboard');
   const [upcomingBookings, setUpcomingBookings] = useState<InterviewBooking[]>([]);
   const [pastBookings, setPastBookings] = useState<InterviewBooking[]>([]);
@@ -35,6 +42,13 @@ const InterviewStation: React.FC = () => {
   const [selectedBooking, setSelectedBooking] = useState<InterviewBooking | null>(null);
   const [loading, setLoading] = useState(true);
   const [reminders, setReminders] = useState<any[]>([]);
+
+  // Pattern D 統合用のstate
+  const [bookingMode, setBookingMode] = useState<'select' | 'instant' | 'assisted' | null>(null);
+  const [pendingRequests, setPendingRequests] = useState<AssistedBookingRequest[]>([]);
+  const [showRecommendations, setShowRecommendations] = useState(false);
+  const [currentRecommendations, setCurrentRecommendations] = useState<StaffFriendlyRecommendation[]>([]);
+  const [selectedRequestId, setSelectedRequestId] = useState<string>('');
 
   // モバイル対応強化
   const isOnline = useOnlineStatus();
@@ -77,22 +91,31 @@ const InterviewStation: React.FC = () => {
 
         // データをローカルキャッシュに保存
         saveBookingsToCache(bookings);
+
+        // Pattern D: おまかせ予約の調整中リクエストも取得
+        try {
+          const pendingAssistedRequests = await assistedBookingService.getPendingRequests(activeUser!.id);
+          setPendingRequests(pendingAssistedRequests);
+        } catch (error) {
+          console.error('調整中リクエスト取得エラー:', error);
+          setPendingRequests([]);
+        }
       } else {
         // オフライン時：キャッシュデータ取得
         bookings = loadBookingsFromCache();
       }
-      
+
       // 予約を分類
-      const upcoming = bookings.filter(b => 
+      const upcoming = bookings.filter(b =>
         (b.status === 'confirmed' || b.status === 'pending') &&
         new Date(b.bookingDate) >= new Date()
       );
-      const past = bookings.filter(b => 
-        b.status === 'completed' || 
+      const past = bookings.filter(b =>
+        b.status === 'completed' ||
         b.status === 'cancelled' ||
         new Date(b.bookingDate) < new Date()
       );
-      
+
       setUpcomingBookings(upcoming);
       setPastBookings(past);
       
@@ -153,7 +176,56 @@ const InterviewStation: React.FC = () => {
 
   const handleBookingComplete = () => {
     setShowBookingModal(false);
+    setBookingMode(null);
     loadInterviewData();
+  };
+
+  // Pattern D 予約方式選択
+  const handleModeSelect = (mode: 'instant' | 'assisted') => {
+    setBookingMode(mode);
+  };
+
+  // おまかせ予約の推薦候補確認
+  const handleViewProposals = async (requestId: string) => {
+    try {
+      const recommendations = await assistedBookingService.getBookingProposals(requestId);
+      setCurrentRecommendations(recommendations);
+      setSelectedRequestId(requestId);
+      setShowRecommendations(true);
+    } catch (error) {
+      console.error('推薦候補取得エラー:', error);
+      // エラー処理: 通知表示など
+    }
+  };
+
+  // 推薦候補から最終選択
+  const handleSelectRecommendation = async (recommendationId: string) => {
+    try {
+      await assistedBookingService.confirmBookingChoice(selectedRequestId, recommendationId);
+      setShowRecommendations(false);
+      setCurrentRecommendations([]);
+      setSelectedRequestId('');
+      // 予約完了後のデータ再読み込み
+      loadInterviewData();
+    } catch (error) {
+      console.error('推薦選択エラー:', error);
+      // エラー処理
+    }
+  };
+
+  // おまかせ予約のキャンセル
+  const handleCancelAssistedRequest = async (requestId: string) => {
+    try {
+      await assistedBookingService.cancelAssistedRequest(requestId, 'ユーザーによるキャンセル');
+      loadInterviewData();
+    } catch (error) {
+      console.error('おまかせ予約キャンセルエラー:', error);
+    }
+  };
+
+  // 人事部への連絡（デモ用）
+  const handleContactHR = (requestId: string) => {
+    alert('人事部への連絡機能（内線:1234）\n実装予定: 直接電話・メール送信');
   };
 
   const handleCancelClick = (booking: InterviewBooking) => {
@@ -207,7 +279,26 @@ const InterviewStation: React.FC = () => {
 
   // ダッシュボードビュー
   const DashboardView = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="space-y-6">
+      {/* おまかせ予約の調整中面談（優先表示） */}
+      {pendingRequests.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-white flex items-center">
+            <span className="mr-2">⏳</span> 調整中の面談
+          </h2>
+          {pendingRequests.map(request => (
+            <PendingBookingCard
+              key={request.id}
+              booking={request}
+              onViewProposals={handleViewProposals}
+              onContactHR={handleContactHR}
+              onCancel={handleCancelAssistedRequest}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* 次回の面談 */}
       <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white">
         <h3 className="text-xl font-bold mb-4 flex items-center">
@@ -572,18 +663,94 @@ const InterviewStation: React.FC = () => {
           <div className="bg-slate-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-white">新規面談予約</h2>
+                <h2 className="text-2xl font-bold text-white">
+                  {bookingMode === 'select' && '新規面談予約'}
+                  {bookingMode === 'instant' && '即時予約'}
+                  {bookingMode === 'assisted' && 'おまかせ予約'}
+                  {!bookingMode && '新規面談予約'}
+                </h2>
                 <button
-                  onClick={() => setShowBookingModal(false)}
+                  onClick={() => {
+                    setShowBookingModal(false);
+                    setBookingMode(null);
+                  }}
                   className="text-gray-400 hover:text-white text-2xl"
                 >
                   ✕
                 </button>
               </div>
-              <InterviewBookingCalendar
-                employeeId={activeUser?.id || ''}
-                onBookingComplete={handleBookingComplete}
-                onCancel={() => setShowBookingModal(false)}
+
+              {/* Pattern D: 予約方式選択画面 */}
+              {(!bookingMode || bookingMode === 'select') && (
+                <BookingModeSelector
+                  onModeSelect={handleModeSelect}
+                  onCancel={() => {
+                    setShowBookingModal(false);
+                    setBookingMode(null);
+                  }}
+                />
+              )}
+
+              {/* 即時予約（従来のフロー） */}
+              {bookingMode === 'instant' && (
+                <InterviewBookingCalendar
+                  employeeId={activeUser?.id || ''}
+                  onBookingComplete={handleBookingComplete}
+                  onCancel={() => {
+                    setShowBookingModal(false);
+                    setBookingMode(null);
+                  }}
+                />
+              )}
+
+              {/* おまかせ予約（新規実装） */}
+              {bookingMode === 'assisted' && (
+                <div className="text-center py-8">
+                  <span className="text-6xl mb-4 block">🎯</span>
+                  <h3 className="text-xl font-semibold text-white mb-2">おまかせ予約</h3>
+                  <p className="text-gray-400 mb-6">
+                    詳細希望入力フォームを実装中です。<br/>
+                    しばらくお待ちください。
+                  </p>
+                  <button
+                    onClick={() => setBookingMode('select')}
+                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    戻る
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pattern D: 推薦結果表示モーダル */}
+      {showRecommendations && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-xl max-w-6xl w-full max-h-[90vh] overflow-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-white">面談候補の選択</h2>
+                <button
+                  onClick={() => {
+                    setShowRecommendations(false);
+                    setCurrentRecommendations([]);
+                    setSelectedRequestId('');
+                  }}
+                  className="text-gray-400 hover:text-white text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+              <StaffRecommendationDisplay
+                recommendations={currentRecommendations}
+                onSelectRecommendation={handleSelectRecommendation}
+                onCancel={() => {
+                  setShowRecommendations(false);
+                  setCurrentRecommendations([]);
+                  setSelectedRequestId('');
+                }}
               />
             </div>
           </div>
