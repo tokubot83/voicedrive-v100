@@ -538,6 +538,7 @@ const EnhancedInterviewRequestForm: React.FC<EnhancedInterviewRequestFormProps> 
           </div>
         </div>
       </div>
+    </div>
   );
 };
 
