@@ -387,7 +387,10 @@ const InterviewStation: React.FC = () => {
           <div>
             <p className="opacity-80 mb-4">予定されている面談はありません</p>
             <button
-              onClick={() => setShowBookingModal(true)}
+              onClick={() => {
+                setBookingMode(null); // 初期状態をnullに明示的に設定
+                setShowBookingModal(true);
+              }}
               className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors"
             >
               面談を予約する
@@ -428,7 +431,10 @@ const InterviewStation: React.FC = () => {
           </h3>
           <div className="grid grid-cols-2 gap-3">
             <button
-              onClick={() => setShowBookingModal(true)}
+              onClick={() => {
+                setBookingMode(null); // 初期状態をnullに明示的に設定
+                setShowBookingModal(true);
+              }}
               className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors text-center"
             >
               <span className="block text-2xl mb-1">➕</span>
@@ -490,7 +496,10 @@ const InterviewStation: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-2xl font-bold text-white">予約中の面談</h3>
         <button
-          onClick={() => setShowBookingModal(true)}
+          onClick={() => {
+            setBookingMode(null); // 初期状態をnullに明示的に設定
+            setShowBookingModal(true);
+          }}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           ➕ 新規予約
