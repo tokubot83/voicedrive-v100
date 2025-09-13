@@ -299,8 +299,8 @@ const InterviewStation: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* 次回の面談 */}
-      <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white">
+        {/* 次回の面談 */}
+        <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white">
         <h3 className="text-xl font-bold mb-4 flex items-center">
           <span className="mr-2">📅</span> 次回の面談
         </h3>
@@ -329,88 +329,89 @@ const InterviewStation: React.FC = () => {
         )}
       </div>
 
-      {/* 統計情報 */}
-      <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl p-6 text-white">
-        <h3 className="text-xl font-bold mb-4 flex items-center">
-          <span className="mr-2">📊</span> 面談統計
-        </h3>
-        <div className="space-y-3">
-          <div className="flex justify-between">
-            <span>今年の面談回数:</span>
-            <span className="font-bold">{pastBookings.filter(b => b.status === 'completed').length}回</span>
-          </div>
-          <div className="flex justify-between">
-            <span>予約中の面談:</span>
-            <span className="font-bold">{upcomingBookings.length}件</span>
-          </div>
-          <div className="flex justify-between">
-            <span>キャンセル率:</span>
-            <span className="font-bold">
-              {pastBookings.length > 0 
-                ? Math.round((pastBookings.filter(b => b.status === 'cancelled').length / pastBookings.length) * 100)
-                : 0}%
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* クイックアクション */}
-      <div className="bg-slate-800 rounded-xl p-6">
-        <h3 className="text-xl font-bold mb-4 text-white flex items-center">
-          <span className="mr-2">⚡</span> クイックアクション
-        </h3>
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => setShowBookingModal(true)}
-            className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors text-center"
-          >
-            <span className="block text-2xl mb-1">➕</span>
-            <span className="text-sm">新規予約</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className="bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors text-center"
-          >
-            <span className="block text-2xl mb-1">📋</span>
-            <span className="text-sm">履歴確認</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('reminder')}
-            className="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors text-center"
-          >
-            <span className="block text-2xl mb-1">🔔</span>
-            <span className="text-sm">リマインダー</span>
-          </button>
-          <button
-            onClick={() => navigate('/interview-guide')}
-            className="bg-orange-600 text-white p-3 rounded-lg hover:bg-orange-700 transition-colors text-center"
-          >
-            <span className="block text-2xl mb-1">📖</span>
-            <span className="text-sm">ガイド</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 最近の活動 */}
-      <div className="bg-slate-800 rounded-xl p-6">
-        <h3 className="text-xl font-bold mb-4 text-white flex items-center">
-          <span className="mr-2">🕐</span> 最近の活動
-        </h3>
-        <div className="space-y-3">
-          {[...upcomingBookings, ...pastBookings].slice(0, 3).map(booking => (
-            <div key={booking.id} className="bg-slate-700 rounded-lg p-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-white font-medium">{booking.interviewType}</p>
-                  <p className="text-gray-400 text-sm">{formatDate(booking.bookingDate)}</p>
-                </div>
-                {getStatusBadge(booking.status)}
-              </div>
+        {/* 統計情報 */}
+        <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl p-6 text-white">
+          <h3 className="text-xl font-bold mb-4 flex items-center">
+            <span className="mr-2">📊</span> 面談統計
+          </h3>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span>今年の面談回数:</span>
+              <span className="font-bold">{pastBookings.filter(b => b.status === 'completed').length}回</span>
             </div>
-          ))}
-          {upcomingBookings.length + pastBookings.length === 0 && (
-            <p className="text-gray-400">活動履歴はありません</p>
-          )}
+            <div className="flex justify-between">
+              <span>予約中の面談:</span>
+              <span className="font-bold">{upcomingBookings.length}件</span>
+            </div>
+            <div className="flex justify-between">
+              <span>キャンセル率:</span>
+              <span className="font-bold">
+                {pastBookings.length > 0
+                  ? Math.round((pastBookings.filter(b => b.status === 'cancelled').length / pastBookings.length) * 100)
+                  : 0}%
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* クイックアクション */}
+        <div className="bg-slate-800 rounded-xl p-6">
+          <h3 className="text-xl font-bold mb-4 text-white flex items-center">
+            <span className="mr-2">⚡</span> クイックアクション
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setShowBookingModal(true)}
+              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors text-center"
+            >
+              <span className="block text-2xl mb-1">➕</span>
+              <span className="text-sm">新規予約</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('history')}
+              className="bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors text-center"
+            >
+              <span className="block text-2xl mb-1">📋</span>
+              <span className="text-sm">履歴確認</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('reminder')}
+              className="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors text-center"
+            >
+              <span className="block text-2xl mb-1">🔔</span>
+              <span className="text-sm">リマインダー</span>
+            </button>
+            <button
+              onClick={() => navigate('/interview-guide')}
+              className="bg-orange-600 text-white p-3 rounded-lg hover:bg-orange-700 transition-colors text-center"
+            >
+              <span className="block text-2xl mb-1">📖</span>
+              <span className="text-sm">ガイド</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 最近の活動 */}
+        <div className="bg-slate-800 rounded-xl p-6">
+          <h3 className="text-xl font-bold mb-4 text-white flex items-center">
+            <span className="mr-2">🕐</span> 最近の活動
+          </h3>
+          <div className="space-y-3">
+            {[...upcomingBookings, ...pastBookings].slice(0, 3).map(booking => (
+              <div key={booking.id} className="bg-slate-700 rounded-lg p-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-white font-medium">{booking.interviewType}</p>
+                    <p className="text-gray-400 text-sm">{formatDate(booking.bookingDate)}</p>
+                  </div>
+                  {getStatusBadge(booking.status)}
+                </div>
+              </div>
+            ))}
+            {upcomingBookings.length + pastBookings.length === 0 && (
+              <p className="text-gray-400">活動履歴はありません</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { ApiClient } from '../api/apiClient';
+// HTTPクライアント（fetchベース）
 
 // おまかせ予約用の詳細リクエスト
 export interface EnhancedInterviewRequest {
@@ -103,11 +103,9 @@ export interface AssistedBookingRequest {
 }
 
 class AssistedBookingService {
-  private apiClient: ApiClient;
   private baseUrl: string;
 
   constructor() {
-    this.apiClient = new ApiClient();
     // 医療システムのAPIエンドポイント
     this.baseUrl = process.env.REACT_APP_MEDICAL_SYSTEM_API || 'http://localhost:8080/api/v1';
   }
@@ -117,15 +115,27 @@ class AssistedBookingService {
     request: EnhancedInterviewRequest
   ): Promise<{ requestId: string; estimatedTime: string; status: string }> {
     try {
-      const response = await this.apiClient.post(`${this.baseUrl}/interview/assisted-booking`, {
-        ...request,
-        source: 'voicedrive',
-        timestamp: new Date().toISOString()
+      const response = await fetch(`${this.baseUrl}/interview/assisted-booking`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        },
+        body: JSON.stringify({
+          ...request,
+          source: 'voicedrive',
+          timestamp: new Date().toISOString()
+        })
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
       return {
-        requestId: response.data.requestId,
-        estimatedTime: response.data.estimatedCompletionTime || '1時間以内',
+        requestId: data.requestId,
+        estimatedTime: data.estimatedCompletionTime || '1時間以内',
         status: 'accepted'
       };
     } catch (error: any) {
@@ -133,8 +143,7 @@ class AssistedBookingService {
 
       // エラー時は即時予約へのフォールバック提案
       throw new Error(
-        error.response?.data?.message ||
-        '申込の送信に失敗しました。即時予約をお試しください。'
+        error.message || '申込の送信に失敗しました。即時予約をお試しください。'
       );
     }
   }
@@ -142,11 +151,20 @@ class AssistedBookingService {
   // 調整中リクエストの取得
   async getPendingRequests(staffId: string): Promise<AssistedBookingRequest[]> {
     try {
-      const response = await this.apiClient.get(
-        `${this.baseUrl}/interview/pending-requests/${staffId}`
-      );
+      const response = await fetch(`${this.baseUrl}/interview/pending-requests/${staffId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        }
+      });
 
-      return response.data.map((req: any) => this.formatForStaffView(req));
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.map((req: any) => this.formatForStaffView(req));
     } catch (error) {
       console.error('調整中リクエスト取得エラー:', error);
       return [];
@@ -156,12 +174,21 @@ class AssistedBookingService {
   // 提案候補取得
   async getBookingProposals(requestId: string): Promise<StaffFriendlyRecommendation[]> {
     try {
-      const response = await this.apiClient.get(
-        `${this.baseUrl}/interview/proposals/${requestId}`
-      );
+      const response = await fetch(`${this.baseUrl}/interview/proposals/${requestId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        }
+      });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
       // 職員向けに情報を簡素化
-      return this.simplifyProposalsForStaff(response.data.proposals || []);
+      return this.simplifyProposalsForStaff(data.proposals || []);
     } catch (error) {
       console.error('提案候補取得エラー:', error);
       throw new Error('提案候補の取得に失敗しました');
@@ -175,15 +202,26 @@ class AssistedBookingService {
     staffFeedback?: string
   ): Promise<any> {
     try {
-      const response = await this.apiClient.post(`${this.baseUrl}/interview/confirm-choice`, {
-        requestId,
-        selectedProposalId,
-        staffFeedback,
-        confirmationSource: 'staff_selection',
-        timestamp: new Date().toISOString()
+      const response = await fetch(`${this.baseUrl}/interview/confirm-choice`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        },
+        body: JSON.stringify({
+          requestId,
+          selectedProposalId,
+          staffFeedback,
+          confirmationSource: 'staff_selection',
+          timestamp: new Date().toISOString()
+        })
       });
 
-      return response.data;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
     } catch (error) {
       console.error('選択確定エラー:', error);
       throw new Error('選択の確定に失敗しました');
@@ -193,16 +231,33 @@ class AssistedBookingService {
   // おまかせ予約のキャンセル
   async cancelAssistedRequest(requestId: string, reason?: string): Promise<void> {
     try {
-      await this.apiClient.post(`${this.baseUrl}/interview/cancel-assisted`, {
-        requestId,
-        reason,
-        cancelledBy: 'staff',
-        timestamp: new Date().toISOString()
+      const response = await fetch(`${this.baseUrl}/interview/cancel-assisted`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        },
+        body: JSON.stringify({
+          requestId,
+          reason,
+          cancelledBy: 'staff',
+          timestamp: new Date().toISOString()
+        })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     } catch (error) {
       console.error('おまかせ予約キャンセルエラー:', error);
       throw new Error('キャンセルに失敗しました');
     }
+  }
+
+  // 認証トークン取得（仮実装）
+  private getAuthToken(): string {
+    // 実装時は localStorage や auth context から取得
+    return localStorage.getItem('authToken') || 'demo-token';
   }
 
   // 職員向けの表示形式に変換
