@@ -39,7 +39,7 @@ export class IntegrationTestClient {
    */
   async createBooking(data: BookingRequest): Promise<BookingResponse> {
     try {
-      const response = await fetch(`${this.baseURL}/api/v3/interviews/bookings/mock`, {
+      const response = await fetch(`${this.baseURL}/api/v1/interviews/bookings/mock`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -77,7 +77,7 @@ export class IntegrationTestClient {
   async getBookings(date: string): Promise<any> {
     try {
       const response = await fetch(
-        `${this.baseURL}/api/v3/interviews/bookings/mock?date=${date}`,
+        `${this.baseURL}/api/v1/interviews/bookings/mock?date=${date}`,
         {
           method: 'GET',
           headers: {
@@ -143,7 +143,7 @@ export class IntegrationTestClient {
   async deleteBooking(bookingId: string): Promise<BookingResponse> {
     try {
       const response = await fetch(
-        `${this.baseURL}/api/v3/interviews/bookings/mock?bookingId=${bookingId}`,
+        `${this.baseURL}/api/v1/interviews/bookings/mock?bookingId=${bookingId}`,
         {
           method: 'DELETE',
           headers: {

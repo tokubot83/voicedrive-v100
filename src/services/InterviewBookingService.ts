@@ -25,8 +25,6 @@ import InterviewReminderService from './InterviewReminderService';
 import NotificationService from './NotificationService';
 import { mobilePushNotificationService } from './MobilePushNotificationService';
 import { employeeProfileMCPService } from './EmployeeProfileMCPService';
-import { hybridIntegrationService } from './HybridIntegrationService';
-import { sharedDatabaseService } from './SharedDatabaseService';
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 
 export class InterviewBookingService {
@@ -45,10 +43,6 @@ export class InterviewBookingService {
   // モバイル対応強化機能
   private pushNotificationService = mobilePushNotificationService;
   private mcpService = employeeProfileMCPService;
-
-  // ハイブリッド統合機能（MCP + API）
-  private hybridService = hybridIntegrationService;
-  private sharedDBService = sharedDatabaseService;
   
   private constructor() {
     this.initializeDefaultConfig();
@@ -206,50 +200,25 @@ export class InterviewBookingService {
 
     await this.sendBookingNotification(booking, 'booking_confirmed');
 
-    // === ハイブリッド統合処理（MCP + API）===
+    // モバイル対応強化：プッシュ通知送信
     try {
-      const integrationResult = await this.hybridService.handleBookingConfirmed(booking);
-
-      if (!integrationResult.success) {
-        console.warn('面談予約統合処理で一部エラー:', integrationResult.errors);
-      }
-
-      // 監査ログ記録（重要操作）
-      await this.hybridService.logCriticalAction(
-        'booking_creation',
-        'interview_booking',
-        booking.id,
-        adminId,
-        `面談予約確定: ${booking.employeeName}`,
-        null,
-        {
-          booking_id: booking.id,
-          employee_id: booking.employeeId,
-          booking_date: booking.bookingDate,
-          status: 'confirmed'
-        }
-      );
-
-      console.log('面談予約統合処理完了:', {
-        success: integrationResult.success,
-        methods: {
-          mcp: integrationResult.mcpResult,
-          api: integrationResult.apiResult
-        },
-        latency: integrationResult.latency
-      });
-
+      await this.pushNotificationService.sendBookingConfirmedNotification(booking);
     } catch (error) {
-      console.error('ハイブリッド統合処理エラー:', error);
+      console.error('プッシュ通知送信エラー:', error);
+    }
 
-      // フォールバック: 従来のMCP処理
-      try {
-        await this.mcpService.syncInterviewBookingWithMCP(booking);
-        await this.pushNotificationService.sendBookingConfirmedNotification(booking);
-        await this.pushNotificationService.scheduleAutomaticReminders(booking);
-      } catch (fallbackError) {
-        console.error('フォールバック処理もエラー:', fallbackError);
-      }
+    // MCP連携：職員カルテシステムに同期
+    try {
+      await this.mcpService.syncInterviewBookingWithMCP(booking);
+    } catch (error) {
+      console.error('MCP同期エラー:', error);
+    }
+
+    // 自動リマインダー設定
+    try {
+      await this.pushNotificationService.scheduleAutomaticReminders(booking);
+    } catch (error) {
+      console.error('自動リマインダー設定エラー:', error);
     }
     
     return {
@@ -1125,34 +1094,11 @@ export class InterviewBookingService {
       // 関係者への通知
       await this.sendCancellationNotifications(booking);
 
-      // === ハイブリッド統合処理（キャンセル）===
+      // モバイル対応強化：プッシュ通知送信
       try {
-        const integrationResult = await this.hybridService.handleBookingCancelled(booking);
-
-        if (!integrationResult.success) {
-          console.warn('面談キャンセル統合処理で一部エラー:', integrationResult.errors);
-        }
-
-        // 監査ログ記録（重要操作）
-        await this.hybridService.logCriticalAction(
-          'booking_cancellation',
-          'interview_booking',
-          booking.id,
-          cancelledBy,
-          booking.cancellationReason || 'キャンセル理由未記載',
-          { status: 'confirmed' },
-          { status: 'cancelled', cancelled_at: booking.cancelledAt }
-        );
-
+        await this.pushNotificationService.sendCancellationNotification(booking);
       } catch (error) {
-        console.error('ハイブリッドキャンセル処理エラー:', error);
-
-        // フォールバック: 従来の処理
-        try {
-          await this.pushNotificationService.sendCancellationNotification(booking);
-        } catch (fallbackError) {
-          console.error('フォールバックキャンセル通知エラー:', fallbackError);
-        }
+        console.error('キャンセル通知プッシュ送信エラー:', error);
       }
 
       // 代替案の提案
@@ -1330,51 +1276,18 @@ export class InterviewBookingService {
       // 職員への承認通知
       await this.sendRescheduleApprovalNotification(targetBooking, targetRequest);
 
-      // === ハイブリッド統合処理（変更承認）===
+      // モバイル対応強化：プッシュ通知送信
       try {
-        // 変更後の予約として再統合
-        const integrationResult = await this.hybridService.handleBookingConfirmed(targetBooking);
-
-        // プッシュ通知（変更承認専用）
         await this.pushNotificationService.sendRescheduleApprovedNotification(targetBooking);
-
-        // リマインダー再設定
-        await this.pushNotificationService.scheduleAutomaticReminders(targetBooking);
-
-        // 監査ログ記録（重要操作）
-        await this.hybridService.logCriticalAction(
-          'booking_modification',
-          'interview_booking',
-          targetBooking.id,
-          reviewedBy,
-          `面談変更承認: ${targetRequest.reason}`,
-          {
-            old_date: targetRequest.currentDateTime,
-            old_status: 'reschedule_pending'
-          },
-          {
-            new_date: approvedDateTime,
-            new_status: 'confirmed',
-            approved_by: reviewedBy
-          }
-        );
-
-        console.log('面談変更承認統合処理完了:', {
-          booking_id: targetBooking.id,
-          success: integrationResult.success,
-          latency: integrationResult.latency
-        });
-
       } catch (error) {
-        console.error('ハイブリッド変更承認処理エラー:', error);
+        console.error('変更承認通知プッシュ送信エラー:', error);
+      }
 
-        // フォールバック: 従来の処理
-        try {
-          await this.pushNotificationService.sendRescheduleApprovedNotification(targetBooking);
-          await this.pushNotificationService.scheduleAutomaticReminders(targetBooking);
-        } catch (fallbackError) {
-          console.error('フォールバック変更承認処理エラー:', fallbackError);
-        }
+      // 新しい日時での自動リマインダー再設定
+      try {
+        await this.pushNotificationService.scheduleAutomaticReminders(targetBooking);
+      } catch (error) {
+        console.error('変更後リマインダー設定エラー:', error);
       }
 
       return {

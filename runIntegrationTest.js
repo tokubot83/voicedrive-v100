@@ -49,7 +49,7 @@ class IntegrationTestRunner {
 
   async createBooking(data) {
     try {
-      const response = await fetch(`${this.baseURL}/api/v3/interviews/bookings/mock`, {
+      const response = await fetch(`${this.baseURL}/api/v1/interviews/bookings/mock`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -252,7 +252,7 @@ class IntegrationTestRunner {
     
     // シナリオ4: 予約一覧取得
     try {
-      const response = await fetch(`${this.baseURL}/api/v3/interviews/bookings/mock?date=2024-12-25`);
+      const response = await fetch(`${this.baseURL}/api/v1/interviews/bookings/mock?date=2024-12-25`);
       const data = await response.json();
       
       // データ構造を正規化
@@ -272,7 +272,7 @@ class IntegrationTestRunner {
     // シナリオ5: 予約削除
     try {
       const response = await fetch(
-        `${this.baseURL}/api/v3/interviews/bookings/mock?bookingId=BK-2024-12-001`,
+        `${this.baseURL}/api/v1/interviews/bookings/mock?bookingId=BK-2024-12-001`,
         { method: 'DELETE' }
       );
       const result = await response.json();

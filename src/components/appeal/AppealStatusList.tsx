@@ -5,7 +5,7 @@ import {
   APPEAL_STATUS_CONFIG,
   APPEAL_CATEGORY_LABELS
 } from '../../types/appeal';
-import appealServiceV3 from '../../services/appealServiceV3';
+import appealService from '../../services/appealService';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate } from '../../utils/dateUtils';
 
@@ -29,7 +29,7 @@ const AppealStatusList: React.FC<AppealStatusListProps> = ({ onSelectAppeal }) =
 
     setLoading(true);
     try {
-      const data = await appealServiceV3.getAppeals(user.employeeId);
+      const data = await appealService.getAppeals(user.employeeId);
       setAppeals(data);
     } catch (error) {
       console.error('異議申し立て一覧の読み込みエラー:', error);
@@ -44,7 +44,7 @@ const AppealStatusList: React.FC<AppealStatusListProps> = ({ onSelectAppeal }) =
     }
 
     try {
-      const response = await appealServiceV3.withdrawAppeal(appealId);
+      const response = await appealService.withdrawAppeal(appealId);
       if (response.success) {
         await loadAppeals();
       }

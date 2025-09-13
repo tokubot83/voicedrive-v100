@@ -54,7 +54,7 @@ app.use('/api/medical', createProxyMiddleware({
   target: 'http://localhost:3000',
   changeOrigin: true,
   pathRewrite: {
-    '^/api/medical': '/api/v3'
+    '^/api/medical': '/api/v1'
   },
   on: {
     proxyReq: (proxyReq: any, req: any, res: any) => {
@@ -74,7 +74,7 @@ app.use('/api/voicedrive', createProxyMiddleware({
   target: 'http://localhost:5173',
   changeOrigin: true,
   pathRewrite: {
-    '^/api/voicedrive': '/api/v3'
+    '^/api/voicedrive': '/api/v1'
   },
   on: {
     proxyReq: (proxyReq: any, req: any, res: any) => {
@@ -494,6 +494,23 @@ app.get('/api/v3/appeals/:appealId/status', (req, res) => {
   res.json(v3Status);
 });
 
+// レガシーV1 APIモック（廃止予定）
+app.get('/api/v1/evaluation/periods', (req, res) => {
+  logger.warn(`DEPRECATED: V1 API called - /api/v1/evaluation/periods. Please migrate to V3.`);
+  res.status(410).json({
+    error: "DEPRECATED_API",
+    message: "V1 APIは廃止されました。V3 APIをご利用ください。",
+    migration: {
+      oldEndpoint: "/api/v1/evaluation/periods",
+      newEndpoint: "/api/v3/evaluation/periods", 
+      changes: [
+        "100点満点システム対応",
+        "7段階グレードシステム",
+        "V3データ構造への変更"
+      ]
+    }
+  });
+});
 
 // ヘルスチェック
 app.get('/health', (req, res) => {

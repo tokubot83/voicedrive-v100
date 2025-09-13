@@ -88,49 +88,6 @@ export const errorMessages = {
     alreadyResolved: 'すでに完了または取り下げ済みです',
     noReviewer: '審査者の割り当てに失敗しました。管理者に連絡してください',
     defaultReviewerAssigned: 'デフォルト審査者が割り当てられました'
-  },
-
-  // ハイブリッド統合関連エラー
-  hybrid: {
-    mcpConnectionFailed: 'MCP接続に失敗しました',
-    apiConnectionFailed: 'API接続に失敗しました',
-    bothSystemsFailed: 'MCPとAPIの両方で処理に失敗しました',
-    mcpTimeout: 'MCPサーバーの応答がタイムアウトしました',
-    apiTimeout: 'APIサーバーの応答がタイムアウトしました',
-    failoverActivated: 'プライマリシステムが利用できません。フェイルオーバーシステムで継続します',
-    syncFailed: 'データ同期に失敗しました',
-    auditLogFailed: '監査ログの記録に失敗しました',
-    configurationError: 'ハイブリッド統合の設定に問題があります',
-    healthCheckFailed: 'システムヘルスチェックに失敗しました',
-    circuitBreakerOpen: 'サーキットブレーカーが開いています。しばらく待ってから再試行してください',
-    rateLimitExceeded: 'APIレート制限を超過しました。しばらく待ってから再試行してください',
-    integrationModeInvalid: '無効な統合モードが指定されています',
-    fallbackSuccess: 'プライマリシステムの障害を検出しましたが、フォールバックシステムで正常に処理されました'
-  },
-
-  // MCP関連エラー
-  mcp: {
-    serviceUnavailable: 'MCPサービスが利用できません',
-    authenticationFailed: 'MCP認証に失敗しました',
-    profileNotFound: '職員プロファイルが見つかりません',
-    profileUpdateFailed: '職員プロファイル更新に失敗しました',
-    notificationOptimizationFailed: '通知タイミング最適化に失敗しました',
-    wellbeingAssessmentFailed: '健康状態評価に失敗しました',
-    invalidResponse: 'MCPサーバーから無効な応答を受信しました',
-    endpointNotFound: '指定されたMCPエンドポイントが見つかりません'
-  },
-
-  // 共通データベースAPI関連エラー
-  sharedDb: {
-    connectionFailed: '共通データベース接続に失敗しました',
-    syncOperationFailed: 'データ同期操作に失敗しました',
-    userDataNotFound: 'ユーザーデータが見つかりません',
-    batchOperationFailed: 'バッチ操作に失敗しました',
-    auditRecordFailed: '監査記録の保存に失敗しました',
-    backupCheckFailed: 'バックアップ状態の確認に失敗しました',
-    organizationSyncFailed: '組織情報の同期に失敗しました',
-    statisticsRecordFailed: '統計データの記録に失敗しました',
-    healthCheckTimeout: '共通データベースのヘルスチェックがタイムアウトしました'
   }
 };
 
@@ -166,41 +123,7 @@ export const getErrorMessageByCode = (errorCode: string): string => {
     'INVALID_STATUS': errorMessages.appeal.invalidStatus,
     'ALREADY_RESOLVED': errorMessages.appeal.alreadyResolved,
     'NO_REVIEWER': errorMessages.appeal.noReviewer,
-    'DEFAULT_REVIEWER': errorMessages.appeal.defaultReviewerAssigned,
-    // ハイブリッド統合関連
-    'HYBRID_MCP_CONN_FAILED': errorMessages.hybrid.mcpConnectionFailed,
-    'HYBRID_API_CONN_FAILED': errorMessages.hybrid.apiConnectionFailed,
-    'HYBRID_BOTH_FAILED': errorMessages.hybrid.bothSystemsFailed,
-    'HYBRID_MCP_TIMEOUT': errorMessages.hybrid.mcpTimeout,
-    'HYBRID_API_TIMEOUT': errorMessages.hybrid.apiTimeout,
-    'HYBRID_FAILOVER': errorMessages.hybrid.failoverActivated,
-    'HYBRID_SYNC_FAILED': errorMessages.hybrid.syncFailed,
-    'HYBRID_AUDIT_FAILED': errorMessages.hybrid.auditLogFailed,
-    'HYBRID_CONFIG_ERROR': errorMessages.hybrid.configurationError,
-    'HYBRID_HEALTH_FAILED': errorMessages.hybrid.healthCheckFailed,
-    'HYBRID_CIRCUIT_OPEN': errorMessages.hybrid.circuitBreakerOpen,
-    'HYBRID_RATE_LIMIT': errorMessages.hybrid.rateLimitExceeded,
-    'HYBRID_INVALID_MODE': errorMessages.hybrid.integrationModeInvalid,
-    'HYBRID_FALLBACK_SUCCESS': errorMessages.hybrid.fallbackSuccess,
-    // MCP関連
-    'MCP_UNAVAILABLE': errorMessages.mcp.serviceUnavailable,
-    'MCP_AUTH_FAILED': errorMessages.mcp.authenticationFailed,
-    'MCP_PROFILE_NOT_FOUND': errorMessages.mcp.profileNotFound,
-    'MCP_PROFILE_UPDATE_FAILED': errorMessages.mcp.profileUpdateFailed,
-    'MCP_NOTIFICATION_OPT_FAILED': errorMessages.mcp.notificationOptimizationFailed,
-    'MCP_WELLBEING_FAILED': errorMessages.mcp.wellbeingAssessmentFailed,
-    'MCP_INVALID_RESPONSE': errorMessages.mcp.invalidResponse,
-    'MCP_ENDPOINT_NOT_FOUND': errorMessages.mcp.endpointNotFound,
-    // 共通データベースAPI関連
-    'SHARED_DB_CONN_FAILED': errorMessages.sharedDb.connectionFailed,
-    'SHARED_DB_SYNC_FAILED': errorMessages.sharedDb.syncOperationFailed,
-    'SHARED_DB_USER_NOT_FOUND': errorMessages.sharedDb.userDataNotFound,
-    'SHARED_DB_BATCH_FAILED': errorMessages.sharedDb.batchOperationFailed,
-    'SHARED_DB_AUDIT_FAILED': errorMessages.sharedDb.auditRecordFailed,
-    'SHARED_DB_BACKUP_FAILED': errorMessages.sharedDb.backupCheckFailed,
-    'SHARED_DB_ORG_SYNC_FAILED': errorMessages.sharedDb.organizationSyncFailed,
-    'SHARED_DB_STATS_FAILED': errorMessages.sharedDb.statisticsRecordFailed,
-    'SHARED_DB_HEALTH_TIMEOUT': errorMessages.sharedDb.healthCheckTimeout
+    'DEFAULT_REVIEWER': errorMessages.appeal.defaultReviewerAssigned
   };
 
   return errorCodeMap[errorCode] || errorMessages.system.unexpectedError;

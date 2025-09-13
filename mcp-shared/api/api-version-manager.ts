@@ -18,6 +18,18 @@ export class APIVersionManager {
 
   constructor() {
     this.versionConfigs = new Map([
+      ['v1', {
+        version: 'v1',
+        endpoints: {
+          medical: 'http://localhost:3000/api/v1',
+          voicedrive: 'http://localhost:3001/api/v1'
+        },
+        features: [
+          'basic-interview-booking',
+          'calendar-view',
+          'staff-list'
+        ]
+      }],
       ['v2', {
         version: 'v2',
         endpoints: {
