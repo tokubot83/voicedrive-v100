@@ -6,7 +6,7 @@ import {
   AppealRecord,
   AppealAction
 } from '../../../mcp-shared/interfaces/appeal.interface';
-import * as appealService from '../services/appealService';
+// appealService V1 removed - use V3 version if needed
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs/promises';
 import path from 'path';

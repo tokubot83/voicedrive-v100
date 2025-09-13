@@ -6,7 +6,7 @@ import {
   APPEAL_CATEGORY_LABELS,
   AppealCommunication
 } from '../../types/appeal';
-import appealService from '../../services/appealService';
+import appealServiceV3 from '../../services/appealServiceV3';
 import { formatDate } from '../../utils/dateUtils';
 
 interface AppealDetailProps {
@@ -35,7 +35,7 @@ const AppealDetail: React.FC<AppealDetailProps> = ({
   const loadAppealDetail = async () => {
     setLoading(true);
     try {
-      const data = await appealService.getAppealStatus(appealId);
+      const data = await appealServiceV3.getAppealStatus(appealId);
       setAppeal(data);
     } catch (error) {
       console.error('異議申し立て詳細の読み込みエラー:', error);
@@ -49,7 +49,7 @@ const AppealDetail: React.FC<AppealDetailProps> = ({
 
     setSubmittingComment(true);
     try {
-      const success = await appealService.addComment(appeal.appealId, newComment);
+      const success = await appealServiceV3.addComment(appeal.appealId, newComment);
       if (success) {
         setNewComment('');
         await loadAppealDetail();
@@ -68,12 +68,12 @@ const AppealDetail: React.FC<AppealDetailProps> = ({
       // ファイルアップロード
       const uploadedUrls: string[] = [];
       for (const file of additionalFiles) {
-        const url = await appealService.uploadEvidence(file, appeal.appealId);
+        const url = await appealServiceV3.uploadEvidence(file, appeal.appealId);
         uploadedUrls.push(url);
       }
 
       // 追加情報提出
-      const response = await appealService.updateAppeal(appeal.appealId, {
+      const response = await appealServiceV3.updateAppeal(appeal.appealId, {
         appealReason: appeal.appealReason + '\n\n【追加情報】\n' + additionalInfo,
         evidenceDocuments: [...(appeal.evidenceDocuments || []), ...uploadedUrls]
       });
@@ -94,7 +94,7 @@ const AppealDetail: React.FC<AppealDetailProps> = ({
     if (!appeal || !window.confirm('この異議申し立てを取り下げますか？')) return;
 
     try {
-      const response = await appealService.withdrawAppeal(appeal.appealId);
+      const response = await appealServiceV3.withdrawAppeal(appeal.appealId);
       if (response.success) {
         await loadAppealDetail();
         if (onUpdate) onUpdate();

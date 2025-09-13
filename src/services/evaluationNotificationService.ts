@@ -1,4 +1,4 @@
-import { 
+import {
   EvaluationNotification,
   EvaluationNotificationRequest,
   EvaluationNotificationResponse,
@@ -12,16 +12,23 @@ import {
 } from '../types/evaluation-notification';
 import { V3GradeUtils } from '../types/appeal-v3';
 import { NotificationService } from './NotificationService';
+import { hybridIntegrationService } from './HybridIntegrationService';
+import { employeeProfileMCPService } from './EmployeeProfileMCPService';
 
 class EvaluationNotificationService {
   private baseUrl: string;
   private apiKey: string;
   private notificationService: NotificationService;
+  private enableMCPIntegration: boolean;
+  private enableNotificationOptimization: boolean;
 
   constructor() {
     this.baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
     this.apiKey = import.meta.env.VITE_API_KEY || '';
     this.notificationService = new NotificationService();
+    // ハイブリッド統合設定
+    this.enableMCPIntegration = import.meta.env.VITE_ENABLE_MCP_INTEGRATION !== 'false';
+    this.enableNotificationOptimization = import.meta.env.VITE_ENABLE_NOTIFICATION_OPTIMIZATION !== 'false';
   }
 
   // 医療システムから評価結果通知を受信
@@ -45,22 +52,84 @@ class EvaluationNotificationService {
         appealSubmitted: false
       };
 
+      // === ハイブリッド統合処理 ===
+
+      // 重要操作の監査ログ記録
+      await hybridIntegrationService.logCriticalAction(
+        'evaluation_notification_received',
+        'evaluation_notification',
+        notification.id,
+        'medical_system',
+        `評価通知受信: ${request.employeeName} - ${request.evaluationPeriod}`,
+        null,
+        {
+          score: request.evaluationScore,
+          grade: notification.evaluationGrade,
+          disclosureDate: request.disclosureDate,
+          appealDeadline: request.appealDeadline
+        }
+      );
+
       // データベースに保存
       const savedNotification = await this.saveNotification(notification);
 
-      // 通知送信（複数チャネル）
-      const deliveryResults = await this.sendNotificationToUser(savedNotification);
+      // MCP統合による最適な通知タイミング計算
+      let optimalNotificationTime = new Date();
+      if (this.enableNotificationOptimization && this.enableMCPIntegration) {
+        try {
+          optimalNotificationTime = await hybridIntegrationService.calculateOptimalNotificationTime(
+            request.employeeId,
+            new Date(),
+            'evaluation_disclosure'
+          );
+        } catch (error) {
+          console.warn('通知タイミング最適化に失敗しました、デフォルト時刻を使用:', error);
+        }
+      }
+
+      // 通知送信（複数チャネル + MCP最適化）
+      const deliveryResults = await this.sendNotificationToUser(savedNotification, optimalNotificationTime);
+
+      // 職員プロファイル更新（MCP）
+      if (this.enableMCPIntegration) {
+        try {
+          await employeeProfileMCPService.updateEvaluationHistory(
+            request.employeeId,
+            request.evaluationPeriod,
+            request.evaluationScore,
+            notification.evaluationGrade
+          );
+        } catch (error) {
+          console.warn('MCP職員プロファイル更新失敗:', error);
+        }
+      }
 
       return {
         success: true,
         notificationId: savedNotification.id,
         message: '評価通知を正常に送信しました',
         deliveryMethods: deliveryResults,
-        estimatedDeliveryTime: new Date(Date.now() + 60000).toISOString() // 1分後
+        estimatedDeliveryTime: optimalNotificationTime.toISOString()
       };
 
     } catch (error) {
       console.error('評価通知送信エラー:', error);
+
+      // エラー時の監査ログ
+      try {
+        await hybridIntegrationService.logCriticalAction(
+          'evaluation_notification_failed',
+          'evaluation_notification',
+          'unknown',
+          'medical_system',
+          `評価通知送信失敗: ${request.employeeName}`,
+          request,
+          { error: error instanceof Error ? error.message : String(error) }
+        );
+      } catch (auditError) {
+        console.error('監査ログ記録エラー:', auditError);
+      }
+
       throw new Error(`評価通知の送信に失敗しました: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -263,7 +332,10 @@ class EvaluationNotificationService {
     }
   }
 
-  private async sendNotificationToUser(notification: EvaluationNotification): Promise<{
+  private async sendNotificationToUser(
+    notification: EvaluationNotification,
+    scheduledTime?: Date
+  ): Promise<{
     email: boolean;
     push: boolean;
     sms: boolean;
@@ -289,10 +361,10 @@ class EvaluationNotificationService {
     };
 
     try {
-      // アプリ内プッシュ通知
-      await this.notificationService.sendNotification({
+      // アプリ内プッシュ通知（スケジュール対応）
+      const notificationPayload = {
         recipientId: notification.employeeId,
-        type: 'EVALUATION_DISCLOSURE',
+        type: 'EVALUATION_DISCLOSURE' as const,
         title: personalizedTemplate.title,
         message: personalizedTemplate.body,
         data: {
@@ -301,8 +373,11 @@ class EvaluationNotificationService {
           evaluationScore: notification.evaluationScore,
           evaluationGrade: notification.evaluationGrade
         },
-        priority: 'HIGH'
-      });
+        priority: 'HIGH' as const,
+        ...(scheduledTime && { scheduledTime: scheduledTime.toISOString() })
+      };
+
+      await this.notificationService.sendNotification(notificationPayload);
       results.push = true;
     } catch (error) {
       console.error('プッシュ通知送信エラー:', error);

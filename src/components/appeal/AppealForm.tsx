@@ -5,7 +5,7 @@ import {
   APPEAL_CATEGORY_LABELS,
   APPEAL_VALIDATION_RULES
 } from '../../types/appeal';
-import appealService from '../../services/appealService';
+import appealServiceV3 from '../../services/appealServiceV3';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'react-toastify';
 
@@ -47,7 +47,7 @@ const AppealForm: React.FC<AppealFormProps> = ({
 
   const loadEvaluationPeriods = async () => {
     try {
-      const periods = await appealService.getEvaluationPeriods();
+      const periods = await appealServiceV3.getEvaluationPeriods();
       setEvaluationPeriods(periods);
     } catch (error) {
       console.error('評価期間の読み込みエラー:', error);
@@ -142,7 +142,7 @@ const AppealForm: React.FC<AppealFormProps> = ({
       const uploadedUrls: string[] = [];
       for (const file of uploadedFiles) {
         try {
-          const url = await appealService.uploadEvidence(file);
+          const url = await appealServiceV3.uploadEvidence(file);
           uploadedUrls.push(url);
         } catch (error) {
           console.error('ファイルアップロードエラー:', error);
@@ -163,7 +163,7 @@ const AppealForm: React.FC<AppealFormProps> = ({
         preferredContactMethod: formData.preferredContactMethod
       };
 
-      const response = await appealService.submitAppeal(request);
+      const response = await appealServiceV3.submitAppeal(request);
 
       if (response.success) {
         toast.success('異議申し立てを受け付けました');

@@ -1,5 +1,5 @@
-// 職員カルテシステムとのMCP連携サービス（モバイル対応強化版）
-import { InterviewBooking } from '../types/interview';
+// 職員カルテシステムとのMCP連携サービス（ハイブリッドAPI対応版）
+import { InterviewBooking, EmployeeSyncRequest, EmployeeSyncResponse } from '../types/interview';
 import { MobileNotificationType } from './MobilePushNotificationService';
 
 // 職員プロファイル情報（MCP経由で取得）
@@ -73,19 +73,26 @@ interface NotificationDeliveryResult {
 class EmployeeProfileMCPService {
   private baseUrl: string;
   private mcpEndpoint: string;
+  private sharedDBEndpoint: string;
   private apiKey: string;
+  private sharedDBApiKey: string;
   private retryAttempts: number = 3;
   private timeoutMs: number = 10000;
+  private enableAPIFallback: boolean = true;
 
   constructor() {
     this.baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
     this.mcpEndpoint = import.meta.env.VITE_MCP_SERVER_URL || 'http://localhost:8080';
+    this.sharedDBEndpoint = import.meta.env.VITE_SHARED_DB_API_URL || 'http://localhost:3002';
     this.apiKey = import.meta.env.VITE_MCP_API_KEY || '';
+    this.sharedDBApiKey = import.meta.env.VITE_SHARED_DB_API_KEY || '';
+    this.enableAPIFallback = import.meta.env.VITE_ENABLE_API_FALLBACK !== 'false';
   }
 
-  // 職員プロファイル取得（モバイル対応情報含む）
+  // 職員プロファイル取得（ハイブリッド対応）
   async getEmployeeProfile(employeeId: string): Promise<EmployeeProfile | null> {
     try {
+      // MCP優先実行
       const response = await this.mcpRequest('/api/employee-profile', {
         action: 'get_profile',
         employeeId,
@@ -97,9 +104,26 @@ class EmployeeProfileMCPService {
         return response.data as EmployeeProfile;
       }
 
+      // MCPが失敗した場合、APIフォールバック
+      if (this.enableAPIFallback) {
+        console.warn('MCP失敗、APIフォールバック実行中...');
+        return await this.getEmployeeProfileFromAPI(employeeId);
+      }
+
       return null;
     } catch (error) {
       console.error('職員プロファイル取得エラー:', error);
+
+      // MCPエラー時のAPIフォールバック
+      if (this.enableAPIFallback) {
+        try {
+          console.warn('MCPエラー、APIフォールバック実行中...');
+          return await this.getEmployeeProfileFromAPI(employeeId);
+        } catch (apiError) {
+          console.error('APIフォールバックも失敗:', apiError);
+        }
+      }
+
       return null;
     }
   }
@@ -441,6 +465,30 @@ class EmployeeProfileMCPService {
     }
   }
 
+  // 評価履歴更新（MCP連携）
+  async updateEvaluationHistory(
+    employeeId: string,
+    evaluationPeriod: string,
+    evaluationScore: number,
+    evaluationGrade: string
+  ): Promise<void> {
+    try {
+      await this.mcpRequest('/api/evaluation-history', {
+        action: 'update_evaluation',
+        employeeId,
+        evaluationData: {
+          period: evaluationPeriod,
+          score: evaluationScore,
+          grade: evaluationGrade,
+          recordedAt: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      console.error('評価履歴更新エラー:', error);
+      throw error;
+    }
+  }
+
   // 健康状態モニタリング（MCP連携）
   async checkEmployeeWellbeing(employeeId: string): Promise<{
     riskLevel: 'low' | 'medium' | 'high' | 'critical';
@@ -465,6 +513,130 @@ class EmployeeProfileMCPService {
       console.error('職員健康状態確認エラー:', error);
       return null;
     }
+  }
+
+  // === APIフォールバック機能 ===
+
+  // API経由での職員プロファイル取得
+  private async getEmployeeProfileFromAPI(employeeId: string): Promise<EmployeeProfile | null> {
+    try {
+      const syncRequest: EmployeeSyncRequest = {
+        employee_id: employeeId,
+        include_profile: true,
+        include_permissions: true,
+        include_interview_history: true
+      };
+
+      const response = await this.sharedDBRequest('/api/users/sync', {
+        method: 'POST',
+        body: JSON.stringify(syncRequest)
+      });
+
+      if (response.success && response.data) {
+        const apiData = response.data as EmployeeSyncResponse;
+
+        // API形式からMCP形式に変換
+        return this.convertAPIToMCPProfile(apiData);
+      }
+
+      return null;
+    } catch (error) {
+      console.error('API職員プロファイル取得エラー:', error);
+      return null;
+    }
+  }
+
+  // API形式をMCP形式に変換
+  private convertAPIToMCPProfile(apiData: EmployeeSyncResponse): EmployeeProfile {
+    return {
+      employeeId: apiData.employee_id,
+      employeeName: apiData.name,
+      department: apiData.department,
+      position: apiData.position,
+      hireDate: '', // APIにない場合はデフォルト
+      workPattern: apiData.work_pattern || 'day_shift',
+      contactPreferences: apiData.contact_preferences || {
+        email: '',
+        preferredNotificationTime: '09:00',
+        allowNightNotifications: false,
+        preferredLanguage: 'ja'
+      },
+      deviceInfo: {
+        registeredDevices: [],
+        notificationSettings: {
+          pushEnabled: true,
+          emailEnabled: true,
+          smsEnabled: false
+        }
+      },
+      interviewHistory: {
+        totalInterviews: 0,
+        overdueCount: 0,
+        preferredInterviewTimes: [],
+        frequentInterviewTypes: []
+      }
+    };
+  }
+
+  // 共通DB API要求処理
+  private async sharedDBRequest<T = any>(
+    endpoint: string,
+    options: RequestInit = {},
+    attempt = 1
+  ): Promise<any> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      this.timeoutMs
+    );
+
+    try {
+      const response = await fetch(`${this.sharedDBEndpoint}${endpoint}`, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.sharedDBApiKey}`,
+          'X-Client-Type': 'voicedrive-mcp-fallback',
+          'X-Client-Version': '1.0.0',
+          ...options.headers
+        },
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`共通DB API Error: ${response.status} ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      clearTimeout(timeoutId);
+
+      if (attempt < this.retryAttempts && !controller.signal.aborted) {
+        console.warn(`共通DB API要求失敗、リトライ中... (${attempt}/${this.retryAttempts})`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        return this.sharedDBRequest<T>(endpoint, options, attempt + 1);
+      }
+
+      throw error;
+    }
+  }
+
+  // フォールバック状態確認
+  public getServiceStatus(): {
+    mcpHealthy: boolean;
+    apiHealthy: boolean;
+    fallbackEnabled: boolean;
+    lastMCPError?: string;
+    lastAPIError?: string;
+  } {
+    return {
+      mcpHealthy: true, // 簡易実装、実際はヘルスチェック結果
+      apiHealthy: true, // 簡易実装、実際はヘルスチェック結果
+      fallbackEnabled: this.enableAPIFallback,
+      // エラー情報は実際の実装で追加
+    };
   }
 }
 
