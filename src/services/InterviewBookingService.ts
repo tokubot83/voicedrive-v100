@@ -1,9 +1,9 @@
 // 面談予約サービス - 人財統括本部運用システム
-import { 
-  InterviewBooking, 
-  TimeSlot, 
-  BookingRequest, 
-  BookingResponse, 
+import {
+  InterviewBooking,
+  TimeSlot,
+  BookingRequest,
+  BookingResponse,
   InterviewStats,
   InterviewScheduleConfig,
   Interviewer,
@@ -14,7 +14,12 @@ import {
   MedicalEmployeeProfile,
   InterviewReminderConfig,
   EmploymentStatus,
-  InterviewType
+  InterviewType,
+  CancellationRequest,
+  CancellationReason,
+  RescheduleRequest,
+  BookingCancellationResponse,
+  BookingRescheduleResponse
 } from '../types/interview';
 import InterviewReminderService from './InterviewReminderService';
 import NotificationService from './NotificationService';
@@ -37,7 +42,8 @@ export class InterviewBookingService {
     this.initializeDefaultConfig();
     this.initializeDefaultInterviewers();
     this.generateDefaultTimeSlots();
-    
+    this.generateDemoBookings();
+
     // 新機能サービスを初期化
     this.reminderService = InterviewReminderService.getInstance();
     this.notificationService = NotificationService.getInstance();
@@ -923,12 +929,686 @@ export class InterviewBookingService {
   // 一括リマインダー送信（日次バッチ処理）
   async runDailyReminderBatch(): Promise<void> {
     console.log('🔄 日次リマインダーバッチ処理を開始...');
-    
+
     try {
       const todaysReminders = await this.getTodaysReminders();
       console.log(`✅ 本日のリマインダー処理完了: ${todaysReminders.length}件`);
     } catch (error) {
       console.error('❌ 日次リマインダーバッチ処理でエラーが発生:', error);
     }
+  }
+
+  // === キャンセル・変更機能 ===
+
+  // 予約キャンセル
+  async cancelBooking(
+    bookingId: string,
+    reason: CancellationReason,
+    customReason: string | undefined,
+    cancelledBy: string
+  ): Promise<BookingCancellationResponse> {
+    try {
+      const booking = this.bookings.get(bookingId);
+      if (!booking) {
+        return {
+          success: false,
+          message: '予約が見つかりません'
+        };
+      }
+
+      // キャンセル可能かチェック
+      const canCancel = this.canCancelBooking(booking);
+      if (!canCancel.allowed) {
+        return {
+          success: false,
+          message: canCancel.reason || 'この予約はキャンセルできません'
+        };
+      }
+
+      // 時間枠を解放
+      const timeSlot = booking.timeSlot;
+      timeSlot.isAvailable = true;
+      timeSlot.bookedBy = undefined;
+      timeSlot.bookingId = undefined;
+
+      // 予約をキャンセル状態に更新
+      booking.status = 'cancelled';
+      booking.cancellationReason = customReason || this.getCancellationReasonText(reason);
+      booking.cancelledAt = new Date();
+      booking.cancelledBy = cancelledBy;
+      booking.lastModified = new Date();
+      booking.modifiedBy = cancelledBy;
+
+      // MCP連携：職員カルテシステムに通知
+      await this.notifyMCPCancellation(booking);
+
+      // 関係者への通知
+      await this.sendCancellationNotifications(booking);
+
+      // 代替案の提案
+      const alternatives = await this.getSuggestedAlternatives({
+        employeeId: booking.employeeId,
+        preferredDates: [booking.bookingDate],
+        preferredTimes: [booking.timeSlot.startTime],
+        interviewType: booking.interviewType,
+        interviewCategory: booking.interviewCategory,
+        requestedTopics: booking.requestedTopics,
+        urgencyLevel: booking.urgencyLevel
+      });
+
+      return {
+        success: true,
+        message: '面談をキャンセルしました',
+        refundEligible: this.isRefundEligible(booking),
+        alternativeSuggestions: alternatives
+      };
+
+    } catch (error) {
+      console.error('Booking cancellation failed:', error);
+      return {
+        success: false,
+        message: 'キャンセル処理中にエラーが発生しました'
+      };
+    }
+  }
+
+  // 日時変更リクエスト
+  async requestReschedule(
+    bookingId: string,
+    preferredDates: Date[],
+    reason: string,
+    requestedBy: string
+  ): Promise<BookingRescheduleResponse> {
+    try {
+      const booking = this.bookings.get(bookingId);
+      if (!booking) {
+        return {
+          success: false,
+          message: '予約が見つかりません',
+          requiresApproval: false
+        };
+      }
+
+      // 変更可能かチェック
+      const canReschedule = this.canRescheduleBooking(booking);
+      if (!canReschedule.allowed) {
+        return {
+          success: false,
+          message: canReschedule.reason || 'この予約は変更できません',
+          requiresApproval: false
+        };
+      }
+
+      // 変更リクエストを作成
+      const rescheduleRequest: RescheduleRequest = {
+        id: this.generateRescheduleRequestId(),
+        bookingId,
+        requestedBy,
+        requestedAt: new Date(),
+        currentDateTime: booking.bookingDate,
+        preferredDates,
+        reason,
+        status: 'pending'
+      };
+
+      // 予約に変更リクエストを追加
+      if (!booking.rescheduleRequests) {
+        booking.rescheduleRequests = [];
+      }
+      booking.rescheduleRequests.push(rescheduleRequest);
+      booking.status = 'reschedule_pending';
+      booking.lastModified = new Date();
+      booking.modifiedBy = requestedBy;
+
+      // MCP連携：職員カルテシステムに通知
+      await this.notifyMCPRescheduleRequest(booking, rescheduleRequest);
+
+      // 管理者への承認依頼通知
+      await this.sendRescheduleApprovalRequest(booking, rescheduleRequest);
+
+      // 代替案の提案
+      const alternatives = await this.getSuggestedAlternatives({
+        employeeId: booking.employeeId,
+        preferredDates,
+        preferredTimes: [booking.timeSlot.startTime],
+        interviewType: booking.interviewType,
+        interviewCategory: booking.interviewCategory,
+        requestedTopics: booking.requestedTopics,
+        urgencyLevel: booking.urgencyLevel
+      });
+
+      return {
+        success: true,
+        message: '日時変更リクエストを送信しました。承認をお待ちください。',
+        requestId: rescheduleRequest.id,
+        requiresApproval: true,
+        suggestedAlternatives: alternatives
+      };
+
+    } catch (error) {
+      console.error('Reschedule request failed:', error);
+      return {
+        success: false,
+        message: '変更リクエスト処理中にエラーが発生しました',
+        requiresApproval: false
+      };
+    }
+  }
+
+  // 日時変更承認（管理者用）
+  async approveReschedule(
+    requestId: string,
+    approvedDateTime: Date,
+    reviewedBy: string,
+    adminLevel: PermissionLevel
+  ): Promise<BookingResponse> {
+    if (adminLevel < PermissionLevel.LEVEL_5) {
+      return { success: false, message: '変更承認の権限がありません' };
+    }
+
+    try {
+      // リクエストを見つける
+      let targetBooking: InterviewBooking | null = null;
+      let targetRequest: RescheduleRequest | null = null;
+
+      for (const booking of this.bookings.values()) {
+        const request = booking.rescheduleRequests?.find(r => r.id === requestId);
+        if (request) {
+          targetBooking = booking;
+          targetRequest = request;
+          break;
+        }
+      }
+
+      if (!targetBooking || !targetRequest) {
+        return { success: false, message: '変更リクエストが見つかりません' };
+      }
+
+      // 新しい時間枠を確保
+      const newSlot = await this.findAvailableSlotForDateTime(approvedDateTime);
+      if (!newSlot) {
+        return { success: false, message: '指定された日時は利用できません' };
+      }
+
+      // 元の時間枠を解放
+      const oldSlot = targetBooking.timeSlot;
+      oldSlot.isAvailable = true;
+      oldSlot.bookedBy = undefined;
+      oldSlot.bookingId = undefined;
+
+      // 新しい時間枠を予約
+      newSlot.isAvailable = false;
+      newSlot.bookedBy = targetBooking.employeeId;
+      newSlot.bookingId = targetBooking.id;
+
+      // 予約を更新
+      targetBooking.bookingDate = approvedDateTime;
+      targetBooking.timeSlot = newSlot;
+      targetBooking.status = 'confirmed';
+      targetBooking.lastModified = new Date();
+      targetBooking.modifiedBy = reviewedBy;
+
+      // リクエストを承認済みに更新
+      targetRequest.status = 'approved';
+      targetRequest.approvedDateTime = approvedDateTime;
+      targetRequest.reviewedBy = reviewedBy;
+      targetRequest.reviewedAt = new Date();
+
+      // MCP連携：職員カルテシステムに通知
+      await this.notifyMCPRescheduleApproval(targetBooking, targetRequest);
+
+      // 職員への承認通知
+      await this.sendRescheduleApprovalNotification(targetBooking, targetRequest);
+
+      return {
+        success: true,
+        message: '日時変更を承認しました',
+        bookingId: targetBooking.id
+      };
+
+    } catch (error) {
+      console.error('Reschedule approval failed:', error);
+      return {
+        success: false,
+        message: '承認処理中にエラーが発生しました'
+      };
+    }
+  }
+
+  // 日時変更拒否（管理者用）
+  async rejectReschedule(
+    requestId: string,
+    rejectionReason: string,
+    reviewedBy: string,
+    adminLevel: PermissionLevel
+  ): Promise<BookingResponse> {
+    if (adminLevel < PermissionLevel.LEVEL_5) {
+      return { success: false, message: '変更承認の権限がありません' };
+    }
+
+    try {
+      // リクエストを見つける
+      let targetBooking: InterviewBooking | null = null;
+      let targetRequest: RescheduleRequest | null = null;
+
+      for (const booking of this.bookings.values()) {
+        const request = booking.rescheduleRequests?.find(r => r.id === requestId);
+        if (request) {
+          targetBooking = booking;
+          targetRequest = request;
+          break;
+        }
+      }
+
+      if (!targetBooking || !targetRequest) {
+        return { success: false, message: '変更リクエストが見つかりません' };
+      }
+
+      // リクエストを拒否済みに更新
+      targetRequest.status = 'rejected';
+      targetRequest.rejectionReason = rejectionReason;
+      targetRequest.reviewedBy = reviewedBy;
+      targetRequest.reviewedAt = new Date();
+
+      // 予約ステータスを元に戻す
+      targetBooking.status = 'confirmed';
+      targetBooking.lastModified = new Date();
+      targetBooking.modifiedBy = reviewedBy;
+
+      // 職員への拒否通知
+      await this.sendRescheduleRejectionNotification(targetBooking, targetRequest);
+
+      return {
+        success: true,
+        message: '日時変更リクエストを拒否しました',
+        bookingId: targetBooking.id
+      };
+
+    } catch (error) {
+      console.error('Reschedule rejection failed:', error);
+      return {
+        success: false,
+        message: '拒否処理中にエラーが発生しました'
+      };
+    }
+  }
+
+  // === プライベートメソッド ===
+
+  // キャンセル可能かチェック
+  private canCancelBooking(booking: InterviewBooking): { allowed: boolean; reason?: string } {
+    if (booking.status === 'cancelled') {
+      return { allowed: false, reason: '既にキャンセル済みです' };
+    }
+
+    if (booking.status === 'completed') {
+      return { allowed: false, reason: '完了した面談はキャンセルできません' };
+    }
+
+    // キャンセル期限チェック（面談2時間前まで）
+    const now = new Date();
+    const bookingTime = new Date(booking.bookingDate);
+    const [hours, minutes] = booking.timeSlot.startTime.split(':').map(Number);
+    bookingTime.setHours(hours, minutes, 0, 0);
+
+    const timeDiff = bookingTime.getTime() - now.getTime();
+    const hoursUntilBooking = timeDiff / (1000 * 60 * 60);
+
+    if (hoursUntilBooking < 2) {
+      return { allowed: false, reason: '面談開始2時間前以降はキャンセルできません' };
+    }
+
+    return { allowed: true };
+  }
+
+  // 変更可能かチェック
+  private canRescheduleBooking(booking: InterviewBooking): { allowed: boolean; reason?: string } {
+    if (booking.status === 'cancelled' || booking.status === 'completed') {
+      return { allowed: false, reason: 'この予約は変更できません' };
+    }
+
+    if (booking.status === 'reschedule_pending') {
+      return { allowed: false, reason: '既に変更申請中です' };
+    }
+
+    // 変更期限チェック（面談1日前まで）
+    const now = new Date();
+    const bookingDate = new Date(booking.bookingDate);
+    bookingDate.setHours(0, 0, 0, 0);
+    const timeDiff = bookingDate.getTime() - now.getTime();
+    const daysUntilBooking = timeDiff / (1000 * 60 * 60 * 24);
+
+    if (daysUntilBooking < 1) {
+      return { allowed: false, reason: '面談前日以降は変更できません' };
+    }
+
+    return { allowed: true };
+  }
+
+  // MCP連携通知
+  private async notifyMCPCancellation(booking: InterviewBooking): Promise<void> {
+    // 職員カルテシステムへのキャンセル通知
+    console.log(`MCP通知: 面談キャンセル - ${booking.employeeId} - ${booking.id}`);
+    // TODO: 実際のMCP連携実装
+  }
+
+  private async notifyMCPRescheduleRequest(booking: InterviewBooking, request: RescheduleRequest): Promise<void> {
+    // 職員カルテシステムへの変更リクエスト通知
+    console.log(`MCP通知: 日時変更リクエスト - ${booking.employeeId} - ${request.id}`);
+    // TODO: 実際のMCP連携実装
+  }
+
+  private async notifyMCPRescheduleApproval(booking: InterviewBooking, request: RescheduleRequest): Promise<void> {
+    // 職員カルテシステムへの変更承認通知
+    console.log(`MCP通知: 日時変更承認 - ${booking.employeeId} - ${request.id}`);
+    // TODO: 実際のMCP連携実装
+  }
+
+  // 通知送信
+  private async sendCancellationNotifications(booking: InterviewBooking): Promise<void> {
+    await this.sendBookingNotification(booking, 'booking_cancelled');
+    // 面談者への通知
+    if (booking.interviewerId) {
+      console.log(`面談者通知: キャンセル - ${booking.interviewerName}`);
+    }
+  }
+
+  private async sendRescheduleApprovalRequest(booking: InterviewBooking, request: RescheduleRequest): Promise<void> {
+    console.log(`承認依頼通知: 日時変更 - ${booking.id} - ${request.id}`);
+    // TODO: 管理者への承認依頼通知実装
+  }
+
+  private async sendRescheduleApprovalNotification(booking: InterviewBooking, request: RescheduleRequest): Promise<void> {
+    await this.sendBookingNotification(booking, 'booking_rescheduled');
+  }
+
+  private async sendRescheduleRejectionNotification(booking: InterviewBooking, request: RescheduleRequest): Promise<void> {
+    console.log(`変更拒否通知: ${booking.employeeId} - ${request.rejectionReason}`);
+    // TODO: 拒否通知実装
+  }
+
+  // ユーティリティ
+  private getCancellationReasonText(reason: CancellationReason): string {
+    const reasons = {
+      emergency: '緊急事態のため',
+      illness: '体調不良のため',
+      work_conflict: '業務都合のため',
+      schedule_change: 'スケジュール変更のため',
+      personal: '個人的事情のため',
+      other: 'その他の理由'
+    };
+    return reasons[reason];
+  }
+
+  private isRefundEligible(booking: InterviewBooking): boolean {
+    // 面談24時間前までならrefund eligible
+    const now = new Date();
+    const bookingTime = new Date(booking.bookingDate);
+    const timeDiff = bookingTime.getTime() - now.getTime();
+    return timeDiff > (24 * 60 * 60 * 1000);
+  }
+
+  private generateRescheduleRequestId(): string {
+    return `reschedule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  private async findAvailableSlotForDateTime(dateTime: Date): Promise<TimeSlot | null> {
+    const dateKey = this.getDateKey(dateTime);
+    const slots = this.timeSlots.get(dateKey) || [];
+    const targetHour = dateTime.getHours();
+    const targetMinute = dateTime.getMinutes();
+    const targetTime = `${targetHour.toString().padStart(2, '0')}:${targetMinute.toString().padStart(2, '0')}`;
+
+    return slots.find(slot => slot.startTime === targetTime && slot.isAvailable) || null;
+  }
+
+  // === デモデータ生成 ===
+  private generateDemoBookings(): void {
+    const demoUsers = [
+      {
+        id: 'demo-user-1',
+        name: '田中 花子',
+        email: 'tanaka.hanako@hospital.com',
+        phone: '090-1234-5678',
+        facility: '本院',
+        department: '内科病棟',
+        position: '看護師'
+      },
+      {
+        id: 'demo-user-2',
+        name: '佐藤 太郎',
+        email: 'sato.taro@hospital.com',
+        phone: '090-2345-6789',
+        facility: '本院',
+        department: '外科病棟',
+        position: '看護師'
+      },
+      {
+        id: 'demo-user-3',
+        name: '鈴木 美咲',
+        email: 'suzuki.misaki@hospital.com',
+        phone: '090-3456-7890',
+        facility: '本院',
+        department: '小児科',
+        position: '看護師'
+      },
+      {
+        id: 'user-8', // デモモードのデフォルトユーザー
+        name: '森本 恵理香',
+        email: 'morimoto.erika@hospital.com',
+        phone: '090-4567-8901',
+        facility: '本院',
+        department: '人事部',
+        position: '人事部門長'
+      }
+    ];
+
+    // 今日から1週間の期間で予約データを生成
+    const today = new Date();
+    const demoBookings: InterviewBooking[] = [];
+
+    // 1. 今日の午後（キャンセル不可）
+    const todayBooking = this.createDemoBooking({
+      user: demoUsers[3], // user-8 (デフォルトユーザー)
+      dateOffset: 0,
+      timeSlot: { startTime: "14:20", endTime: "14:50" },
+      interviewType: 'regular_annual',
+      status: 'confirmed',
+      description: 'パフォーマンス評価について相談'
+    });
+    if (todayBooking) demoBookings.push(todayBooking);
+
+    // 2. 明日（キャンセル可能）
+    const tomorrowBooking = this.createDemoBooking({
+      user: demoUsers[3],
+      dateOffset: 1,
+      timeSlot: { startTime: "15:00", endTime: "15:30" },
+      interviewType: 'career_support',
+      status: 'confirmed',
+      description: 'キャリア開発計画について'
+    });
+    if (tomorrowBooking) demoBookings.push(tomorrowBooking);
+
+    // 3. 3日後（キャンセル・変更可能）
+    const futureBooking = this.createDemoBooking({
+      user: demoUsers[3],
+      dateOffset: 3,
+      timeSlot: { startTime: "13:40", endTime: "14:10" },
+      interviewType: 'workplace_support',
+      status: 'confirmed',
+      description: '職場環境改善についての相談'
+    });
+    if (futureBooking) demoBookings.push(futureBooking);
+
+    // 4. 1週間後（変更可能）
+    const weekLaterBooking = this.createDemoBooking({
+      user: demoUsers[3],
+      dateOffset: 7,
+      timeSlot: { startTime: "16:20", endTime: "16:50" },
+      interviewType: 'individual_consultation',
+      status: 'pending',
+      description: '個別相談事項について'
+    });
+    if (weekLaterBooking) demoBookings.push(weekLaterBooking);
+
+    // 5. 過去の面談（履歴）
+    const pastBooking = this.createDemoBooking({
+      user: demoUsers[3],
+      dateOffset: -7,
+      timeSlot: { startTime: "14:20", endTime: "14:50" },
+      interviewType: 'feedback',
+      status: 'completed',
+      description: '前回のフォローアップ面談'
+    });
+    if (pastBooking) {
+      pastBooking.conductedAt = new Date(pastBooking.bookingDate);
+      pastBooking.outcome = {
+        summary: 'チーム内のコミュニケーション向上について話し合った',
+        actionItems: ['チームミーティングの改善', '報告書の簡素化'],
+        followUpRequired: false,
+        confidentialityLevel: 'open'
+      };
+      demoBookings.push(pastBooking);
+    }
+
+    // 6. キャンセル済み面談
+    const cancelledBooking = this.createDemoBooking({
+      user: demoUsers[3],
+      dateOffset: 5,
+      timeSlot: { startTime: "15:40", endTime: "16:10" },
+      interviewType: 'career_support',
+      status: 'cancelled',
+      description: '元々予定していたキャリア面談'
+    });
+    if (cancelledBooking) {
+      cancelledBooking.cancellationReason = '業務都合のため';
+      cancelledBooking.cancelledAt = new Date();
+      cancelledBooking.cancelledBy = demoUsers[3].id;
+      demoBookings.push(cancelledBooking);
+    }
+
+    // 他のユーザーの予約も追加
+    demoBookings.push(...this.createOtherUsersDemoBookings(demoUsers.slice(0, 3)));
+
+    // 予約データを保存
+    demoBookings.forEach(booking => {
+      this.bookings.set(booking.id, booking);
+    });
+
+    console.log(`✅ デモ面談予約データ ${demoBookings.length}件を生成しました`);
+  }
+
+  private createDemoBooking(config: {
+    user: any;
+    dateOffset: number;
+    timeSlot: { startTime: string; endTime: string };
+    interviewType: any;
+    status: any;
+    description: string;
+  }): InterviewBooking | null {
+    const bookingDate = new Date();
+    bookingDate.setDate(bookingDate.getDate() + config.dateOffset);
+
+    // 平日のみ（土日はスキップ）
+    if (bookingDate.getDay() === 0 || bookingDate.getDay() === 6) {
+      return null;
+    }
+
+    const dateKey = this.getDateKey(bookingDate);
+    const slots = this.timeSlots.get(dateKey) || [];
+    const slot = slots.find(s => s.startTime === config.timeSlot.startTime);
+
+    if (!slot) return null;
+
+    // 時間枠を予約済みに設定（キャンセル済み以外）
+    if (config.status !== 'cancelled') {
+      slot.isAvailable = false;
+      slot.bookedBy = config.user.id;
+    }
+
+    const booking: InterviewBooking = {
+      id: `demo-booking-${config.user.id}-${config.dateOffset}`,
+      employeeId: config.user.id,
+      employeeName: config.user.name,
+      employeeEmail: config.user.email,
+      employeePhone: config.user.phone,
+      facility: config.user.facility,
+      department: config.user.department,
+      position: config.user.position,
+      bookingDate: bookingDate,
+      timeSlot: {
+        ...slot,
+        bookingId: `demo-booking-${config.user.id}-${config.dateOffset}`
+      },
+      interviewType: config.interviewType,
+      interviewCategory: this.getDefaultCategory(config.interviewType),
+      requestedTopics: this.getDefaultTopics(config.interviewType),
+      description: config.description,
+      urgencyLevel: 'medium',
+      interviewerId: 'interviewer_001',
+      interviewerName: '田中 キャリア支援部門長',
+      interviewerLevel: 7,
+      status: config.status,
+      createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+      createdBy: config.user.id
+    };
+
+    return booking;
+  }
+
+  private createOtherUsersDemoBookings(users: any[]): InterviewBooking[] {
+    const bookings: InterviewBooking[] = [];
+
+    users.forEach((user, index) => {
+      // 各ユーザーに1-2件の予約を追加
+      const booking1 = this.createDemoBooking({
+        user,
+        dateOffset: index + 2,
+        timeSlot: { startTime: "14:20", endTime: "14:50" },
+        interviewType: 'new_employee_monthly',
+        status: 'confirmed',
+        description: '新入職員定期面談'
+      });
+      if (booking1) bookings.push(booking1);
+
+      if (index === 0) {
+        // 田中さんにもう1件追加
+        const booking2 = this.createDemoBooking({
+          user,
+          dateOffset: 6,
+          timeSlot: { startTime: "16:20", endTime: "16:50" },
+          interviewType: 'workplace_support',
+          status: 'pending',
+          description: '職場適応について'
+        });
+        if (booking2) bookings.push(booking2);
+      }
+    });
+
+    return bookings;
+  }
+
+  private getDefaultCategory(interviewType: string): any {
+    const categoryMap: any = {
+      'career_support': 'career_path',
+      'workplace_support': 'work_environment',
+      'individual_consultation': 'interpersonal',
+      'feedback': 'performance',
+      'regular_annual': 'performance',
+      'new_employee_monthly': 'skill_development'
+    };
+    return categoryMap[interviewType] || 'other';
+  }
+
+  private getDefaultTopics(interviewType: string): string[] {
+    const topicMap: any = {
+      'career_support': ['キャリアプラン', 'スキルアップ', '昇進について'],
+      'workplace_support': ['職場環境', 'チームワーク', 'ワークライフバランス'],
+      'individual_consultation': ['個別相談', 'サポートが必要な事項'],
+      'feedback': ['パフォーマンス評価', '改善点', '今後の目標'],
+      'regular_annual': ['年次評価', '目標設定', '成果確認'],
+      'new_employee_monthly': ['適応状況', '研修進捗', '不安な点']
+    };
+    return topicMap[interviewType] || ['その他'];
   }
 }

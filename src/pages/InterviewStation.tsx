@@ -5,6 +5,8 @@ import { useDemoMode } from '../components/demo/DemoModeController';
 import { InterviewBookingService } from '../services/InterviewBookingService';
 import { InterviewBooking } from '../types/interview';
 import InterviewBookingCalendar from '../components/interview/InterviewBookingCalendar';
+import CancelBookingModal from '../components/interview/CancelBookingModal';
+import RescheduleModal from '../components/interview/RescheduleModal';
 
 const InterviewStation: React.FC = () => {
   const navigate = useNavigate();
@@ -26,6 +28,9 @@ const InterviewStation: React.FC = () => {
   const [upcomingBookings, setUpcomingBookings] = useState<InterviewBooking[]>([]);
   const [pastBookings, setPastBookings] = useState<InterviewBooking[]>([]);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<InterviewBooking | null>(null);
   const [loading, setLoading] = useState(true);
   const [reminders, setReminders] = useState<any[]>([]);
 
@@ -76,12 +81,36 @@ const InterviewStation: React.FC = () => {
     loadInterviewData();
   };
 
+  const handleCancelClick = (booking: InterviewBooking) => {
+    setSelectedBooking(booking);
+    setShowCancelModal(true);
+  };
+
+  const handleRescheduleClick = (booking: InterviewBooking) => {
+    setSelectedBooking(booking);
+    setShowRescheduleModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowCancelModal(false);
+    setShowRescheduleModal(false);
+    setSelectedBooking(null);
+  };
+
+  const handleActionComplete = () => {
+    loadInterviewData();
+    handleModalClose();
+  };
+
   const getStatusBadge = (status: InterviewBooking['status']) => {
     const statusConfig = {
       confirmed: { label: '確定', color: 'bg-green-500' },
       pending: { label: '確認中', color: 'bg-yellow-500' },
       cancelled: { label: 'キャンセル', color: 'bg-red-500' },
-      completed: { label: '完了', color: 'bg-gray-500' }
+      completed: { label: '完了', color: 'bg-gray-500' },
+      rescheduled: { label: '変更済み', color: 'bg-blue-500' },
+      reschedule_pending: { label: '変更申請中', color: 'bg-orange-500' },
+      no_show: { label: '無断欠席', color: 'bg-red-700' }
     };
     const config = statusConfig[status] || statusConfig.pending;
     return (
@@ -262,8 +291,20 @@ const InterviewStation: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button className="text-blue-400 hover:text-blue-300">編集</button>
-                  <button className="text-red-400 hover:text-red-300">キャンセル</button>
+                  <button
+                    onClick={() => handleRescheduleClick(booking)}
+                    className="text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                    disabled={booking.status === 'cancelled' || booking.status === 'completed' || booking.status === 'reschedule_pending'}
+                  >
+                    日時変更
+                  </button>
+                  <button
+                    onClick={() => handleCancelClick(booking)}
+                    className="text-red-400 hover:text-red-300 disabled:opacity-50"
+                    disabled={booking.status === 'cancelled' || booking.status === 'completed'}
+                  >
+                    キャンセル
+                  </button>
                 </div>
               </div>
             </div>
@@ -453,6 +494,28 @@ const InterviewStation: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* キャンセルモーダル */}
+      {showCancelModal && selectedBooking && (
+        <CancelBookingModal
+          booking={selectedBooking}
+          isOpen={showCancelModal}
+          onClose={handleModalClose}
+          onCancelComplete={handleActionComplete}
+          currentUserId={activeUser?.id || ''}
+        />
+      )}
+
+      {/* 日時変更モーダル */}
+      {showRescheduleModal && selectedBooking && (
+        <RescheduleModal
+          booking={selectedBooking}
+          isOpen={showRescheduleModal}
+          onClose={handleModalClose}
+          onRescheduleComplete={handleActionComplete}
+          currentUserId={activeUser?.id || ''}
+        />
       )}
     </div>
   );

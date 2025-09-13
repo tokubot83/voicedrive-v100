@@ -15,7 +15,7 @@ export interface TimeSlot {
 
 export interface InterviewBooking {
   id: string;
-  
+
   // 予約者情報
   employeeId: string;
   employeeName: string;
@@ -24,36 +24,42 @@ export interface InterviewBooking {
   facility: string;
   department: string;
   position: string;
-  
+
   // 予約情報
   bookingDate: Date;
   timeSlot: TimeSlot;
-  
+
   // 面談内容
   interviewType: InterviewType;
   interviewCategory: InterviewCategory;
   requestedTopics: string[];
   description?: string;
   urgencyLevel: 'low' | 'medium' | 'high' | 'urgent';
-  
+
   // 面談者情報
   interviewerId?: string;
   interviewerName?: string;
   interviewerLevel?: number; // 権限レベル
-  
+
   // ステータス管理
   status: InterviewStatus;
-  
+
   // 履歴・メタデータ
   createdAt: Date;
   createdBy: string;
   lastModified?: Date;
   modifiedBy?: string;
-  
+
   // 管理者メモ・コメント
   adminNotes?: string;
   employeeNotes?: string;
-  
+
+  // キャンセル・変更履歴
+  cancellationReason?: string;
+  cancelledAt?: Date;
+  cancelledBy?: string;
+  rescheduleRequests?: RescheduleRequest[];
+
   // 面談結果（面談後）
   conductedAt?: Date;
   duration?: number; // 実際の面談時間（分）
@@ -105,13 +111,14 @@ export type InterviewCategory =
   | 'compliance'            // コンプライアンス
   | 'other';                // その他
 
-export type InterviewStatus = 
-  | 'pending'       // 予約申請中
-  | 'confirmed'     // 予約確定
-  | 'rescheduled'   // 変更済み
-  | 'completed'     // 面談完了
-  | 'cancelled'     // キャンセル
-  | 'no_show';      // 無断欠席
+export type InterviewStatus =
+  | 'pending'             // 予約申請中
+  | 'confirmed'           // 予約確定
+  | 'rescheduled'         // 変更済み
+  | 'reschedule_pending'  // 変更申請中
+  | 'completed'           // 面談完了
+  | 'cancelled'           // キャンセル
+  | 'no_show';            // 無断欠席
 
 export interface InterviewOutcome {
   summary: string;
@@ -437,4 +444,51 @@ export interface ReminderSchedule {
   }>;
   isOverdue: boolean;
   daysSinceOverdue?: number;
+}
+
+// キャンセル・変更関連の型定義
+export interface CancellationRequest {
+  bookingId: string;
+  reason: CancellationReason;
+  customReason?: string;
+  cancelledAt: Date;
+  cancelledBy: string;
+}
+
+export type CancellationReason =
+  | 'emergency'        // 緊急事態
+  | 'illness'          // 体調不良
+  | 'work_conflict'    // 業務都合
+  | 'schedule_change'  // スケジュール変更
+  | 'personal'         // 個人的事情
+  | 'other';           // その他
+
+export interface RescheduleRequest {
+  id: string;
+  bookingId: string;
+  requestedBy: string;
+  requestedAt: Date;
+  currentDateTime: Date;
+  preferredDates: Date[];          // 複数の希望日時
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  reviewedBy?: string;
+  reviewedAt?: Date;
+  rejectionReason?: string;
+  approvedDateTime?: Date;         // 承認された日時
+}
+
+export interface BookingCancellationResponse {
+  success: boolean;
+  message: string;
+  refundEligible?: boolean;
+  alternativeSuggestions?: TimeSlot[];
+}
+
+export interface BookingRescheduleResponse {
+  success: boolean;
+  message: string;
+  requestId?: string;
+  requiresApproval: boolean;
+  suggestedAlternatives?: TimeSlot[];
 }

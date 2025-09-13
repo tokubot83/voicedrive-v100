@@ -19,8 +19,8 @@ class EvaluationNotificationService {
   private notificationService: NotificationService;
 
   constructor() {
-    this.baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
-    this.apiKey = process.env.REACT_APP_API_KEY || '';
+    this.baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+    this.apiKey = import.meta.env.VITE_API_KEY || '';
     this.notificationService = new NotificationService();
   }
 
