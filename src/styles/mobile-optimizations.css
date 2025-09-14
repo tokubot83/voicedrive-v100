@@ -1,0 +1,412 @@
+/* スマートフォンファースト最適化スタイル */
+
+/* 基本設定 */
+:root {
+  --mobile-padding: 1rem;
+  --mobile-card-spacing: 0.75rem;
+  --touch-target-min: 44px;
+  --mobile-font-base: 16px;
+  --mobile-line-height: 1.5;
+}
+
+/* モバイルファースト基本設定 */
+@media (max-width: 768px) {
+  /* 基本フォントサイズ調整 */
+  body {
+    font-size: var(--mobile-font-base);
+    line-height: var(--mobile-line-height);
+  }
+
+  /* タッチターゲット最小サイズ保証 */
+  button,
+  .btn,
+  .card-button,
+  input[type="button"],
+  input[type="submit"],
+  .touch-target {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+  }
+
+  /* スクロール最適化 */
+  .mobile-scroll-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* 面談分類選択カード（モバイル専用） */
+  .classification-card-mobile {
+    padding: 1.25rem;
+    margin-bottom: var(--mobile-card-spacing);
+    border-radius: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-height: 80px;
+  }
+
+  .classification-card-mobile:active {
+    transform: scale(0.98);
+  }
+
+  /* モバイル用グリッド調整 */
+  .mobile-grid-1 {
+    grid-template-columns: 1fr !important;
+    gap: var(--mobile-card-spacing) !important;
+  }
+
+  .mobile-grid-2 {
+    grid-template-columns: 1fr 1fr !important;
+    gap: var(--mobile-card-spacing) !important;
+  }
+
+  /* 面談種別選択（モバイル最適化） */
+  .type-selection-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mobile-card-spacing);
+  }
+
+  .type-card-mobile {
+    padding: 1rem;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    space-x: 1rem;
+    min-height: 72px;
+  }
+
+  /* アコーディオンモバイル最適化 */
+  .accordion-mobile {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .accordion-header-mobile {
+    padding: 1rem;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* 希望条件入力フォーム最適化 */
+  .preferences-form-mobile .form-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .preferences-form-mobile .form-section h3 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+  }
+
+  /* 時期選択ボタン最適化 */
+  .timing-buttons-mobile {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .timing-button-mobile {
+    padding: 0.75rem;
+    border-radius: 8px;
+    min-height: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 時間帯ボタン最適化 */
+  .timeslot-buttons-mobile {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .timeslot-button-mobile {
+    padding: 0.75rem;
+    border-radius: 8px;
+    min-height: 65px;
+    text-align: center;
+  }
+
+  /* 曜日選択最適化 */
+  .weekday-buttons-mobile {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .weekday-button-mobile {
+    flex: 1;
+    min-width: 50px;
+    padding: 0.75rem 0.5rem;
+    border-radius: 8px;
+    text-align: center;
+    min-height: 50px;
+  }
+
+  /* ラジオボタン・チェックボックス最適化 */
+  .radio-mobile,
+  .checkbox-mobile {
+    width: 18px;
+    height: 18px;
+  }
+
+  .radio-label-mobile,
+  .checkbox-label-mobile {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    min-height: 50px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+  }
+
+  .radio-label-mobile:active,
+  .checkbox-label-mobile:active {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  /* テキストエリア最適化 */
+  .textarea-mobile {
+    padding: 0.875rem;
+    border-radius: 8px;
+    font-size: 16px; /* iOSズーム防止 */
+    line-height: 1.5;
+    min-height: 100px;
+  }
+
+  /* 確認画面最適化 */
+  .confirm-section-mobile {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 完了画面最適化 */
+  .complete-screen-mobile {
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .complete-card-mobile {
+    max-width: 100%;
+    padding: 1.5rem;
+    margin: 0;
+    border-radius: 12px;
+  }
+
+  .complete-icon-mobile {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1rem;
+  }
+
+  /* ナビゲーションボタン最適化 */
+  .nav-buttons-mobile {
+    padding: 1rem;
+    background-color: white;
+    border-top: 1px solid #e5e7eb;
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+  }
+
+  .nav-button-mobile {
+    padding: 0.875rem 1.5rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    min-height: 50px;
+  }
+
+  /* 進捗インジケーター最適化 */
+  .progress-mobile {
+    padding: 0.75rem 1rem;
+  }
+
+  .progress-step-mobile {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 0.875rem;
+  }
+
+  .progress-line-mobile {
+    height: 2px;
+    margin: 0 0.5rem;
+  }
+
+  /* スクロール領域の最適化 */
+  .content-mobile {
+    padding: 1rem;
+    padding-bottom: 6rem; /* ナビボタン分の余白 */
+    min-height: calc(100vh - 200px);
+  }
+
+  /* セーフエリア対応 */
+  @supports (padding: max(0px)) {
+    .nav-buttons-mobile {
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+
+    .content-mobile {
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+    }
+  }
+
+  /* フォーカス状態の最適化 */
+  button:focus,
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+
+  /* 読み込み状態の最適化 */
+  .loading-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .spinner-mobile {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e5e7eb;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* エラー状態の最適化 */
+  .error-mobile {
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    margin-bottom: 1rem;
+  }
+
+  /* 成功状態の最適化 */
+  .success-mobile {
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #16a34a;
+    margin-bottom: 1rem;
+  }
+
+  /* ハプティックフィードバック用クラス */
+  .haptic-feedback {
+    transition: transform 0.1s ease;
+  }
+
+  .haptic-feedback:active {
+    transform: scale(0.95);
+  }
+
+  /* ジェスチャー操作サポート */
+  .swipeable {
+    touch-action: pan-y;
+  }
+
+  /* 縦向き専用最適化 */
+  @media (orientation: portrait) {
+    .portrait-only {
+      display: block;
+    }
+
+    .landscape-only {
+      display: none;
+    }
+  }
+
+  /* 横向き専用最適化 */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .portrait-only {
+      display: none;
+    }
+
+    .landscape-only {
+      display: block;
+    }
+
+    /* 横向き時のコンパクト表示 */
+    .nav-buttons-mobile {
+      padding: 0.5rem 1rem;
+    }
+
+    .nav-button-mobile {
+      padding: 0.5rem 1rem;
+      min-height: 40px;
+    }
+
+    .progress-mobile {
+      padding: 0.5rem 1rem;
+    }
+  }
+}
+
+/* ダークモード対応（モバイル） */
+@media (max-width: 768px) and (prefers-color-scheme: dark) {
+  .classification-card-mobile,
+  .type-card-mobile,
+  .preferences-form-mobile .form-section,
+  .confirm-section-mobile,
+  .complete-card-mobile {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .nav-buttons-mobile {
+    background-color: #1f2937;
+    border-top-color: #374151;
+  }
+}
+
+/* 高コントラスト対応 */
+@media (max-width: 768px) and (prefers-contrast: high) {
+  button,
+  .btn,
+  .card-button {
+    border-width: 2px;
+  }
+
+  .classification-card-mobile,
+  .type-card-mobile,
+  .preferences-form-mobile .form-section {
+    border-width: 2px;
+  }
+}
+
+/* アニメーション削減対応 */
+@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
