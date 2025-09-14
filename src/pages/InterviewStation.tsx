@@ -4,7 +4,6 @@ import { useAuth } from '../hooks/useAuth';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { InterviewBookingService } from '../services/InterviewBookingService';
 import { InterviewBooking } from '../types/interview';
-import InterviewBookingCalendar from '../components/interview/InterviewBookingCalendar';
 import CancelBookingModal from '../components/interview/CancelBookingModal';
 import RescheduleModal from '../components/interview/RescheduleModal';
 import OfflineBookingViewer from '../components/interview/OfflineBookingViewer';
@@ -12,11 +11,10 @@ import { usePushNotificationSettings, useOnlineStatus } from '../hooks/usePushNo
 import NotificationService from '../services/NotificationService';
 
 // Pattern D 統合コンポーネント
-import BookingModeSelector from '../components/interview/BookingModeSelector';
 import PendingBookingCard from '../components/interview/PendingBookingCard';
 import StaffRecommendationDisplay from '../components/interview/StaffRecommendationDisplay';
-import EnhancedInterviewRequestForm from '../components/interview/EnhancedInterviewRequestForm';
 import AssistedBookingService, { AssistedBookingRequest, StaffFriendlyRecommendation } from '../services/AssistedBookingService';
+import InterviewFlowContainer from '../components/interview/InterviewFlowContainer';
 
 const InterviewStation: React.FC = () => {
   const navigate = useNavigate();
@@ -47,7 +45,6 @@ const InterviewStation: React.FC = () => {
   const [reminders, setReminders] = useState<any[]>([]);
 
   // Pattern D 統合用のstate
-  const [bookingMode, setBookingMode] = useState<'select' | 'instant' | 'assisted' | null>(null);
   const [pendingRequests, setPendingRequests] = useState<AssistedBookingRequest[]>([]);
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [currentRecommendations, setCurrentRecommendations] = useState<StaffFriendlyRecommendation[]>([]);
@@ -224,13 +221,14 @@ const InterviewStation: React.FC = () => {
 
   const handleBookingComplete = () => {
     setShowBookingModal(false);
-    setBookingMode(null);
     loadInterviewData();
   };
 
-  // Pattern D 予約方式選択
-  const handleModeSelect = (mode: 'instant' | 'assisted') => {
-    setBookingMode(mode);
+  // InterviewFlowContainer完了処理
+  const handleInterviewFlowComplete = (flowState: any) => {
+    console.log('InterviewFlow completed with state:', flowState);
+    setShowBookingModal(false);
+    loadInterviewData();
   };
 
   // おまかせ予約の推薦候補確認
@@ -284,7 +282,6 @@ const InterviewStation: React.FC = () => {
 
       // 送信成功後、予約モーダルを閉じて調整中リストを更新
       setShowBookingModal(false);
-      setBookingMode(null);
       loadInterviewData(); // 調整中リクエストを再取得
 
       // 成功通知
@@ -387,10 +384,7 @@ const InterviewStation: React.FC = () => {
           <div>
             <p className="opacity-80 mb-4">予定されている面談はありません</p>
             <button
-              onClick={() => {
-                setBookingMode(null); // 初期状態をnullに明示的に設定
-                setShowBookingModal(true);
-              }}
+              onClick={() => setShowBookingModal(true)}
               className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors"
             >
               面談を予約する
@@ -431,10 +425,7 @@ const InterviewStation: React.FC = () => {
           </h3>
           <div className="grid grid-cols-2 gap-3">
             <button
-              onClick={() => {
-                setBookingMode(null); // 初期状態をnullに明示的に設定
-                setShowBookingModal(true);
-              }}
+              onClick={() => setShowBookingModal(true)}
               className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors text-center"
             >
               <span className="block text-2xl mb-1">➕</span>
@@ -496,10 +487,7 @@ const InterviewStation: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-2xl font-bold text-white">予約中の面談</h3>
         <button
-          onClick={() => {
-            setBookingMode(null); // 初期状態をnullに明示的に設定
-            setShowBookingModal(true);
-          }}
+          onClick={() => setShowBookingModal(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           ➕ 新規予約
@@ -737,57 +725,18 @@ const InterviewStation: React.FC = () => {
       {/* 予約モーダル */}
       {showBookingModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-white">
-                  {bookingMode === 'select' && '新規面談予約'}
-                  {bookingMode === 'instant' && '即時予約'}
-                  {bookingMode === 'assisted' && 'おまかせ予約'}
-                  {!bookingMode && '新規面談予約'}
-                </h2>
-                <button
-                  onClick={() => {
-                    setShowBookingModal(false);
-                    setBookingMode(null);
-                  }}
-                  className="text-gray-400 hover:text-white text-2xl"
-                >
-                  ✕
-                </button>
-              </div>
-
-              {/* Pattern D: 予約方式選択画面 */}
-              {bookingMode === null && (
-                <BookingModeSelector
-                  onModeSelect={handleModeSelect}
-                  onCancel={() => {
-                    setShowBookingModal(false);
-                    setBookingMode(null);
-                  }}
-                />
-              )}
-
-              {/* 即時予約（従来のフロー） */}
-              {bookingMode === 'instant' && (
-                <InterviewBookingCalendar
-                  employeeId={activeUser?.id || ''}
-                  onBookingComplete={handleBookingComplete}
-                  onCancel={() => {
-                    setShowBookingModal(false);
-                    setBookingMode(null);
-                  }}
-                />
-              )}
-
-              {/* おまかせ予約（新規実装） */}
-              {bookingMode === 'assisted' && (
-                <EnhancedInterviewRequestForm
-                  employeeId={activeUser?.id || ''}
-                  onSubmit={handleEnhancedRequestSubmit}
-                  onCancel={() => setBookingMode(null)}
-                />
-              )}
+          <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-auto">
+            <div className="relative">
+              <button
+                onClick={() => setShowBookingModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10"
+              >
+                ✕
+              </button>
+              <InterviewFlowContainer
+                onComplete={handleInterviewFlowComplete}
+                employeeId={activeUser?.id || ''}
+              />
             </div>
           </div>
         </div>
