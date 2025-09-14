@@ -14,7 +14,7 @@ export interface InterviewPreferences {
 }
 
 export interface UnifiedInterviewFlowState {
-  currentStep: 1 | 2 | 3 | 4 | 5;
+  currentStep: 1 | 2 | 3 | 4;
   classification?: InterviewClassification;
   type?: string;
   category?: string;

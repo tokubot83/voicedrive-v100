@@ -7,8 +7,6 @@ import {
 } from '../../../types/unifiedInterview';
 import InterviewClassificationStep from './steps/InterviewClassificationStep';
 import InterviewTypeStep from './steps/InterviewTypeStep';
-import InterviewCategoryStep from './steps/InterviewCategoryStep';
-import InterviewPreferencesStep from './steps/InterviewPreferencesStep';
 import InterviewConfirmStep from './steps/InterviewConfirmStep';
 import InterviewCompleteStep from './steps/InterviewCompleteStep';
 import UnifiedProgressIndicator from './UnifiedProgressIndicator';
@@ -36,10 +34,6 @@ const UnifiedInterviewFlow: React.FC<UnifiedInterviewFlowProps> = ({
       case 2:
         return '面談種別を選択';
       case 3:
-        return 'カテゴリを選択';
-      case 4:
-        return '希望条件を入力';
-      case 5:
         return '申込内容の確認';
       default:
         return '';
@@ -51,16 +45,7 @@ const UnifiedInterviewFlow: React.FC<UnifiedInterviewFlowProps> = ({
     if (flowState.currentStep === 1 && flowState.classification) {
       setFlowState({ ...flowState, currentStep: 2 });
     } else if (flowState.currentStep === 2 && flowState.type) {
-      // サポート面談の場合はカテゴリ選択へ
-      if (flowState.classification === 'support') {
-        setFlowState({ ...flowState, currentStep: 3 });
-      } else {
-        setFlowState({ ...flowState, currentStep: 4 });
-      }
-    } else if (flowState.currentStep === 3 && flowState.category) {
-      setFlowState({ ...flowState, currentStep: 4 });
-    } else if (flowState.currentStep === 4 && flowState.preferences) {
-      setFlowState({ ...flowState, currentStep: 5 });
+      setFlowState({ ...flowState, currentStep: 3 });
     }
   };
 
@@ -77,25 +62,8 @@ const UnifiedInterviewFlow: React.FC<UnifiedInterviewFlowProps> = ({
       setFlowState({
         ...flowState,
         currentStep: 2,
-        category: undefined
+        preferences: undefined
       });
-    } else if (flowState.currentStep === 4) {
-      // サポート面談でカテゴリ選択がある場合
-      if (flowState.classification === 'support') {
-        setFlowState({
-          ...flowState,
-          currentStep: 3,
-          preferences: undefined
-        });
-      } else {
-        setFlowState({
-          ...flowState,
-          currentStep: 2,
-          preferences: undefined
-        });
-      }
-    } else if (flowState.currentStep === 5) {
-      setFlowState({ ...flowState, currentStep: 4 });
     }
   };
 
@@ -123,7 +91,7 @@ const UnifiedInterviewFlow: React.FC<UnifiedInterviewFlowProps> = ({
         setFlowState({
           ...flowState,
           requestId: data.data.requestId,
-          currentStep: 6 as any // 完了画面
+          currentStep: 5 as any // 完了画面
         });
 
         if (onComplete) {
@@ -139,7 +107,7 @@ const UnifiedInterviewFlow: React.FC<UnifiedInterviewFlowProps> = ({
   };
 
   // 完了画面の場合
-  if ((flowState.currentStep as any) === 6) {
+  if ((flowState.currentStep as any) === 5) {
     return <InterviewCompleteStep requestId={flowState.requestId} />;
   }
 
@@ -149,11 +117,7 @@ const UnifiedInterviewFlow: React.FC<UnifiedInterviewFlowProps> = ({
       case 1:
         return !flowState.classification;
       case 2:
-        return !flowState.type;
-      case 3:
-        return !flowState.category;
-      case 4:
-        return !flowState.preferences;
+        return !flowState.type || (flowState.classification === 'support' && !flowState.category);
       default:
         return false;
     }
@@ -176,7 +140,7 @@ const UnifiedInterviewFlow: React.FC<UnifiedInterviewFlowProps> = ({
         <div className="max-w-4xl mx-auto px-4 py-3 sm:px-6">
           <UnifiedProgressIndicator
             currentStep={flowState.currentStep}
-            totalSteps={5}
+            totalSteps={3}
           />
         </div>
       </div>
@@ -200,25 +164,12 @@ const UnifiedInterviewFlow: React.FC<UnifiedInterviewFlowProps> = ({
             <InterviewTypeStep
               classification={flowState.classification!}
               selected={flowState.type}
-              onSelect={(value) => setFlowState({ ...flowState, type: value })}
+              selectedCategory={flowState.category}
+              onSelect={(type, category) => setFlowState({ ...flowState, type, category })}
             />
           )}
 
           {flowState.currentStep === 3 && (
-            <InterviewCategoryStep
-              selected={flowState.category}
-              onSelect={(value) => setFlowState({ ...flowState, category: value })}
-            />
-          )}
-
-          {flowState.currentStep === 4 && (
-            <InterviewPreferencesStep
-              preferences={flowState.preferences}
-              onChange={(value) => setFlowState({ ...flowState, preferences: value })}
-            />
-          )}
-
-          {flowState.currentStep === 5 && (
             <InterviewConfirmStep
               flowState={flowState}
               onEdit={(step) => setFlowState({ ...flowState, currentStep: step })}
@@ -243,7 +194,7 @@ const UnifiedInterviewFlow: React.FC<UnifiedInterviewFlowProps> = ({
               <div />
             )}
 
-            {flowState.currentStep < 5 ? (
+            {flowState.currentStep < 3 ? (
               <button
                 onClick={handleNext}
                 disabled={isNextDisabled()}
