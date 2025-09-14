@@ -1,6 +1,5 @@
 import React from 'react';
-import UnifiedInterviewFlow from './unified/UnifiedInterviewFlow';
-import { UnifiedInterviewFlowState } from '../../types/unifiedInterview';
+import SimpleInterviewFlow from './simple/SimpleInterviewFlow';
 
 interface InterviewBookingCalendarProps {
   employeeId?: string;
@@ -11,7 +10,7 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
   employeeId = 'EMP001',
   onBookingComplete
 }) => {
-  const handleFlowComplete = (flowState: UnifiedInterviewFlowState) => {
+  const handleFlowComplete = (flowState: any) => {
     console.log('面談予約完了:', flowState);
     if (onBookingComplete) {
       onBookingComplete();
@@ -19,7 +18,7 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
   };
 
   return (
-    <UnifiedInterviewFlow
+    <SimpleInterviewFlow
       employeeId={employeeId}
       onComplete={handleFlowComplete}
     />

@@ -14,7 +14,7 @@ import NotificationService from '../services/NotificationService';
 import PendingBookingCard from '../components/interview/PendingBookingCard';
 import StaffRecommendationDisplay from '../components/interview/StaffRecommendationDisplay';
 import AssistedBookingService, { AssistedBookingRequest, StaffFriendlyRecommendation } from '../services/AssistedBookingService';
-import UnifiedInterviewFlow from '../components/interview/unified/UnifiedInterviewFlow';
+import SimpleInterviewFlow from '../components/interview/simple/SimpleInterviewFlow';
 
 const InterviewStation: React.FC = () => {
   const navigate = useNavigate();
@@ -224,9 +224,9 @@ const InterviewStation: React.FC = () => {
     loadInterviewData();
   };
 
-  // UnifiedInterviewFlow完了処理
+  // SimpleInterviewFlow完了処理
   const handleInterviewFlowComplete = (flowState: any) => {
-    console.log('UnifiedInterviewFlow completed with state:', flowState);
+    console.log('SimpleInterviewFlow completed with state:', flowState);
     setShowBookingModal(false);
     loadInterviewData();
   };
@@ -733,7 +733,7 @@ const InterviewStation: React.FC = () => {
               >
                 ✕
               </button>
-              <UnifiedInterviewFlow
+              <SimpleInterviewFlow
                 onComplete={handleInterviewFlowComplete}
                 employeeId={activeUser?.id || ''}
               />
