@@ -11,10 +11,11 @@ import {
 import { ChevronLeft, ChevronRight, Calendar, Users } from 'lucide-react';
 
 export interface InterviewFlowState {
-  currentStep: 1 | 2 | 3 | 4;
+  currentStep: 1 | 2 | 3 | 4 | 5;
   selectedClassification?: 'regular' | 'special' | 'support';
   selectedType?: InterviewType;
   selectedCategory?: InterviewCategory;
+  bookingMode?: 'instant' | 'assisted'; // 予約方式の追加
   selectedDateTime?: Date;
   selectedStaff?: string;
 }
@@ -89,6 +90,12 @@ const InterviewFlowContainer: React.FC<InterviewFlowContainerProps> = ({
       setFlowState({
         ...flowState,
         currentStep: needsCategory ? 3 : 2,
+        bookingMode: undefined
+      });
+    } else if (flowState.currentStep === 5) {
+      setFlowState({
+        ...flowState,
+        currentStep: 4,
         selectedDateTime: undefined,
         selectedStaff: undefined
       });
@@ -213,27 +220,182 @@ const InterviewFlowContainer: React.FC<InterviewFlowContainerProps> = ({
               </div>
             )}
 
-            {/* Step 4: 日時・担当者選択 */}
+            {/* Step 4: 予約方式選択 */}
             {flowState.currentStep === 4 && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                  日時と担当者を選択してください
+                  予約方式を選択してください
                 </h2>
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <div className="flex items-center justify-center space-x-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <button
+                    onClick={() => {
+                      setFlowState({
+                        ...flowState,
+                        bookingMode: 'instant',
+                        currentStep: 5
+                      });
+                    }}
+                    className="p-6 rounded-lg border-2 transition-all hover:shadow-lg border-gray-200 hover:border-green-300"
+                  >
                     <div className="text-center">
-                      <Calendar className="w-16 h-16 text-indigo-500 mx-auto mb-2" />
-                      <p className="text-gray-600">カレンダーから日時を選択</p>
+                      <div className="text-5xl mb-4">⚡</div>
+                      <h3 className="text-xl font-semibold text-gray-800 mb-3">即時予約</h3>
+                      <p className="text-gray-600 text-sm">空いている時間からすぐに予約確定</p>
+                      <div className="mt-4 space-y-2">
+                        <div className="flex items-center justify-center text-green-600 text-sm">
+                          <span className="mr-1">✓</span>
+                          すぐに完了
+                        </div>
+                        <div className="flex items-center justify-center text-green-600 text-sm">
+                          <span className="mr-1">✓</span>
+                          シンプルな手続き
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setFlowState({
+                        ...flowState,
+                        bookingMode: 'assisted',
+                        currentStep: 5
+                      });
+                    }}
+                    className="p-6 rounded-lg border-2 transition-all hover:shadow-lg border-gray-200 hover:border-purple-300 relative"
+                  >
+                    <div className="absolute top-3 right-3">
+                      <span className="bg-yellow-400 text-yellow-900 text-xs px-2 py-1 rounded-full font-semibold">
+                        おすすめ
+                      </span>
                     </div>
                     <div className="text-center">
-                      <Users className="w-16 h-16 text-indigo-500 mx-auto mb-2" />
-                      <p className="text-gray-600">担当者を選択</p>
+                      <div className="text-5xl mb-4">🎯</div>
+                      <h3 className="text-xl font-semibold text-gray-800 mb-3">おまかせ予約</h3>
+                      <p className="text-gray-600 text-sm">あなたの希望をお聞きして人事部が最適な候補を提案</p>
+                      <div className="mt-4 space-y-2">
+                        <div className="flex items-center justify-center text-purple-600 text-sm">
+                          <span className="mr-1">⭐</span>
+                          より良いマッチング
+                        </div>
+                        <div className="flex items-center justify-center text-purple-600 text-sm">
+                          <span className="mr-1">⭐</span>
+                          詳細な希望を考慮
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <p className="text-sm text-gray-500 mt-4 text-center">
-                    ※ この機能は現在開発中です。既存のカレンダーコンポーネントと統合予定です。
-                  </p>
+                  </button>
                 </div>
+              </div>
+            )}
+
+            {/* Step 5: 日時・担当者選択（即時予約）または詳細要望入力（おまかせ予約） */}
+            {flowState.currentStep === 5 && (
+              <div className="space-y-6">
+                {flowState.bookingMode === 'instant' ? (
+                  // 即時予約: カレンダーと担当者選択
+                  <>
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                      日時と担当者を選択してください
+                    </h2>
+                    <div className="bg-gray-50 rounded-lg p-6">
+                      <div className="flex items-center justify-center space-x-8">
+                        <div className="text-center">
+                          <Calendar className="w-16 h-16 text-indigo-500 mx-auto mb-2" />
+                          <p className="text-gray-600">カレンダーから日時を選択</p>
+                        </div>
+                        <div className="text-center">
+                          <Users className="w-16 h-16 text-indigo-500 mx-auto mb-2" />
+                          <p className="text-gray-600">担当者を選択</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-500 mt-4 text-center">
+                        ※ この機能は現在開発中です。既存のカレンダーコンポーネントと統合予定です。
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  // おまかせ予約: 詳細要望フォーム
+                  <>
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                      詳細な希望をお聞かせください
+                    </h2>
+                    <div className="space-y-4">
+                      {/* 希望時期 */}
+                      <div className="bg-white rounded-lg p-6 border border-gray-200">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">希望時期</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {[
+                            { value: 'urgent', label: '緊急', icon: '🚨' },
+                            { value: 'this_week', label: '今週中', icon: '📅' },
+                            { value: 'next_week', label: '来週', icon: '📆' },
+                            { value: 'this_month', label: '今月中', icon: '🗓️' }
+                          ].map(option => (
+                            <button
+                              key={option.value}
+                              className="p-3 rounded-lg border-2 border-gray-200 hover:border-purple-300 transition-all"
+                            >
+                              <div className="text-2xl mb-1">{option.icon}</div>
+                              <div className="text-sm font-medium">{option.label}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 時間帯希望 */}
+                      <div className="bg-white rounded-lg p-6 border border-gray-200">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">希望時間帯</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {[
+                            { value: 'morning', label: '午前', time: '9:00-12:00' },
+                            { value: 'afternoon', label: '午後', time: '13:00-17:00' },
+                            { value: 'evening', label: '夕方', time: '17:30-19:00' },
+                            { value: 'anytime', label: 'いつでも', time: '' }
+                          ].map(option => (
+                            <button
+                              key={option.value}
+                              className="p-3 rounded-lg border-2 border-gray-200 hover:border-purple-300 transition-all"
+                            >
+                              <div className="text-sm font-medium">{option.label}</div>
+                              {option.time && (
+                                <div className="text-xs text-gray-500 mt-1">{option.time}</div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 担当者希望 */}
+                      <div className="bg-white rounded-lg p-6 border border-gray-200">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">担当者の希望</h3>
+                        <div className="space-y-3">
+                          <label className="flex items-center space-x-3">
+                            <input type="radio" name="interviewer" className="w-4 h-4 text-purple-600" />
+                            <span className="text-gray-700">誰でも良い</span>
+                          </label>
+                          <label className="flex items-center space-x-3">
+                            <input type="radio" name="interviewer" className="w-4 h-4 text-purple-600" />
+                            <span className="text-gray-700">同性の担当者を希望</span>
+                          </label>
+                          <label className="flex items-center space-x-3">
+                            <input type="radio" name="interviewer" className="w-4 h-4 text-purple-600" />
+                            <span className="text-gray-700">特定の担当者を希望</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* その他の要望 */}
+                      <div className="bg-white rounded-lg p-6 border border-gray-200">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">その他の要望</h3>
+                        <textarea
+                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                          rows={4}
+                          placeholder="面談に関する特別な要望があればお書きください..."
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -254,12 +416,27 @@ const InterviewFlowContainer: React.FC<InterviewFlowContainerProps> = ({
               <span>戻る</span>
             </button>
 
-            {flowState.currentStep === 4 && (
+            {flowState.currentStep === 5 && (
               <button
-                onClick={() => handleDateTimeSelect(new Date(), 'STAFF001')}
-                className="flex items-center space-x-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all"
+                onClick={() => {
+                  if (flowState.bookingMode === 'instant') {
+                    // 即時予約の確定
+                    handleDateTimeSelect(new Date(), 'STAFF001');
+                  } else {
+                    // おまかせ予約の申込
+                    console.log('おまかせ予約申込');
+                    alert('おまかせ予約の申込を受け付けました。人事部にて調整後、ご連絡いたします。');
+                  }
+                }}
+                className={`flex items-center space-x-2 px-6 py-3 rounded-lg text-white transition-all ${
+                  flowState.bookingMode === 'instant'
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : 'bg-purple-600 hover:bg-purple-700'
+                }`}
               >
-                <span>予約を確定</span>
+                <span>
+                  {flowState.bookingMode === 'instant' ? '予約を確定' : '申込を送信'}
+                </span>
                 <ChevronRight className="w-5 h-5" />
               </button>
             )}
