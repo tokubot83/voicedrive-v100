@@ -83,7 +83,6 @@ import WhistleblowingPage from '../pages/WhistleblowingPage';
 import ComposePage from '../pages/ComposePage';
 
 // Interview Booking
-import InterviewBookingPage from '../pages/InterviewBookingPage';
 import InterviewStation from '../pages/InterviewStation';
 import InterviewManagementPage from '../pages/InterviewManagementPage';
 
@@ -461,7 +460,7 @@ const AppRouter: React.FC = () => {
       } />
       
       {/* Interview and Project Management - Full width */}
-      <Route path="interview-booking" element={<InterviewBookingPage />} />
+      <Route path="interview-booking" element={<InterviewStation />} />
       <Route path="interview-management" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
           <InterviewManagementPage />
@@ -543,8 +542,8 @@ const AppRouter: React.FC = () => {
             <Route path="history" element={<div>評価履歴（未実装）</div>} />
             <Route path="appeals" element={<AppealV3Page />} />
             <Route path="appeals/new" element={<AppealV3Page />} />
-            <Route path="interviews" element={<InterviewBookingPage />} />
-            <Route path="interviews/new" element={<InterviewBookingPage />} />
+            <Route path="interviews" element={<InterviewStation />} />
+            <Route path="interviews/new" element={<InterviewStation />} />
           </Routes>
         </ProtectedRoute>
       } />
