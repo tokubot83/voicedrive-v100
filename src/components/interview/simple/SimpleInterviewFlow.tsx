@@ -30,19 +30,25 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updateState = (updates: Partial<SimpleInterviewFlowState>) => {
-    setFlowState({ ...flowState, ...updates });
+    setFlowState(prevState => ({ ...prevState, ...updates }));
   };
 
   const handleNext = () => {
-    if (flowState.currentStep < 10) {
-      updateState({ currentStep: flowState.currentStep + 1 });
-    }
+    setFlowState(prevState => {
+      if (prevState.currentStep < 10) {
+        return { ...prevState, currentStep: prevState.currentStep + 1 };
+      }
+      return prevState;
+    });
   };
 
   const handleBack = () => {
-    if (flowState.currentStep > 1) {
-      updateState({ currentStep: flowState.currentStep - 1 });
-    }
+    setFlowState(prevState => {
+      if (prevState.currentStep > 1) {
+        return { ...prevState, currentStep: prevState.currentStep - 1 };
+      }
+      return prevState;
+    });
   };
 
   const handleSubmit = async () => {
