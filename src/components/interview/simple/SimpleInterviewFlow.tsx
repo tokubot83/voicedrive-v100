@@ -260,9 +260,14 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
 
   // ステップ3: カテゴリ選択（サポート面談のみ）
   const Step3Category = () => {
+    // サポート面談以外はステップ4にスキップ（useEffectで処理）
+    React.useEffect(() => {
+      if (flowState.classification !== 'support' && flowState.currentStep === 3) {
+        updateState({ currentStep: 4 });
+      }
+    }, [flowState.classification, flowState.currentStep]);
+
     if (flowState.classification !== 'support') {
-      // サポート面談以外はステップ4にスキップ
-      updateState({ currentStep: 4 });
       return null;
     }
 
