@@ -12,6 +12,7 @@ const InterviewBookingCalendar: React.FC<InterviewBookingCalendarProps> = ({
   onBookingComplete,
   onCancel
 }) => {
+  console.log('InterviewBookingCalendar onCancel:', onCancel);
   const handleFlowComplete = (flowState: any) => {
     console.log('面談予約完了:', flowState);
     if (onBookingComplete) {

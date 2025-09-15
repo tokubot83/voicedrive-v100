@@ -408,8 +408,8 @@ const InterviewStation: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 次回の面談 */}
+      {/* 次回の面談 */}
+      <div className="mb-6">
         <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white">
         <h3 className="text-xl font-bold mb-4 flex items-center">
           <span className="mr-2">📅</span> 次回の面談
@@ -499,64 +499,47 @@ const InterviewStation: React.FC = () => {
       </div>
 
 
-        {/* クイックアクション */}
+        {/* 前回の面談情報 */}
         <div className="bg-slate-800 rounded-xl p-6">
           <h3 className="text-xl font-bold mb-4 text-white flex items-center">
-            <span className="mr-2">⚡</span> クイックアクション
+            <span className="mr-2">📋</span> 前回の面談情報
           </h3>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setShowBookingModal(true)}
-              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors text-center"
-            >
-              <span className="block text-2xl mb-1">➕</span>
-              <span className="text-sm">新規予約</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('history')}
-              className="bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors text-center"
-            >
-              <span className="block text-2xl mb-1">📋</span>
-              <span className="text-sm">履歴確認</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('reminder')}
-              className="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors text-center"
-            >
-              <span className="block text-2xl mb-1">🔔</span>
-              <span className="text-sm">リマインダー</span>
-            </button>
-            <button
-              onClick={() => navigate('/interview-guide')}
-              className="bg-orange-600 text-white p-3 rounded-lg hover:bg-orange-700 transition-colors text-center"
-            >
-              <span className="block text-2xl mb-1">📖</span>
-              <span className="text-sm">ガイド</span>
-            </button>
-          </div>
-        </div>
-
-        {/* 最近の活動 */}
-        <div className="bg-slate-800 rounded-xl p-6">
-          <h3 className="text-xl font-bold mb-4 text-white flex items-center">
-            <span className="mr-2">🕐</span> 最近の活動
-          </h3>
-          <div className="space-y-3">
-            {[...upcomingBookings, ...pastBookings].slice(0, 3).map(booking => (
-              <div key={booking.id} className="bg-slate-700 rounded-lg p-3">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-white font-medium">{booking.interviewType}</p>
-                    <p className="text-gray-400 text-sm">{formatDate(booking.bookingDate)}</p>
+          {pastBookings.length > 0 ? (
+            <div className="bg-slate-700 rounded-lg p-4">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex-1">
+                  <h4 className="text-white font-semibold mb-2">{pastBookings[0].interviewType}</h4>
+                  <div className="space-y-1 text-sm text-gray-300">
+                    <p>📅 {formatDate(pastBookings[0].bookingDate)}</p>
+                    <p>⏰ {pastBookings[0].timeSlot.startTime} - {pastBookings[0].timeSlot.endTime}</p>
+                    <p>👤 {pastBookings[0].interviewerName}</p>
                   </div>
-                  {getStatusBadge(booking.status)}
                 </div>
+                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                  ✅ 完了
+                </span>
               </div>
-            ))}
-            {upcomingBookings.length + pastBookings.length === 0 && (
-              <p className="text-gray-400">活動履歴はありません</p>
-            )}
-          </div>
+              {pastBookings[0].notes && (
+                <div className="mt-3 p-3 bg-slate-600 rounded-lg">
+                  <p className="text-sm text-gray-300">
+                    <span className="font-medium text-white">記録:</span> {pastBookings[0].notes}
+                  </p>
+                </div>
+              )}
+              <div className="mt-3 flex justify-between text-sm text-gray-400">
+                <span>実施済み面談総数: {pastBookings.length}回</span>
+                <button className="text-blue-400 hover:text-blue-300 transition-colors">
+                  詳細を確認 →
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-6">
+              <div className="text-4xl mb-2">🆕</div>
+              <p className="text-gray-400 mb-2">まだ面談履歴がありません</p>
+              <p className="text-sm text-gray-500">初回面談をぜひご予約ください</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
