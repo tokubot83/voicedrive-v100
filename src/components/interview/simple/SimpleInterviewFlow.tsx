@@ -744,9 +744,8 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
 
     return (
       <div className="flex flex-col h-full">
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">申込内容の確認</h2>
-          <p className="text-gray-600">以下の内容で面談を申し込みます</p>
+        <div className="text-center mb-4">
+          <p className="text-gray-600 text-sm">以下の内容で面談を申し込みます</p>
         </div>
 
         <div className="flex-1 overflow-y-auto">
