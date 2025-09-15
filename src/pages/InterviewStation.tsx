@@ -736,6 +736,10 @@ const InterviewStation: React.FC = () => {
               <SimpleInterviewFlow
                 onComplete={handleInterviewFlowComplete}
                 employeeId={activeUser?.id || ''}
+                onCancel={() => {
+                  console.log('onCancel called - closing modal');
+                  setShowBookingModal(false);
+                }}
               />
             </div>
           </div>
