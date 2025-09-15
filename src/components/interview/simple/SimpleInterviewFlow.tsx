@@ -359,51 +359,72 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
         <p className="text-gray-600 text-sm">いつ頃を希望しますか？</p>
       </div>
 
-      <div className="flex-1 flex flex-col gap-4 justify-center">
-        <button
-          onClick={() => {
-            updateState({ timing: 'urgent' });
-            handleNext();
-          }}
-          className="w-full p-5 bg-red-50 hover:bg-red-100 border-2 border-red-200 hover:border-red-400 rounded-xl transition-all"
-        >
-          <div className="text-3xl mb-1">🚨</div>
-          <div className="text-lg font-semibold text-gray-800">緊急</div>
-          <div className="text-gray-600 text-xs mt-1">1-2日以内</div>
-        </button>
+      <div className="flex-1 overflow-y-auto">
+        <div className="space-y-3">
+          <button
+            onClick={() => {
+              updateState({ timing: 'urgent' });
+              handleNext();
+            }}
+            className="w-full p-4 bg-red-50 hover:bg-red-100 border-2 border-red-200 hover:border-red-400 rounded-xl transition-all text-left"
+          >
+            <div className="flex items-center">
+              <div className="text-2xl mr-4">🚨</div>
+              <div>
+                <div className="text-lg font-semibold text-gray-800">緊急</div>
+                <div className="text-gray-600 text-sm">1-2日以内</div>
+              </div>
+            </div>
+          </button>
 
-        <button
-          onClick={() => {
-            updateState({ timing: 'this_week' });
-            handleNext();
-          }}
-          className="w-full p-5 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 hover:border-orange-400 rounded-xl transition-all"
-        >
-          <div className="text-3xl mb-1">📅</div>
-          <div className="text-lg font-semibold text-gray-800">今週中</div>
-        </button>
+          <button
+            onClick={() => {
+              updateState({ timing: 'this_week' });
+              handleNext();
+            }}
+            className="w-full p-4 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 hover:border-orange-400 rounded-xl transition-all text-left"
+          >
+            <div className="flex items-center">
+              <div className="text-2xl mr-4">📅</div>
+              <div>
+                <div className="text-lg font-semibold text-gray-800">今週中</div>
+                <div className="text-gray-600 text-sm">なるべく早く対応</div>
+              </div>
+            </div>
+          </button>
 
-        <button
-          onClick={() => {
-            updateState({ timing: 'next_week' });
-            handleNext();
-          }}
-          className="w-full p-5 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
-        >
-          <div className="text-4xl mb-2">📆</div>
-          <div className="text-xl font-semibold text-gray-800">来週</div>
-        </button>
+          <button
+            onClick={() => {
+              updateState({ timing: 'next_week' });
+              handleNext();
+            }}
+            className="w-full p-4 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all text-left"
+          >
+            <div className="flex items-center">
+              <div className="text-2xl mr-4">📆</div>
+              <div>
+                <div className="text-lg font-semibold text-gray-800">来週</div>
+                <div className="text-gray-600 text-sm">来週のどこかで</div>
+              </div>
+            </div>
+          </button>
 
-        <button
-          onClick={() => {
-            updateState({ timing: 'this_month' });
-            handleNext();
-          }}
-          className="w-full p-6 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
-        >
-          <div className="text-4xl mb-2">🗓️</div>
-          <div className="text-xl font-semibold text-gray-800">今月中</div>
-        </button>
+          <button
+            onClick={() => {
+              updateState({ timing: 'this_month' });
+              handleNext();
+            }}
+            className="w-full p-4 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all text-left"
+          >
+            <div className="flex items-center">
+              <div className="text-2xl mr-4">🗓️</div>
+              <div>
+                <div className="text-lg font-semibold text-gray-800">今月中</div>
+                <div className="text-gray-600 text-sm">急ぎではない</div>
+              </div>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -415,53 +436,72 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
         <p className="text-gray-600 text-sm">ご希望の時間帯を選択してください</p>
       </div>
 
-      <div className="flex-1 flex flex-col gap-4 justify-center">
-        <button
-          onClick={() => {
-            updateState({ timeSlot: 'morning' });
-            handleNext();
-          }}
-          className="w-full p-5 bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-200 hover:border-yellow-400 rounded-xl transition-all"
-        >
-          <div className="text-3xl mb-1">🌅</div>
-          <div className="text-lg font-semibold text-gray-800">午前</div>
-          <div className="text-gray-600 text-xs mt-1">9:00-12:00</div>
-        </button>
+      <div className="flex-1 overflow-y-auto">
+        <div className="space-y-3">
+          <button
+            onClick={() => {
+              updateState({ timeSlot: 'morning' });
+              handleNext();
+            }}
+            className="w-full p-4 bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-200 hover:border-yellow-400 rounded-xl transition-all text-left"
+          >
+            <div className="flex items-center">
+              <div className="text-2xl mr-4">🌅</div>
+              <div>
+                <div className="text-lg font-semibold text-gray-800">午前</div>
+                <div className="text-gray-600 text-sm">9:00-12:00</div>
+              </div>
+            </div>
+          </button>
 
-        <button
-          onClick={() => {
-            updateState({ timeSlot: 'afternoon' });
-            handleNext();
-          }}
-          className="w-full p-5 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
-        >
-          <div className="text-3xl mb-1">☀️</div>
-          <div className="text-lg font-semibold text-gray-800">午後</div>
-          <div className="text-gray-600 text-xs mt-1">13:00-17:00</div>
-        </button>
+          <button
+            onClick={() => {
+              updateState({ timeSlot: 'afternoon' });
+              handleNext();
+            }}
+            className="w-full p-4 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all text-left"
+          >
+            <div className="flex items-center">
+              <div className="text-2xl mr-4">☀️</div>
+              <div>
+                <div className="text-lg font-semibold text-gray-800">午後</div>
+                <div className="text-gray-600 text-sm">13:00-17:00</div>
+              </div>
+            </div>
+          </button>
 
-        <button
-          onClick={() => {
-            updateState({ timeSlot: 'evening' });
-            handleNext();
-          }}
-          className="w-full p-5 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 hover:border-orange-400 rounded-xl transition-all"
-        >
-          <div className="text-3xl mb-1">🌆</div>
-          <div className="text-lg font-semibold text-gray-800">夕方</div>
-          <div className="text-gray-600 text-xs mt-1">17:30-19:00</div>
-        </button>
+          <button
+            onClick={() => {
+              updateState({ timeSlot: 'evening' });
+              handleNext();
+            }}
+            className="w-full p-4 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 hover:border-orange-400 rounded-xl transition-all text-left"
+          >
+            <div className="flex items-center">
+              <div className="text-2xl mr-4">🌆</div>
+              <div>
+                <div className="text-lg font-semibold text-gray-800">夕方</div>
+                <div className="text-gray-600 text-sm">17:30-19:00</div>
+              </div>
+            </div>
+          </button>
 
-        <button
-          onClick={() => {
-            updateState({ timeSlot: 'anytime' });
-            handleNext();
-          }}
-          className="w-full p-5 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
-        >
-          <div className="text-3xl mb-1">🕐</div>
-          <div className="text-lg font-semibold text-gray-800">いつでも可</div>
-        </button>
+          <button
+            onClick={() => {
+              updateState({ timeSlot: 'anytime' });
+              handleNext();
+            }}
+            className="w-full p-4 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all text-left"
+          >
+            <div className="flex items-center">
+              <div className="text-2xl mr-4">🕐</div>
+              <div>
+                <div className="text-lg font-semibold text-gray-800">いつでも可</div>
+                <div className="text-gray-600 text-sm">調整します</div>
+              </div>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
   );
