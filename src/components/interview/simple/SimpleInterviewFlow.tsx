@@ -411,9 +411,8 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
   // ステップ5: 時間帯選択
   const Step5TimeSlot = () => (
     <div className="flex flex-col h-full">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">時間帯</h2>
-        <p className="text-gray-600">ご希望の時間帯を選択してください</p>
+      <div className="text-center mb-4">
+        <p className="text-gray-600 text-sm">ご希望の時間帯を選択してください</p>
       </div>
 
       <div className="flex-1 flex flex-col gap-4 justify-center">
@@ -422,11 +421,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ timeSlot: 'morning' });
             handleNext();
           }}
-          className="w-full p-6 bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-200 hover:border-yellow-400 rounded-xl transition-all"
+          className="w-full p-5 bg-yellow-50 hover:bg-yellow-100 border-2 border-yellow-200 hover:border-yellow-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">🌅</div>
-          <div className="text-xl font-semibold text-gray-800">午前</div>
-          <div className="text-gray-600 text-sm mt-1">9:00-12:00</div>
+          <div className="text-3xl mb-1">🌅</div>
+          <div className="text-lg font-semibold text-gray-800">午前</div>
+          <div className="text-gray-600 text-xs mt-1">9:00-12:00</div>
         </button>
 
         <button
@@ -436,9 +435,9 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
           }}
           className="w-full p-5 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">☀️</div>
-          <div className="text-xl font-semibold text-gray-800">午後</div>
-          <div className="text-gray-600 text-sm mt-1">13:00-17:00</div>
+          <div className="text-3xl mb-1">☀️</div>
+          <div className="text-lg font-semibold text-gray-800">午後</div>
+          <div className="text-gray-600 text-xs mt-1">13:00-17:00</div>
         </button>
 
         <button
@@ -446,11 +445,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ timeSlot: 'evening' });
             handleNext();
           }}
-          className="w-full p-6 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 hover:border-orange-400 rounded-xl transition-all"
+          className="w-full p-5 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 hover:border-orange-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">🌆</div>
-          <div className="text-xl font-semibold text-gray-800">夕方</div>
-          <div className="text-gray-600 text-sm mt-1">17:30-19:00</div>
+          <div className="text-3xl mb-1">🌆</div>
+          <div className="text-lg font-semibold text-gray-800">夕方</div>
+          <div className="text-gray-600 text-xs mt-1">17:30-19:00</div>
         </button>
 
         <button
@@ -458,10 +457,10 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ timeSlot: 'anytime' });
             handleNext();
           }}
-          className="w-full p-6 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
+          className="w-full p-5 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">🕐</div>
-          <div className="text-xl font-semibold text-gray-800">いつでも可</div>
+          <div className="text-3xl mb-1">🕐</div>
+          <div className="text-lg font-semibold text-gray-800">いつでも可</div>
         </button>
       </div>
     </div>
@@ -470,10 +469,9 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
   // ステップ6: 曜日選択
   const Step6Weekdays = () => (
     <div className="flex flex-col h-full">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">曜日希望</h2>
-        <p className="text-gray-600">ご都合の良い曜日を選択してください</p>
-        <p className="text-sm text-gray-500 mt-2">複数選択可能・選択なしで全曜日OK</p>
+      <div className="text-center mb-4">
+        <p className="text-gray-600 text-sm">ご都合の良い曜日を選択してください</p>
+        <p className="text-xs text-gray-500 mt-1">複数選択可能・選択なしで全曜日OK</p>
       </div>
 
       <div className="flex-1 flex flex-col gap-4 justify-center">
@@ -527,9 +525,8 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
   // ステップ7: 担当者希望
   const Step7Interviewer = () => (
     <div className="flex flex-col h-full">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">担当者の希望</h2>
-        <p className="text-gray-600">面談担当者のご希望はありますか？</p>
+      <div className="text-center mb-4">
+        <p className="text-gray-600 text-sm">面談担当者のご希望はありますか？</p>
       </div>
 
       <div className="flex-1 flex flex-col gap-4 justify-center">
@@ -538,11 +535,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ interviewer: 'anyone' });
             handleNext();
           }}
-          className="w-full p-6 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
+          className="w-full p-5 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">👥</div>
-          <div className="text-xl font-semibold text-gray-800">誰でも良い</div>
-          <div className="text-gray-600 text-sm mt-1">人事部にお任せ</div>
+          <div className="text-3xl mb-1">👥</div>
+          <div className="text-lg font-semibold text-gray-800">誰でも良い</div>
+          <div className="text-gray-600 text-xs mt-1">人事部にお任せ</div>
         </button>
 
         <button
@@ -552,9 +549,9 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
           }}
           className="w-full p-5 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">🔄</div>
-          <div className="text-xl font-semibold text-gray-800">前回と同じ担当者</div>
-          <div className="text-gray-600 text-sm mt-1">継続性を重視</div>
+          <div className="text-3xl mb-1">🔄</div>
+          <div className="text-lg font-semibold text-gray-800">前回と同じ担当者</div>
+          <div className="text-gray-600 text-xs mt-1">継続性を重視</div>
         </button>
 
         <button
@@ -562,11 +559,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ interviewer: 'specific' });
             handleNext();
           }}
-          className="w-full p-6 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 hover:border-purple-400 rounded-xl transition-all"
+          className="w-full p-5 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 hover:border-purple-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">🎯</div>
-          <div className="text-xl font-semibold text-gray-800">特定の担当者</div>
-          <div className="text-gray-600 text-sm mt-1">指名したい担当者がいる</div>
+          <div className="text-3xl mb-1">🎯</div>
+          <div className="text-lg font-semibold text-gray-800">特定の担当者</div>
+          <div className="text-gray-600 text-xs mt-1">指名したい担当者がいる</div>
         </button>
       </div>
     </div>
@@ -575,9 +572,8 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
   // ステップ8: 面談場所
   const Step8Location = () => (
     <div className="flex flex-col h-full">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">面談場所</h2>
-        <p className="text-gray-600">どちらで面談を行いますか？</p>
+      <div className="text-center mb-4">
+        <p className="text-gray-600 text-sm">どちらで面談を行いますか？</p>
       </div>
 
       <div className="flex-1 flex flex-col gap-6 justify-center">
@@ -588,9 +584,9 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
           }}
           className="w-full p-5 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">🏥</div>
-          <div className="text-xl font-semibold text-gray-800">所属施設内</div>
-          <div className="text-gray-600 text-sm mt-1">勤務先の施設内で実施</div>
+          <div className="text-3xl mb-1">🏥</div>
+          <div className="text-lg font-semibold text-gray-800">所属施設内</div>
+          <div className="text-gray-600 text-xs mt-1">勤務先の施設内で実施</div>
         </button>
 
         <button
@@ -598,11 +594,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ location: 'outside' });
             handleNext();
           }}
-          className="w-full p-6 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
+          className="w-full p-5 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">🏢</div>
-          <div className="text-xl font-semibold text-gray-800">所属施設外</div>
-          <div className="text-gray-600 text-sm mt-1">人事部オフィス等で実施</div>
+          <div className="text-3xl mb-1">🏢</div>
+          <div className="text-lg font-semibold text-gray-800">所属施設外</div>
+          <div className="text-gray-600 text-xs mt-1">人事部オフィス等で実施</div>
         </button>
       </div>
     </div>
@@ -614,10 +610,9 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
 
     return (
       <div className="flex flex-col h-full">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">その他の要望</h2>
-          <p className="text-gray-600">面談に関する特別な要望があれば入力してください</p>
-          <p className="text-sm text-gray-500 mt-2">入力は任意です</p>
+        <div className="text-center mb-4">
+          <p className="text-gray-600 text-sm">面談に関する特別な要望があれば入力してください</p>
+          <p className="text-xs text-gray-500 mt-1">入力は任意です</p>
         </div>
 
         <div className="flex-1 flex flex-col">
