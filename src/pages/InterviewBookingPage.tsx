@@ -322,9 +322,10 @@ const InterviewBookingPage: React.FC = () => {
                 </button>
               </div>
               
-              <InterviewBookingCalendar 
+              <InterviewBookingCalendar
                 employeeId={activeUser?.id}
                 onBookingComplete={handleBookingComplete}
+                onCancel={() => setShowBookingModal(false)}
               />
             </div>
           </div>

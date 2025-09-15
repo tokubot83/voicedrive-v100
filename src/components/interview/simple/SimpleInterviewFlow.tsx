@@ -17,17 +17,20 @@ interface SimpleInterviewFlowState {
 interface SimpleInterviewFlowProps {
   onComplete?: (state: SimpleInterviewFlowState) => void;
   employeeId?: string;
+  onCancel?: () => void;
 }
 
 const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
   onComplete,
-  employeeId
+  employeeId,
+  onCancel
 }) => {
   const [flowState, setFlowState] = useState<SimpleInterviewFlowState>({
     currentStep: 1
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   // ステップタイトルを取得
   const getStepTitle = () => {
@@ -86,6 +89,21 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleCancel = () => {
+    setShowCancelDialog(true);
+  };
+
+  const confirmCancel = () => {
+    setShowCancelDialog(false);
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
+  const cancelCancel = () => {
+    setShowCancelDialog(false);
   };
 
   // ステップ1: 面談分類選択
@@ -856,18 +874,25 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         {/* ナビゲーションバー */}
         <div className="flex items-center justify-between p-3">
-          {/* 戻るボタン */}
-          {flowState.currentStep > 1 ? (
+          {/* キャンセル・戻るボタン */}
+          <div className="flex items-center gap-2">
             <button
-              onClick={handleBack}
+              onClick={handleCancel}
               className="flex items-center justify-center w-10 h-10 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label="戻る"
+              aria-label="キャンセル"
             >
-              <ChevronLeft className="w-6 h-6" />
+              <span className="text-xl">✕</span>
             </button>
-          ) : (
-            <div className="w-10" />
-          )}
+            {flowState.currentStep > 1 && (
+              <button
+                onClick={handleBack}
+                className="flex items-center justify-center w-10 h-10 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="戻る"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+            )}
+          </div>
 
           {/* タイトル */}
           <div className="flex-1 text-center">
@@ -906,6 +931,33 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
       <div className="flex-1 p-4 overflow-y-auto">
         {renderCurrentStep()}
       </div>
+
+      {/* キャンセル確認ダイアログ */}
+      {showCancelDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6">
+            <div className="text-center mb-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">面談予約を中止しますか？</h3>
+              <p className="text-gray-600 text-sm">入力した内容は失われます。</p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={confirmCancel}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                中止
+              </button>
+              <button
+                onClick={cancelCancel}
+                className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                続行
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
