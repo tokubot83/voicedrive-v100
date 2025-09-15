@@ -95,20 +95,44 @@ const InterviewStation: React.FC = () => {
       }
     };
 
+    // 面談予約確定通知のリスナー
+    const handleInterviewConfirmed = (data: any) => {
+      console.log('面談予約確定通知:', data);
+
+      // データ更新
+      loadInterviewData();
+
+      // 確定通知を表示
+      notificationService.showInAppNotification({
+        title: '🎉 面談予約が確定しました！',
+        message: `${data.date} ${data.time}の面談が正式に予約されました。`,
+        type: 'success',
+        duration: 6000,
+        action: {
+          label: '詳細確認',
+          callback: () => setActiveTab('booking')
+        }
+      });
+    };
+
     // カスタムイベントリスナーを登録
     window.addEventListener('assistedBookingUpdate', handleAssistedBookingUpdate as EventListener);
     window.addEventListener('proposalReady', handleProposalReady as EventListener);
+    window.addEventListener('interviewConfirmed', handleInterviewConfirmed as EventListener);
 
     // リアルタイム通知サービスのリスナー登録
     notificationService.addRealtimeListener('assistedBookingUpdate', handleAssistedBookingUpdate);
     notificationService.addRealtimeListener('proposalReady', handleProposalReady);
+    notificationService.addRealtimeListener('interviewConfirmed', handleInterviewConfirmed);
 
     // クリーンアップ
     return () => {
       window.removeEventListener('assistedBookingUpdate', handleAssistedBookingUpdate as EventListener);
       window.removeEventListener('proposalReady', handleProposalReady as EventListener);
+      window.removeEventListener('interviewConfirmed', handleInterviewConfirmed as EventListener);
       notificationService.removeRealtimeListener('assistedBookingUpdate', handleAssistedBookingUpdate);
       notificationService.removeRealtimeListener('proposalReady', handleProposalReady);
+      notificationService.removeRealtimeListener('interviewConfirmed', handleInterviewConfirmed);
     };
   }, [activeUser]);
 
@@ -399,12 +423,12 @@ const InterviewStation: React.FC = () => {
               <div className="flex items-center">
                 {upcomingBookings[0].status === 'confirmed' && (
                   <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
-                    ✓ 確定
+                    ✓ 本予約確定
                   </span>
                 )}
                 {upcomingBookings[0].status === 'pending' && (
                   <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full flex items-center">
-                    ⏳ 調整中
+                    📝 仮予約中（承認待ち）
                   </span>
                 )}
                 {upcomingBookings[0].status === 'reschedule_pending' && (
@@ -421,9 +445,44 @@ const InterviewStation: React.FC = () => {
               担当: {upcomingBookings[0].interviewerName || '調整中'}
             </p>
             {upcomingBookings[0].status === 'pending' && (
-              <p className="mt-2 text-sm bg-blue-800/30 rounded p-2">
-                💡 人事部で面談日程を調整中です
-              </p>
+              <div className="mt-3 text-sm bg-blue-800/30 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium">📋 承認フロー</span>
+                  <span className="text-xs opacity-75">通常1-2営業日</span>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                    <span className="text-xs">① 申込完了</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+                    <span className="text-xs">② 人事部確認中</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                    <span className="text-xs opacity-60">③ 本予約確定</span>
+                  </div>
+                </div>
+                <div className="mt-2 pt-2 border-t border-blue-700/30">
+                  <p className="text-xs opacity-80">
+                    💡 確定通知が届き次第、自動で更新されます
+                  </p>
+                </div>
+              </div>
+            )}
+            {upcomingBookings[0].status === 'confirmed' && (
+              <div className="mt-3 text-sm bg-green-800/20 rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-green-400">🎉</span>
+                  <span className="font-medium text-green-300">面談予約が確定しました</span>
+                </div>
+                <div className="space-y-1 text-xs opacity-90">
+                  <p>• 予約確定通知を送信済み</p>
+                  <p>• 面談前日にリマインダーをお送りします</p>
+                  <p>• 変更が必要な場合は24時間前までにご連絡ください</p>
+                </div>
+              </div>
             )}
           </div>
         ) : (
