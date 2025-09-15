@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  InterviewBooking, 
+import {
+  InterviewBooking,
   TimeSlot,
   InterviewStatus,
   DailySchedule,
@@ -12,6 +12,8 @@ import { InterviewBookingService } from '../../services/InterviewBookingService'
 import InterviewReminderService from '../../services/InterviewReminderService';
 import { usePermissions } from '../../hooks/usePermissions';
 import { PermissionLevel } from '../../permissions/types/PermissionTypes';
+import InterviewNotificationList from './InterviewNotificationList';
+import MedicalNotificationService from '../../services/MedicalNotificationService';
 
 interface InterviewManagementDashboardProps {
   managerId?: string;
@@ -22,15 +24,17 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
 }) => {
   const bookingService = InterviewBookingService.getInstance();
   const reminderService = InterviewReminderService.getInstance();
+  const medicalNotificationService = MedicalNotificationService.getInstance();
   const { metadata } = usePermissions(managerId);
-  
+
   const [activeTab, setActiveTab] = useState('today');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [bookings, setBookings] = useState<InterviewBooking[]>([]);
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStatistics | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<InterviewBooking | null>(null);
-  
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+
   // 新機能: リマインダー管理
   const [reminderSchedules, setReminderSchedules] = useState<ReminderSchedule[]>([]);
   const [todaysReminders, setTodaysReminders] = useState<any[]>([]);
@@ -43,7 +47,29 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
 
   useEffect(() => {
     loadData();
+    loadNotificationCount();
   }, [activeTab, selectedDate]);
+
+  // 通知数の監視
+  useEffect(() => {
+    const handleNotificationUpdate = () => {
+      setUnreadNotificationCount(medicalNotificationService.getUnreadCount());
+    };
+
+    // 初期値設定
+    handleNotificationUpdate();
+
+    // リスナー登録
+    medicalNotificationService.addListener(handleNotificationUpdate);
+
+    return () => {
+      medicalNotificationService.removeListener(handleNotificationUpdate);
+    };
+  }, [medicalNotificationService]);
+
+  const loadNotificationCount = () => {
+    setUnreadNotificationCount(medicalNotificationService.getUnreadCount());
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -66,6 +92,9 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
           break;
         case 'reminders':
           await loadReminderManagement();
+          break;
+        case 'notifications':
+          // 通知タブは別のコンポーネントで管理するため、特別な読み込みは不要
           break;
       }
     } catch (error) {
@@ -167,6 +196,7 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
         { key: 'today', label: '今日の予約', icon: '📅' },
         { key: 'weekly', label: '週間スケジュール', icon: '📆' },
         { key: 'pending', label: '承認待ち', icon: '⏳' },
+        { key: 'notifications', label: '面談確定通知', icon: '🎯', badgeCount: unreadNotificationCount },
         canManageSchedule && { key: 'schedule', label: 'スケジュール管理', icon: '⚙️' },
         canManageSchedule && { key: 'reminders', label: 'リマインダー管理', icon: '🔔' },
         canViewStatistics && { key: 'statistics', label: '統計', icon: '📊' }
@@ -175,15 +205,22 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
           key={tab.key}
           onClick={() => setActiveTab(tab.key)}
           className={`
-            px-6 py-3 font-medium text-sm transition-colors
+            px-6 py-3 font-medium text-sm transition-colors relative
             ${activeTab === tab.key
               ? 'border-b-2 border-blue-600 text-blue-600'
               : 'text-gray-600 hover:text-gray-900'
             }
           `}
         >
-          {tab?.icon && <span className="mr-2">{tab.icon}</span>}
-          {tab.label || '未設定'}
+          <div className="flex items-center">
+            {tab?.icon && <span className="mr-2">{tab.icon}</span>}
+            {tab.label || '未設定'}
+            {tab.badgeCount > 0 && (
+              <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                {tab.badgeCount}
+              </span>
+            )}
+          </div>
         </button>
       ))}
     </div>
@@ -624,6 +661,7 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
           {activeTab === 'today' && renderTodayBookings()}
           {activeTab === 'weekly' && renderWeeklySchedule()}
           {activeTab === 'pending' && renderPendingBookings()}
+          {activeTab === 'notifications' && <InterviewNotificationList />}
           {activeTab === 'schedule' && canManageSchedule && renderScheduleManagement()}
           {activeTab === 'reminders' && canManageSchedule && renderReminderManagement()}
           {activeTab === 'statistics' && canViewStatistics && renderStatistics()}
