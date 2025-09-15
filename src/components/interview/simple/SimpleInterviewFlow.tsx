@@ -29,6 +29,27 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // ステップタイトルを取得
+  const getStepTitle = () => {
+    switch (flowState.currentStep) {
+      case 1: return '面談種類';
+      case 2:
+        if (flowState.classification === 'regular') return '定期面談';
+        if (flowState.classification === 'support') return 'サポート面談';
+        if (flowState.classification === 'special') return '特別面談';
+        return '面談種別';
+      case 3: return 'カテゴリ';
+      case 4: return '希望時期';
+      case 5: return '時間帯';
+      case 6: return '希望曜日';
+      case 7: return '担当者';
+      case 8: return '場所';
+      case 9: return 'その他';
+      case 10: return '確認';
+      default: return '';
+    }
+  };
+
   const updateState = (updates: Partial<SimpleInterviewFlowState>) => {
     setFlowState(prevState => ({ ...prevState, ...updates }));
   };
@@ -70,9 +91,8 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
   // ステップ1: 面談分類選択
   const Step1Classification = () => (
     <div className="flex flex-col h-full">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">面談の種類を選択</h2>
-        <p className="text-gray-600">どの面談をご希望ですか？</p>
+      <div className="text-center mb-4">
+        <p className="text-gray-600 text-sm">どの面談をご希望ですか？</p>
       </div>
 
       <div className="flex-1 flex flex-col gap-4 justify-center">
@@ -81,11 +101,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ classification: 'regular' });
             handleNext();
           }}
-          className="w-full p-6 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
+          className="w-full p-5 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">📅</div>
-          <div className="text-xl font-semibold text-gray-800">定期面談</div>
-          <div className="text-gray-600 text-sm mt-1">年次・月次の定期面談</div>
+          <div className="text-3xl mb-1">📅</div>
+          <div className="text-lg font-semibold text-gray-800">定期面談</div>
+          <div className="text-gray-600 text-xs mt-1">年次・月次の定期面談</div>
         </button>
 
         <button
@@ -93,11 +113,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ classification: 'support' });
             handleNext();
           }}
-          className="w-full p-6 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 hover:border-purple-400 rounded-xl transition-all"
+          className="w-full p-5 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 hover:border-purple-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">🤝</div>
-          <div className="text-xl font-semibold text-gray-800">サポート面談</div>
-          <div className="text-gray-600 text-sm mt-1">相談・支援が必要な面談</div>
+          <div className="text-3xl mb-1">🤝</div>
+          <div className="text-lg font-semibold text-gray-800">サポート面談</div>
+          <div className="text-gray-600 text-xs mt-1">相談・支援が必要な面談</div>
         </button>
 
         <button
@@ -105,11 +125,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ classification: 'special' });
             handleNext();
           }}
-          className="w-full p-6 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 hover:border-orange-400 rounded-xl transition-all"
+          className="w-full p-5 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 hover:border-orange-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">⚡</div>
-          <div className="text-xl font-semibold text-gray-800">特別面談</div>
-          <div className="text-gray-600 text-sm mt-1">復職・退職・インシデント後</div>
+          <div className="text-3xl mb-1">⚡</div>
+          <div className="text-lg font-semibold text-gray-800">特別面談</div>
+          <div className="text-gray-600 text-xs mt-1">復職・退職・インシデント後</div>
         </button>
       </div>
     </div>
@@ -803,55 +823,59 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* ヘッダー */}
-      <div className="bg-white border-b border-gray-200 p-4">
-        <div className="text-center">
-          <h1 className="text-lg font-semibold text-gray-800">面談予約</h1>
-          <p className="text-sm text-gray-500">ステップ {flowState.currentStep} / 10</p>
-        </div>
-      </div>
-
-      {/* 進捗バー */}
-      <div className="bg-white border-b border-gray-100 p-4">
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(flowState.currentStep / 10) * 100}%` }}
-          />
-        </div>
-      </div>
-
-      {/* メインコンテンツ */}
-      <div className="flex-1 p-4">
-        {renderCurrentStep()}
-      </div>
-
-      {/* ナビゲーション */}
-      <div className="bg-white border-t border-gray-200 p-4">
-        <div className="flex justify-between">
+      {/* 統合ヘッダー */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        {/* ナビゲーションバー */}
+        <div className="flex items-center justify-between p-3">
+          {/* 戻るボタン */}
           {flowState.currentStep > 1 ? (
             <button
               onClick={handleBack}
-              className="flex items-center space-x-2 px-6 py-3 text-gray-600 hover:text-gray-800 transition-colors"
+              className="flex items-center justify-center w-10 h-10 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="戻る"
             >
-              <ChevronLeft className="w-5 h-5" />
-              <span>戻る</span>
+              <ChevronLeft className="w-6 h-6" />
             </button>
           ) : (
-            <div />
+            <div className="w-10" />
           )}
 
+          {/* タイトル */}
+          <div className="flex-1 text-center">
+            <h1 className="text-base font-semibold text-gray-800">
+              {getStepTitle()}
+            </h1>
+            <p className="text-xs text-gray-500">ステップ {flowState.currentStep} / 10</p>
+          </div>
+
+          {/* 確定ボタン（ステップ10のみ） */}
           {flowState.currentStep === 10 ? (
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+              className="flex items-center justify-center px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
             >
-              <span>{isSubmitting ? '送信中...' : '申込を確定'}</span>
-              {!isSubmitting && <Check className="w-5 h-5" />}
+              {isSubmitting ? '送信中' : '確定'}
             </button>
-          ) : null}
+          ) : (
+            <div className="w-10" />
+          )}
         </div>
+
+        {/* プログレスバー */}
+        <div className="px-3 pb-2">
+          <div className="w-full bg-gray-200 rounded-full h-1.5">
+            <div
+              className="bg-indigo-600 h-1.5 rounded-full transition-all duration-300"
+              style={{ width: `${(flowState.currentStep / 10) * 100}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* メインコンテンツ */}
+      <div className="flex-1 p-4 overflow-y-auto">
+        {renderCurrentStep()}
       </div>
     </div>
   );
