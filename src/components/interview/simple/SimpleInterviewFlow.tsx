@@ -140,9 +140,8 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
     if (flowState.classification === 'regular') {
       return (
         <div className="flex flex-col h-full">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">定期面談の種別</h2>
-            <p className="text-gray-600">該当する種別を選択してください</p>
+          <div className="text-center mb-4">
+            <p className="text-gray-600 text-sm">どのタイプの面談ですか？</p>
           </div>
 
           <div className="flex-1 flex flex-col gap-4 justify-center">
@@ -151,11 +150,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
                 updateState({ type: 'newcomer' });
                 handleNext();
               }}
-              className="w-full p-6 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
+              className="w-full p-5 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
             >
-              <div className="text-4xl mb-2">👤</div>
-              <div className="text-xl font-semibold text-gray-800">新人職員面談</div>
-              <div className="text-gray-600 text-sm mt-1">入職1年目まで</div>
+              <div className="text-3xl mb-1">👤</div>
+              <div className="text-lg font-semibold text-gray-800">新人職員面談</div>
+              <div className="text-gray-600 text-xs mt-1">入職1年目まで</div>
             </button>
 
             <button
@@ -163,11 +162,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
                 updateState({ type: 'general' });
                 handleNext();
               }}
-              className="w-full p-6 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
+              className="w-full p-5 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
             >
-              <div className="text-4xl mb-2">👥</div>
-              <div className="text-xl font-semibold text-gray-800">一般職員面談</div>
-              <div className="text-gray-600 text-sm mt-1">2年目以降</div>
+              <div className="text-3xl mb-1">👥</div>
+              <div className="text-lg font-semibold text-gray-800">一般職員面談</div>
+              <div className="text-gray-600 text-xs mt-1">2年目以降</div>
             </button>
 
             <button
@@ -175,11 +174,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
                 updateState({ type: 'manager' });
                 handleNext();
               }}
-              className="w-full p-6 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 hover:border-purple-400 rounded-xl transition-all"
+              className="w-full p-5 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 hover:border-purple-400 rounded-xl transition-all"
             >
-              <div className="text-4xl mb-2">👔</div>
-              <div className="text-xl font-semibold text-gray-800">管理職面談</div>
-              <div className="text-gray-600 text-sm mt-1">主任以上</div>
+              <div className="text-3xl mb-1">👔</div>
+              <div className="text-lg font-semibold text-gray-800">管理職面談</div>
+              <div className="text-gray-600 text-xs mt-1">主任以上</div>
             </button>
           </div>
         </div>
@@ -189,9 +188,8 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
     if (flowState.classification === 'support') {
       return (
         <div className="flex flex-col h-full">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">サポート面談の種別</h2>
-            <p className="text-gray-600">相談内容を選択してください</p>
+          <div className="text-center mb-4">
+            <p className="text-gray-600 text-sm">何について相談しますか？</p>
           </div>
 
           <div className="flex-1 flex flex-col gap-4 justify-center">
@@ -200,11 +198,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
                 updateState({ type: 'career' });
                 handleNext();
               }}
-              className="w-full p-6 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 hover:border-purple-400 rounded-xl transition-all"
+              className="w-full p-5 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 hover:border-purple-400 rounded-xl transition-all"
             >
-              <div className="text-4xl mb-2">🎯</div>
-              <div className="text-xl font-semibold text-gray-800">キャリア系面談</div>
-              <div className="text-gray-600 text-sm mt-1">キャリアパス・スキル開発・昇進昇格</div>
+              <div className="text-3xl mb-1">🎯</div>
+              <div className="text-lg font-semibold text-gray-800">キャリア系面談</div>
+              <div className="text-gray-600 text-xs mt-1">キャリアパス・スキル開発・昇進昇格</div>
             </button>
 
             <button
@@ -212,11 +210,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
                 updateState({ type: 'workplace' });
                 handleNext();
               }}
-              className="w-full p-6 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
+              className="w-full p-5 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
             >
-              <div className="text-4xl mb-2">🏢</div>
-              <div className="text-xl font-semibold text-gray-800">職場環境系面談</div>
-              <div className="text-gray-600 text-sm mt-1">職場環境・人間関係・業務負荷など</div>
+              <div className="text-3xl mb-1">🏢</div>
+              <div className="text-lg font-semibold text-gray-800">職場環境系面談</div>
+              <div className="text-gray-600 text-xs mt-1">職場環境・人間関係・業務負荷など</div>
             </button>
 
             <button
@@ -224,11 +222,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
                 updateState({ type: 'consultation' });
                 handleNext();
               }}
-              className="w-full p-6 bg-indigo-50 hover:bg-indigo-100 border-2 border-indigo-200 hover:border-indigo-400 rounded-xl transition-all"
+              className="w-full p-5 bg-indigo-50 hover:bg-indigo-100 border-2 border-indigo-200 hover:border-indigo-400 rounded-xl transition-all"
             >
-              <div className="text-4xl mb-2">💼</div>
-              <div className="text-xl font-semibold text-gray-800">個別相談面談</div>
-              <div className="text-gray-600 text-sm mt-1">パフォーマンス・研修・コンプライアンス</div>
+              <div className="text-3xl mb-1">💼</div>
+              <div className="text-lg font-semibold text-gray-800">個別相談面談</div>
+              <div className="text-gray-600 text-xs mt-1">パフォーマンス・研修・コンプライアンス</div>
             </button>
           </div>
         </div>
@@ -238,9 +236,8 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
     if (flowState.classification === 'special') {
       return (
         <div className="flex flex-col h-full">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">特別面談の種別</h2>
-            <p className="text-gray-600">該当する種別を選択してください</p>
+          <div className="text-center mb-4">
+            <p className="text-gray-600 text-sm">どの理由で面談を希望しますか？</p>
           </div>
 
           <div className="flex-1 flex flex-col gap-4 justify-center">
@@ -249,10 +246,10 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
                 updateState({ type: 'return' });
                 handleNext();
               }}
-              className="w-full p-6 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
+              className="w-full p-5 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 rounded-xl transition-all"
             >
-              <div className="text-4xl mb-2">🔄</div>
-              <div className="text-xl font-semibold text-gray-800">復職面談</div>
+              <div className="text-3xl mb-1">🔄</div>
+              <div className="text-lg font-semibold text-gray-800">復職面談</div>
             </button>
 
             <button
@@ -260,10 +257,10 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
                 updateState({ type: 'resignation' });
                 handleNext();
               }}
-              className="w-full p-6 bg-red-50 hover:bg-red-100 border-2 border-red-200 hover:border-red-400 rounded-xl transition-all"
+              className="w-full p-5 bg-red-50 hover:bg-red-100 border-2 border-red-200 hover:border-red-400 rounded-xl transition-all"
             >
-              <div className="text-4xl mb-2">🚪</div>
-              <div className="text-xl font-semibold text-gray-800">退職面談</div>
+              <div className="text-3xl mb-1">🚪</div>
+              <div className="text-lg font-semibold text-gray-800">退職面談</div>
             </button>
 
             <button
@@ -271,10 +268,10 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
                 updateState({ type: 'incident' });
                 handleNext();
               }}
-              className="w-full p-6 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 hover:border-orange-400 rounded-xl transition-all"
+              className="w-full p-5 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 hover:border-orange-400 rounded-xl transition-all"
             >
-              <div className="text-4xl mb-2">⚠️</div>
-              <div className="text-xl font-semibold text-gray-800">インシデント後面談</div>
+              <div className="text-3xl mb-1">⚠️</div>
+              <div className="text-lg font-semibold text-gray-800">インシデント後面談</div>
             </button>
           </div>
         </div>
@@ -325,9 +322,8 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
 
     return (
       <div className="flex flex-col h-full">
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">詳細カテゴリ</h2>
-          <p className="text-gray-600">具体的な相談内容を選択してください</p>
+        <div className="text-center mb-4">
+          <p className="text-gray-600 text-sm">具体的な相談内容を選択してください</p>
         </div>
 
         <div className="flex-1 overflow-y-auto">
@@ -359,9 +355,8 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
   // ステップ4: 希望時期選択
   const Step4Timing = () => (
     <div className="flex flex-col h-full">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">希望時期</h2>
-        <p className="text-gray-600">いつ頃の面談をご希望ですか？</p>
+      <div className="text-center mb-4">
+        <p className="text-gray-600 text-sm">いつ頃を希望しますか？</p>
       </div>
 
       <div className="flex-1 flex flex-col gap-4 justify-center">
@@ -370,11 +365,11 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ timing: 'urgent' });
             handleNext();
           }}
-          className="w-full p-6 bg-red-50 hover:bg-red-100 border-2 border-red-200 hover:border-red-400 rounded-xl transition-all"
+          className="w-full p-5 bg-red-50 hover:bg-red-100 border-2 border-red-200 hover:border-red-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">🚨</div>
-          <div className="text-xl font-semibold text-gray-800">緊急</div>
-          <div className="text-gray-600 text-sm mt-1">1-2日以内</div>
+          <div className="text-3xl mb-1">🚨</div>
+          <div className="text-lg font-semibold text-gray-800">緊急</div>
+          <div className="text-gray-600 text-xs mt-1">1-2日以内</div>
         </button>
 
         <button
@@ -382,10 +377,10 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ timing: 'this_week' });
             handleNext();
           }}
-          className="w-full p-6 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 hover:border-orange-400 rounded-xl transition-all"
+          className="w-full p-5 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 hover:border-orange-400 rounded-xl transition-all"
         >
-          <div className="text-4xl mb-2">📅</div>
-          <div className="text-xl font-semibold text-gray-800">今週中</div>
+          <div className="text-3xl mb-1">📅</div>
+          <div className="text-lg font-semibold text-gray-800">今週中</div>
         </button>
 
         <button
@@ -393,7 +388,7 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ timing: 'next_week' });
             handleNext();
           }}
-          className="w-full p-6 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
+          className="w-full p-5 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
         >
           <div className="text-4xl mb-2">📆</div>
           <div className="text-xl font-semibold text-gray-800">来週</div>
@@ -439,7 +434,7 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ timeSlot: 'afternoon' });
             handleNext();
           }}
-          className="w-full p-6 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
+          className="w-full p-5 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
         >
           <div className="text-4xl mb-2">☀️</div>
           <div className="text-xl font-semibold text-gray-800">午後</div>
@@ -555,7 +550,7 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ interviewer: 'previous' });
             handleNext();
           }}
-          className="w-full p-6 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
+          className="w-full p-5 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
         >
           <div className="text-4xl mb-2">🔄</div>
           <div className="text-xl font-semibold text-gray-800">前回と同じ担当者</div>
@@ -591,7 +586,7 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
             updateState({ location: 'inside' });
             handleNext();
           }}
-          className="w-full p-6 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
+          className="w-full p-5 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all"
         >
           <div className="text-4xl mb-2">🏥</div>
           <div className="text-xl font-semibold text-gray-800">所属施設内</div>
