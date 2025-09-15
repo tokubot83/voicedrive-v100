@@ -234,7 +234,7 @@ const RightSidebar = () => {
               新規投稿
             </button>
             <button className="bg-green-500/20 hover:bg-green-500/30 text-green-300 text-xs py-2 px-3 rounded-lg transition-all">
-              面談予約
+              面談
             </button>
             <button className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 text-xs py-2 px-3 rounded-lg transition-all">
               下書き

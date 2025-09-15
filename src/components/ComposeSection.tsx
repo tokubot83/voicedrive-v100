@@ -50,7 +50,7 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
     {
       type: 'interview' as any, // 面談予約用の特別なタイプ
       icon: '🗣️',
-      title: '面談予約',
+      title: '面談',
       description: '個別相談の申込み',
       features: [],
       gradient: 'from-violet-500 to-purple-500',

@@ -362,6 +362,28 @@ const InterviewStation: React.FC = () => {
         </div>
       )}
 
+      {/* 面談予約カードボタン */}
+      <div className="mb-6">
+        <div
+          onClick={() => setShowBookingModal(true)}
+          className="bg-gradient-to-br from-green-600 to-green-700 rounded-xl p-6 text-white cursor-pointer hover:from-green-500 hover:to-green-600 transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-bold mb-2 flex items-center">
+                <span className="mr-3">🎯</span> 面談を予約する
+              </h3>
+              <p className="opacity-90 text-sm">
+                新しい面談の予約申込みを行います
+              </p>
+            </div>
+            <div className="text-3xl opacity-80">
+              ➕
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 次回の面談 */}
         <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white">
@@ -370,15 +392,39 @@ const InterviewStation: React.FC = () => {
         </h3>
         {upcomingBookings.length > 0 ? (
           <div>
-            <p className="text-2xl font-bold mb-2">
-              {formatDate(upcomingBookings[0].bookingDate)}
-            </p>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-2xl font-bold">
+                {formatDate(upcomingBookings[0].bookingDate)}
+              </p>
+              <div className="flex items-center">
+                {upcomingBookings[0].status === 'confirmed' && (
+                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
+                    ✓ 確定
+                  </span>
+                )}
+                {upcomingBookings[0].status === 'pending' && (
+                  <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full flex items-center">
+                    ⏳ 調整中
+                  </span>
+                )}
+                {upcomingBookings[0].status === 'reschedule_pending' && (
+                  <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full flex items-center">
+                    📅 変更申請中
+                  </span>
+                )}
+              </div>
+            </div>
             <p className="text-lg opacity-90">
               {upcomingBookings[0].timeSlot.startTime} - {upcomingBookings[0].timeSlot.endTime}
             </p>
             <p className="mt-2 opacity-80">
               担当: {upcomingBookings[0].interviewerName || '調整中'}
             </p>
+            {upcomingBookings[0].status === 'pending' && (
+              <p className="mt-2 text-sm bg-blue-800/30 rounded p-2">
+                💡 人事部で面談日程を調整中です
+              </p>
+            )}
           </div>
         ) : (
           <div>
@@ -393,30 +439,6 @@ const InterviewStation: React.FC = () => {
         )}
       </div>
 
-        {/* 統計情報 */}
-        <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl p-6 text-white">
-          <h3 className="text-xl font-bold mb-4 flex items-center">
-            <span className="mr-2">📊</span> 面談統計
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span>今年の面談回数:</span>
-              <span className="font-bold">{pastBookings.filter(b => b.status === 'completed').length}回</span>
-            </div>
-            <div className="flex justify-between">
-              <span>予約中の面談:</span>
-              <span className="font-bold">{upcomingBookings.length}件</span>
-            </div>
-            <div className="flex justify-between">
-              <span>キャンセル率:</span>
-              <span className="font-bold">
-                {pastBookings.length > 0
-                  ? Math.round((pastBookings.filter(b => b.status === 'cancelled').length / pastBookings.length) * 100)
-                  : 0}%
-              </span>
-            </div>
-          </div>
-        </div>
 
         {/* クイックアクション */}
         <div className="bg-slate-800 rounded-xl p-6">
@@ -547,10 +569,37 @@ const InterviewStation: React.FC = () => {
 
   // 履歴ビュー
   const HistoryView = () => (
-    <div className="bg-slate-800 rounded-xl p-6">
-      <h3 className="text-2xl font-bold text-white mb-6">面談履歴</h3>
-      
-      {pastBookings.length === 0 ? (
+    <div className="space-y-6">
+      {/* 面談統計 */}
+      <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl p-6 text-white">
+        <h3 className="text-xl font-bold mb-4 flex items-center">
+          <span className="mr-2">📊</span> 面談統計
+        </h3>
+        <div className="space-y-3">
+          <div className="flex justify-between">
+            <span>今年の面談回数:</span>
+            <span className="font-bold">{pastBookings.filter(b => b.status === 'completed').length}回</span>
+          </div>
+          <div className="flex justify-between">
+            <span>予約中の面談:</span>
+            <span className="font-bold">{upcomingBookings.length}件</span>
+          </div>
+          <div className="flex justify-between">
+            <span>キャンセル率:</span>
+            <span className="font-bold">
+              {pastBookings.length > 0
+                ? Math.round((pastBookings.filter(b => b.status === 'cancelled').length / pastBookings.length) * 100)
+                : 0}%
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 面談履歴 */}
+      <div className="bg-slate-800 rounded-xl p-6">
+        <h3 className="text-2xl font-bold text-white mb-6">面談履歴</h3>
+
+        {pastBookings.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-gray-400">面談履歴はありません</p>
         </div>
@@ -578,6 +627,7 @@ const InterviewStation: React.FC = () => {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 
