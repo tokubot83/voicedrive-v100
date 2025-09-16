@@ -13,7 +13,9 @@ import InterviewReminderService from '../../services/InterviewReminderService';
 import { usePermissions } from '../../hooks/usePermissions';
 import { PermissionLevel } from '../../permissions/types/PermissionTypes';
 import InterviewNotificationList from './InterviewNotificationList';
+import InterviewCancellationModal from './InterviewCancellationModal';
 import MedicalNotificationService from '../../services/MedicalNotificationService';
+import { InterviewCancellationRequest } from '../../types/medicalNotification';
 
 interface InterviewManagementDashboardProps {
   managerId?: string;
@@ -34,6 +36,8 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
   const [loading, setLoading] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<InterviewBooking | null>(null);
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+  const [showCancellationModal, setShowCancellationModal] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState<InterviewBooking | null>(null);
 
   // 新機能: リマインダー管理
   const [reminderSchedules, setReminderSchedules] = useState<ReminderSchedule[]>([]);
@@ -175,6 +179,46 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
     }
   };
 
+  // 面談キャンセルボタンのクリック
+  const handleCancelBookingClick = (booking: InterviewBooking) => {
+    setBookingToCancel(booking);
+    setShowCancellationModal(true);
+  };
+
+  // キャンセル処理の実行
+  const handleCancelBooking = async (cancellationRequest: InterviewCancellationRequest) => {
+    try {
+      // 医療システムにキャンセル要求を送信
+      await medicalNotificationService.sendCancellationRequest(cancellationRequest);
+
+      // ローカルの予約ステータスを更新
+      await bookingService.updateBookingStatus(cancellationRequest.reservationId, 'cancelled', managerId);
+
+      // データを再読み込み
+      loadData();
+
+      // モーダルを閉じる
+      setShowCancellationModal(false);
+      setBookingToCancel(null);
+
+      // 成功メッセージ
+      if (cancellationRequest.cancellationType === 'emergency') {
+        alert('緊急キャンセルを受け付けました。担当者からの連絡をお待ちください。');
+      } else {
+        alert('面談キャンセルを受け付けました。');
+      }
+    } catch (error) {
+      console.error('Cancellation failed:', error);
+      alert('キャンセル処理でエラーが発生しました。再度お試しください。');
+    }
+  };
+
+  // キャンセルモーダルを閉じる
+  const handleCloseCancellationModal = () => {
+    setShowCancellationModal(false);
+    setBookingToCancel(null);
+  };
+
   const handleScheduleBlock = async (date: Date, slotId: string) => {
     if (!canManageSchedule) {
       alert('スケジュール管理の権限がありません');
@@ -279,22 +323,40 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
                 )}
               </div>
               
-              {canConductInterview && booking.status === 'confirmed' && (
-                <div className="flex gap-2">
+              <div className="flex gap-2 mt-3">
+                {canConductInterview && booking.status === 'confirmed' && (
+                  <>
+                    <button
+                      onClick={() => handleStatusUpdate(booking.id, 'completed')}
+                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                    >
+                      面談完了
+                    </button>
+                    <button
+                      onClick={() => setSelectedBooking(booking)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                    >
+                      詳細表示
+                    </button>
+                  </>
+                )}
+
+                {/* キャンセルボタン（確定済み・確認中の予約に表示） */}
+                {(booking.status === 'confirmed' || booking.status === 'pending') && (
                   <button
-                    onClick={() => handleStatusUpdate(booking.id, 'completed')}
-                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                    onClick={() => handleCancelBookingClick(booking)}
+                    className={`px-4 py-2 text-white rounded hover:opacity-90 transition-colors ${
+                      new Date(booking.bookingDate).toDateString() === new Date().toDateString()
+                        ? 'bg-red-600 hover:bg-red-700' // 当日は赤色
+                        : 'bg-orange-600 hover:bg-orange-700' // 事前は橙色
+                    }`}
                   >
-                    面談完了
+                    {new Date(booking.bookingDate).toDateString() === new Date().toDateString()
+                      ? '⚠️ 当日キャンセル'
+                      : '📝 キャンセル'}
                   </button>
-                  <button
-                    onClick={() => setSelectedBooking(booking)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                  >
-                    詳細表示
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -705,6 +767,17 @@ const InterviewManagementDashboard: React.FC<InterviewManagementDashboardProps> 
             </div>
           </div>
         </div>
+      )}
+
+      {/* 面談キャンセルモーダル */}
+      {showCancellationModal && bookingToCancel && (
+        <InterviewCancellationModal
+          booking={bookingToCancel}
+          isOpen={showCancellationModal}
+          onClose={handleCloseCancellationModal}
+          onCancel={handleCancelBooking}
+          currentUserId={managerId}
+        />
       )}
     </div>
   );

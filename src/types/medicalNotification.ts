@@ -1,3 +1,62 @@
+// 面談変更・キャンセル通知の型定義
+export interface InterviewChangeNotification {
+  // 基本情報
+  staffId: string;
+  staffName: string;
+  reservationId: string;
+
+  // 変更タイプ
+  changeType: 'cancelled' | 'rescheduled' | 'location_changed' | 'interviewer_changed';
+
+  // 元の情報
+  originalData: {
+    scheduledDate: string;
+    scheduledTime: string;
+    location: string;
+    interviewer: {
+      name: string;
+      title: string;
+      department: string;
+      contactExtension: string;
+    };
+  };
+
+  // 新しい情報（変更の場合）
+  newData?: {
+    scheduledDate?: string;
+    scheduledTime?: string;
+    location?: string;
+    interviewer?: {
+      name: string;
+      title: string;
+      department: string;
+      contactExtension: string;
+    };
+  };
+
+  // 変更理由・詳細
+  changeReason: string;
+  isUrgent: boolean;
+  requiresAcknowledgement: boolean;
+
+  // システム情報
+  changedBy: string;
+  changedAt: string;
+  notificationType: 'interview_change';
+  sourceSystem: 'medical_system';
+}
+
+// 面談キャンセル要求（VoiceDrive → 医療システム）
+export interface InterviewCancellationRequest {
+  reservationId: string;
+  staffId: string;
+  cancellationType: 'advance' | 'same_day' | 'emergency';
+  cancellationReason: string;
+  requestedBy: string;
+  requestedAt: string;
+  contactMethod?: 'phone' | 'email' | 'in_person';
+}
+
 // 医療システムからの面談確定通知の型定義
 export interface InterviewConfirmationData {
   // 基本情報

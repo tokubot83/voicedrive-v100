@@ -1,12 +1,15 @@
 import {
   InterviewConfirmationNotification,
   InterviewConfirmationData,
+  InterviewChangeNotification,
+  InterviewCancellationRequest,
   NotificationStatus
 } from '../types/medicalNotification';
 
 class MedicalNotificationService {
   private static instance: MedicalNotificationService;
   private notifications: InterviewConfirmationNotification[] = [];
+  private changeNotifications: InterviewChangeNotification[] = [];
   private listeners: Array<(notifications: InterviewConfirmationNotification[]) => void> = [];
 
   private constructor() {
@@ -263,6 +266,160 @@ class MedicalNotificationService {
     this.notifyListeners();
   }
 
+  // 面談キャンセル要求の送信
+  public async sendCancellationRequest(request: InterviewCancellationRequest): Promise<void> {
+    try {
+      // 実際の実装では医療システムのAPIエンドポイントに送信
+      console.log('Sending cancellation request to medical system:', request);
+
+      // デモ用のAPI呼び出し
+      const response = await fetch('/api/medical-system/cancel-interview', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        },
+        body: JSON.stringify(request)
+      }).catch(() => {
+        // デモ用: API呼び出しが失敗しても処理を続行
+        console.log('Demo mode: API call simulated');
+        return { ok: true, json: () => Promise.resolve({ success: true }) };
+      });
+
+      if (response.ok) {
+        // キャンセル成功の処理
+        this.showSuccessNotification(request);
+
+        // 緊急キャンセルの場合は変更通知をシミュレート
+        if (request.cancellationType === 'emergency') {
+          setTimeout(() => {
+            this.simulateCancellationNotification(request);
+          }, 2000);
+        }
+      } else {
+        throw new Error('Cancellation request failed');
+      }
+    } catch (error) {
+      console.error('Failed to send cancellation request:', error);
+      throw error;
+    }
+  }
+
+  // 認証トークンの取得（デモ用）
+  private getAuthToken(): string {
+    return 'demo-auth-token-' + Date.now();
+  }
+
+  // キャンセル成功通知の表示
+  private showSuccessNotification(request: InterviewCancellationRequest): void {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const title = request.cancellationType === 'emergency'
+        ? '緊急キャンセルを受け付けました'
+        : '面談キャンセルを受け付けました';
+
+      new Notification(title, {
+        body: '医療システムに送信されました。担当者からの連絡をお待ちください。',
+        icon: '/icon-192x192.png',
+        badge: '/icon-192x192.png',
+        tag: `cancel_${request.reservationId}`,
+        requireInteraction: true
+      });
+    }
+  }
+
+  // 変更通知の受信（面談がキャンセルされた場合）
+  public receiveInterviewChange(changeData: InterviewChangeNotification): void {
+    this.changeNotifications.unshift(changeData);
+    this.saveChangeNotifications();
+
+    // プッシュ通知を表示
+    this.showChangeNotification(changeData);
+  }
+
+  // 変更通知のプッシュ通知表示
+  private showChangeNotification(notification: InterviewChangeNotification): void {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      let title = '';
+      let body = '';
+
+      switch (notification.changeType) {
+        case 'cancelled':
+          title = '面談がキャンセルされました';
+          body = `${notification.originalData.scheduledDate}の面談がキャンセルされました。`;
+          break;
+        case 'rescheduled':
+          title = '面談の日時が変更されました';
+          body = `新しい日時: ${notification.newData?.scheduledDate} ${notification.newData?.scheduledTime}`;
+          break;
+        case 'location_changed':
+          title = '面談場所が変更されました';
+          body = `新しい場所: ${notification.newData?.location}`;
+          break;
+        case 'interviewer_changed':
+          title = '面談担当者が変更されました';
+          body = `新しい担当者: ${notification.newData?.interviewer?.name}`;
+          break;
+      }
+
+      new Notification(title, {
+        body,
+        icon: '/icon-192x192.png',
+        badge: '/icon-192x192.png',
+        tag: `change_${notification.reservationId}`,
+        requireInteraction: notification.isUrgent
+      });
+    }
+  }
+
+  // 変更通知のローカルストレージ保存
+  private saveChangeNotifications(): void {
+    try {
+      localStorage.setItem('medicalChangeNotifications', JSON.stringify(this.changeNotifications));
+    } catch (error) {
+      console.error('Failed to save change notifications:', error);
+    }
+  }
+
+  // 変更通知の取得
+  public getChangeNotifications(): InterviewChangeNotification[] {
+    return [...this.changeNotifications].sort((a, b) => {
+      // 緊急度とタイムスタンプでソート
+      if (a.isUrgent && !b.isUrgent) return -1;
+      if (!a.isUrgent && b.isUrgent) return 1;
+      return new Date(b.changedAt).getTime() - new Date(a.changedAt).getTime();
+    });
+  }
+
+  // デモ用: キャンセル通知のシミュレート
+  private simulateCancellationNotification(request: InterviewCancellationRequest): void {
+    const changeNotification: InterviewChangeNotification = {
+      staffId: request.staffId,
+      staffName: "田中 花子",
+      reservationId: request.reservationId,
+      changeType: 'cancelled',
+      originalData: {
+        scheduledDate: "2025-09-20",
+        scheduledTime: "14:30",
+        location: "キャリア支援室",
+        interviewer: {
+          name: "田中美香子",
+          title: "看護師長",
+          department: "キャリア支援室",
+          contactExtension: "内線2345"
+        }
+      },
+      changeReason: request.cancellationReason,
+      isUrgent: request.cancellationType === 'emergency',
+      requiresAcknowledgement: true,
+      changedBy: "システム自動処理",
+      changedAt: new Date().toISOString(),
+      notificationType: 'interview_change',
+      sourceSystem: 'medical_system'
+    };
+
+    this.receiveInterviewChange(changeNotification);
+  }
+
   // デモ用: サンプル通知の生成
   private simulateIncomingNotification(): void {
     const sampleData: InterviewConfirmationData = {
@@ -292,6 +449,52 @@ class MedicalNotificationService {
     };
 
     this.receiveInterviewConfirmation(sampleData);
+
+    // 10秒後に変更通知のデモも実行
+    setTimeout(() => {
+      this.simulateChangeNotification();
+    }, 10000);
+  }
+
+  // デモ用: 変更通知のシミュレート
+  private simulateChangeNotification(): void {
+    const changeNotification: InterviewChangeNotification = {
+      staffId: "VD-NS-2025-001",
+      staffName: "田中 花子",
+      reservationId: "AI-BOOK-002",
+      changeType: 'rescheduled',
+      originalData: {
+        scheduledDate: "2025-09-21",
+        scheduledTime: "15:00",
+        location: "第2面談室",
+        interviewer: {
+          name: "佐藤 太郎",
+          title: "人事課長",
+          department: "人事部",
+          contactExtension: "内線3456"
+        }
+      },
+      newData: {
+        scheduledDate: "2025-09-22",
+        scheduledTime: "14:00",
+        location: "第2面談室",
+        interviewer: {
+          name: "佐藤 太郎",
+          title: "人事課長",
+          department: "人事部",
+          contactExtension: "内線3456"
+        }
+      },
+      changeReason: "担当者の急用により日時を変更いたします。",
+      isUrgent: true,
+      requiresAcknowledgement: true,
+      changedBy: "人事部システム",
+      changedAt: new Date().toISOString(),
+      notificationType: 'interview_change',
+      sourceSystem: 'medical_system'
+    };
+
+    this.receiveInterviewChange(changeNotification);
   }
 }
 
