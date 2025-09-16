@@ -13,7 +13,10 @@ function App() {
     const initDemoNotifications = async () => {
       try {
         const notificationService = NotificationService.getInstance();
-        await notificationService.initializeDemoNotifications();
+        // initializeDemoNotificationsメソッドが存在する場合のみ実行
+        if (typeof notificationService.initializeDemoNotifications === 'function') {
+          await notificationService.initializeDemoNotifications();
+        }
       } catch (error) {
         console.error('デモ通知初期化エラー:', error);
       }

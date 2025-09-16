@@ -49,9 +49,9 @@ const pathNameMap: Record<string, string> = {
 const Breadcrumb = () => {
   const location = useLocation();
   const { isDemoMode } = useDemoMode();
-  
-  // Don't show breadcrumb on home page
-  if (location.pathname === '/') {
+
+  // Don't show breadcrumb on home page, hr-announcements page, and stress-check-demo page
+  if (location.pathname === '/' || location.pathname === '/hr-announcements' || location.pathname === '/stress-check-demo') {
     return null;
   }
   

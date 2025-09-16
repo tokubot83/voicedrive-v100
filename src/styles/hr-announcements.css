@@ -1,0 +1,629 @@
+/* 人事お知らせシステム専用スタイル - VoiceDriveダークテーマ統一 */
+
+/* CSS変数定義 */
+:root {
+  /* 人事お知らせ専用カラーパレット（VoiceDriveベース） */
+  --hr-primary: #10b981;        /* 緑系（人事・健康イメージ） */
+  --hr-urgent: #ef4444;         /* 緊急時の赤 */
+  --hr-warning: #f59e0b;        /* 警告・重要 */
+  --hr-info: #3b82f6;           /* 情報・面談 */
+  --hr-success: #00ba7c;        /* 完了・成功 */
+
+  /* 背景色（VoiceDriveテーマ継承） */
+  --hr-bg-primary: var(--bg-primary);      /* #0f1419 */
+  --hr-bg-secondary: var(--bg-secondary);  /* #1a1a2e */
+  --hr-bg-tertiary: var(--bg-tertiary);    /* #16213e */
+  --hr-bg-card: rgba(15, 20, 25, 0.8);     /* 半透明ダーク */
+  --hr-bg-modal: rgba(0, 0, 0, 0.9);       /* モーダル背景 */
+
+  /* テキストカラー（明るい背景用に調整） */
+  --hr-text-primary: #1f2937;    /* ダークグレー */
+  --hr-text-secondary: #4b5563;  /* ミディアムグレー */
+  --hr-text-muted: #9ca3af;      /* ライトグレー */
+
+  /* ボーダー・区切り線 */
+  --hr-border-color: var(--border-color);    /* rgba(47, 51, 54, 0.5) */
+  --hr-border-light: rgba(255, 255, 255, 0.1);
+
+  /* カテゴリ別カラー */
+  --hr-category-urgent-bg: rgba(239, 68, 68, 0.1);
+  --hr-category-urgent-border: #ef4444;
+
+  --hr-category-meeting-bg: rgba(59, 130, 246, 0.1);
+  --hr-category-meeting-border: #3b82f6;
+
+  --hr-category-training-bg: rgba(139, 92, 246, 0.1);
+  --hr-category-training-border: #8b5cf6;
+
+  --hr-category-health-bg: rgba(16, 185, 129, 0.1);
+  --hr-category-health-border: #10b981;
+
+  --hr-category-other-bg: rgba(156, 163, 175, 0.1);
+  --hr-category-other-border: #9ca3af;
+}
+
+/* 基本レイアウト - 背景はコンポーネント側で適用 */
+.hr-announcements-container {
+  min-height: 100vh;
+  color: var(--hr-text-primary);
+  padding-bottom: 80px; /* ナビゲーション分の余白 */
+}
+
+/* 人事お知らせページ専用：Layoutの上部パディングを打ち消す */
+.hr-announcements-page {
+  margin-top: -80px; /* モバイル時のパディングを打ち消す */
+}
+
+@media (min-width: 768px) {
+  .hr-announcements-page {
+    margin-top: -96px; /* デスクトップ時のパディングを打ち消す */
+  }
+}
+
+/* ヘッダー */
+.hr-header {
+  background: var(--hr-bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--hr-border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 16px;
+}
+
+.hr-header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hr-header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--hr-text-primary);
+}
+
+.hr-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.hr-header-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--hr-border-light);
+  color: var(--hr-text-primary);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hr-header-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* タイトルヘッダー - 不透明な暗い背景 + 虹色グラデーションボーダー */
+.hr-title-header {
+  background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+  border-bottom: none;
+  padding: 20px 20px 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: none;
+}
+
+.hr-title-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.hr-title-icon {
+  font-size: 32px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.hr-title-text {
+  font-size: 28px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hr-title-badge {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  font-size: 14px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: bold;
+  -webkit-text-fill-color: white;
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* カテゴリフィルター */
+.hr-category-filter {
+  background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+  border-bottom: 3px solid transparent;
+  border-image: linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
+  border-image-slice: 1;
+  padding: 20px 12px 12px 12px;
+  position: sticky;
+  top: 52px;
+  z-index: 90;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+}
+
+.hr-category-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--hr-border-color) transparent;
+}
+
+.hr-category-container::-webkit-scrollbar {
+  height: 4px;
+}
+
+.hr-category-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hr-category-container::-webkit-scrollbar-thumb {
+  background: var(--hr-border-color);
+  border-radius: 2px;
+}
+
+.hr-category-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--hr-border-light);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--hr-text-secondary);
+}
+
+.hr-category-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--hr-text-primary);
+}
+
+.hr-category-btn.active {
+  background: var(--hr-primary);
+  color: white;
+  border-color: var(--hr-primary);
+  font-weight: 600;
+}
+
+/* メッセージエリア */
+.hr-messages-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.hr-date-divider {
+  text-align: center;
+  margin: 24px 0 16px 0;
+}
+
+.hr-date-label {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--hr-text-secondary);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  display: inline-block;
+  backdrop-filter: blur(10px);
+}
+
+/* メッセージバブル */
+.hr-message {
+  display: flex;
+  margin-bottom: 20px;
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hr-message-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.hr-icon-normal {
+  background: linear-gradient(135deg, var(--hr-primary) 0%, #059669 100%);
+}
+
+.hr-icon-urgent {
+  background: linear-gradient(135deg, var(--hr-urgent) 0%, #dc2626 100%);
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+.hr-icon-info {
+  background: linear-gradient(135deg, var(--hr-info) 0%, #2563eb 100%);
+}
+
+.hr-icon-warning {
+  background: linear-gradient(135deg, var(--hr-warning) 0%, #d97706 100%);
+}
+
+.hr-icon-health {
+  background: linear-gradient(135deg, var(--hr-primary) 0%, #059669 100%);
+}
+
+.hr-message-content {
+  flex: 1;
+  max-width: 600px;
+}
+
+.hr-message-bubble {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.hr-message-bubble:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: rgba(209, 213, 219, 1);
+}
+
+.hr-bubble-urgent {
+  background: rgba(254, 242, 242, 0.95);
+  border-left: 4px solid var(--hr-category-urgent-border);
+}
+
+.hr-bubble-meeting {
+  border-top: 3px solid var(--hr-category-meeting-border);
+}
+
+.hr-bubble-training {
+  border-top: 3px solid var(--hr-category-training-border);
+}
+
+.hr-bubble-health {
+  border-top: 3px solid var(--hr-category-health-border);
+}
+
+.hr-message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.hr-category-tag {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.hr-tag-urgent {
+  background: var(--hr-category-urgent-bg);
+  color: var(--hr-urgent);
+  border: 1px solid var(--hr-category-urgent-border);
+}
+
+.hr-tag-meeting {
+  background: var(--hr-category-meeting-bg);
+  color: var(--hr-info);
+  border: 1px solid var(--hr-category-meeting-border);
+}
+
+.hr-tag-training {
+  background: var(--hr-category-training-bg);
+  color: #8b5cf6;
+  border: 1px solid var(--hr-category-training-border);
+}
+
+.hr-tag-health {
+  background: var(--hr-category-health-bg);
+  color: var(--hr-primary);
+  border: 1px solid var(--hr-category-health-border);
+}
+
+.hr-tag-other {
+  background: var(--hr-category-other-bg);
+  color: var(--hr-text-muted);
+  border: 1px solid var(--hr-category-other-border);
+}
+
+.hr-time-label {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.hr-message-title {
+  font-weight: 600;
+  color: var(--hr-text-primary);
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.hr-message-text {
+  color: var(--hr-text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.hr-message-info {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #60a5fa;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* 応答ボタン（カスタマイズ機能） */
+.hr-response-button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.hr-response-button.acknowledged {
+  background: linear-gradient(135deg, var(--hr-primary) 0%, #059669 100%);
+  color: white;
+}
+
+.hr-response-button.completed {
+  background: linear-gradient(135deg, var(--hr-info) 0%, #2563eb 100%);
+  color: white;
+}
+
+.hr-response-button.custom {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+}
+
+.hr-response-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.hr-response-button:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--hr-text-muted);
+  cursor: not-allowed;
+}
+
+.hr-response-button.responded {
+  background: rgba(0, 186, 124, 0.2);
+  color: var(--hr-success);
+  border: 1px solid var(--hr-success);
+}
+
+/* アクションボタン（面談予約、ストレスチェックなど） */
+.hr-action-button {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.hr-action-button.meeting {
+  background: linear-gradient(135deg, var(--hr-info) 0%, #1d4ed8 100%);
+  color: white;
+}
+
+.hr-action-button.health {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+}
+
+.hr-action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.hr-message-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--hr-border-light);
+}
+
+.hr-author {
+  font-size: 12px;
+  color: var(--hr-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hr-response-count {
+  font-size: 12px;
+  color: var(--hr-primary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* モバイル最適化 */
+@media (max-width: 768px) {
+  .hr-title-header {
+    padding: 16px;
+  }
+
+  .hr-title-icon {
+    font-size: 24px;
+  }
+
+  .hr-title-text {
+    font-size: 20px;
+  }
+
+  .hr-title-badge {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+
+  .hr-messages-container {
+    padding: 16px;
+  }
+
+  .hr-message-bubble {
+    padding: 12px;
+  }
+
+  .hr-message-title {
+    font-size: 15px;
+  }
+
+  .hr-message-text {
+    font-size: 13px;
+  }
+
+  .hr-category-container {
+    padding: 0 4px;
+  }
+
+  .hr-response-button,
+  .hr-action-button {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  /* モバイルナビゲーション考慮で下部にマージンを確保 */
+  .hr-announcements-container {
+    padding-bottom: 100px;
+  }
+}
+
+/* ダークテーマ最適化 - グラデーション背景はコンポーネント側で制御 */
+
+/* 高コントラスト対応 */
+@media (prefers-contrast: high) {
+  .hr-message-bubble {
+    border-width: 2px;
+  }
+
+  .hr-category-btn,
+  .hr-response-button,
+  .hr-action-button {
+    border-width: 2px;
+  }
+}
+
+/* アニメーション削減対応 */
+@media (prefers-reduced-motion: reduce) {
+  .hr-message,
+  .hr-message-bubble,
+  .hr-response-button,
+  .hr-action-button {
+    animation: none;
+    transition: none;
+  }
+
+  .hr-icon-urgent {
+    animation: none;
+  }
+}

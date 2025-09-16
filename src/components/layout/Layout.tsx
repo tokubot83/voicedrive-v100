@@ -22,6 +22,9 @@ const Layout: React.FC = () => {
   // Map demo user role to UserRole type
   const userRole = currentUser?.role as UserRole | undefined;
   
+  // HRお知らせページかどうか判定
+  const isHRAnnouncementsPage = location.pathname === '/hr-announcements';
+
   // 専用管理画面のパスを定義
   const managementPaths = [
     '/retirement-processing',
@@ -137,11 +140,11 @@ const Layout: React.FC = () => {
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 ${isDemoMode ? 'pt-[80px] md:pt-[60px]' : ''} pb-16 md:pb-0`}>
-      {/* ヘッダーを最上部に配置 */}
-      {!isManagementPage && <Header toggleSidebar={toggleSidebar} />}
-      {/* モバイルメニューボタン（lg以下で表示、管理画面では非表示） */}
-      {!isManagementPage && (
-        <button 
+      {/* ヘッダーを最上部に配置（HRお知らせページでは非表示） */}
+      {!isManagementPage && !isHRAnnouncementsPage && <Header toggleSidebar={toggleSidebar} />}
+      {/* モバイルメニューボタン（lg以下で表示、管理画面とHRお知らせページでは非表示） */}
+      {!isManagementPage && !isHRAnnouncementsPage && (
+        <button
           onClick={toggleSidebar}
           className={`lg:hidden fixed left-4 top-4 z-50 bg-slate-800/90 backdrop-blur-lg border border-slate-700/50 rounded-full p-3 shadow-lg hover:bg-slate-700/90 transition-all duration-300 ${
             isVisible ? 'translate-y-0' : '-translate-y-full'

@@ -19,6 +19,9 @@
 /* アバターシステム関連のスタイルをインポート */
 @import './styles/avatar.css';
 
+/* 人事お知らせシステム関連のスタイルをインポート */
+@import './styles/hr-announcements.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

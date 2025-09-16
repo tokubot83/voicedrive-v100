@@ -86,6 +86,10 @@ import ComposePage from '../pages/ComposePage';
 import InterviewStation from '../pages/InterviewStation';
 import InterviewManagementPage from '../pages/InterviewManagementPage';
 
+// HR Announcements
+import HRAnnouncementsPage from '../components/hr-announcements/HRAnnouncementsPage';
+import StressCheckDemoPage from '../pages/StressCheckDemoPage';
+
 // Approvals & Notifications
 import { ApprovalsPage } from '../pages/ApprovalsPage';
 
@@ -130,6 +134,10 @@ const AppRouter: React.FC = () => {
         <Route index element={<HomePage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="projects-legacy" element={<ProjectListPage />} />
+
+        {/* HR Announcements - accessible to all users */}
+        <Route path="hr-announcements" element={<HRAnnouncementsPage />} />
+        <Route path="stress-check-demo" element={<StressCheckDemoPage />} />
         
         {/* Role-based dashboard routes with exact level protection */}
         <Route path="dashboard">
