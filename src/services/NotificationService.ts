@@ -64,6 +64,8 @@ export interface NotificationStats {
   pending: number;
   unread: number;
   total: number;
+  overdue: number;
+  byType: Record<string, number>;
 }
 
 class NotificationService {
@@ -536,14 +538,32 @@ VoiceDrive 医療システム統合
   }
 
   // 新しく追加するメソッド群
-  public getUserNotificationStats(userId: string): { pending: number; unread: number; total: number } {
+  public getUserNotificationStats(userId: string): NotificationStats {
     const userNotifications = Array.from(this.notifications.values())
       .filter(n => n.config.data?.userId === userId);
 
+    const pending = userNotifications.filter(n => n.status === 'sent').length;
+    const unread = userNotifications.filter(n => n.status === 'sent').length;
+    const total = userNotifications.length;
+
+    // 期限切れ通知の計算（簡易実装）
+    const overdue = userNotifications.filter(n =>
+      n.config.expiresAt && new Date(n.config.expiresAt) < new Date()
+    ).length;
+
+    // タイプ別の集計
+    const byType: Record<string, number> = {};
+    userNotifications.forEach(n => {
+      const type = n.config.type;
+      byType[type] = (byType[type] || 0) + 1;
+    });
+
     return {
-      pending: userNotifications.filter(n => n.status === 'sent').length,
-      unread: userNotifications.filter(n => n.status === 'sent').length,
-      total: userNotifications.length
+      pending,
+      unread,
+      total,
+      overdue,
+      byType
     };
   }
 
