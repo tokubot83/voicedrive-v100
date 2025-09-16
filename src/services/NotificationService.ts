@@ -586,6 +586,33 @@ VoiceDrive 医療システム統合
       this.acknowledgeNotification(notificationId);
     }
   }
+
+  public getUserNotifications(userId: string, filterOptions?: { unreadOnly?: boolean; pendingOnly?: boolean }): ActionableNotification[] {
+    const userNotifications = Array.from(this.notifications.values())
+      .filter(n => n.config.data?.userId === userId);
+
+    let filtered = userNotifications;
+
+    if (filterOptions?.unreadOnly) {
+      filtered = filtered.filter(n => n.status === 'sent');
+    }
+
+    if (filterOptions?.pendingOnly) {
+      filtered = filtered.filter(n => n.status === 'sent' && n.config.actionRequired);
+    }
+
+    return filtered.map(n => ({
+      id: n.id,
+      type: n.config.type,
+      title: n.config.title,
+      message: n.config.message,
+      urgency: n.config.urgency,
+      timestamp: n.config.timestamp,
+      isRead: n.status === 'acknowledged',
+      actionRequired: n.config.actionRequired || false,
+      data: n.config.data
+    }));
+  }
 }
 
 export default NotificationService;
