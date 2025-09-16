@@ -1,20 +1,41 @@
-import {
-  InterviewConfirmationNotification,
-  InterviewConfirmationData,
-  InterviewChangeNotification,
-  InterviewCancellationRequest,
-  NotificationStatus
-} from '../types/medicalNotification';
+// 医療システム連携通知サービス - VoiceDrive Phase 4 統合実装
+import NotificationService from './NotificationService';
+import WebSocketNotificationService from './WebSocketNotificationService';
+import TokenRefreshService from './TokenRefreshService';
+import { NotificationMessage } from '../types/medicalSystemIntegration';
+
+interface MedicalIntegrationConfig {
+  enableRealtimeNotifications: boolean;
+  enableOfflineMode: boolean;
+  retryAttempts: number;
+  connectionTimeout: number;
+  heartbeatInterval: number;
+}
 
 class MedicalNotificationService {
   private static instance: MedicalNotificationService;
-  private notifications: InterviewConfirmationNotification[] = [];
-  private changeNotifications: InterviewChangeNotification[] = [];
-  private listeners: Array<(notifications: InterviewConfirmationNotification[]) => void> = [];
+  private notificationService: NotificationService;
+  private websocketService: WebSocketNotificationService;
+  private tokenService: TokenRefreshService;
+  private config: MedicalIntegrationConfig;
+  private connectionStatus: 'connected' | 'disconnected' | 'reconnecting' = 'disconnected';
+  private messageQueue: NotificationMessage[] = [];
+  private statusCheckInterval: NodeJS.Timeout | null = null;
 
   private constructor() {
-    this.initializeWebSocket();
-    this.loadStoredNotifications();
+    this.notificationService = NotificationService.getInstance();
+    this.websocketService = WebSocketNotificationService.getInstance();
+    this.tokenService = TokenRefreshService.getInstance();
+
+    this.config = {
+      enableRealtimeNotifications: true,
+      enableOfflineMode: true,
+      retryAttempts: 3,
+      connectionTimeout: 10000,
+      heartbeatInterval: 30000
+    };
+
+    this.initialize();
   }
 
   public static getInstance(): MedicalNotificationService {
@@ -24,477 +45,437 @@ class MedicalNotificationService {
     return MedicalNotificationService.instance;
   }
 
-  // WebSocket接続の初期化（医療システムからの通知受信用）
-  private initializeWebSocket() {
-    // 実際の実装では医療システムのWebSocketエンドポイントに接続
-    // ここではデモ用の設定
-    console.log('Medical notification WebSocket initialized');
+  // サービス初期化
+  private async initialize(): Promise<void> {
+    try {
+      // WebSocket接続設定
+      await this.setupWebSocketConnection();
 
-    // デモ用: 5秒後にサンプル通知を生成
-    setTimeout(() => {
-      this.simulateIncomingNotification();
-    }, 5000);
+      // 通知権限の要求
+      await this.requestNotificationPermissions();
+
+      // イベントリスナー設定
+      this.setupEventListeners();
+
+      // ステータスチェック開始
+      this.startStatusMonitoring();
+
+      console.log('✅ 医療システム通知サービス初期化完了');
+
+    } catch (error) {
+      console.error('❌ 医療システム通知サービス初期化エラー:', error);
+    }
   }
 
-  // ローカルストレージから通知データを読み込み
-  private loadStoredNotifications() {
+  // WebSocket接続設定
+  private async setupWebSocketConnection(): Promise<void> {
+    if (!this.config.enableRealtimeNotifications) return;
+
     try {
-      const stored = localStorage.getItem('medicalNotifications');
-      if (stored) {
-        this.notifications = JSON.parse(stored);
-        this.notifyListeners();
+      // ユーザーIDの取得
+      const userId = localStorage.getItem('currentUserId') || 'user-medical-system';
+
+      // WebSocket接続
+      const connected = await this.websocketService.connect(userId);
+
+      if (connected) {
+        this.connectionStatus = 'connected';
+        console.log('🔗 医療システムWebSocket接続成功');
+
+        // キューに蓄積されたメッセージを処理
+        await this.processMessageQueue();
       }
+
     } catch (error) {
-      console.error('Failed to load stored notifications:', error);
+      console.error('❌ WebSocket接続エラー:', error);
+      this.connectionStatus = 'disconnected';
+
+      // オフラインモード有効時はキューに保存
+      if (this.config.enableOfflineMode) {
+        console.log('📱 オフラインモードで動作継続');
+      }
     }
   }
 
-  // ローカルストレージに通知データを保存
-  private saveNotifications() {
-    try {
-      localStorage.setItem('medicalNotifications', JSON.stringify(this.notifications));
-    } catch (error) {
-      console.error('Failed to save notifications:', error);
-    }
-  }
-
-  // 新しい面談確定通知を受信
-  public receiveInterviewConfirmation(data: InterviewConfirmationData): void {
-    const notification: InterviewConfirmationNotification = {
-      id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      data,
-      status: {
-        notificationStatus: 'delivered',
-        userAction: 'none',
-        reminder1Sent: false,
-        reminder2Sent: false,
-        attendanceConfirmed: false,
-        lastUpdated: new Date().toISOString()
-      },
-      receivedAt: new Date().toISOString(),
-      priority: this.determinePriority(data.urgency)
-    };
-
-    this.notifications.unshift(notification);
-    this.saveNotifications();
-    this.notifyListeners();
-
-    // プッシュ通知を表示
-    this.showPushNotification(notification);
-  }
-
-  // 緊急度に基づく優先度の決定
-  private determinePriority(urgency: string): 'low' | 'normal' | 'high' | 'urgent' {
-    switch (urgency) {
-      case 'urgent': return 'urgent';
-      case 'high': return 'high';
-      case 'medium': return 'normal';
-      case 'low': return 'low';
-      default: return 'normal';
-    }
-  }
-
-  // プッシュ通知の表示
-  private showPushNotification(notification: InterviewConfirmationNotification) {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      const { data } = notification;
-      new Notification('面談予約が確定しました！', {
-        body: `${data.finalScheduledDate} ${data.finalScheduledTime}から${data.interviewer.name}との面談が確定しました。`,
-        icon: '/icon-192x192.png',
-        badge: '/icon-192x192.png',
-        tag: notification.id,
-        requireInteraction: true
-      });
-    }
-  }
-
-  // 通知の確認（ユーザーアクション）
-  public acknowledgeNotification(notificationId: string): void {
-    const notification = this.notifications.find(n => n.id === notificationId);
-    if (notification) {
-      notification.status.userAction = 'acknowledged';
-      notification.status.notificationStatus = 'acknowledged';
-      notification.status.lastUpdated = new Date().toISOString();
-
-      this.saveNotifications();
-      this.notifyListeners();
-    }
-  }
-
-  // 通知の辞退
-  public declineNotification(notificationId: string, reason: string): void {
-    const notification = this.notifications.find(n => n.id === notificationId);
-    if (notification) {
-      notification.status.userAction = 'declined';
-      notification.status.lastUpdated = new Date().toISOString();
-
-      // 医療システムに辞退情報を送信
-      this.sendDeclineToMedicalSystem(notification.data.reservationId, reason);
-
-      this.saveNotifications();
-      this.notifyListeners();
-    }
-  }
-
-  // 医療システムへの辞退通知送信
-  private async sendDeclineToMedicalSystem(reservationId: string, reason: string) {
-    try {
-      // 実際の実装では医療システムのAPIエンドポイントに送信
-      console.log('Sending decline notification to medical system:', {
-        reservationId,
-        reason,
-        timestamp: new Date().toISOString()
-      });
-
-      // デモ用のAPI呼び出し
-      // await fetch('/api/medical-system/decline', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ reservationId, reason })
-      // });
-    } catch (error) {
-      console.error('Failed to send decline notification:', error);
-    }
-  }
-
-  // 通知リストの取得
-  public getNotifications(): InterviewConfirmationNotification[] {
-    return [...this.notifications].sort((a, b) => {
-      // 優先度とタイムスタンプでソート
-      const priorityOrder = { urgent: 4, high: 3, normal: 2, low: 1 };
-      const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
-      if (priorityDiff !== 0) return priorityDiff;
-
-      return new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime();
-    });
-  }
-
-  // 未読通知数の取得
-  public getUnreadCount(): number {
-    return this.notifications.filter(n => n.status.userAction === 'none').length;
-  }
-
-  // リスナーの登録
-  public addListener(callback: (notifications: InterviewConfirmationNotification[]) => void): void {
-    this.listeners.push(callback);
-  }
-
-  // リスナーの削除
-  public removeListener(callback: (notifications: InterviewConfirmationNotification[]) => void): void {
-    const index = this.listeners.indexOf(callback);
-    if (index > -1) {
-      this.listeners.splice(index, 1);
-    }
-  }
-
-  // リスナーへの通知
-  private notifyListeners(): void {
-    this.listeners.forEach(callback => callback(this.getNotifications()));
-  }
-
-  // 通知権限のリクエスト
-  public async requestNotificationPermission(): Promise<NotificationPermission> {
-    if ('Notification' in window) {
-      return await Notification.requestPermission();
-    }
-    return 'default';
-  }
-
-  // リマインダーの設定
-  public scheduleReminder(notification: InterviewConfirmationNotification): void {
-    const { data } = notification;
-    const interviewDateTime = new Date(`${data.finalScheduledDate}T${data.finalScheduledTime}`);
-
-    // 前日17:00のリマインダー
-    const dayBeforeReminder = new Date(interviewDateTime);
-    dayBeforeReminder.setDate(dayBeforeReminder.getDate() - 1);
-    dayBeforeReminder.setHours(17, 0, 0, 0);
-
-    // 2時間前のリマインダー
-    const twoHoursBefore = new Date(interviewDateTime);
-    twoHoursBefore.setHours(twoHoursBefore.getHours() - 2);
-
-    const now = new Date();
-
-    // 前日17:00のリマインダー設定
-    if (dayBeforeReminder > now && !notification.status.reminder1Sent) {
-      const timeUntilReminder1 = dayBeforeReminder.getTime() - now.getTime();
-      setTimeout(() => {
-        this.sendReminder(notification, 'day_before');
-      }, timeUntilReminder1);
-    }
-
-    // 2時間前のリマインダー設定
-    if (twoHoursBefore > now && !notification.status.reminder2Sent) {
-      const timeUntilReminder2 = twoHoursBefore.getTime() - now.getTime();
-      setTimeout(() => {
-        this.sendReminder(notification, 'two_hours_before');
-      }, timeUntilReminder2);
-    }
-  }
-
-  // リマインダーの送信
-  private sendReminder(notification: InterviewConfirmationNotification, type: 'day_before' | 'two_hours_before'): void {
-    const { data } = notification;
-
-    let title = '';
-    let body = '';
-
-    if (type === 'day_before') {
-      title = '明日の面談のお知らせ';
-      body = `明日 ${data.finalScheduledTime}から${data.interviewer.name}との面談が予定されています。`;
-      notification.status.reminder1Sent = true;
+  // 通知権限の要求
+  private async requestNotificationPermissions(): Promise<void> {
+    const granted = await this.notificationService.requestNotificationPermission();
+    if (granted) {
+      console.log('✅ ブラウザ通知権限取得成功');
     } else {
-      title = '面談開始2時間前です';
-      body = `${data.finalScheduledTime}から${data.location}で面談が予定されています。準備をお願いします。`;
-      notification.status.reminder2Sent = true;
-    }
-
-    // プッシュ通知
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, {
-        body,
-        icon: '/icon-192x192.png',
-        badge: '/icon-192x192.png',
-        tag: `reminder_${notification.id}_${type}`,
-        requireInteraction: false
-      });
-    }
-
-    notification.status.lastUpdated = new Date().toISOString();
-    this.saveNotifications();
-    this.notifyListeners();
-  }
-
-  // 面談キャンセル要求の送信
-  public async sendCancellationRequest(request: InterviewCancellationRequest): Promise<void> {
-    try {
-      // 実際の実装では医療システムのAPIエンドポイントに送信
-      console.log('Sending cancellation request to medical system:', request);
-
-      // デモ用のAPI呼び出し
-      const response = await fetch('/api/medical-system/cancel-interview', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getAuthToken()}`
-        },
-        body: JSON.stringify(request)
-      }).catch(() => {
-        // デモ用: API呼び出しが失敗しても処理を続行
-        console.log('Demo mode: API call simulated');
-        return { ok: true, json: () => Promise.resolve({ success: true }) };
-      });
-
-      if (response.ok) {
-        // キャンセル成功の処理
-        this.showSuccessNotification(request);
-
-        // 緊急キャンセルの場合は変更通知をシミュレート
-        if (request.cancellationType === 'emergency') {
-          setTimeout(() => {
-            this.simulateCancellationNotification(request);
-          }, 2000);
-        }
-      } else {
-        throw new Error('Cancellation request failed');
-      }
-    } catch (error) {
-      console.error('Failed to send cancellation request:', error);
-      throw error;
+      console.warn('⚠️ ブラウザ通知権限が拒否されました');
     }
   }
 
-  // 認証トークンの取得（デモ用）
-  private getAuthToken(): string {
-    return 'demo-auth-token-' + Date.now();
-  }
+  // イベントリスナー設定
+  private setupEventListeners(): void {
+    // WebSocket通知イベント
+    this.websocketService.addListener('proposal_received', (data) => {
+      this.handleProposalReceived(data);
+    });
 
-  // キャンセル成功通知の表示
-  private showSuccessNotification(request: InterviewCancellationRequest): void {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      const title = request.cancellationType === 'emergency'
-        ? '緊急キャンセルを受け付けました'
-        : '面談キャンセルを受け付けました';
+    this.websocketService.addListener('booking_confirmed', (data) => {
+      this.handleBookingConfirmed(data);
+    });
 
-      new Notification(title, {
-        body: '医療システムに送信されました。担当者からの連絡をお待ちください。',
-        icon: '/icon-192x192.png',
-        badge: '/icon-192x192.png',
-        tag: `cancel_${request.reservationId}`,
-        requireInteraction: true
-      });
-    }
-  }
+    this.websocketService.addListener('reschedule_decision', (data) => {
+      this.handleRescheduleDecision(data);
+    });
 
-  // 変更通知の受信（面談がキャンセルされた場合）
-  public receiveInterviewChange(changeData: InterviewChangeNotification): void {
-    this.changeNotifications.unshift(changeData);
-    this.saveChangeNotifications();
+    this.websocketService.addListener('revised_proposal', (data) => {
+      this.handleRevisedProposal(data);
+    });
 
-    // プッシュ通知を表示
-    this.showChangeNotification(changeData);
-  }
+    this.websocketService.addListener('system_notification', (data) => {
+      this.handleSystemNotification(data);
+    });
 
-  // 変更通知のプッシュ通知表示
-  private showChangeNotification(notification: InterviewChangeNotification): void {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      let title = '';
-      let body = '';
+    // Token更新イベント
+    this.tokenService.addTokenUpdateListener((newToken) => {
+      console.log('🔄 認証トークン更新完了');
+    });
 
-      switch (notification.changeType) {
-        case 'cancelled':
-          title = '面談がキャンセルされました';
-          body = `${notification.originalData.scheduledDate}の面談がキャンセルされました。`;
-          break;
-        case 'rescheduled':
-          title = '面談の日時が変更されました';
-          body = `新しい日時: ${notification.newData?.scheduledDate} ${notification.newData?.scheduledTime}`;
-          break;
-        case 'location_changed':
-          title = '面談場所が変更されました';
-          body = `新しい場所: ${notification.newData?.location}`;
-          break;
-        case 'interviewer_changed':
-          title = '面談担当者が変更されました';
-          body = `新しい担当者: ${notification.newData?.interviewer?.name}`;
-          break;
-      }
-
-      new Notification(title, {
-        body,
-        icon: '/icon-192x192.png',
-        badge: '/icon-192x192.png',
-        tag: `change_${notification.reservationId}`,
-        requireInteraction: notification.isUrgent
-      });
-    }
-  }
-
-  // 変更通知のローカルストレージ保存
-  private saveChangeNotifications(): void {
-    try {
-      localStorage.setItem('medicalChangeNotifications', JSON.stringify(this.changeNotifications));
-    } catch (error) {
-      console.error('Failed to save change notifications:', error);
-    }
-  }
-
-  // 変更通知の取得
-  public getChangeNotifications(): InterviewChangeNotification[] {
-    return [...this.changeNotifications].sort((a, b) => {
-      // 緊急度とタイムスタンプでソート
-      if (a.isUrgent && !b.isUrgent) return -1;
-      if (!a.isUrgent && b.isUrgent) return 1;
-      return new Date(b.changedAt).getTime() - new Date(a.changedAt).getTime();
+    // ブラウザ認証エラーイベント
+    window.addEventListener('tokenAuthError', (event: any) => {
+      this.handleAuthError(event.detail);
     });
   }
 
-  // デモ用: キャンセル通知のシミュレート
-  private simulateCancellationNotification(request: InterviewCancellationRequest): void {
-    const changeNotification: InterviewChangeNotification = {
-      staffId: request.staffId,
-      staffName: "田中 花子",
-      reservationId: request.reservationId,
-      changeType: 'cancelled',
-      originalData: {
-        scheduledDate: "2025-09-20",
-        scheduledTime: "14:30",
-        location: "キャリア支援室",
-        interviewer: {
-          name: "田中美香子",
-          title: "看護師長",
-          department: "キャリア支援室",
-          contactExtension: "内線2345"
-        }
-      },
-      changeReason: request.cancellationReason,
-      isUrgent: request.cancellationType === 'emergency',
-      requiresAcknowledgement: true,
-      changedBy: "システム自動処理",
-      changedAt: new Date().toISOString(),
-      notificationType: 'interview_change',
-      sourceSystem: 'medical_system'
-    };
-
-    this.receiveInterviewChange(changeNotification);
+  // ステータス監視開始
+  private startStatusMonitoring(): void {
+    this.statusCheckInterval = setInterval(() => {
+      this.checkConnectionStatus();
+    }, this.config.heartbeatInterval);
   }
 
-  // デモ用: サンプル通知の生成
-  private simulateIncomingNotification(): void {
-    const sampleData: InterviewConfirmationData = {
-      staffId: "VD-NS-2025-001",
-      staffName: "田中 花子",
-      department: "内科",
-      position: "看護師",
-      interviewType: "support",
-      urgency: "high",
-      preferredDates: ["2025-09-20", "2025-09-21"],
-      finalScheduledDate: "2025-09-20",
-      finalScheduledTime: "14:30",
-      duration: 45,
-      location: "キャリア支援室",
-      format: "face_to_face",
-      interviewer: {
-        name: "田中美香子",
-        title: "看護師長",
-        department: "キャリア支援室",
-        contactExtension: "内線2345"
-      },
-      confirmedBy: "人事部管理者",
-      confirmedAt: new Date().toISOString(),
-      reservationId: "AI-BOOK-001",
-      notificationType: "interview_confirmed",
-      sourceSystem: "medical_system"
-    };
+  // 接続状況チェック
+  private checkConnectionStatus(): void {
+    const wsConnected = this.websocketService.isConnected();
+    const tokenValid = this.tokenService.isTokenValid();
 
-    this.receiveInterviewConfirmation(sampleData);
+    if (!wsConnected && this.connectionStatus === 'connected') {
+      this.connectionStatus = 'disconnected';
+      this.notifyConnectionStatus('disconnected');
+    } else if (wsConnected && this.connectionStatus === 'disconnected') {
+      this.connectionStatus = 'connected';
+      this.notifyConnectionStatus('connected');
+    }
 
-    // 10秒後に変更通知のデモも実行
-    setTimeout(() => {
-      this.simulateChangeNotification();
-    }, 10000);
+    if (!tokenValid) {
+      this.handleTokenExpiration();
+    }
   }
 
-  // デモ用: 変更通知のシミュレート
-  private simulateChangeNotification(): void {
-    const changeNotification: InterviewChangeNotification = {
-      staffId: "VD-NS-2025-001",
-      staffName: "田中 花子",
-      reservationId: "AI-BOOK-002",
-      changeType: 'rescheduled',
-      originalData: {
-        scheduledDate: "2025-09-21",
-        scheduledTime: "15:00",
-        location: "第2面談室",
-        interviewer: {
-          name: "佐藤 太郎",
-          title: "人事課長",
-          department: "人事部",
-          contactExtension: "内線3456"
-        }
+  // === 医療システム通知ハンドラー ===
+
+  // AI提案受信通知
+  private async handleProposalReceived(data: any): Promise<void> {
+    await this.notificationService.sendNotification({
+      type: 'proposal_received',
+      title: '🤖 AI最適化完了',
+      message: `面談候補${data.proposals?.length || 3}つの提案が届きました`,
+      urgency: 'high',
+      channels: ['browser', 'sound', 'storage'],
+      timestamp: data.timestamp || new Date().toISOString(),
+      actionRequired: true,
+      data: {
+        requestId: data.requestId,
+        proposalCount: data.proposals?.length,
+        expiresAt: data.expiresAt
+      }
+    });
+
+    // カスタムイベント発火（UI更新用）
+    this.dispatchCustomEvent('proposalReceived', data);
+  }
+
+  // 予約確定通知
+  private async handleBookingConfirmed(data: any): Promise<void> {
+    const reservationInfo = data.finalReservation || {};
+
+    await this.notificationService.sendNotification({
+      type: 'booking_confirmed',
+      title: '✅ 面談予約確定！',
+      message: `${reservationInfo.scheduledDate} ${reservationInfo.scheduledTime}から面談が確定しました`,
+      urgency: 'high',
+      channels: ['browser', 'sound', 'storage'],
+      timestamp: data.timestamp || new Date().toISOString(),
+      actionRequired: false,
+      data: {
+        bookingId: data.bookingId,
+        finalReservation: reservationInfo
+      }
+    });
+
+    this.dispatchCustomEvent('bookingConfirmed', data);
+  }
+
+  // 日時変更承認・拒否通知
+  private async handleRescheduleDecision(data: any): Promise<void> {
+    const isApproved = data.approved;
+
+    await this.notificationService.sendNotification({
+      type: isApproved ? 'reschedule_approved' : 'reschedule_rejected',
+      title: isApproved ? '✅ 日時変更承認' : '❌ 日時変更拒否',
+      message: data.message || (isApproved ? '日時変更が承認されました' : '日時変更が拒否されました'),
+      urgency: 'high',
+      channels: ['browser', 'storage'],
+      timestamp: data.timestamp || new Date().toISOString(),
+      actionRequired: !isApproved,
+      data: {
+        requestId: data.requestId,
+        approved: isApproved,
+        newBookingDetails: data.newBookingDetails,
+        message: data.message
+      }
+    });
+
+    this.dispatchCustomEvent('rescheduleDecision', data);
+  }
+
+  // 再提案受信通知
+  private async handleRevisedProposal(data: any): Promise<void> {
+    await this.notificationService.sendNotification({
+      type: 'revised_proposal',
+      title: '🔄 調整後の新提案',
+      message: 'ご要望に合わせて新しい候補を用意しました',
+      urgency: 'high',
+      channels: ['browser', 'sound', 'storage'],
+      timestamp: data.timestamp || new Date().toISOString(),
+      actionRequired: true,
+      data: {
+        requestId: data.requestId,
+        adjustmentId: data.adjustmentId,
+        proposals: data.proposals,
+        adjustmentSummary: data.adjustmentSummary
+      }
+    });
+
+    this.dispatchCustomEvent('revisedProposal', data);
+  }
+
+  // システム通知
+  private async handleSystemNotification(data: any): Promise<void> {
+    await this.notificationService.sendNotification({
+      type: 'system_notification',
+      title: '📢 システム通知',
+      message: data.message || 'システムからのお知らせです',
+      urgency: data.urgency || 'normal',
+      channels: ['browser', 'storage'],
+      timestamp: data.timestamp || new Date().toISOString(),
+      actionRequired: data.actionRequired || false,
+      data
+    });
+
+    this.dispatchCustomEvent('systemNotification', data);
+  }
+
+  // === エラーハンドリング ===
+
+  // 認証エラー処理
+  private async handleAuthError(error: any): Promise<void> {
+    await this.notificationService.sendNotification({
+      type: 'system_notification',
+      title: '🔐 認証エラー',
+      message: '認証に失敗しました。再度ログインしてください。',
+      urgency: 'urgent',
+      channels: ['browser', 'sound'],
+      timestamp: new Date().toISOString(),
+      actionRequired: true,
+      data: { error }
+    });
+
+    // WebSocket切断
+    this.websocketService.disconnect();
+    this.connectionStatus = 'disconnected';
+  }
+
+  // Token期限切れ処理
+  private async handleTokenExpiration(): Promise<void> {
+    console.warn('⚠️ 認証トークンの期限が切れています');
+
+    // Token更新試行
+    const refreshed = await this.tokenService.refreshToken();
+    if (!refreshed) {
+      this.handleAuthError({ message: 'Token更新失敗' });
+    }
+  }
+
+  // 接続状況通知
+  private async notifyConnectionStatus(status: 'connected' | 'disconnected'): Promise<void> {
+    const isConnected = status === 'connected';
+
+    await this.notificationService.sendNotification({
+      type: 'connection_status',
+      title: isConnected ? '🔗 接続復旧' : '⚠️ 接続切断',
+      message: isConnected ? '医療システムとの接続が復旧しました' : '医療システムとの接続が切断されました',
+      urgency: isConnected ? 'normal' : 'high',
+      channels: ['browser', 'storage'],
+      timestamp: new Date().toISOString(),
+      actionRequired: false,
+      data: { status }
+    });
+  }
+
+  // === 公開メソッド ===
+
+  // 医療システムへの通知送信
+  public async sendToMedicalSystem(message: NotificationMessage): Promise<void> {
+    if (this.connectionStatus === 'connected') {
+      // リアルタイム送信
+      // 実装では医療システムAPIを使用
+      console.log('📡 医療システムへ通知送信:', message);
+    } else {
+      // オフライン時はキューに保存
+      this.messageQueue.push(message);
+      console.log('📱 オフライン: メッセージをキューに追加');
+    }
+  }
+
+  // キューメッセージ処理
+  private async processMessageQueue(): Promise<void> {
+    if (this.messageQueue.length === 0) return;
+
+    console.log(`📤 キューメッセージ処理開始: ${this.messageQueue.length}件`);
+
+    const messages = [...this.messageQueue];
+    this.messageQueue = [];
+
+    for (const message of messages) {
+      try {
+        await this.sendToMedicalSystem(message);
+        await new Promise(resolve => setTimeout(resolve, 100)); // 100ms間隔
+      } catch (error) {
+        console.error('キューメッセージ送信エラー:', error);
+        // 失敗したメッセージは再度キューに追加
+        this.messageQueue.push(message);
+      }
+    }
+  }
+
+  // 設定更新
+  public updateConfig(newConfig: Partial<MedicalIntegrationConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+
+    if (newConfig.enableRealtimeNotifications !== undefined) {
+      if (newConfig.enableRealtimeNotifications && this.connectionStatus === 'disconnected') {
+        this.setupWebSocketConnection();
+      } else if (!newConfig.enableRealtimeNotifications && this.connectionStatus === 'connected') {
+        this.websocketService.disconnect();
+        this.connectionStatus = 'disconnected';
+      }
+    }
+  }
+
+  // 接続状況取得
+  public getConnectionStatus(): 'connected' | 'disconnected' | 'reconnecting' {
+    return this.connectionStatus;
+  }
+
+  // 統計情報取得
+  public getStatistics(): Record<string, any> {
+    return {
+      connectionStatus: this.connectionStatus,
+      queuedMessages: this.messageQueue.length,
+      websocketConnected: this.websocketService.isConnected(),
+      tokenValid: this.tokenService.isTokenValid(),
+      tokenTimeUntilRefresh: this.tokenService.getTimeUntilRefresh(),
+      notificationStats: this.notificationService.getUnacknowledgedCount(),
+      config: this.config
+    };
+  }
+
+  // WebSocketデバッグ情報
+  public getWebSocketDebugInfo(): Record<string, any> {
+    return this.websocketService.getDebugInfo();
+  }
+
+  // 手動再接続
+  public async reconnect(): Promise<void> {
+    this.connectionStatus = 'reconnecting';
+    console.log('🔄 医療システム手動再接続開始...');
+
+    try {
+      this.websocketService.disconnect();
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await this.setupWebSocketConnection();
+    } catch (error) {
+      console.error('❌ 手動再接続エラー:', error);
+      this.connectionStatus = 'disconnected';
+    }
+  }
+
+  // サービス停止
+  public destroy(): void {
+    if (this.statusCheckInterval) {
+      clearInterval(this.statusCheckInterval);
+      this.statusCheckInterval = null;
+    }
+
+    this.websocketService.disconnect();
+    this.connectionStatus = 'disconnected';
+
+    console.log('🛑 医療システム通知サービス停止');
+  }
+
+  // === ユーティリティメソッド ===
+
+  // カスタムイベント発火
+  private dispatchCustomEvent(eventName: string, data: any): void {
+    const customEvent = new CustomEvent(`medical:${eventName}`, {
+      detail: data
+    });
+    window.dispatchEvent(customEvent);
+  }
+
+  // 期限警告チェック
+  public checkDeadlineWarnings(): void {
+    // 実装では期限が近い面談選択などをチェック
+    // 医療システムからの情報に基づいて警告通知を送信
+    console.log('⏰ 期限警告チェック実行');
+  }
+
+  // デモモード：テスト通知送信
+  public async sendTestNotification(type: 'proposal' | 'booking' | 'reschedule' = 'proposal'): Promise<void> {
+    const testData = {
+      'proposal': {
+        requestId: 'test-req-001',
+        proposals: [1, 2, 3],
+        expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+        timestamp: new Date().toISOString()
       },
-      newData: {
-        scheduledDate: "2025-09-22",
-        scheduledTime: "14:00",
-        location: "第2面談室",
-        interviewer: {
-          name: "佐藤 太郎",
-          title: "人事課長",
-          department: "人事部",
-          contactExtension: "内線3456"
-        }
+      'booking': {
+        bookingId: 'test-book-001',
+        finalReservation: {
+          scheduledDate: '2025-01-20',
+          scheduledTime: '14:00',
+          interviewerName: '田中 面談担当者'
+        },
+        timestamp: new Date().toISOString()
       },
-      changeReason: "担当者の急用により日時を変更いたします。",
-      isUrgent: true,
-      requiresAcknowledgement: true,
-      changedBy: "人事部システム",
-      changedAt: new Date().toISOString(),
-      notificationType: 'interview_change',
-      sourceSystem: 'medical_system'
+      'reschedule': {
+        requestId: 'test-req-001',
+        approved: true,
+        message: 'テスト用日時変更承認通知',
+        timestamp: new Date().toISOString()
+      }
     };
 
-    this.receiveInterviewChange(changeNotification);
+    const data = testData[type];
+
+    switch (type) {
+      case 'proposal':
+        await this.handleProposalReceived(data);
+        break;
+      case 'booking':
+        await this.handleBookingConfirmed(data);
+        break;
+      case 'reschedule':
+        await this.handleRescheduleDecision(data);
+        break;
+    }
+
+    console.log(`✅ テスト通知送信完了: ${type}`);
   }
 }
 
