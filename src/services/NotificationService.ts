@@ -323,6 +323,28 @@ class NotificationService {
     return permission === 'granted';
   }
 
+  // リアルタイム通知許可要求（面談ステーション用）
+  public async requestRealtimeNotificationPermission(): Promise<boolean> {
+    console.log('リアルタイム通知許可を要求中...');
+
+    // ブラウザ通知許可を要求
+    const browserPermission = await this.requestNotificationPermission();
+
+    if (browserPermission) {
+      // 音響アラートを有効化
+      this.updatePreferences({
+        enableBrowserNotifications: true,
+        enableSoundAlerts: true
+      });
+
+      console.log('✅ リアルタイム通知が有効化されました');
+      return true;
+    }
+
+    console.warn('⚠️ リアルタイム通知許可が拒否されました');
+    return false;
+  }
+
   // === プライベートメソッド ===
 
   private initializeAudioContext(): void {
