@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { User } from '../../types';
 import { RetirementProcessingService, RetirementProcessingOptions } from '../../services/RetirementProcessingService';
 import { AuditService } from '../../services/AuditService';
-import { NotificationService } from '../../services/NotificationService';
+import NotificationService from '../../services/NotificationService';
 import { usePermissions } from '../../hooks/usePermissions';
 import { RetirementFlowController } from '../../services/RetirementFlowController';
 import { RetirementProcessState } from '../../types/retirementFlow';

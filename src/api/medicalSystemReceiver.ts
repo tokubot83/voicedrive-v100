@@ -13,7 +13,7 @@ import {
 const router = express.Router();
 
 // 通知システムとの連携用
-import { NotificationService } from '../services/NotificationService';
+import NotificationService from '../services/NotificationService';
 import { WebSocketNotificationService } from '../services/WebSocketNotificationService';
 
 // 1. AI提案3パターン受信

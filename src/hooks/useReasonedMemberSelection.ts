@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { MemberSelection, MemberCandidate, SelectionCriteria, SelectionResult } from '../types/memberSelection';
 import BasicMemberSelectionService from '../services/BasicMemberSelectionService';
-import { NotificationService } from '../services/NotificationService';
+import NotificationService from '../services/NotificationService';
 
 interface SelectedMemberWithReason {
   candidate: MemberCandidate;

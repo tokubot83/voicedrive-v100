@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, BellRing, Check, X, Clock, AlertTriangle } from 'lucide-react';
-import { NotificationService, ActionableNotification, NotificationStats } from '../../services/NotificationService';
+import NotificationService, { ActionableNotification, NotificationStats } from '../../services/NotificationService';
 import { useAuth } from '../../hooks/useAuth';
 // Simple date formatter (replacing date-fns)
 const formatDate = (date: Date): string => {

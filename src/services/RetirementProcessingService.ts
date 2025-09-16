@@ -1,6 +1,6 @@
 import { User, Post, Comment } from '../types';
 import { AuditService } from './AuditService';
-import { NotificationService } from './NotificationService';
+import NotificationService from './NotificationService';
 
 export interface RetirementProcessingOptions {
   preserveAnonymousContent: boolean;

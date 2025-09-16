@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MainTab } from '../../types/tabs';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
-import { NotificationService } from '../../services/NotificationService';
+import NotificationService from '../../services/NotificationService';
 
 interface MainTabsProps {
   activeTab: string;

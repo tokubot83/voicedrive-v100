@@ -18,7 +18,7 @@ import {
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 import { AuthorityManagementService } from './AuthorityManagementService';
 import { AuditService } from './AuditService';
-import { NotificationService } from './NotificationService';
+import NotificationService from './NotificationService';
 import { v4 as uuidv4 } from 'uuid';
 
 export class WeightAdjustmentService {

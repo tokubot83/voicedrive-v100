@@ -48,6 +48,24 @@ export interface NotificationPreferences {
   };
 }
 
+export interface ActionableNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  urgency: NotificationUrgency;
+  timestamp: string;
+  isRead: boolean;
+  actionRequired: boolean;
+  data?: any;
+}
+
+export interface NotificationStats {
+  pending: number;
+  unread: number;
+  total: number;
+}
+
 class NotificationService {
   private static instance: NotificationService;
   private notifications: Map<string, NotificationState> = new Map();
@@ -515,6 +533,58 @@ VoiceDrive 医療システム統合
       browserNotificationPermission: typeof window !== 'undefined' ? Notification?.permission : 'unavailable',
       audioContextState: this.soundContext?.state || 'unavailable'
     };
+  }
+
+  // 新しく追加するメソッド群
+  public getUserNotificationStats(userId: string): { pending: number; unread: number; total: number } {
+    const userNotifications = Array.from(this.notifications.values())
+      .filter(n => n.config.data?.userId === userId);
+
+    return {
+      pending: userNotifications.filter(n => n.status === 'sent').length,
+      unread: userNotifications.filter(n => n.status === 'sent').length,
+      total: userNotifications.length
+    };
+  }
+
+  public subscribeToNotifications(callback: (userId: string) => void): () => void {
+    const listener = (notification: NotificationState) => {
+      if (notification.config.data?.userId) {
+        callback(notification.config.data.userId);
+      }
+    };
+
+    return this.addListener(listener);
+  }
+
+  public getActionableNotifications(userId: string, filter: 'all' | 'unread' | 'pending' = 'all'): any[] {
+    const userNotifications = Array.from(this.notifications.values())
+      .filter(n => n.config.data?.userId === userId);
+
+    switch (filter) {
+      case 'unread':
+        return userNotifications.filter(n => n.status === 'sent');
+      case 'pending':
+        return userNotifications.filter(n => n.status === 'sent' && n.config.actionRequired);
+      default:
+        return userNotifications;
+    }
+  }
+
+  public loadNotifications(userId: string, filter: 'all' | 'unread' | 'pending' = 'all'): any[] {
+    return this.getActionableNotifications(userId, filter);
+  }
+
+  public markAsRead(notificationId: string): void {
+    this.acknowledgeNotification(notificationId);
+  }
+
+  public handleNotificationAction(notificationId: string, action: string): void {
+    const notification = this.notifications.get(notificationId);
+    if (notification) {
+      notification.config.data = { ...notification.config.data, action };
+      this.acknowledgeNotification(notificationId);
+    }
   }
 }
 

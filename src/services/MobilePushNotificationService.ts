@@ -1,5 +1,5 @@
 import { InterviewBooking } from '../types/interview';
-import { NotificationService } from './NotificationService';
+import NotificationService from './NotificationService';
 
 // プッシュ通知専用インターフェース
 interface MobilePushNotification {
@@ -69,7 +69,7 @@ class MobilePushNotificationService {
       publicKey: import.meta.env.VITE_VAPID_PUBLIC_KEY || '',
       privateKey: import.meta.env.VITE_VAPID_PRIVATE_KEY || ''
     };
-    this.notificationService = new NotificationService();
+    this.notificationService = NotificationService.getInstance();
     this.mcpIntegrationEnabled = import.meta.env.VITE_MCP_INTEGRATION_ENABLED === 'true';
   }
 

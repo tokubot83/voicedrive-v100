@@ -10,7 +10,7 @@ import { Post, User } from '../types';
 import { PermissionLevel, ProjectScope } from '../permissions/types/PermissionTypes';
 import { ProjectScoringEngine } from '../utils/ProjectScoring';
 import { PostVisibilityEngine } from './PostVisibilityEngine';
-import { NotificationService } from './NotificationService';
+import NotificationService from './NotificationService';
 import { AuditService } from './AuditService';
 
 export class ProjectUpgradeEngine {

@@ -9,7 +9,7 @@ import {
 } from '../types/retirementFlow';
 import { User } from '../types';
 import { AuditService } from './AuditService';
-import { NotificationService } from './NotificationService';
+import NotificationService from './NotificationService';
 
 export class RetirementFlowController {
   private static instance: RetirementFlowController;

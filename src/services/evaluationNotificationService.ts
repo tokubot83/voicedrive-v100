@@ -11,7 +11,7 @@ import {
   EVALUATION_NOTIFICATION_VALIDATION_RULES
 } from '../types/evaluation-notification';
 import { V3GradeUtils } from '../types/appeal-v3';
-import { NotificationService } from './NotificationService';
+import NotificationService from './NotificationService';
 
 class EvaluationNotificationService {
   private baseUrl: string;
@@ -21,7 +21,7 @@ class EvaluationNotificationService {
   constructor() {
     this.baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
     this.apiKey = import.meta.env.VITE_API_KEY || '';
-    this.notificationService = new NotificationService();
+    this.notificationService = NotificationService.getInstance();
   }
 
   // 医療システムから評価結果通知を受信

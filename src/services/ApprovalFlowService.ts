@@ -9,7 +9,7 @@ import {
 import { HierarchicalUser } from '../types';
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 import { AuthorityManagementService } from './AuthorityManagementService';
-import { NotificationService } from './NotificationService';
+import NotificationService from './NotificationService';
 import { v4 as uuidv4 } from 'uuid';
 
 export class ApprovalFlowService {

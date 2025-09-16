@@ -1,5 +1,5 @@
 // 4カテゴリ対応通知サービス拡張
-import { NotificationService, NotificationUrgency, NotificationType } from './NotificationService';
+import NotificationService, { NotificationUrgency, NotificationType } from './NotificationService';
 
 export type ProposalCategory = 'operational' | 'communication' | 'innovation' | 'strategic';
 

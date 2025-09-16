@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
-import { NotificationService, ActionableNotification, NotificationType } from '../services/NotificationService';
+import NotificationService, { ActionableNotification, NotificationType } from '../services/NotificationService';
 import { Card } from '../components/ui/Card';
 import { Tabs } from '../components/ui/Tabs';
 import { Clock, AlertTriangle, CheckCircle, XCircle, Users, ClipboardCheck, Vote } from 'lucide-react';
