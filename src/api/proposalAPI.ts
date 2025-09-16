@@ -169,7 +169,7 @@ export async function fetchProposals(
 ): Promise<ProposalResponse> {
   try {
     const response = await makeRequest<{ success: boolean; data: ProposalResponse }>(
-      `/api/voicedrive/proposals/${voicedriveRequestId}`,
+      `/api/medical/proposals/${voicedriveRequestId}`,
       { method: 'GET' }
     );
 
@@ -186,7 +186,7 @@ export async function fetchBookingConfirmation(
 ): Promise<BookingConfirmation> {
   try {
     const response = await makeRequest<{ success: boolean; data: BookingConfirmation }>(
-      `/api/voicedrive/booking/${voicedriveRequestId}`,
+      `/api/medical/booking/${voicedriveRequestId}`,
       { method: 'GET' }
     );
 
@@ -203,7 +203,7 @@ export async function checkProposalStatus(
 ): Promise<ProposalStatus> {
   try {
     const response = await makeRequest<{ success: boolean; status: ProposalStatus }>(
-      `/api/voicedrive/status/${voicedriveRequestId}`,
+      `/api/medical/status/${voicedriveRequestId}`,
       { method: 'GET' }
     );
 

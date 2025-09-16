@@ -70,11 +70,11 @@ app.use('/api/medical', createProxyMiddleware({
 }));
 
 // VoiceDriveへのプロキシ
-app.use('/api/voicedrive', createProxyMiddleware({
+app.use('/api/medical', createProxyMiddleware({
   target: 'http://localhost:5173',
   changeOrigin: true,
   pathRewrite: {
-    '^/api/voicedrive': '/api/v1'
+    '^/api/medical': '/api/v1'
   },
   on: {
     proxyReq: (proxyReq: any, req: any, res: any) => {
@@ -94,7 +94,7 @@ const proposalStore = new Map<string, any>(); // 提案データの一時保存
 const bookingStore = new Map<string, any>(); // 予約確定データの保存
 
 // 1. 医療システムからの3パターン提案受信
-app.post('/api/voicedrive/proposals', (req, res) => {
+app.post('/api/medical/proposals', (req, res) => {
   const proposalData = req.body;
   logger.info('Proposal received from Medical System:', {
     voicedriveRequestId: proposalData.voicedriveRequestId,
@@ -128,7 +128,7 @@ app.post('/api/voicedrive/proposals', (req, res) => {
 });
 
 // 2. 本予約確定通知受信
-app.post('/api/voicedrive/booking-confirmed', (req, res) => {
+app.post('/api/medical/booking-confirmed', (req, res) => {
   const confirmationData = req.body;
   logger.info('Booking confirmation received:', {
     voicedriveRequestId: confirmationData.voicedriveRequestId,
@@ -167,7 +167,7 @@ app.post('/api/voicedrive/booking-confirmed', (req, res) => {
 });
 
 // 3. 再調整提案受信
-app.post('/api/voicedrive/reschedule-proposals', (req, res) => {
+app.post('/api/medical/reschedule-proposals', (req, res) => {
   const rescheduleData = req.body;
   logger.info('Reschedule proposals received:', {
     voicedriveRequestId: rescheduleData.voicedriveRequestId,
@@ -201,7 +201,7 @@ app.post('/api/voicedrive/reschedule-proposals', (req, res) => {
 });
 
 // VoiceDriveフロントエンド向け：提案データ取得API
-app.get('/api/voicedrive/proposals/:requestId', (req, res) => {
+app.get('/api/medical/proposals/:requestId', (req, res) => {
   const { requestId } = req.params;
   const proposalData = proposalStore.get(requestId);
 
@@ -220,7 +220,7 @@ app.get('/api/voicedrive/proposals/:requestId', (req, res) => {
 });
 
 // VoiceDriveフロントエンド向け：予約確定データ取得API
-app.get('/api/voicedrive/booking/:requestId', (req, res) => {
+app.get('/api/medical/booking/:requestId', (req, res) => {
   const { requestId } = req.params;
   const bookingData = bookingStore.get(requestId);
 
@@ -239,7 +239,7 @@ app.get('/api/voicedrive/booking/:requestId', (req, res) => {
 });
 
 // VoiceDriveフロントエンド向け：ステータス確認API
-app.get('/api/voicedrive/status/:requestId', (req, res) => {
+app.get('/api/medical/status/:requestId', (req, res) => {
   const { requestId } = req.params;
   const proposalData = proposalStore.get(requestId);
   const bookingData = bookingStore.get(requestId);

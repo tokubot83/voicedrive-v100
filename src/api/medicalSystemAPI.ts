@@ -156,7 +156,7 @@ export async function submitAssistedBooking(request: AssistedBookingRequest): Pr
       requestId: string;
       estimatedProcessingTime: string;
       message: string;
-    }>('/api/interviews/assisted-booking', 'POST', request);
+    }>('/api/medical/booking-request', 'POST', request);
 
     return {
       success: response.success,
@@ -180,7 +180,7 @@ export async function confirmChoice(choice: ChoiceConfirmation): Promise<{
     const response = await makeAPIRequest<{
       success: boolean;
       message: string;
-    }>('/api/interviews/confirm-choice', 'POST', choice);
+    }>('/api/medical/confirm-choice', 'POST', choice);
 
     return response;
   } catch (error) {
@@ -202,7 +202,7 @@ export async function requestScheduleAdjustment(adjustment: AdjustmentRequest): 
       success: boolean;
       adjustmentId: string;
       message: string;
-    }>('/api/interviews/schedule-adjustment', 'POST', adjustment);
+    }>('/api/medical/schedule-change', 'POST', adjustment);
 
     return response;
   } catch (error) {
