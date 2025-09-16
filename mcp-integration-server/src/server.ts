@@ -89,10 +89,181 @@ app.use('/api/voicedrive', createProxyMiddleware({
   }
 }));
 
+// VoiceDrive向け受信エンドポイント - 医療システムからの提案受信
+const proposalStore = new Map<string, any>(); // 提案データの一時保存
+const bookingStore = new Map<string, any>(); // 予約確定データの保存
+
+// 1. 医療システムからの3パターン提案受信
+app.post('/api/voicedrive/proposals', (req, res) => {
+  const proposalData = req.body;
+  logger.info('Proposal received from Medical System:', {
+    voicedriveRequestId: proposalData.voicedriveRequestId,
+    proposalCount: proposalData.proposals?.length || 0
+  });
+
+  // データ検証
+  if (!proposalData.voicedriveRequestId || !proposalData.proposals) {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid proposal data'
+    });
+  }
+
+  // 提案データを保存
+  proposalStore.set(proposalData.voicedriveRequestId, {
+    ...proposalData,
+    receivedAt: new Date().toISOString(),
+    status: 'pending_selection'
+  });
+
+  // VoiceDriveフロントエンドへの通知（WebSocket実装予定）
+  logger.info(`Stored ${proposalData.proposals.length} proposals for request ${proposalData.voicedriveRequestId}`);
+
+  res.json({
+    success: true,
+    message: 'Proposals received and stored',
+    voicedriveRequestId: proposalData.voicedriveRequestId,
+    proposalCount: proposalData.proposals.length
+  });
+});
+
+// 2. 本予約確定通知受信
+app.post('/api/voicedrive/booking-confirmed', (req, res) => {
+  const confirmationData = req.body;
+  logger.info('Booking confirmation received:', {
+    voicedriveRequestId: confirmationData.voicedriveRequestId,
+    bookingId: confirmationData.bookingId
+  });
+
+  // データ検証
+  if (!confirmationData.voicedriveRequestId || !confirmationData.bookingId) {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid confirmation data'
+    });
+  }
+
+  // 確定データを保存
+  bookingStore.set(confirmationData.voicedriveRequestId, {
+    ...confirmationData,
+    confirmedAt: new Date().toISOString(),
+    status: 'confirmed'
+  });
+
+  // 提案データのステータスも更新
+  const proposal = proposalStore.get(confirmationData.voicedriveRequestId);
+  if (proposal) {
+    proposal.status = 'confirmed';
+    proposal.bookingId = confirmationData.bookingId;
+  }
+
+  logger.info(`Booking confirmed: ${confirmationData.bookingId}`);
+
+  res.json({
+    success: true,
+    message: 'Booking confirmation received',
+    bookingId: confirmationData.bookingId
+  });
+});
+
+// 3. 再調整提案受信
+app.post('/api/voicedrive/reschedule-proposals', (req, res) => {
+  const rescheduleData = req.body;
+  logger.info('Reschedule proposals received:', {
+    voicedriveRequestId: rescheduleData.voicedriveRequestId,
+    adjustmentId: rescheduleData.adjustmentId
+  });
+
+  // 既存の提案データを更新
+  const originalProposal = proposalStore.get(rescheduleData.voicedriveRequestId);
+  if (originalProposal) {
+    originalProposal.revisedProposals = rescheduleData.revisedProposals;
+    originalProposal.adjustmentId = rescheduleData.adjustmentId;
+    originalProposal.adjustmentSummary = rescheduleData.adjustmentSummary;
+    originalProposal.status = 'revised_pending_selection';
+    originalProposal.revisedAt = new Date().toISOString();
+  } else {
+    // 新規として保存
+    proposalStore.set(rescheduleData.voicedriveRequestId, {
+      ...rescheduleData,
+      receivedAt: new Date().toISOString(),
+      status: 'revised_pending_selection'
+    });
+  }
+
+  logger.info(`Reschedule proposals stored for ${rescheduleData.voicedriveRequestId}`);
+
+  res.json({
+    success: true,
+    message: 'Reschedule proposals received',
+    adjustmentId: rescheduleData.adjustmentId
+  });
+});
+
+// VoiceDriveフロントエンド向け：提案データ取得API
+app.get('/api/voicedrive/proposals/:requestId', (req, res) => {
+  const { requestId } = req.params;
+  const proposalData = proposalStore.get(requestId);
+
+  if (!proposalData) {
+    return res.status(404).json({
+      success: false,
+      error: 'Proposals not found'
+    });
+  }
+
+  logger.info(`Proposals retrieved for ${requestId}`);
+  res.json({
+    success: true,
+    data: proposalData
+  });
+});
+
+// VoiceDriveフロントエンド向け：予約確定データ取得API
+app.get('/api/voicedrive/booking/:requestId', (req, res) => {
+  const { requestId } = req.params;
+  const bookingData = bookingStore.get(requestId);
+
+  if (!bookingData) {
+    return res.status(404).json({
+      success: false,
+      error: 'Booking not found'
+    });
+  }
+
+  logger.info(`Booking data retrieved for ${requestId}`);
+  res.json({
+    success: true,
+    data: bookingData
+  });
+});
+
+// VoiceDriveフロントエンド向け：ステータス確認API
+app.get('/api/voicedrive/status/:requestId', (req, res) => {
+  const { requestId } = req.params;
+  const proposalData = proposalStore.get(requestId);
+  const bookingData = bookingStore.get(requestId);
+
+  const status = {
+    requestId,
+    hasProposals: !!proposalData,
+    proposalStatus: proposalData?.status || 'no_data',
+    hasBooking: !!bookingData,
+    bookingStatus: bookingData?.status || 'no_data',
+    lastUpdate: proposalData?.revisedAt || proposalData?.receivedAt || null
+  };
+
+  logger.info(`Status check for ${requestId}:`, status);
+  res.json({
+    success: true,
+    status
+  });
+});
+
 // V3 API endpoints - 医療チーム提案の新フロー対応
 app.post('/api/v3/appeals/submit', (req, res) => {
   logger.info('V3 Appeal submission received:', req.body);
-  
+
   // V3異議申立受信の模擬レスポンス
   const appealId = `APL${Date.now()}`;
   const response = {
@@ -103,7 +274,7 @@ app.post('/api/v3/appeals/submit', (req, res) => {
     message: 'V3異議申立を受理しました',
     voiceDriveCallbackUrl: `/api/v3/appeals/${appealId}/status`
   };
-  
+
   logger.info('V3 Appeal response:', response);
   res.json(response);
 });
