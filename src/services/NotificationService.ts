@@ -72,6 +72,7 @@ class NotificationService {
   private static instance: NotificationService;
   private notifications: Map<string, NotificationState> = new Map();
   private listeners: Set<(notification: NotificationState) => void> = new Set();
+  private realtimeListeners: Map<string, Set<Function>> = new Map();
   private preferences: NotificationPreferences;
   private soundContext: AudioContext | null = null;
   private isInitialized: boolean = false;
@@ -626,6 +627,40 @@ VoiceDrive 医療システム統合
     if (notification) {
       notification.config.data = { ...notification.config.data, action };
       this.acknowledgeNotification(notificationId);
+    }
+  }
+
+  // リアルタイムリスナー管理
+  public addRealtimeListener(eventType: string, callback: Function): void {
+    if (!this.realtimeListeners.has(eventType)) {
+      this.realtimeListeners.set(eventType, new Set());
+    }
+    this.realtimeListeners.get(eventType)!.add(callback);
+    console.log(`✅ リアルタイムリスナー追加: ${eventType}`);
+  }
+
+  public removeRealtimeListener(eventType: string, callback: Function): void {
+    const listeners = this.realtimeListeners.get(eventType);
+    if (listeners) {
+      listeners.delete(callback);
+      if (listeners.size === 0) {
+        this.realtimeListeners.delete(eventType);
+      }
+      console.log(`🗑️ リアルタイムリスナー削除: ${eventType}`);
+    }
+  }
+
+  public triggerRealtimeEvent(eventType: string, data: any): void {
+    const listeners = this.realtimeListeners.get(eventType);
+    if (listeners) {
+      listeners.forEach(callback => {
+        try {
+          callback(data);
+        } catch (error) {
+          console.error(`リアルタイムイベント処理エラー (${eventType}):`, error);
+        }
+      });
+      console.log(`📡 リアルタイムイベント発火: ${eventType}`, data);
     }
   }
 
