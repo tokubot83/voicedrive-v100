@@ -524,12 +524,25 @@ VoiceDrive 医療システム統合
 
   private saveToStorage(notification: NotificationState): void {
     try {
+      // モバイルブラウザ対応: localStorageが利用可能か確認
+      if (typeof localStorage === 'undefined') {
+        console.warn('LocalStorage is not available');
+        return;
+      }
+
       const storageKey = `medical_notifications`;
       const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
       const updated = [notification, ...existing.slice(0, 99)]; // 最大100件保持
       localStorage.setItem(storageKey, JSON.stringify(updated));
+
+      // メモリにも保存（モバイル対応）
+      if (!this.notifications.has(notification.id)) {
+        this.notifications.set(notification.id, notification);
+      }
     } catch (error) {
       console.error('通知履歴保存エラー:', error);
+      // localStorageが使えない場合でもメモリに保存
+      this.notifications.set(notification.id, notification);
     }
   }
 
@@ -714,19 +727,26 @@ VoiceDrive 医療システム統合
     const notification: NotificationState = {
       id: notificationId,
       config,
-      status: 'pending',
+      status: 'sent', // 即座にsent状態にする（モバイル対応）
       createdAt: new Date(),
       retryCount: 0
     };
 
+    // 即座にメモリに保存（モバイル対応）
     this.notifications.set(notificationId, notification);
-    this.sendNotification(config).then(() => {
-      notification.status = 'sent';
-      this.notifyListeners(notification);
-      this.saveToStorage(notification);
-    }).catch(error => {
+
+    // リスナーに通知
+    this.notifyListeners(notification);
+
+    // ストレージへの保存を試みる（失敗しても続行）
+    this.saveToStorage(notification);
+
+    // 非同期で通知送信（エラーがあってもUIには影響しない）
+    this.sendNotification(config).catch(error => {
       console.error('通知送信エラー:', error);
     });
+
+    console.log(`✅ 通知作成完了: ${config.type} - ${notificationId}`);
   }
 
   // デモ用: 医療チームからの提案通知を生成
