@@ -126,8 +126,10 @@ class NotificationService {
       notificationState.status = 'sent';
       this.notifyListeners(notificationState);
 
-      // ローカルストレージに保存
-      this.saveToStorage(notificationState);
+      // ローカルストレージに保存（storageチャンネルが含まれる場合のみ）
+      if (config.channels.includes('storage')) {
+        this.saveToStorage(notificationState);
+      }
 
       console.log(`✅ 医療システム通知送信完了: ${config.type} - ${notificationId}`);
       return notificationId;
@@ -176,7 +178,7 @@ class NotificationService {
         await this.sendEmailNotification(config);
         break;
       case 'storage':
-        this.saveToStorage({ id: this.generateNotificationId(), config, status: 'sent', createdAt: new Date(), retryCount: 0 });
+        // storageチャンネルの処理はsendNotificationメソッド内で既に実施されているためスキップ
         break;
       case 'websocket':
         // WebSocketNotificationService連携は別途実装済み
@@ -744,8 +746,7 @@ VoiceDrive 医療システム統合
     // リスナーに通知
     this.notifyListeners(notification);
 
-    // ストレージへの保存を試みる（失敗しても続行）
-    this.saveToStorage(notification);
+    // ストレージへの保存はsendNotificationメソッド内で処理される
 
     // 非同期で通知送信（エラーがあってもUIには影響しない）
     this.sendNotification(config).catch(error => {
