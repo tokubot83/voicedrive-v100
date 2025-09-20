@@ -102,8 +102,8 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
           <div className="p-2 sm:p-3 overflow-y-auto" style={{ maxHeight: 'calc(80vh - 40px)' }}>
             {!showRescheduleForm ? (
               <>
-                {/* 提案カード - モバイルは横スクロール、デスクトップは横並び */}
-                <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 mb-3 overflow-x-auto sm:overflow-visible pb-2">
+                {/* 提案カード - モバイルは縦並び、デスクトップは横並び */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 mb-3">
                   {proposals.map((proposal) => (
                     <div
                       key={proposal.id}
@@ -125,7 +125,7 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
                       )}
 
                       {/* カード本体 */}
-                      <div className={`rounded-lg sm:rounded-xl border sm:border-2 overflow-hidden min-w-[250px] sm:min-w-0 ${
+                      <div className={`rounded-lg sm:rounded-xl border sm:border-2 overflow-hidden ${
                         selectedProposalId === proposal.id
                           ? 'border-indigo-500 bg-indigo-50'
                           : 'border-gray-200 bg-white'
