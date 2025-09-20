@@ -234,9 +234,17 @@ class NotificationService {
       oscillator.start(this.soundContext.currentTime);
       oscillator.stop(this.soundContext.currentTime + duration);
 
-      // 緊急度が高い場合は繰り返し
-      if (config.urgency === 'urgent') {
-        setTimeout(() => this.playSoundAlert(config), 1000);
+      // 緊急度が高い場合は3回まで繰り返し（無限ループ防止）
+      if (config.urgency === 'urgent' && !config.metadata?.soundRepeatCount) {
+        const repeatCount = (config.metadata?.soundRepeatCount as number) || 0;
+        if (repeatCount < 2) { // 最大3回（初回 + 2回リピート）
+          setTimeout(() => {
+            this.playSoundAlert({
+              ...config,
+              metadata: { ...config.metadata, soundRepeatCount: repeatCount + 1 }
+            });
+          }, 1000);
+        }
       }
 
     } catch (error) {
@@ -756,7 +764,7 @@ VoiceDrive 医療システム統合
       title: '面談日程の提案が届きました',
       message: '医療チームのAI分析により、あなたのご希望に最適な面談日程を3つ提案させていただきました。選択期限は48時間です。',
       urgency: 'high',
-      channels: ['browser', 'sound', 'storage'],
+      channels: ['browser', 'storage'], // soundチャンネルを削除（モバイルで問題あるため）
       timestamp: new Date().toISOString(),
       actionRequired: true,
       expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
@@ -780,7 +788,7 @@ VoiceDrive 医療システム統合
       title: '再調整後の新しい提案が届きました',
       message: 'ご要望を考慮して、新しい面談日程を3つ提案させていただきました。今回は夕方の時間帯を中心に調整しました。',
       urgency: 'high',
-      channels: ['browser', 'sound', 'storage'],
+      channels: ['browser', 'storage'], // soundチャンネルを削除（モバイルで問題あるため）
       timestamp: new Date().toISOString(),
       actionRequired: true,
       expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
@@ -804,7 +812,7 @@ VoiceDrive 医療システム統合
       title: '⚠️ 面談日程の選択期限が近づいています',
       message: '提案された面談日程の選択期限まであと12時間です。期限を過ぎると自動的にキャンセルとなりますのでご注意ください。',
       urgency: 'urgent',
-      channels: ['browser', 'sound', 'storage', 'email'],
+      channels: ['browser', 'storage', 'email'], // soundチャンネルを削除（モバイルで問題あるため）
       timestamp: new Date().toISOString(),
       actionRequired: true,
       expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
