@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import ProposalSelectionModal from '../ProposalSelectionModal';
+import { ProposalPattern, RescheduleRequest } from '../../../types/interview';
 
 interface SimpleInterviewFlowState {
   currentStep: number;
@@ -31,6 +33,8 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showProposalModal, setShowProposalModal] = useState(false);
+  const [proposalPatterns, setProposalPatterns] = useState<ProposalPattern[]>([]);
 
   // ステップタイトルを取得
   const getStepTitle = () => {
@@ -78,17 +82,96 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      // 仮実装
+      // 仮予約を送信
       await new Promise(resolve => setTimeout(resolve, 1000));
-      if (onComplete) {
-        onComplete(flowState);
-      }
+
+      // 医療チームからの提案パターンを模擬生成（実際はAPIから取得）
+      const mockProposals: ProposalPattern[] = [
+        {
+          id: 'p1',
+          proposalNumber: 1,
+          date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1週間後
+          startTime: '14:00',
+          endTime: '15:00',
+          interviewer: {
+            id: 'i1',
+            name: '山田 花子',
+            title: 'シニアカウンセラー',
+            department: '人事部メンタルヘルス課',
+            specialties: ['キャリア相談', 'ストレス管理']
+          },
+          location: {
+            type: 'onsite',
+            place: '本部ビル',
+            roomNumber: '3F 相談室A'
+          },
+          matchingScore: 95,
+          isRecommended: true,
+          notes: 'ご希望の時間帯と合致しています'
+        },
+        {
+          id: 'p2',
+          proposalNumber: 2,
+          date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10日後
+          startTime: '10:00',
+          endTime: '11:00',
+          interviewer: {
+            id: 'i2',
+            name: '田中 太郎',
+            title: '人事部主任',
+            department: '人事部'
+          },
+          location: {
+            type: 'onsite',
+            place: '本部ビル',
+            roomNumber: '5F 会議室B'
+          },
+          matchingScore: 78
+        },
+        {
+          id: 'p3',
+          proposalNumber: 3,
+          date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 2週間後
+          startTime: '15:30',
+          endTime: '16:30',
+          interviewer: {
+            id: 'i3',
+            name: '鈴木 次郎',
+            title: '人事課長',
+            department: '人事部'
+          },
+          location: {
+            type: 'online',
+            meetingUrl: 'https://meet.example.com/abc123'
+          },
+          matchingScore: 82
+        }
+      ];
+
+      setProposalPatterns(mockProposals);
+      setShowProposalModal(true);
+
     } catch (error) {
       console.error('申込エラー:', error);
       alert('申込処理中にエラーが発生しました。');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSelectProposal = (proposalId: string) => {
+    console.log('選択された提案:', proposalId);
+    setShowProposalModal(false);
+    alert('面談予約が確定しました！詳細はメールでお送りします。');
+    if (onComplete) {
+      onComplete(flowState);
+    }
+  };
+
+  const handleRequestReschedule = (request: RescheduleRequest) => {
+    console.log('再調整依頼:', request);
+    setShowProposalModal(false);
+    alert('再調整を依頼しました。医療チームから新しい提案が届きましたらお知らせします。');
   };
 
   const handleCancel = () => {
@@ -933,6 +1016,17 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
       </div>
 
       {/* キャンセル確認ダイアログ */}
+      {/* 提案選択モーダル */}
+      <ProposalSelectionModal
+        isOpen={showProposalModal}
+        onClose={() => setShowProposalModal(false)}
+        proposals={proposalPatterns}
+        onSelectProposal={handleSelectProposal}
+        onRequestReschedule={handleRequestReschedule}
+        employeeName={flowState.classification === 'regular' ? '職員' : '職員'}
+        bookingId="temp-booking-id"
+      />
+
       {showCancelDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6">

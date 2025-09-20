@@ -13,6 +13,47 @@ export interface TimeSlot {
   bookingId?: string;
 }
 
+// 医療チームからの提案パターン
+export interface ProposalPattern {
+  id: string;
+  proposalNumber: 1 | 2 | 3;
+  date: Date;
+  startTime: string;
+  endTime: string;
+  interviewer: {
+    id: string;
+    name: string;
+    title: string;
+    department: string;
+    specialties?: string[];
+  };
+  location: {
+    type: 'online' | 'onsite';
+    place?: string;
+    roomNumber?: string;
+    meetingUrl?: string;
+  };
+  matchingScore?: number; // AI分析のマッチング度
+  isRecommended?: boolean;
+  notes?: string;
+}
+
+// 再調整依頼
+export interface RescheduleRequest {
+  id?: string;
+  bookingId?: string;
+  reason: 'shift_conflict' | 'other_appointment' | 'health' | 'time_preference' | 'other';
+  reasonDetail?: string;
+  additionalRequests?: string;
+  preferredDates?: Date[];
+  preferredTimeSlots?: string[];
+  avoidDates?: Date[];
+  requestedBy?: string;
+  requestedAt?: Date;
+  status?: 'pending' | 'processing' | 'completed';
+  newProposals?: ProposalPattern[];
+}
+
 export interface InterviewBooking {
   id: string;
 
@@ -43,6 +84,11 @@ export interface InterviewBooking {
 
   // ステータス管理
   status: InterviewStatus;
+
+  // 提案パターン（医療チームから）
+  proposalPatterns?: ProposalPattern[];
+  selectedProposalId?: string;
+  rescheduleRequests?: RescheduleRequest[];
 
   // 履歴・メタデータ
   createdAt: Date;
