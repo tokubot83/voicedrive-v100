@@ -1,5 +1,8 @@
 // 医療システム API通信基盤
 import { InterviewType, InterviewCategory } from '../types/interview';
+import { authenticateToken } from '../middleware/authMiddleware';
+import { validateNotification, validateBookingData, validateSurveyData } from '../middleware/validationMiddleware';
+import { rateLimit, standardRateLimit } from '../middleware/rateLimitMiddleware';
 
 // 医療システム通信用型定義
 export interface AssistedBookingRequest {
