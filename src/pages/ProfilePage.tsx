@@ -66,7 +66,7 @@ const ProfilePage: React.FC = () => {
       </div>
 
       {/* Profile Header */}
-      <div className="px-6 pb-6 -mt-20 relative">
+      <div className="px-6 pb-6 -mt-16 relative">
         <div className="flex items-end gap-6">
           <div className="relative">
             <Avatar 
