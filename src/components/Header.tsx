@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { MainTabs } from './tabs/MainTabs';
 import { SubFilters } from './tabs/SubFilters';
@@ -19,13 +19,22 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
   const { activeMainTab, activeSubFilter } = tabState;
   const { isDemoMode } = useDemoMode();
   const { isVisible } = useScrollDirection();
+  const lastNotificationTime = useRef<{ [key: string]: number }>({});
 
   // 現在のタブがサブフィルターを持つかチェック
   const currentTab = mainTabs.find(tab => tab.id === activeMainTab);
   const hasSubFilters = currentTab?.hasSubFilters || false;
 
-  // デモ通知を送信
+  // デモ通知を送信（デバウンス付き）
   const sendDemoNotification = (type: 'proposal' | 'reschedule' | 'deadline') => {
+    // 連続クリック防止（1秒以内の再実行を防ぐ）
+    const now = Date.now();
+    if (lastNotificationTime.current[type] && now - lastNotificationTime.current[type] < 1000) {
+      console.log(`Debounced ${type} notification`);
+      return;
+    }
+    lastNotificationTime.current[type] = now;
+
     const notificationService = NotificationService.getInstance();
     switch (type) {
       case 'proposal':
@@ -69,11 +78,6 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
                   e.stopPropagation();
                   sendDemoNotification('proposal');
                 }}
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  sendDemoNotification('proposal');
-                }}
                 className="px-2 sm:px-3 py-2 sm:py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 active:bg-blue-800 transition-colors touch-manipulation"
                 title="面談提案通知を送信"
               >
@@ -85,11 +89,6 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
                   e.stopPropagation();
                   sendDemoNotification('reschedule');
                 }}
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  sendDemoNotification('reschedule');
-                }}
                 className="px-2 sm:px-3 py-2 sm:py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 active:bg-green-800 transition-colors touch-manipulation"
                 title="再調整完了通知を送信"
               >
@@ -97,11 +96,6 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
               </button>
               <button
                 onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  sendDemoNotification('deadline');
-                }}
-                onTouchEnd={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   sendDemoNotification('deadline');
