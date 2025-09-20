@@ -49,107 +49,140 @@ const HRAnnouncementsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // モックデータ - 実際はAPIから取得
+  // モックデータ - 医療チーム統合対応版
   useEffect(() => {
     const mockData: HRAnnouncement[] = [
       {
         id: '1',
-        title: '本日の出勤について',
-        content: '大雪の影響により、本日は在宅勤務を推奨します。\n出勤が必要な方は、安全を最優先に行動してください。\n詳細は各部署の管理者へお問い合わせください。',
+        title: '【医療チーム連携】ストレスチェック結果に基づく面談のご案内',
+        content: '医療チームのAI分析により、ストレスレベルが高い職員の方々に個別面談をご案内しております。\n\n📊 分析結果：中〜高ストレス状態\n🎯 推奨アクション：早期の面談実施\n⏰ 面談可能時間：平日10:00-18:00\n\n※医療チームと連携し、最適な面談日程を3パターンご提案します',
         category: 'URGENT',
-        priority: 'URGENT',
-        authorId: 'hr001',
-        authorName: '田中',
-        authorDepartment: '人事部',
+        priority: 'URGENT', // 医療チームへは「high」として送信
+        authorId: 'medical_ai',
+        authorName: '医療チーム統合システム',
+        authorDepartment: '健康管理センター × 人事部',
         publishAt: new Date(),
         isActive: true,
         requireResponse: true,
         responseType: 'acknowledged',
-        responseText: '了解しました',
+        responseText: '面談を予約する',
         responseRequired: false,
-        targetAudience: { isGlobal: true },
+        targetAudience: { isGlobal: false, individuals: ['高ストレス対象者'] },
+        actionButton: {
+          text: '🏥 医療チーム面談予約',
+          url: '/medical/booking',
+          type: 'medical_system'
+        },
         createdAt: new Date(),
         updatedAt: new Date(),
         stats: {
-          delivered: 1250,
-          responses: 142,
-          completions: 0
+          delivered: 45,
+          responses: 12,
+          completions: 8
         }
       },
       {
         id: '2',
-        title: '定期面談のご案内',
-        content: '今期の定期面談を実施いたします。\n実施期間：1月15日（水）〜 1月31日（金）\n所要時間：30分程度\n面談内容：目標設定、キャリア相談、健康状態確認',
-        category: 'MEETING',
-        priority: 'NORMAL',
+        title: '【統合通知】健康診断結果のフォローアップ面談',
+        content: '年次健康診断の結果、要経過観察・要再検査の方へのフォローアップ面談を実施します。\n\n🔍 医療チームからの推奨事項：\n• 産業医との面談（30分）\n• 健康改善プログラムのご案内\n• メンタルヘルスサポート\n\n優先度：HIGH（医療チーム基準：high）',
+        category: 'HEALTH',
+        priority: 'HIGH', // 医療チームへは「high」として送信
         authorId: 'hr002',
-        authorName: '佐藤',
-        authorDepartment: '人事部',
+        authorName: '産業保健チーム',
+        authorDepartment: '健康管理センター',
         publishAt: new Date(Date.now() - 30 * 60 * 1000),
         isActive: true,
         requireResponse: false,
-        targetAudience: { isGlobal: true },
+        targetAudience: { isGlobal: false, departments: ['要フォロー対象者'] },
         actionButton: {
-          text: '📅 面談予約する',
-          url: '/booking/meeting',
-          type: 'internal'
+          text: '📋 健康相談を予約',
+          url: '/health/consultation',
+          type: 'medical_system'
         },
         createdAt: new Date(Date.now() - 30 * 60 * 1000),
         updatedAt: new Date(Date.now() - 30 * 60 * 1000),
         stats: {
-          delivered: 1250,
+          delivered: 230,
           responses: 0,
-          completions: 189
+          completions: 89
         }
       },
       {
         id: '3',
-        title: '【実施期間】2025年度ストレスチェックのご案内',
-        content: '労働安全衛生法に基づく、年1回のストレスチェックを実施いたします。\n実施期間：2025年1月15日（水）〜 1月31日（金）\n所要時間：約10分程度\n対象者：全従業員（パート・アルバイト含む）',
-        category: 'HEALTH',
-        priority: 'HIGH',
-        authorId: 'hr003',
-        authorName: '健康管理室',
-        authorDepartment: '人事部',
+        title: '【医療チーム推奨】定期メンタルヘルス面談の実施',
+        content: '医療チームのデータ分析に基づき、定期的なメンタルヘルス面談を推奨します。\n\n🤖 AI分析による推奨対象者：\n• 残業時間が月45時間超の方\n• 前回面談から6ヶ月経過の方\n• ストレスチェック未実施の方\n\n優先度：NORMAL（医療チーム基準：medium）',
+        category: 'MEETING',
+        priority: 'NORMAL', // 医療チームへは「medium」として送信
+        authorId: 'medical_hr',
+        authorName: '医療チーム×人事部',
+        authorDepartment: '統合健康管理センター',
         publishAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
         isActive: true,
         requireResponse: false,
         targetAudience: { isGlobal: true },
         actionButton: {
-          text: '🔍 ストレスチェックを開始する',
-          url: '/stress-check-demo',
-          type: 'internal'
+          text: '🧠 メンタルヘルス面談予約',
+          url: '/mental-health/booking',
+          type: 'medical_system'
         },
         createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
         updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
         stats: {
-          delivered: 1250,
-          responses: 0,
+          delivered: 380,
+          responses: 45,
           completions: 156
         }
       },
       {
         id: '4',
-        title: 'コンプライアンス研修のご案内',
-        content: '下記の日程でコンプライアンス研修を実施します。\n日時：2025年1月20日（月）13:00-17:00\n場所：3F会議室A（オンライン参加可）\n対象：全正社員（必須）',
-        category: 'TRAINING',
-        priority: 'NORMAL',
-        authorId: 'hr002',
-        authorName: '鈴木',
-        authorDepartment: '人事部',
+        title: '【低優先度】健康増進プログラムのご案内',
+        content: '医療チームと連携した健康増進プログラムを開始します。\n\n🏃 プログラム内容：\n• ウォーキングチャレンジ\n• 栄養改善セミナー\n• 睡眠改善ワークショップ\n\n優先度：LOW（医療チーム基準：low）\n※任意参加のプログラムです',
+        category: 'HEALTH',
+        priority: 'LOW', // 医療チームへは「low」として送信
+        authorId: 'wellness',
+        authorName: 'ウェルネスチーム',
+        authorDepartment: '健康推進課',
         publishAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
         isActive: true,
-        requireResponse: true,
-        responseType: 'custom',
-        responseText: '参加申込み完了',
-        responseRequired: true,
-        targetAudience: { isGlobal: false, roles: ['正社員'] },
+        requireResponse: false,
+        targetAudience: { isGlobal: true },
+        actionButton: {
+          text: '💪 プログラムに参加',
+          url: '/wellness/program',
+          type: 'medical_system'
+        },
         createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
         updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
         stats: {
-          delivered: 890,
-          responses: 89,
-          completions: 0
+          delivered: 1250,
+          responses: 234,
+          completions: 67
+        }
+      },
+      {
+        id: '5',
+        title: '【医療チーム×人事部】統合システムによる優先度管理の開始',
+        content: '医療チームシステムとの統合により、お知らせの優先度管理が強化されました。\n\n🔄 優先度マッピング：\n• VoiceDrive: URGENT/HIGH → 医療チーム: high\n• VoiceDrive: NORMAL → 医療チーム: medium\n• VoiceDrive: LOW → 医療チーム: low\n\n✨ 統合のメリット：\n• 医療現場の実務に適した3段階管理\n• AIによる自動優先度判定\n• リアルタイム健康状態モニタリング',
+        category: 'OTHER',
+        priority: 'NORMAL', // 医療チームへは「medium」として送信
+        authorId: 'system',
+        authorName: 'システム管理者',
+        authorDepartment: 'IT統合推進室',
+        publishAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        isActive: true,
+        requireResponse: false,
+        targetAudience: { isGlobal: true },
+        actionButton: {
+          text: '📊 統合テストページへ',
+          url: '/medical-integration-test',
+          type: 'internal'
+        },
+        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        stats: {
+          delivered: 1250,
+          responses: 0,
+          completions: 450
         }
       }
     ];
