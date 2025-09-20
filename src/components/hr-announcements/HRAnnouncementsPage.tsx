@@ -112,7 +112,7 @@ const HRAnnouncementsPage: React.FC = () => {
         title: '【医療チーム推奨】定期メンタルヘルス面談の実施',
         content: '医療チームのデータ分析に基づき、定期的なメンタルヘルス面談を推奨します。\n\n🤖 AI分析による推奨対象者：\n• 残業時間が月45時間超の方\n• 前回面談から6ヶ月経過の方\n• ストレスチェック未実施の方\n\n優先度：NORMAL（医療チーム基準：medium）',
         category: 'MEETING',
-        priority: 'NORMAL', // 医療チームへは「medium」として送信
+        priority: 'NORMAL',
         authorId: 'medical_hr',
         authorName: '医療チーム×人事部',
         authorDepartment: '統合健康管理センター',
@@ -164,7 +164,7 @@ const HRAnnouncementsPage: React.FC = () => {
         title: '【医療チーム×人事部】統合システムによる優先度管理の開始',
         content: '医療チームシステムとの統合により、お知らせの優先度管理が強化されました。\n\n🔄 優先度マッピング：\n• VoiceDrive: URGENT/HIGH → 医療チーム: high\n• VoiceDrive: NORMAL → 医療チーム: medium\n• VoiceDrive: LOW → 医療チーム: low\n\n✨ 統合のメリット：\n• 医療現場の実務に適した3段階管理\n• AIによる自動優先度判定\n• リアルタイム健康状態モニタリング',
         category: 'OTHER',
-        priority: 'NORMAL', // 医療チームへは「medium」として送信
+        priority: 'NORMAL',
         authorId: 'system',
         authorName: 'システム管理者',
         authorDepartment: 'IT統合推進室',

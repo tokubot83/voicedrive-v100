@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { HRAnnouncement, CategoryConfig } from '../../types/hr-announcements';
+import { convertToMedicalTeamPriority, getMedicalPriorityIcon, getMedicalPriorityLabel, getMedicalPriorityColor } from '../../utils/priorityMapping';
 
 interface HRMessageBubbleProps {
   announcement: HRAnnouncement;
@@ -132,9 +133,25 @@ const HRMessageBubble: React.FC<HRMessageBubbleProps> = ({
         <div className={getBubbleClass()}>
           {/* メッセージヘッダー */}
           <div className="hr-message-header">
-            <span className={`hr-category-tag ${getTagClass()}`}>
-              {categoryConfig.icon} {categoryConfig.label}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className={`hr-category-tag ${getTagClass()}`}>
+                {categoryConfig.icon} {categoryConfig.label}
+              </span>
+              {/* 優先度バッジ */}
+              {announcement.priority !== 'NORMAL' && (
+                <span
+                  className="px-2 py-0.5 rounded-full text-xs font-semibold text-white flex items-center gap-1"
+                  style={{
+                    backgroundColor: getMedicalPriorityColor(
+                      convertToMedicalTeamPriority(announcement.priority)
+                    )
+                  }}
+                >
+                  {getMedicalPriorityIcon(convertToMedicalTeamPriority(announcement.priority))}
+                  優先度{getMedicalPriorityLabel(convertToMedicalTeamPriority(announcement.priority))}
+                </span>
+              )}
+            </div>
             <span className="hr-time-label">
               {formatTime(announcement.publishAt)}
             </span>
