@@ -79,13 +79,13 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
       />
 
       {/* モーダル本体 */}
-      <div className="relative z-[9999] bg-white rounded-2xl shadow-2xl w-[95%] max-w-7xl max-h-[85vh] overflow-hidden m-auto">
+      <div className="relative z-[9999] bg-white rounded-lg md:rounded-2xl shadow-2xl w-[98%] sm:w-[95%] max-w-7xl max-h-[80vh] sm:max-h-[85vh] overflow-hidden m-auto">
           {/* ヘッダー */}
-          <div className="bg-white border-b border-gray-200 px-4 py-2 rounded-t-2xl">
+          <div className="bg-white border-b border-gray-200 px-3 py-1.5 sm:px-4 sm:py-2 rounded-t-lg md:rounded-t-2xl">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-gray-800">面談日程の提案</h2>
-                <p className="text-gray-600 text-xs">
+                <h2 className="text-sm sm:text-base font-bold text-gray-800">面談日程の提案</h2>
+                <p className="hidden sm:block text-gray-600 text-xs">
                   {employeeName}様のご希望に基づいて、医療チームが最適な日程を3つ提案しました
                 </p>
               </div>
@@ -99,19 +99,19 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
           </div>
 
           {/* コンテンツ */}
-          <div className="p-3 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 60px)' }}>
+          <div className="p-2 sm:p-3 overflow-y-auto" style={{ maxHeight: 'calc(80vh - 40px)' }}>
             {!showRescheduleForm ? (
               <>
-                {/* 提案カード */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4">
+                {/* 提案カード - モバイルは横スクロール、デスクトップは横並び */}
+                <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 mb-3 overflow-x-auto sm:overflow-visible pb-2">
                   {proposals.map((proposal) => (
                     <div
                       key={proposal.id}
                       onClick={() => handleSelectProposal(proposal.id)}
-                      className={`relative cursor-pointer transition-all transform hover:scale-105 ${
+                      className={`relative cursor-pointer transition-all ${
                         selectedProposalId === proposal.id
-                          ? 'ring-4 ring-indigo-500 shadow-xl'
-                          : 'hover:shadow-lg'
+                          ? 'ring-2 ring-indigo-500 shadow-md'
+                          : 'hover:shadow-sm'
                       }`}
                     >
                       {/* おすすめマーク */}
@@ -125,69 +125,64 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
                       )}
 
                       {/* カード本体 */}
-                      <div className={`rounded-xl border-2 overflow-hidden ${
+                      <div className={`rounded-lg sm:rounded-xl border sm:border-2 overflow-hidden min-w-[250px] sm:min-w-0 ${
                         selectedProposalId === proposal.id
                           ? 'border-indigo-500 bg-indigo-50'
                           : 'border-gray-200 bg-white'
                       }`}>
                         {/* カードヘッダー */}
-                        <div className={`px-3 py-2 ${
+                        <div className={`px-2 py-1 sm:px-3 sm:py-2 ${
                           proposal.isRecommended
                             ? 'bg-gradient-to-r from-yellow-50 to-orange-50'
                             : 'bg-gray-50'
                         }`}>
-                          <div className="text-xs font-semibold text-gray-500">
-                            第{proposal.proposalNumber}候補
+                          <div className="flex items-center justify-between">
+                            <div className="text-xs font-semibold text-gray-500">
+                              第{proposal.proposalNumber}候補
+                            </div>
+                            {/* マッチング度バッジ */}
+                            {proposal.matchingScore && (
+                              <div className={`text-xs font-bold px-1.5 py-0.5 rounded ${
+                                proposal.matchingScore >= 90
+                                  ? 'bg-green-100 text-green-700'
+                                  : proposal.matchingScore >= 80
+                                  ? 'bg-blue-100 text-blue-700'
+                                  : 'bg-gray-100 text-gray-700'
+                              }`}>
+                                {proposal.matchingScore}%
+                              </div>
+                            )}
                           </div>
-                          <div className="text-base font-bold text-gray-800">
+                          <div className="text-sm sm:text-base font-bold text-gray-800">
                             {formatDate(proposal.date)}
                           </div>
                         </div>
 
                         {/* カード内容 */}
-                        <div className="px-3 py-2 space-y-1.5">
+                        <div className="px-2 py-1.5 sm:px-3 sm:py-2 space-y-1 sm:space-y-1.5">
                           {/* 時間 */}
-                          <div className="flex items-center text-sm text-gray-700">
-                            <Clock className="w-4 h-4 mr-2 text-gray-400" />
+                          <div className="flex items-center text-xs sm:text-sm text-gray-700">
+                            <Clock className="w-3 sm:w-4 h-3 sm:h-4 mr-1 sm:mr-2 text-gray-400" />
                             <span className="font-semibold">
                               {proposal.startTime} - {proposal.endTime}
                             </span>
                           </div>
 
                           {/* 担当者 */}
-                          <div className="flex items-start text-sm text-gray-700">
-                            <User className="w-4 h-4 mr-2 text-gray-400 mt-0.5" />
+                          <div className="flex items-start text-xs sm:text-sm text-gray-700">
+                            <User className="w-3 sm:w-4 h-3 sm:h-4 mr-1 sm:mr-2 text-gray-400 mt-0.5" />
                             <div>
-                              <div className="font-semibold">{proposal.interviewer.name}</div>
-                              <div className="text-xs text-gray-500">{proposal.interviewer.title}</div>
+                              <div className="font-semibold text-xs sm:text-sm">{proposal.interviewer.name}</div>
+                              <div className="text-xs text-gray-500 hidden sm:block">{proposal.interviewer.title}</div>
                             </div>
                           </div>
 
                           {/* 場所 */}
-                          <div className="flex items-center text-sm text-gray-700">
-                            <MapPin className="w-4 h-4 mr-2 text-gray-400" />
-                            <span className="text-sm">{getLocationDisplay(proposal.location)}</span>
+                          <div className="flex items-center text-xs sm:text-sm text-gray-700">
+                            <MapPin className="w-3 sm:w-4 h-3 sm:h-4 mr-1 sm:mr-2 text-gray-400" />
+                            <span className="text-xs sm:text-sm">{getLocationDisplay(proposal.location)}</span>
                           </div>
 
-                          {/* マッチング度 */}
-                          {proposal.matchingScore && (
-                            <div className="pt-2 border-t border-gray-200">
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-gray-500">マッチング度</span>
-                                <div className="flex items-center">
-                                  <div className="w-16 h-1.5 bg-gray-200 rounded-full mr-1">
-                                    <div
-                                      className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full"
-                                      style={{ width: `${proposal.matchingScore}%` }}
-                                    />
-                                  </div>
-                                  <span className="text-xs font-semibold text-gray-700">
-                                    {proposal.matchingScore}%
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          )}
                         </div>
 
                         {/* 選択状態 */}
@@ -202,26 +197,26 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
                 </div>
 
                 {/* アクションボタン */}
-                <div className="flex flex-col md:flex-row gap-2 justify-center mt-3">
+                <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2 justify-center mt-2 sm:mt-3">
                   <button
                     onClick={handleConfirmSelection}
                     disabled={!selectedProposalId}
-                    className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center justify-center ${
+                    className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all flex items-center justify-center ${
                       selectedProposalId
                         ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg'
                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     }`}
                   >
                     この日程で予約を確定
-                    <ChevronRight className="w-4 h-4 ml-1" />
+                    <ChevronRight className="w-3 sm:w-4 h-3 sm:h-4 ml-1" />
                   </button>
 
                   <button
                     onClick={() => setShowRescheduleForm(true)}
-                    className="px-4 py-2 rounded-lg font-semibold text-sm bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center"
                   >
-                    <RefreshCw className="w-4 h-4 mr-1" />
-                    どれも合わない・再調整を依頼
+                    <RefreshCw className="w-3 sm:w-4 h-3 sm:h-4 mr-1" />
+                    再調整を依頼
                   </button>
                 </div>
               </>
