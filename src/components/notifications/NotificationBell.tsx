@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, BellRing, Check, X, Clock, AlertTriangle } from 'lucide-react';
+import { Bell, BellRing, Check, X, Clock, AlertTriangle, Calendar, MessageSquare } from 'lucide-react';
 import NotificationService, { ActionableNotification, NotificationStats } from '../../services/NotificationService';
 import { useAuth } from '../../hooks/useAuth';
+import { useDemoMode } from '../demo/DemoModeController';
+import ProposalSelectionModal from '../interview/ProposalSelectionModal';
+import { ProposalPattern, RescheduleRequest } from '../../types/interview';
 // Simple date formatter (replacing date-fns)
 const formatDate = (date: Date): string => {
   return date.toLocaleDateString('ja-JP', {
@@ -19,29 +22,35 @@ interface NotificationBellProps {
 
 export const NotificationBell: React.FC<NotificationBellProps> = ({ className = '' }) => {
   const { currentUser } = useAuth();
+  const { isDemoMode } = useDemoMode();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
   const [notifications, setNotifications] = useState<ActionableNotification[]>([]);
   const [stats, setStats] = useState<NotificationStats | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread' | 'pending'>('pending');
+  const [showProposalModal, setShowProposalModal] = useState(false);
+  const [proposalPatterns, setProposalPatterns] = useState<ProposalPattern[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notificationService = NotificationService.getInstance();
 
+  // デモモードの場合はdemo-userを使用
+  const activeUserId = isDemoMode ? 'demo-user' : currentUser?.id;
+
   useEffect(() => {
-    if (!currentUser || !notificationService) return;
+    if (!activeUserId || !notificationService) return;
 
     // 初回読み込み
     loadNotifications();
 
     // リアルタイム更新を購読
     const unsubscribe = notificationService.subscribeToNotifications((userId) => {
-      if (userId === currentUser.id) {
+      if (userId === activeUserId) {
         loadNotifications();
       }
     });
 
     return () => unsubscribe();
-  }, [currentUser, filter]);
+  }, [activeUserId, filter]);
 
   useEffect(() => {
     // クリックアウトサイドで閉じる
@@ -56,7 +65,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
   }, []);
 
   const loadNotifications = () => {
-    if (!currentUser) return;
+    if (!activeUserId) return;
 
     const filterOptions = {
       unreadOnly: filter === 'unread',
@@ -64,16 +73,16 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
     };
 
     const userNotifications = notificationService.getUserNotifications(
-      currentUser.id,
+      activeUserId,
       filter === 'all' ? undefined : filterOptions
     );
-    
+
     setNotifications(userNotifications);
-    setStats(notificationService.getUserNotificationStats(currentUser.id));
+    setStats(notificationService.getUserNotificationStats(activeUserId));
   };
 
   const handleAction = async (notification: ActionableNotification, actionId: string) => {
-    if (!currentUser) return;
+    if (!activeUserId) return;
 
     // プロジェクト詳細ページへのナビゲーション処理
     const action = notification.actions?.find(a => a.id === actionId);
@@ -86,7 +95,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
     }
 
     const result = await notificationService.executeNotificationAction(
-      currentUser.id,
+      activeUserId,
       notification.id,
       actionId
     );
@@ -96,19 +105,113 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
     }
   };
 
+  // 面談提案通知のクリックハンドラー
+  const handleProposalNotificationClick = (notification: ActionableNotification) => {
+    if (notification.data?.action === 'view_proposals') {
+      // 提案パターンを生成（実際はAPIから取得）
+      const mockProposals: ProposalPattern[] = [
+        {
+          id: 'p1',
+          proposalNumber: 1,
+          date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          startTime: '14:00',
+          endTime: '15:00',
+          interviewer: {
+            id: 'i1',
+            name: '山田 花子',
+            title: 'シニアカウンセラー',
+            department: '人事部メンタルヘルス課',
+            specialties: ['キャリア相談', 'ストレス管理']
+          },
+          location: {
+            type: 'onsite',
+            place: '本部ビル',
+            roomNumber: '3F 相談室A'
+          },
+          matchingScore: 95,
+          isRecommended: true,
+          notes: 'ご希望の時間帯と合致しています'
+        },
+        {
+          id: 'p2',
+          proposalNumber: 2,
+          date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+          startTime: '10:00',
+          endTime: '11:00',
+          interviewer: {
+            id: 'i2',
+            name: '田中 太郎',
+            title: '人事部主任',
+            department: '人事部'
+          },
+          location: {
+            type: 'onsite',
+            place: '本部ビル',
+            roomNumber: '5F 会議室B'
+          },
+          matchingScore: 78
+        },
+        {
+          id: 'p3',
+          proposalNumber: 3,
+          date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+          startTime: '15:30',
+          endTime: '16:30',
+          interviewer: {
+            id: 'i3',
+            name: '鈴木 次郎',
+            title: '人事課長',
+            department: '人事部'
+          },
+          location: {
+            type: 'online',
+            meetingUrl: 'https://meet.example.com/abc123'
+          },
+          matchingScore: 82
+        }
+      ];
+
+      setProposalPatterns(mockProposals);
+      setShowProposalModal(true);
+      setShowDropdown(false);
+
+      // 通知を既読にする
+      notificationService.markAsRead(notification.id);
+      loadNotifications();
+    }
+  };
+
+  const handleSelectProposal = (proposalId: string) => {
+    console.log('選択された提案:', proposalId);
+    setShowProposalModal(false);
+    alert('面談予約が確定しました！詳細はメールでお送りします。');
+  };
+
+  const handleRequestReschedule = (request: RescheduleRequest) => {
+    console.log('再調整依頼:', request);
+    setShowProposalModal(false);
+    alert('再調整を依頼しました。医療チームから新しい提案が届きましたらお知らせします。');
+  };
+
   const markAsRead = (notificationId: string) => {
-    if (!currentUser) return;
-    notificationService.markAsRead(currentUser.id, notificationId);
+    if (!activeUserId) return;
+    notificationService.markAsRead(notificationId);
     loadNotifications();
   };
 
-  const getNotificationIcon = (type: ActionableNotification['type']) => {
+  const getNotificationIcon = (type: ActionableNotification['type'] | string) => {
     switch (type) {
       case 'EMERGENCY_ACTION':
       case 'ESCALATION':
         return <AlertTriangle className="w-4 h-4 text-red-500" />;
       case 'DEADLINE_REMINDER':
         return <Clock className="w-4 h-4 text-orange-500" />;
+      case 'proposal_received':
+        return <Calendar className="w-4 h-4 text-blue-500" />;
+      case 'revised_proposal':
+        return <MessageSquare className="w-4 h-4 text-green-500" />;
+      case 'selection_deadline_warning':
+        return <AlertTriangle className="w-4 h-4 text-orange-500" />;
       default:
         return <Bell className="w-4 h-4 text-blue-500" />;
     }
@@ -194,10 +297,19 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
               notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 border-b border-gray-100 hover:bg-gray-50 ${
+                  className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
                     !notification.isRead ? 'bg-blue-50' : ''
                   }`}
-                  onClick={() => !notification.isRead && markAsRead(notification.id)}
+                  onClick={() => {
+                    // 面談提案通知の場合は専用処理
+                    if (notification.type === 'proposal_received' ||
+                        notification.type === 'revised_proposal' ||
+                        notification.data?.action === 'view_proposals') {
+                      handleProposalNotificationClick(notification);
+                    } else if (!notification.isRead) {
+                      markAsRead(notification.id);
+                    }
+                  }}
                 >
                   <div className="flex items-start gap-3">
                     <div className="mt-1">
@@ -290,6 +402,17 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
           )}
         </div>
       )}
+
+      {/* 提案選択モーダル */}
+      <ProposalSelectionModal
+        isOpen={showProposalModal}
+        onClose={() => setShowProposalModal(false)}
+        proposals={proposalPatterns}
+        onSelectProposal={handleSelectProposal}
+        onRequestReschedule={handleRequestReschedule}
+        employeeName={isDemoMode ? 'デモユーザー' : (currentUser?.name || '職員')}
+        bookingId="temp-booking"
+      />
     </div>
   );
 };

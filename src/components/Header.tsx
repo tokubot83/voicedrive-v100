@@ -7,6 +7,7 @@ import { mainTabs } from './tabs/MainTabs';
 import { NotificationBell } from './notifications/NotificationBell';
 import { useDemoMode } from './demo/DemoModeController';
 import { useScrollDirection } from '../hooks/useScrollDirection';
+import NotificationService from '../services/NotificationService';
 
 
 interface HeaderProps {
@@ -18,10 +19,26 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
   const { activeMainTab, activeSubFilter } = tabState;
   const { isDemoMode } = useDemoMode();
   const { isVisible } = useScrollDirection();
-  
+
   // 現在のタブがサブフィルターを持つかチェック
   const currentTab = mainTabs.find(tab => tab.id === activeMainTab);
   const hasSubFilters = currentTab?.hasSubFilters || false;
+
+  // デモ通知を送信
+  const sendDemoNotification = (type: 'proposal' | 'reschedule' | 'deadline') => {
+    const notificationService = NotificationService.getInstance();
+    switch (type) {
+      case 'proposal':
+        notificationService.sendDemoProposalNotification();
+        break;
+      case 'reschedule':
+        notificationService.sendDemoRescheduleNotification();
+        break;
+      case 'deadline':
+        notificationService.sendDemoDeadlineWarning();
+        break;
+    }
+  };
 
   return (
     <header className={`fixed left-0 right-0 top-0 z-50 bg-black/80 backdrop-blur border-b border-gray-800 transition-transform duration-300 ${
@@ -41,7 +58,34 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
         </Link>
         
         {/* 通知ベル（右側） */}
-        <div className="flex items-center flex-1 justify-end">
+        <div className="flex items-center flex-1 justify-end gap-2">
+          {/* デモモード時のみデモ通知ボタンを表示 */}
+          {isDemoMode && (
+            <div className="flex items-center gap-1 mr-4">
+              <span className="text-xs text-gray-400 mr-2">デモ:</span>
+              <button
+                onClick={() => sendDemoNotification('proposal')}
+                className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+                title="面談提案通知を送信"
+              >
+                提案
+              </button>
+              <button
+                onClick={() => sendDemoNotification('reschedule')}
+                className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors"
+                title="再調整完了通知を送信"
+              >
+                再調整
+              </button>
+              <button
+                onClick={() => sendDemoNotification('deadline')}
+                className="px-2 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700 transition-colors"
+                title="期限警告通知を送信"
+              >
+                期限
+              </button>
+            </div>
+          )}
           <NotificationBell className="text-white" />
         </div>
       </div>
