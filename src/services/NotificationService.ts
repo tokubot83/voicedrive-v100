@@ -746,10 +746,15 @@ VoiceDrive 医療システム統合
     // リスナーに通知
     this.notifyListeners(notification);
 
-    // ストレージへの保存はsendNotificationメソッド内で処理される
+    // ストレージへの保存
+    if (config.channels.includes('storage')) {
+      this.saveToStorage(notification);
+    }
 
-    // 非同期で通知送信（エラーがあってもUIには影響しない）
-    this.sendNotification(config).catch(error => {
+    // 非同期でチャンネル別に通知送信（sendNotificationを使わず直接処理）
+    Promise.all(
+      config.channels.map(channel => this.sendToChannel(channel, config))
+    ).catch(error => {
       console.error('通知送信エラー:', error);
     });
 
