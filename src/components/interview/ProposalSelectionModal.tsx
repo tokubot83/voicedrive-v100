@@ -26,6 +26,8 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
   const [rescheduleDetail, setRescheduleDetail] = useState('');
   const [additionalRequests, setAdditionalRequests] = useState('');
 
+  console.log('📅 ProposalSelectionModal:', { isOpen, proposalsCount: proposals.length });
+
   if (!isOpen) return null;
 
   const handleSelectProposal = (proposalId: string) => {
@@ -69,40 +71,39 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
   ];
 
   return (
-    <>
+    <div className="fixed inset-0 z-[9998] flex items-center justify-center">
       {/* オーバーレイ */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+        className="absolute inset-0 bg-black bg-opacity-50"
         onClick={onClose}
       />
 
       {/* モーダル本体 */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="relative z-[9999] bg-white rounded-2xl shadow-2xl w-[95%] max-w-7xl max-h-[85vh] overflow-hidden m-auto">
           {/* ヘッダー */}
-          <div className="sticky top-0 bg-white border-b border-gray-200 p-6 rounded-t-2xl">
+          <div className="bg-white border-b border-gray-200 px-4 py-2 rounded-t-2xl">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">面談日程の提案</h2>
-                <p className="text-gray-600 mt-1">
+                <h2 className="text-base font-bold text-gray-800">面談日程の提案</h2>
+                <p className="text-gray-600 text-xs">
                   {employeeName}様のご希望に基づいて、医療チームが最適な日程を3つ提案しました
                 </p>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <X className="w-6 h-6 text-gray-500" />
+                <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
           </div>
 
           {/* コンテンツ */}
-          <div className="p-6">
+          <div className="p-3 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 60px)' }}>
             {!showRescheduleForm ? (
               <>
                 {/* 提案カード */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4">
                   {proposals.map((proposal) => (
                     <div
                       key={proposal.id}
@@ -115,9 +116,9 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
                     >
                       {/* おすすめマーク */}
                       {proposal.isRecommended && (
-                        <div className="absolute -top-3 -right-3 z-10">
-                          <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold flex items-center shadow-lg">
-                            <Star className="w-4 h-4 mr-1" />
+                        <div className="absolute -top-2 -right-2 z-10">
+                          <div className="bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded-full text-xs font-bold flex items-center shadow-lg">
+                            <Star className="w-3 h-3 mr-0.5" />
                             おすすめ
                           </div>
                         </div>
@@ -130,57 +131,57 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
                           : 'border-gray-200 bg-white'
                       }`}>
                         {/* カードヘッダー */}
-                        <div className={`p-4 ${
+                        <div className={`px-3 py-2 ${
                           proposal.isRecommended
                             ? 'bg-gradient-to-r from-yellow-50 to-orange-50'
                             : 'bg-gray-50'
                         }`}>
-                          <div className="text-sm font-semibold text-gray-500 mb-1">
+                          <div className="text-xs font-semibold text-gray-500">
                             第{proposal.proposalNumber}候補
                           </div>
-                          <div className="text-xl font-bold text-gray-800">
+                          <div className="text-base font-bold text-gray-800">
                             {formatDate(proposal.date)}
                           </div>
                         </div>
 
                         {/* カード内容 */}
-                        <div className="p-4 space-y-3">
+                        <div className="px-3 py-2 space-y-1.5">
                           {/* 時間 */}
-                          <div className="flex items-center text-gray-700">
-                            <Clock className="w-5 h-5 mr-3 text-gray-400" />
+                          <div className="flex items-center text-sm text-gray-700">
+                            <Clock className="w-4 h-4 mr-2 text-gray-400" />
                             <span className="font-semibold">
                               {proposal.startTime} - {proposal.endTime}
                             </span>
                           </div>
 
                           {/* 担当者 */}
-                          <div className="flex items-start text-gray-700">
-                            <User className="w-5 h-5 mr-3 text-gray-400 mt-0.5" />
+                          <div className="flex items-start text-sm text-gray-700">
+                            <User className="w-4 h-4 mr-2 text-gray-400 mt-0.5" />
                             <div>
                               <div className="font-semibold">{proposal.interviewer.name}</div>
-                              <div className="text-sm text-gray-500">{proposal.interviewer.title}</div>
+                              <div className="text-xs text-gray-500">{proposal.interviewer.title}</div>
                             </div>
                           </div>
 
                           {/* 場所 */}
-                          <div className="flex items-center text-gray-700">
-                            <MapPin className="w-5 h-5 mr-3 text-gray-400" />
-                            <span>{getLocationDisplay(proposal.location)}</span>
+                          <div className="flex items-center text-sm text-gray-700">
+                            <MapPin className="w-4 h-4 mr-2 text-gray-400" />
+                            <span className="text-sm">{getLocationDisplay(proposal.location)}</span>
                           </div>
 
                           {/* マッチング度 */}
                           {proposal.matchingScore && (
-                            <div className="pt-3 border-t border-gray-200">
+                            <div className="pt-2 border-t border-gray-200">
                               <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-500">マッチング度</span>
+                                <span className="text-xs text-gray-500">マッチング度</span>
                                 <div className="flex items-center">
-                                  <div className="w-24 h-2 bg-gray-200 rounded-full mr-2">
+                                  <div className="w-16 h-1.5 bg-gray-200 rounded-full mr-1">
                                     <div
                                       className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full"
                                       style={{ width: `${proposal.matchingScore}%` }}
                                     />
                                   </div>
-                                  <span className="text-sm font-semibold text-gray-700">
+                                  <span className="text-xs font-semibold text-gray-700">
                                     {proposal.matchingScore}%
                                   </span>
                                 </div>
@@ -201,25 +202,25 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
                 </div>
 
                 {/* アクションボタン */}
-                <div className="flex flex-col md:flex-row gap-4 justify-center">
+                <div className="flex flex-col md:flex-row gap-2 justify-center mt-3">
                   <button
                     onClick={handleConfirmSelection}
                     disabled={!selectedProposalId}
-                    className={`px-8 py-4 rounded-xl font-semibold transition-all flex items-center justify-center ${
+                    className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center justify-center ${
                       selectedProposalId
                         ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg'
                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     }`}
                   >
                     この日程で予約を確定
-                    <ChevronRight className="w-5 h-5 ml-2" />
+                    <ChevronRight className="w-4 h-4 ml-1" />
                   </button>
 
                   <button
                     onClick={() => setShowRescheduleForm(true)}
-                    className="px-8 py-4 rounded-xl font-semibold bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center"
+                    className="px-4 py-2 rounded-lg font-semibold text-sm bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center"
                   >
-                    <RefreshCw className="w-5 h-5 mr-2" />
+                    <RefreshCw className="w-4 h-4 mr-1" />
                     どれも合わない・再調整を依頼
                   </button>
                 </div>
@@ -308,9 +309,8 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
               </div>
             )}
           </div>
-        </div>
       </div>
-    </>
+    </div>
   );
 };
 

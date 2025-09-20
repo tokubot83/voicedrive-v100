@@ -50,13 +50,25 @@ export interface NotificationPreferences {
 
 export interface ActionableNotification {
   id: string;
-  type: NotificationType;
+  type: NotificationType | string;
   title: string;
   message: string;
   urgency: NotificationUrgency;
   timestamp: string;
+  createdAt: Date;
   isRead: boolean;
+  isActioned?: boolean;
   actionRequired: boolean;
+  dueDate?: Date;
+  actions?: Array<{
+    id: string;
+    label: string;
+    type: 'primary' | 'secondary' | 'danger';
+    action: string;
+  }>;
+  metadata?: {
+    projectId?: string;
+  };
   data?: any;
 }
 
@@ -685,10 +697,36 @@ VoiceDrive 医療システム統合
       message: n.config.message,
       urgency: n.config.urgency,
       timestamp: n.config.timestamp,
+      createdAt: n.createdAt,
       isRead: n.status === 'acknowledged',
+      isActioned: false,
       actionRequired: n.config.actionRequired || false,
+      dueDate: n.config.expiresAt ? new Date(n.config.expiresAt) : undefined,
+      actions: undefined,
+      metadata: undefined,
       data: n.config.data
     }));
+  }
+
+  // 通知送信メソッド
+  public send(config: MedicalNotificationConfig): void {
+    const notificationId = this.generateNotificationId();
+    const notification: NotificationState = {
+      id: notificationId,
+      config,
+      status: 'pending',
+      createdAt: new Date(),
+      retryCount: 0
+    };
+
+    this.notifications.set(notificationId, notification);
+    this.sendNotification(config).then(() => {
+      notification.status = 'sent';
+      this.notifyListeners(notification);
+      this.saveToStorage(notification);
+    }).catch(error => {
+      console.error('通知送信エラー:', error);
+    });
   }
 
   // デモ用: 医療チームからの提案通知を生成

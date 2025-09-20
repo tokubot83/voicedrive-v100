@@ -77,6 +77,8 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
       filter === 'all' ? undefined : filterOptions
     );
 
+    console.log('🔔 Loaded notifications:', userNotifications);
+    console.log('🔔 First notification details:', userNotifications[0]);
     setNotifications(userNotifications);
     setStats(notificationService.getUserNotificationStats(activeUserId));
   };
@@ -107,7 +109,11 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
 
   // 面談提案通知のクリックハンドラー
   const handleProposalNotificationClick = (notification: ActionableNotification) => {
+    console.log('🔔 Proposal notification clicked:', notification);
+    console.log('🔔 Notification data:', notification.data);
+
     if (notification.data?.action === 'view_proposals') {
+      console.log('🔔 Showing proposal modal...');
       // 提案パターンを生成（実際はAPIから取得）
       const mockProposals: ProposalPattern[] = [
         {
@@ -172,6 +178,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
       ];
 
       setProposalPatterns(mockProposals);
+      console.log('🔔 Setting showProposalModal to true');
       setShowProposalModal(true);
       setShowDropdown(false);
 
@@ -224,7 +231,10 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
-        onClick={() => setShowDropdown(!showDropdown)}
+        onClick={() => {
+          console.log('🔔 Bell clicked, toggling dropdown');
+          setShowDropdown(!showDropdown);
+        }}
         className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
         aria-label="通知"
       >
@@ -256,30 +266,39 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
 
             <div className="flex gap-2">
               <button
-                onClick={() => setFilter('pending')}
+                onClick={() => {
+                  console.log('🔔 Filter changed to pending');
+                  setFilter('pending');
+                }}
                 className={`px-3 py-1 rounded text-sm ${
-                  filter === 'pending' 
-                    ? 'bg-blue-500 text-white' 
+                  filter === 'pending'
+                    ? 'bg-blue-500 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
                 未対応 {stats?.pending ? `(${stats.pending})` : ''}
               </button>
               <button
-                onClick={() => setFilter('unread')}
+                onClick={() => {
+                  console.log('🔔 Filter changed to unread');
+                  setFilter('unread');
+                }}
                 className={`px-3 py-1 rounded text-sm ${
-                  filter === 'unread' 
-                    ? 'bg-blue-500 text-white' 
+                  filter === 'unread'
+                    ? 'bg-blue-500 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
                 未読 {stats?.unread ? `(${stats.unread})` : ''}
               </button>
               <button
-                onClick={() => setFilter('all')}
+                onClick={() => {
+                  console.log('🔔 Filter changed to all');
+                  setFilter('all');
+                }}
                 className={`px-3 py-1 rounded text-sm ${
-                  filter === 'all' 
-                    ? 'bg-blue-500 text-white' 
+                  filter === 'all'
+                    ? 'bg-blue-500 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -289,6 +308,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
           </div>
 
           <div className="max-h-96 overflow-y-auto">
+            {console.log('🔔 Rendering notifications:', notifications.length, 'items')}
             {notifications.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 通知はありません
@@ -301,6 +321,11 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
                     !notification.isRead ? 'bg-blue-50' : ''
                   }`}
                   onClick={() => {
+                    console.log('🔔 Notification clicked:', {
+                      type: notification.type,
+                      data: notification.data,
+                      action: notification.data?.action
+                    });
                     // 面談提案通知の場合は専用処理
                     if (notification.type === 'proposal_received' ||
                         notification.type === 'revised_proposal' ||
@@ -404,6 +429,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
       )}
 
       {/* 提案選択モーダル */}
+      {console.log('🔔 Modal state:', { showProposalModal, proposalPatternsLength: proposalPatterns.length })}
       <ProposalSelectionModal
         isOpen={showProposalModal}
         onClose={() => setShowProposalModal(false)}
