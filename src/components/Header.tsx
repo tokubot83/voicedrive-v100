@@ -61,25 +61,52 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
         <div className="flex items-center flex-1 justify-end gap-2">
           {/* デモモード時のみデモ通知ボタンを表示 */}
           {isDemoMode && (
-            <div className="flex items-center gap-1 mr-4">
-              <span className="text-xs text-gray-400 mr-2">デモ:</span>
+            <div className="flex items-center gap-1 sm:gap-2 mr-2 sm:mr-4">
+              <span className="hidden sm:inline text-xs text-gray-400 mr-2">デモ:</span>
               <button
-                onClick={() => sendDemoNotification('proposal')}
-                className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  sendDemoNotification('proposal');
+                }}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  sendDemoNotification('proposal');
+                }}
+                className="px-2 sm:px-3 py-2 sm:py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 active:bg-blue-800 transition-colors touch-manipulation"
                 title="面談提案通知を送信"
               >
                 提案
               </button>
               <button
-                onClick={() => sendDemoNotification('reschedule')}
-                className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  sendDemoNotification('reschedule');
+                }}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  sendDemoNotification('reschedule');
+                }}
+                className="px-2 sm:px-3 py-2 sm:py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 active:bg-green-800 transition-colors touch-manipulation"
                 title="再調整完了通知を送信"
               >
                 再調整
               </button>
               <button
-                onClick={() => sendDemoNotification('deadline')}
-                className="px-2 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700 transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  sendDemoNotification('deadline');
+                }}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  sendDemoNotification('deadline');
+                }}
+                className="px-2 sm:px-3 py-2 sm:py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700 active:bg-orange-800 transition-colors touch-manipulation"
                 title="期限警告通知を送信"
               >
                 期限

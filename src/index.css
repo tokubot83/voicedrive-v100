@@ -141,6 +141,20 @@ body {
   .touch-action-pan-y {
     touch-action: pan-y;
   }
+
+  /* モバイルタッチ最適化 */
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* タッチ操作最適化 */
+.touch-manipulation {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 /* Additional animations for enhanced voting system */
