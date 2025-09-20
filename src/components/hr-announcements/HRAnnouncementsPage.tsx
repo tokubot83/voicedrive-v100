@@ -207,9 +207,6 @@ const HRAnnouncementsPage: React.FC = () => {
           <div className="hr-title-icon">📢</div>
           <h1 className="hr-title-text">
             人事部からのお知らせ
-            {unreadCount > 0 && (
-              <span className="hr-title-badge">{unreadCount}</span>
-            )}
           </h1>
         </div>
       </div>
