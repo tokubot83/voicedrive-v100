@@ -88,6 +88,7 @@ class NotificationService {
   private preferences: NotificationPreferences;
   private soundContext: AudioContext | null = null;
   private isInitialized: boolean = false;
+  private lastSoundPlayTime: Map<string, number> = new Map(); // 音の再生デバウンス用
 
   private constructor() {
     this.preferences = this.loadPreferences();
@@ -139,12 +140,13 @@ class NotificationService {
       notificationState.status = 'pending';
       notificationState.retryCount++;
 
-      // 再送機能
-      if (notificationState.retryCount < 3) {
-        setTimeout(() => this.retryNotification(notificationId), 5000);
-      }
+      // 再送機能を無効化（音の無限ループを防ぐため）
+      // if (notificationState.retryCount < 3) {
+      //   setTimeout(() => this.retryNotification(notificationId), 5000);
+      // }
 
-      throw error;
+      // エラーをログに記録するが、再スローしない
+      console.error('通知送信エラー（再送信はしません）:', error);
     }
   }
 
@@ -219,6 +221,16 @@ class NotificationService {
   private async playSoundAlert(config: MedicalNotificationConfig): Promise<void> {
     if (!this.preferences.enableSoundAlerts || !this.soundContext) return;
 
+    // デバウンス処理：同じ通知の音が5秒以内に再生されるのを防ぐ
+    const soundKey = `${config.type}_${config.data?.userId || 'unknown'}`;
+    const now = Date.now();
+    const lastPlayTime = this.lastSoundPlayTime.get(soundKey) || 0;
+    if (now - lastPlayTime < 5000) {
+      console.log('音の再生をスキップ（デバウンス）');
+      return;
+    }
+    this.lastSoundPlayTime.set(soundKey, now);
+
     try {
       const frequency = this.getSoundFrequency(config.urgency);
       const duration = this.getSoundDuration(config.urgency);
@@ -249,6 +261,7 @@ class NotificationService {
 
     } catch (error) {
       console.error('音響アラート再生エラー:', error);
+      // エラーを再スローしない（再送信ループを防ぐ）
     }
   }
 
