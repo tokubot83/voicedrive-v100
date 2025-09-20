@@ -16,11 +16,38 @@ export class InterviewService {
   // 面談予約作成
   static async create(data: InterviewData) {
     try {
+      console.log('Creating interview with data:', data);
+
+      // employeeIdからUserのidを取得
+      const user = await prisma.user.findFirst({
+        where: { employeeId: data.employeeId }
+      });
+
+      console.log('Found user:', user);
+
+      if (!user) {
+        return {
+          success: false,
+          error: `Employee with ID ${data.employeeId} not found`,
+        };
+      }
+
+      const createData = {
+        employeeId: user.id, // User.idを使用
+        category: data.category,
+        type: data.type,
+        topic: data.topic,
+        preferredDate: data.preferredDate,
+        urgencyLevel: data.urgencyLevel,
+        duration: data.duration,
+        notes: data.notes,
+        status: 'pending',
+      };
+
+      console.log('Creating interview with processed data:', createData);
+
       const interview = await prisma.interview.create({
-        data: {
-          ...data,
-          status: 'pending',
-        },
+        data: createData,
         include: {
           employee: {
             select: {

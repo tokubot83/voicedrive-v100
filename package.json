@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:api": "tsx src/server.ts",
     "build": "vite build",
     "build:vercel": "vite build",
     "build:strict": "tsc --noEmit --skipLibCheck && vite build",

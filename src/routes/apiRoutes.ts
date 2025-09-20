@@ -5,11 +5,19 @@ import { validateNotification, validatePayloadSize } from '../middleware/validat
 import { standardRateLimit } from '../middleware/rateLimitMiddleware';
 import { NotificationService } from '../api/db/notificationService';
 import { UserService } from '../api/db/userService';
+import interviewRoutes from './interviewRoutes';
 
 const router = Router();
 
 // ペイロードサイズ制限
 router.use(validatePayloadSize(1048576)); // 1MB
+
+// ====================
+// サブルート
+// ====================
+
+// 面談予約API
+router.use('/interviews', interviewRoutes);
 
 // ====================
 // 認証API
