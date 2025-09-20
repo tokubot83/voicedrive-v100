@@ -405,6 +405,19 @@
   border: 1px solid var(--hr-category-health-border);
 }
 
+.hr-tag-announcement {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.hr-tag-survey {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-weight: 600;
+}
+
 .hr-tag-other {
   background: var(--hr-category-other-bg);
   color: var(--hr-text-muted);
