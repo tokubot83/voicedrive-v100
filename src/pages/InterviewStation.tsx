@@ -15,6 +15,7 @@ import PendingBookingCard from '../components/interview/PendingBookingCard';
 import StaffRecommendationDisplay from '../components/interview/StaffRecommendationDisplay';
 import AssistedBookingService, { AssistedBookingRequest, StaffFriendlyRecommendation } from '../services/AssistedBookingService';
 import SimpleInterviewFlow from '../components/interview/simple/SimpleInterviewFlow';
+import ProposalNotificationDemo from '../components/demo/ProposalNotificationDemo';
 
 const InterviewStation: React.FC = () => {
   const navigate = useNavigate();
@@ -837,6 +838,9 @@ const InterviewStation: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* デモ通知コンポーネント */}
+      <ProposalNotificationDemo />
 
       {/* Pattern D: 推薦結果表示モーダル */}
       {showRecommendations && (

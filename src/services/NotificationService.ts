@@ -690,6 +690,77 @@ VoiceDrive 医療システム統合
       data: n.config.data
     }));
   }
+
+  // デモ用: 医療チームからの提案通知を生成
+  public sendDemoProposalNotification(): void {
+    const config: MedicalNotificationConfig = {
+      type: 'proposal_received',
+      title: '面談日程の提案が届きました',
+      message: '医療チームのAI分析により、あなたのご希望に最適な面談日程を3つ提案させていただきました。選択期限は48時間です。',
+      urgency: 'high',
+      channels: ['browser', 'sound', 'storage'],
+      timestamp: new Date().toISOString(),
+      actionRequired: true,
+      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+      data: {
+        userId: 'demo-user',
+        bookingId: 'demo-booking-001',
+        proposalCount: 3,
+        recommendedProposalId: 'p1',
+        deadline: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+        action: 'view_proposals'
+      }
+    };
+
+    this.send(config);
+  }
+
+  // デモ用: 再調整完了通知を生成
+  public sendDemoRescheduleNotification(): void {
+    const config: MedicalNotificationConfig = {
+      type: 'revised_proposal',
+      title: '再調整後の新しい提案が届きました',
+      message: 'ご要望を考慮して、新しい面談日程を3つ提案させていただきました。今回は夕方の時間帯を中心に調整しました。',
+      urgency: 'high',
+      channels: ['browser', 'sound', 'storage'],
+      timestamp: new Date().toISOString(),
+      actionRequired: true,
+      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+      data: {
+        userId: 'demo-user',
+        bookingId: 'demo-booking-002',
+        proposalCount: 3,
+        previousRequestReason: 'time_preference',
+        adjustmentNote: '夕方の時間帯を中心に再調整しました',
+        action: 'view_proposals'
+      }
+    };
+
+    this.send(config);
+  }
+
+  // デモ用: 選択期限警告通知を生成
+  public sendDemoDeadlineWarning(): void {
+    const config: MedicalNotificationConfig = {
+      type: 'selection_deadline_warning',
+      title: '⚠️ 面談日程の選択期限が近づいています',
+      message: '提案された面談日程の選択期限まであと12時間です。期限を過ぎると自動的にキャンセルとなりますのでご注意ください。',
+      urgency: 'urgent',
+      channels: ['browser', 'sound', 'storage', 'email'],
+      timestamp: new Date().toISOString(),
+      actionRequired: true,
+      expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+      data: {
+        userId: 'demo-user',
+        bookingId: 'demo-booking-001',
+        remainingHours: 12,
+        proposalCount: 3,
+        action: 'view_proposals'
+      }
+    };
+
+    this.send(config);
+  }
 }
 
 export default NotificationService;
