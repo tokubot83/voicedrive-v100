@@ -6,14 +6,13 @@
  * 医療チーム: announcement/interview/training/survey/other
  */
 
-// VoiceDrive側のカテゴリタイプ（既存+拡張）
+// VoiceDrive側のカテゴリタイプ（医療チーム仕様準拠）
 export type VoiceDriveCategory =
-  | 'URGENT'    // 緊急
-  | 'MEETING'   // 面談
-  | 'TRAINING'  // 研修
-  | 'HEALTH'    // 健康管理
-  | 'SURVEY'    // アンケート（新規追加）
-  | 'OTHER';    // その他
+  | 'ANNOUNCEMENT' // お知らせ（緊急・健康管理含む）
+  | 'MEETING'      // 面談
+  | 'TRAINING'     // 研修
+  | 'SURVEY'       // アンケート
+  | 'OTHER';       // その他
 
 // 医療チーム側のカテゴリタイプ
 export type MedicalTeamCategory =
@@ -43,10 +42,9 @@ export interface CategoryWithSubCategory {
  * VoiceDriveのカテゴリを医療チームのカテゴリに変換
  *
  * マッピングルール：
- * - URGENT → announcement（緊急連絡として扱う）
+ * - ANNOUNCEMENT → announcement
  * - MEETING → interview
  * - TRAINING → training
- * - HEALTH → announcement（健康関連のお知らせとして扱う）
  * - SURVEY → survey
  * - OTHER → other
  */
@@ -54,14 +52,12 @@ export const convertToMedicalTeamCategory = (
   voiceDriveCategory: VoiceDriveCategory
 ): MedicalTeamCategory => {
   switch (voiceDriveCategory) {
-    case 'URGENT':
-      return 'announcement'; // 緊急は一般お知らせとして扱う
+    case 'ANNOUNCEMENT':
+      return 'announcement';
     case 'MEETING':
       return 'interview';
     case 'TRAINING':
       return 'training';
-    case 'HEALTH':
-      return 'announcement'; // 健康管理もお知らせとして扱う
     case 'SURVEY':
       return 'survey';
     case 'OTHER':
@@ -76,20 +72,18 @@ export const convertToMedicalTeamCategory = (
  * 医療チームのカテゴリをVoiceDriveのカテゴリに変換
  *
  * 逆マッピングルール：
- * - announcement → URGENT（重要度による判定が必要）
+ * - announcement → ANNOUNCEMENT
  * - interview → MEETING
  * - training → TRAINING
  * - survey → SURVEY
  * - other → OTHER
  */
 export const convertFromMedicalTeamCategory = (
-  medicalCategory: MedicalTeamCategory,
-  priority?: 'high' | 'medium' | 'low'
+  medicalCategory: MedicalTeamCategory
 ): VoiceDriveCategory => {
   switch (medicalCategory) {
     case 'announcement':
-      // 優先度が高い場合はURGENT、それ以外はOTHER
-      return priority === 'high' ? 'URGENT' : 'OTHER';
+      return 'ANNOUNCEMENT';
     case 'interview':
       return 'MEETING';
     case 'training':
@@ -184,14 +178,12 @@ export const getCategoryColor = (category: VoiceDriveCategory | MedicalTeamCateg
   // VoiceDrive形式の場合
   if (category === category.toUpperCase()) {
     switch (category as VoiceDriveCategory) {
-      case 'URGENT':
+      case 'ANNOUNCEMENT':
         return '#ef4444'; // 赤
       case 'MEETING':
         return '#3b82f6'; // 青
       case 'TRAINING':
         return '#8b5cf6'; // 紫
-      case 'HEALTH':
-        return '#10b981'; // 緑
       case 'SURVEY':
         return '#f59e0b'; // オレンジ
       case 'OTHER':
@@ -224,17 +216,16 @@ export const getCategoryColor = (category: VoiceDriveCategory | MedicalTeamCateg
 export const categoryMappingConfig = {
   // VoiceDrive → 医療チーム
   toMedical: {
-    'URGENT': 'announcement',
+    'ANNOUNCEMENT': 'announcement',
     'MEETING': 'interview',
     'TRAINING': 'training',
-    'HEALTH': 'announcement',
     'SURVEY': 'survey',
     'OTHER': 'other'
   },
 
   // 医療チーム → VoiceDrive
   fromMedical: {
-    'announcement': 'URGENT', // デフォルトはURGENT（優先度で調整）
+    'announcement': 'ANNOUNCEMENT',
     'interview': 'MEETING',
     'training': 'TRAINING',
     'survey': 'SURVEY',
@@ -263,9 +254,9 @@ export const generateCategoryTestData = () => {
     description: string;
   }> = [
     {
-      voiceDrive: 'URGENT',
+      voiceDrive: 'ANNOUNCEMENT',
       medical: { category: 'announcement' },
-      description: '緊急通知'
+      description: 'お知らせ'
     },
     {
       voiceDrive: 'MEETING',

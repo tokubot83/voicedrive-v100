@@ -6,7 +6,7 @@ export interface HRAnnouncement {
   content: string;
 
   // カテゴリ・優先度
-  category: 'URGENT' | 'MEETING' | 'TRAINING' | 'HEALTH' | 'SURVEY' | 'OTHER';
+  category: 'ANNOUNCEMENT' | 'MEETING' | 'TRAINING' | 'SURVEY' | 'OTHER';
   priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
 
   // アンケートサブカテゴリ（SURVEYカテゴリの場合のみ）

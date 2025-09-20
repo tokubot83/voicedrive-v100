@@ -4,12 +4,12 @@ import HRMessageBubble from './HRMessageBubble';
 import HRCategoryFilter from './HRCategoryFilter';
 import HRDateDivider from './HRDateDivider';
 
-// カテゴリ設定
+// カテゴリ設定（医療チームシステム仕様準拠）
 const categoryConfigs: CategoryConfig[] = [
   {
-    key: 'URGENT',
-    label: '緊急',
-    icon: '🚨',
+    key: 'ANNOUNCEMENT',
+    label: 'お知らせ',
+    icon: '📢',
     color: '#ef4444',
     bgColor: 'rgba(239, 68, 68, 0.1)'
   },
@@ -28,13 +28,6 @@ const categoryConfigs: CategoryConfig[] = [
     bgColor: 'rgba(139, 92, 246, 0.1)'
   },
   {
-    key: 'HEALTH',
-    label: '健康管理',
-    icon: '🏥',
-    color: '#10b981',
-    bgColor: 'rgba(16, 185, 129, 0.1)'
-  },
-  {
     key: 'SURVEY',
     label: 'アンケート',
     icon: '📊',
@@ -44,7 +37,7 @@ const categoryConfigs: CategoryConfig[] = [
   {
     key: 'OTHER',
     label: 'その他',
-    icon: '📢',
+    icon: '📝',
     color: '#9ca3af',
     bgColor: 'rgba(156, 163, 175, 0.1)'
   }
@@ -93,7 +86,7 @@ const HRAnnouncementsPage: React.FC = () => {
         id: '2',
         title: '【医療チーム連携】ストレスチェック結果に基づく面談のご案内',
         content: '医療チームのAI分析により、ストレスレベルが高い職員の方々に個別面談をご案内しております。\n\n📊 分析結果：中〜高ストレス状態\n🎯 推奨アクション：早期の面談実施\n⏰ 面談可能時間：平日10:00-18:00\n\n※医療チームと連携し、最適な面談日程を3パターンご提案します',
-        category: 'URGENT',
+        category: 'ANNOUNCEMENT',
         priority: 'URGENT', // 医療チームへは「high」として送信
         authorId: 'medical_ai',
         authorName: '医療チーム統合システム',
@@ -152,7 +145,7 @@ const HRAnnouncementsPage: React.FC = () => {
         id: '4',
         title: '【統合通知】健康診断結果のフォローアップ面談',
         content: '年次健康診断の結果、要経過観察・要再検査の方へのフォローアップ面談を実施します。\n\n🔍 医療チームからの推奨事項：\n• 産業医との面談（30分）\n• 健康改善プログラムのご案内\n• メンタルヘルスサポート\n\n優先度：HIGH（医療チーム基準：high）',
-        category: 'HEALTH',
+        category: 'ANNOUNCEMENT',
         priority: 'HIGH', // 医療チームへは「high」として送信
         authorId: 'hr002',
         authorName: '産業保健チーム',
@@ -231,7 +224,7 @@ const HRAnnouncementsPage: React.FC = () => {
         id: '7',
         title: '【低優先度】健康増進プログラムのご案内',
         content: '医療チームと連携した健康増進プログラムを開始します。\n\n🏃 プログラム内容：\n• ウォーキングチャレンジ\n• 栄養改善セミナー\n• 睡眠改善ワークショップ\n\n優先度：LOW（医療チーム基準：low）\n※任意参加のプログラムです',
-        category: 'HEALTH',
+        category: 'ANNOUNCEMENT',
         priority: 'LOW', // 医療チームへは「low」として送信
         authorId: 'wellness',
         authorName: 'ウェルネスチーム',

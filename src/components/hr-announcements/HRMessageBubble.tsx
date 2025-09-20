@@ -52,7 +52,7 @@ const HRMessageBubble: React.FC<HRMessageBubbleProps> = ({
       case 'URGENT':
         return 'hr-icon-urgent';
       case 'HIGH':
-        return announcement.category === 'HEALTH' ? 'hr-icon-health' : 'hr-icon-warning';
+        return 'hr-icon-warning';
       default:
         return announcement.category === 'MEETING' ? 'hr-icon-info' : 'hr-icon-normal';
     }
@@ -61,14 +61,14 @@ const HRMessageBubble: React.FC<HRMessageBubbleProps> = ({
   const getBubbleClass = () => {
     const baseClass = 'hr-message-bubble';
     switch (announcement.category) {
-      case 'URGENT':
-        return `${baseClass} hr-bubble-urgent`;
+      case 'ANNOUNCEMENT':
+        return announcement.priority === 'URGENT' ? `${baseClass} hr-bubble-urgent` : baseClass;
       case 'MEETING':
         return `${baseClass} hr-bubble-meeting`;
       case 'TRAINING':
         return `${baseClass} hr-bubble-training`;
-      case 'HEALTH':
-        return `${baseClass} hr-bubble-health`;
+      case 'SURVEY':
+        return `${baseClass} hr-bubble-survey`;
       default:
         return baseClass;
     }
@@ -76,14 +76,14 @@ const HRMessageBubble: React.FC<HRMessageBubbleProps> = ({
 
   const getTagClass = () => {
     switch (announcement.category) {
-      case 'URGENT':
-        return 'hr-tag-urgent';
+      case 'ANNOUNCEMENT':
+        return announcement.priority === 'URGENT' ? 'hr-tag-urgent' : 'hr-tag-announcement';
       case 'MEETING':
         return 'hr-tag-meeting';
       case 'TRAINING':
         return 'hr-tag-training';
-      case 'HEALTH':
-        return 'hr-tag-health';
+      case 'SURVEY':
+        return 'hr-tag-survey';
       default:
         return 'hr-tag-other';
     }
@@ -175,17 +175,7 @@ const HRMessageBubble: React.FC<HRMessageBubbleProps> = ({
             {announcement.content}
           </div>
 
-          {/* 特別な表示要素（健康管理の場合の実施状況など） */}
-          {announcement.category === 'HEALTH' && (
-            <div className="hr-message-info">
-              <span>ℹ️</span>
-              <div>
-                <div>実施は任意ですが、メンタルヘルスケアのため全員の受検を推奨しています。</div>
-                <div className="mt-1 text-sm">結果は本人にのみ通知され、会社には提供されません。</div>
-              </div>
-            </div>
-          )}
-
+          {/* 特別な表示要素（研修の場合の参加案内など） */}
           {announcement.category === 'TRAINING' && announcement.targetAudience.roles && (
             <div className="hr-message-info">
               <span>ℹ️</span>
