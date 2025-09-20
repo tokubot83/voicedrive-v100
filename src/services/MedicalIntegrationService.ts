@@ -10,6 +10,14 @@ import {
   convertFromMedicalTeamPriority,
   prepareMedicalTeamApiRequest
 } from '../utils/priorityMapping';
+import {
+  VoiceDriveCategory,
+  MedicalTeamCategory,
+  SurveySubCategory,
+  convertToMedicalTeamCategory,
+  convertFromMedicalTeamCategory,
+  validateCategorySettings
+} from '../utils/categoryMapping';
 import { HRAnnouncement } from '../types/hr-announcements';
 import { InterviewBooking } from '../types/interview';
 import NotificationService from './NotificationService';
@@ -59,12 +67,23 @@ class MedicalIntegrationService {
       // 優先度を医療チーム形式に変換
       const medicalPriority = convertToMedicalTeamPriority(announcement.priority);
 
-      const payload = {
+      // カテゴリを医療チーム形式に変換
+      const medicalCategory = convertToMedicalTeamCategory(announcement.category as VoiceDriveCategory);
+
+      // アンケートカテゴリの場合、サブカテゴリの検証
+      if (announcement.category === 'SURVEY') {
+        const validation = validateCategorySettings(medicalCategory, announcement.surveySubCategory as SurveySubCategory);
+        if (!validation.valid) {
+          console.warn('カテゴリ設定エラー:', validation.message);
+        }
+      }
+
+      const payload: any = {
         id: announcement.id,
         title: announcement.title,
         content: announcement.content,
         priority: medicalPriority,
-        category: announcement.category,
+        category: medicalCategory,
         publishAt: announcement.publishAt.toISOString(),
         targetDepartments: announcement.targetAudience.departments || [],
         requireResponse: announcement.requireResponse,
@@ -73,9 +92,17 @@ class MedicalIntegrationService {
           : null
       };
 
+      // アンケートのサブカテゴリ情報を追加
+      if (medicalCategory === 'survey' && announcement.surveySubCategory) {
+        payload.surveyType = announcement.surveySubCategory;
+      }
+
       console.log('📤 医療チームへのお知らせ送信:', {
         originalPriority: announcement.priority,
         convertedPriority: medicalPriority,
+        originalCategory: announcement.category,
+        convertedCategory: medicalCategory,
+        surveyType: payload.surveyType,
         payload
       });
 

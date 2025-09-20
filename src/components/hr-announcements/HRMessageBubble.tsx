@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { HRAnnouncement, CategoryConfig } from '../../types/hr-announcements';
 import { convertToMedicalTeamPriority, getMedicalPriorityIcon, getMedicalPriorityLabel, getMedicalPriorityColor } from '../../utils/priorityMapping';
+import { getSurveySubCategoryLabel, getSurveySubCategoryIcon } from '../../utils/categoryMapping';
 
 interface HRMessageBubbleProps {
   announcement: HRAnnouncement;
@@ -137,6 +138,13 @@ const HRMessageBubble: React.FC<HRMessageBubbleProps> = ({
               <span className={`hr-category-tag ${getTagClass()}`}>
                 {categoryConfig.icon} {categoryConfig.label}
               </span>
+              {/* アンケートサブカテゴリバッジ */}
+              {announcement.category === 'SURVEY' && announcement.surveySubCategory && (
+                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-700 flex items-center gap-1">
+                  {getSurveySubCategoryIcon(announcement.surveySubCategory)}
+                  {getSurveySubCategoryLabel(announcement.surveySubCategory)}
+                </span>
+              )}
               {/* 優先度バッジ */}
               {announcement.priority !== 'NORMAL' && (
                 <span

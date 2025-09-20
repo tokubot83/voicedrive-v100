@@ -6,8 +6,11 @@ export interface HRAnnouncement {
   content: string;
 
   // カテゴリ・優先度
-  category: 'URGENT' | 'MEETING' | 'TRAINING' | 'HEALTH' | 'OTHER';
+  category: 'URGENT' | 'MEETING' | 'TRAINING' | 'HEALTH' | 'SURVEY' | 'OTHER';
   priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
+
+  // アンケートサブカテゴリ（SURVEYカテゴリの場合のみ）
+  surveySubCategory?: 'satisfaction' | 'workenv' | 'education' | 'welfare' | 'system' | 'event' | 'other';
 
   // 作成者情報
   authorId: string;
