@@ -23,8 +23,6 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
   const [selectedProposalId, setSelectedProposalId] = useState<string | null>(null);
   const [showRescheduleForm, setShowRescheduleForm] = useState(false);
   const [rescheduleReason, setRescheduleReason] = useState<RescheduleRequest['reason']>('other');
-  const [rescheduleDetail, setRescheduleDetail] = useState('');
-  const [additionalRequests, setAdditionalRequests] = useState('');
 
   console.log('📅 ProposalSelectionModal:', { isOpen, proposalsCount: proposals.length });
 
@@ -42,9 +40,7 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
 
   const handleRequestReschedule = () => {
     const request: RescheduleRequest = {
-      reason: rescheduleReason,
-      reasonDetail: rescheduleDetail || undefined,
-      additionalRequests: additionalRequests || undefined
+      reason: rescheduleReason
     };
     onRequestReschedule(request);
   };
@@ -63,10 +59,8 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
   };
 
   const reasonOptions = [
-    { value: 'shift_conflict', label: '勤務シフトと重なる', icon: '🏥' },
-    { value: 'other_appointment', label: '他の予定が入っている', icon: '📅' },
-    { value: 'health', label: '体調不良', icon: '🏥' },
     { value: 'time_preference', label: '希望時間帯と異なる', icon: '⏰' },
+    { value: 'location_preference', label: '希望場所と異なる', icon: '📍' },
     { value: 'other', label: 'その他', icon: '📝' }
   ];
 
@@ -250,40 +244,12 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
                     >
                       <div className="flex items-center">
                         <span className="text-2xl mr-3">{option.icon}</span>
-                        <span className="font-medium">{option.label}</span>
+                        <span className={`font-medium ${
+                          rescheduleReason === option.value ? 'text-indigo-900' : 'text-gray-900'
+                        }`}>{option.label}</span>
                       </div>
                     </button>
                   ))}
-                </div>
-
-                {/* 詳細入力 */}
-                {rescheduleReason === 'other' && (
-                  <div className="mb-6">
-                    <label className="text-sm font-semibold text-gray-700 block mb-2">
-                      詳細をご記入ください
-                    </label>
-                    <textarea
-                      value={rescheduleDetail}
-                      onChange={(e) => setRescheduleDetail(e.target.value)}
-                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
-                      rows={3}
-                      placeholder="具体的な理由をお書きください..."
-                    />
-                  </div>
-                )}
-
-                {/* 追加の要望 */}
-                <div className="mb-6">
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    追加の希望事項（任意）
-                  </label>
-                  <textarea
-                    value={additionalRequests}
-                    onChange={(e) => setAdditionalRequests(e.target.value)}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
-                    rows={3}
-                    placeholder="例：午後の時間帯を希望、〇月〇日以降で調整希望など..."
-                  />
                 </div>
 
                 {/* ボタン */}

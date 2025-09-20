@@ -42,9 +42,7 @@ export interface ProposalPattern {
 export interface RescheduleRequest {
   id?: string;
   bookingId?: string;
-  reason: 'shift_conflict' | 'other_appointment' | 'health' | 'time_preference' | 'other';
-  reasonDetail?: string;
-  additionalRequests?: string;
+  reason: 'time_preference' | 'location_preference' | 'other';
   preferredDates?: Date[];
   preferredTimeSlots?: string[];
   avoidDates?: Date[];
