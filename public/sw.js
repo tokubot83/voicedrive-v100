@@ -89,7 +89,7 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// プッシュ通知受信処理
+// プッシュ通知受信処理（優先度対応版）
 self.addEventListener('push', (event) => {
   console.log('プッシュ通知受信:', event.data?.text());
 
@@ -99,7 +99,13 @@ self.addEventListener('push', (event) => {
 
   try {
     const notificationData = event.data.json();
-    event.waitUntil(showNotification(notificationData));
+    // 優先度とカテゴリ情報を含む通知データ
+    const enhancedData = {
+      ...notificationData,
+      priority: notificationData.priority || 'medium',
+      category: notificationData.category || 'system'
+    };
+    event.waitUntil(showNotification(enhancedData));
   } catch (error) {
     console.error('プッシュ通知データ解析エラー:', error);
   }
@@ -286,26 +292,25 @@ function createOfflineFallbackResponse(request) {
   });
 }
 
-// プッシュ通知表示
+// プッシュ通知表示（優先度対応版）
 async function showNotification(data) {
-  const { title, body, icon, badge, actions, requireInteraction, vibrate, tag, data: notificationData } = data;
+  const { title, body, icon, badge, actions, requireInteraction, vibrate, tag, priority, category, data: notificationData } = data;
 
   const options = {
     body,
-    icon: icon || '/icons/interview-icon-192x192.png',
-    badge: badge || '/icons/interview-badge-96x96.png',
-    data: notificationData,
-    requireInteraction: requireInteraction || false,
-    vibrate: vibrate || [100, 50, 100],
-    tag: tag || 'interview-notification',
-    actions: actions || [
-      {
-        action: 'view',
-        title: '詳細を見る',
-        icon: '/icons/view-details.png'
-      }
-    ],
-    timestamp: Date.now()
+    icon: icon || '/icon-192x192.png',
+    badge: badge || '/icon-72x72.png',
+    data: {
+      ...notificationData,
+      priority: priority || 'medium',
+      category: category || 'system'
+    },
+    requireInteraction: requireInteraction || (priority === 'critical' || priority === 'high'),
+    vibrate: getVibrationPattern(priority || 'medium'),
+    tag: tag || `voicedrive-${category}-${Date.now()}`,
+    actions: actions || getActionsForCategory(category || 'system'),
+    timestamp: Date.now(),
+    silent: priority === 'low'
   };
 
   // 通知表示
@@ -317,38 +322,40 @@ async function showNotification(data) {
   }
 }
 
-// 通知クリック処理
+// 通知クリック処理（カテゴリ別対応）
 async function handleNotificationClick(action, data) {
   const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
 
-  let targetUrl = '/interview-station';
+  let targetUrl = '/';
 
-  // アクションに基づくURL決定
-  switch (action) {
-    case 'view':
-    case 'view_details':
-      targetUrl = data.actionUrl || `/interview-station/booking/${data.bookingId}`;
-      break;
-    case 'reschedule':
-      targetUrl = `/interview-station/booking/${data.bookingId}?action=reschedule`;
-      break;
-    case 'view_location':
-      targetUrl = `/interview-station/booking/${data.bookingId}?tab=location`;
-      break;
-    case 'add_to_calendar':
-      // カレンダーに追加処理
-      await addToCalendar(data);
-      return;
-    case 'book_new':
-      targetUrl = '/interview-station?action=book';
-      break;
-    default:
-      targetUrl = data.actionUrl || '/interview-station';
+  // カテゴリとアクションに基づくURL決定
+  if (data.category === 'interview') {
+    switch (action) {
+      case 'accept':
+        targetUrl = `/interview/accept/${data.interviewId}`;
+        break;
+      case 'reschedule':
+        targetUrl = `/interview/reschedule/${data.interviewId}`;
+        break;
+      case 'view':
+        targetUrl = data.actionUrl || `/interview/details/${data.interviewId}`;
+        break;
+      default:
+        targetUrl = '/interview-station';
+    }
+  } else if (data.category === 'evaluation') {
+    targetUrl = action === 'view' ? '/evaluation' : '/';
+  } else if (data.category === 'hr_announcement') {
+    targetUrl = action === 'view' ? '/announcements' : '/';
+  } else if (data.category === 'project') {
+    targetUrl = action === 'view' ? `/project/${data.projectId}` : '/';
+  } else {
+    targetUrl = data.actionUrl || '/';
   }
 
   // 既存ウィンドウがある場合はフォーカス
   for (const client of clients) {
-    if (client.url.includes('/interview-station')) {
+    if (client.url.includes(new URL(targetUrl, self.location).origin)) {
       await client.navigate(targetUrl);
       return client.focus();
     }
@@ -425,6 +432,70 @@ function recordNotificationInteraction(interaction, data) {
     });
   } catch (error) {
     console.error('通知統計記録エラー:', error);
+  }
+}
+
+// 優先度に応じた振動パターン
+function getVibrationPattern(priority) {
+  switch (priority) {
+    case 'critical':
+      return [200, 100, 200, 100, 200];
+    case 'high':
+      return [200, 100, 200];
+    case 'medium':
+      return [200];
+    case 'low':
+    default:
+      return [];
+  }
+}
+
+// カテゴリに応じたアクション定義
+function getActionsForCategory(category) {
+  switch (category) {
+    case 'interview':
+      return [
+        { action: 'accept', title: '承諾' },
+        { action: 'reschedule', title: '日程変更' }
+      ];
+    case 'evaluation':
+      return [
+        { action: 'view', title: '確認' },
+        { action: 'dismiss', title: '後で' }
+      ];
+    case 'hr_announcement':
+      return [
+        { action: 'view', title: '詳細を見る' }
+      ];
+    case 'project':
+      return [
+        { action: 'view', title: '参加' },
+        { action: 'dismiss', title: '後で確認' }
+      ];
+    case 'survey':
+      return [
+        { action: 'view', title: '回答する' },
+        { action: 'dismiss', title: '後で' }
+      ];
+    case 'feedback':
+      return [
+        { action: 'view', title: '確認' }
+      ];
+    case 'shift':
+      return [
+        { action: 'view', title: '確認' },
+        { action: 'accept', title: '承諾' }
+      ];
+    case 'training':
+      return [
+        { action: 'view', title: '詳細' },
+        { action: 'register', title: '申し込む' }
+      ];
+    default:
+      return [
+        { action: 'view', title: '開く' },
+        { action: 'dismiss', title: '閉じる' }
+      ];
   }
 }
 

@@ -119,6 +119,31 @@ const HRMessageBubble: React.FC<HRMessageBubbleProps> = ({
         return `${baseClass} meeting`;
       case 'HEALTH':
         return `${baseClass} health`;
+      case 'SURVEY':
+        // アンケートカテゴリの場合、サブカテゴリも考慮
+        let surveyClass = `${baseClass} survey`;
+        if (announcement.surveySubCategory) {
+          switch (announcement.surveySubCategory) {
+            case 'satisfaction':
+              surveyClass += ' survey-satisfaction';
+              break;
+            case 'training':
+              surveyClass += ' survey-training';
+              break;
+            case 'workplace':
+              surveyClass += ' survey-workplace';
+              break;
+            case 'health':
+              surveyClass += ' survey-health';
+              break;
+            case 'feedback':
+              surveyClass += ' survey-feedback';
+              break;
+            default:
+              break;
+          }
+        }
+        return surveyClass;
       default:
         return baseClass;
     }

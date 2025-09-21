@@ -15,6 +15,17 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
 
   const cards = [
     {
+      type: 'interview' as any, // 面談予約用の特別なタイプ
+      icon: '🗣️',
+      title: '面談',
+      description: '面談予約・相談申込み',
+      features: [],
+      gradient: 'from-violet-500 to-purple-500',
+      shadow: 'shadow-violet-500/30',
+      hover: 'hover:shadow-violet-500/50',
+      ring: 'ring-purple-500/50',
+    },
+    {
       type: 'improvement' as PostType,
       icon: '💡',
       title: 'アイデアボイス',
@@ -46,17 +57,6 @@ const ComposeSection = ({ selectedPostType, setSelectedPostType }: ComposeSectio
       shadow: 'shadow-rose-500/30',
       hover: 'hover:shadow-rose-500/50',
       ring: 'ring-rose-500/50',
-    },
-    {
-      type: 'interview' as any, // 面談予約用の特別なタイプ
-      icon: '🗣️',
-      title: '面談',
-      description: '個別相談の申込み',
-      features: [],
-      gradient: 'from-violet-500 to-purple-500',
-      shadow: 'shadow-violet-500/30',
-      hover: 'hover:shadow-violet-500/50',
-      ring: 'ring-purple-500/50',
     },
   ];
 
