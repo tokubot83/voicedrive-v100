@@ -1,0 +1,487 @@
+// VoiceDrive データベーススキーマ (MySQL版)
+// 医療職員管理システムとの統合データベース設計
+// AWS Lightsail MySQL 8.0対応
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ========================================
+// コアエンティティ
+// ========================================
+
+// ユーザーテーブル（医療職員）
+model User {
+  id                String   @id @default(cuid()) @db.VarChar(50)
+  employeeId        String   @unique @map("employee_id") @db.VarChar(20) // 職員ID（医療システム連携キー）
+  email             String   @unique @db.VarChar(100)
+  name              String   @db.VarChar(100)
+  department        String?  @db.VarChar(100)
+  facilityId        String?  @map("facility_id") @db.VarChar(50)
+  role              String?  @db.VarChar(50)
+  avatar            String?  @db.Text
+
+  // 13段階権限システム
+  accountType       String   @map("account_type") @db.VarChar(50) // CHAIRMAN, GENERAL_ADMINISTRATIVE_DIRECTOR, etc.
+  permissionLevel   Int      @map("permission_level") @db.TinyInt // 1-13
+
+  // 階層構造
+  parentId          String?  @map("parent_id") @db.VarChar(50) // 直属上司ID
+  parent            User?    @relation("UserHierarchy", fields: [parentId], references: [id])
+  children          User[]   @relation("UserHierarchy")
+  budgetApprovalLimit Float? @map("budget_approval_limit") @db.Decimal(15, 2) // 予算承認限度額
+
+  // 医療専門データ
+  stakeholderCategory String? @map("stakeholder_category") @db.VarChar(50) // frontline, management, veteran, zGen
+  position          String?  @db.VarChar(100)
+  expertise         Int?     @db.SmallInt
+  hierarchyLevel    Int?     @map("hierarchy_level") @db.TinyInt
+
+  // 退職処理
+  isRetired         Boolean  @default(false) @map("is_retired")
+  retirementDate    DateTime? @map("retirement_date") @db.Date
+  anonymizedId      String?  @map("anonymized_id") @db.VarChar(50)
+
+  // メタデータ
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  // 関係定義
+  interviews        Interview[]
+  evaluations       Evaluation[]
+  evaluationObjections EvaluationObjection[]
+  surveys           Survey[]
+  surveyResponses   SurveyResponse[]
+  projects          ProjectMember[]
+  notifications     Notification[]
+  feedbacks         Feedback[]
+  analytics         UserAnalytics[]
+
+  @@index([employeeId])
+  @@index([facilityId, permissionLevel])
+  @@index([accountType])
+  @@index([stakeholderCategory])
+  @@map("users")
+}
+
+// 面談予約テーブル
+model Interview {
+  id                String   @id @default(cuid()) @db.VarChar(50)
+  employeeId        String   @map("employee_id") @db.VarChar(50)
+
+  // 3段階25タイプ分類
+  category          String   @db.VarChar(50)  // BASIC, SUPPORT, SPECIAL
+  type              String   @db.VarChar(100) // 25タイプ
+  topic             String   @db.Text
+
+  // スケジュール管理
+  preferredDate     DateTime @map("preferred_date") @db.Date
+  preferredTimeSlot String?  @map("preferred_time_slot") @db.VarChar(20)
+  scheduledDate     DateTime? @map("scheduled_date") @db.DateTime(0)
+  actualDate        DateTime? @map("actual_date") @db.DateTime(0)
+
+  // ステータス管理
+  urgencyLevel      String   @map("urgency_level") @db.VarChar(20) // low, medium, high, urgent
+  status            String   @default("pending") @db.VarChar(20) // pending, scheduled, in_progress, completed, cancelled
+
+  // 面談詳細
+  duration          Int?     @db.SmallInt // 分単位
+  notes             String?  @db.Text
+  result            String?  @db.Text
+  interviewerName   String?  @map("interviewer_name") @db.VarChar(100)
+  followUpRequired  Boolean  @default(false) @map("follow_up_required")
+
+  // メタデータ
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  // リレーション
+  employee          User     @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId, preferredDate])
+  @@index([status, urgencyLevel])
+  @@index([category, type])
+  @@index([scheduledDate])
+  @@map("interviews")
+}
+
+// V3評価テーブル
+model Evaluation {
+  id                String   @id @default(cuid()) @db.VarChar(50)
+  employeeId        String   @map("employee_id") @db.VarChar(50)
+  evaluationPeriod  String   @map("evaluation_period") @db.VarChar(20) // 例: "2025_Q1"
+  evaluationType    String   @map("evaluation_type") @db.VarChar(50) // 年次、半期、プロジェクトなど
+
+  // 評価スコア（0-100）
+  performanceScore  Int      @map("performance_score") @db.TinyInt
+  teamworkScore     Int      @map("teamwork_score") @db.TinyInt
+  initiativeScore   Int      @map("initiative_score") @db.TinyInt
+  overallScore      Int      @map("overall_score") @db.TinyInt
+
+  // 評価詳細
+  strengths         String?  @db.Text
+  improvements      String?  @db.Text
+  goals             String?  @db.Text
+  comments          String?  @db.Text
+
+  // ステータス管理
+  status            String   @default("draft") @db.VarChar(20) // draft, submitted, approved, disputed
+  evaluatorId       String   @map("evaluator_id") @db.VarChar(50)
+  evaluatorName     String   @map("evaluator_name") @db.VarChar(100)
+
+  // 承認プロセス
+  submittedAt       DateTime? @map("submitted_at") @db.DateTime(0)
+  approvedAt        DateTime? @map("approved_at") @db.DateTime(0)
+  approvedBy        String?  @map("approved_by") @db.VarChar(100)
+
+  // メタデータ
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  // リレーション
+  employee          User     @relation(fields: [employeeId], references: [id])
+  objections        EvaluationObjection[]
+
+  @@index([employeeId, evaluationPeriod])
+  @@index([status])
+  @@index([evaluationType])
+  @@map("evaluations")
+}
+
+// 評価異議申立テーブル
+model EvaluationObjection {
+  id                String   @id @default(cuid()) @db.VarChar(50)
+  evaluationId      String   @map("evaluation_id") @db.VarChar(50)
+  employeeId        String   @map("employee_id") @db.VarChar(50)
+
+  // 異議内容
+  objectionType     String   @map("objection_type") @db.VarChar(50) // score, process, bias, other
+  objectionReason   String   @map("objection_reason") @db.Text
+  requestedChanges  String   @map("requested_changes") @db.Text
+
+  // 添付資料
+  supportingDocs    String?  @map("supporting_docs") @db.Text // JSON形式で複数ファイルパスを保存
+
+  // ステータス管理
+  status            String   @default("pending") @db.VarChar(20) // pending, under_review, resolved, rejected
+  priority          String   @default("normal") @db.VarChar(20) // low, normal, high, urgent
+
+  // 審査プロセス
+  reviewerId        String?  @map("reviewer_id") @db.VarChar(50)
+  reviewerName      String?  @map("reviewer_name") @db.VarChar(100)
+  reviewStartedAt   DateTime? @map("review_started_at") @db.DateTime(0)
+  reviewCompletedAt DateTime? @map("review_completed_at") @db.DateTime(0)
+  resolution        String?  @db.Text
+
+  // メタデータ
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  // リレーション
+  evaluation        Evaluation @relation(fields: [evaluationId], references: [id])
+  employee          User      @relation(fields: [employeeId], references: [id])
+
+  @@index([evaluationId])
+  @@index([employeeId])
+  @@index([status, priority])
+  @@map("evaluation_objections")
+}
+
+// アンケートテーブル
+model Survey {
+  id                String   @id @default(cuid()) @db.VarChar(50)
+  title             String   @db.VarChar(200)
+  description       String?  @db.Text
+  type              String   @db.VarChar(50) // satisfaction, feedback, pulse, annual
+
+  // アンケート設定
+  questions         String   @db.JSON // JSON形式で質問構造を保存
+  targetDepartments String?  @map("target_departments") @db.JSON // 対象部門のリスト
+  targetRoles       String?  @map("target_roles") @db.JSON // 対象役職のリスト
+
+  // 期間管理
+  startDate         DateTime @map("start_date") @db.Date
+  endDate           DateTime @map("end_date") @db.Date
+  deadline          DateTime? @db.DateTime(0)
+
+  // ステータス管理
+  status            String   @default("draft") @db.VarChar(20) // draft, active, closed, archived
+  isAnonymous       Boolean  @default(true) @map("is_anonymous")
+  isRequired        Boolean  @default(false) @map("is_required")
+
+  // 作成者情報
+  createdBy         String   @map("created_by") @db.VarChar(50)
+  createdByName     String   @map("created_by_name") @db.VarChar(100)
+
+  // 統計情報
+  totalResponses    Int      @default(0) @map("total_responses") @db.Int
+  responseRate      Float?   @map("response_rate") @db.Float
+
+  // メタデータ
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  // リレーション
+  creator           User     @relation(fields: [createdBy], references: [id])
+  responses         SurveyResponse[]
+
+  @@index([status])
+  @@index([startDate, endDate])
+  @@index([type])
+  @@map("surveys")
+}
+
+// アンケート回答テーブル
+model SurveyResponse {
+  id                String   @id @default(cuid()) @db.VarChar(50)
+  surveyId          String   @map("survey_id") @db.VarChar(50)
+  respondentId      String?  @map("respondent_id") @db.VarChar(50) // 匿名の場合はnull
+
+  // 回答データ
+  answers           String   @db.JSON // JSON形式で回答を保存
+
+  // 回答者属性（匿名化された統計用）
+  departmentGroup   String?  @map("department_group") @db.VarChar(50)
+  roleGroup         String?  @map("role_group") @db.VarChar(50)
+  tenureGroup       String?  @map("tenure_group") @db.VarChar(20) // 0-1, 1-3, 3-5, 5-10, 10+
+
+  // 完了状態
+  isComplete        Boolean  @default(false) @map("is_complete")
+  completionTime    Int?     @map("completion_time") @db.Int // 秒単位
+
+  // メタデータ
+  submittedAt       DateTime @default(now()) @map("submitted_at") @db.Timestamp(0)
+  ipAddress         String?  @map("ip_address") @db.VarChar(45) // IPv4/IPv6対応
+  userAgent         String?  @map("user_agent") @db.Text
+
+  // リレーション
+  survey            Survey   @relation(fields: [surveyId], references: [id])
+  respondent        User?    @relation(fields: [respondentId], references: [id])
+
+  @@index([surveyId])
+  @@index([respondentId])
+  @@index([submittedAt])
+  @@map("survey_responses")
+}
+
+// プロジェクトテーブル
+model Project {
+  id                String   @id @default(cuid()) @db.VarChar(50)
+  title             String   @db.VarChar(200)
+  description       String   @db.Text
+  category          String   @db.VarChar(50) // improvement, innovation, cost_reduction, etc.
+
+  // 提案者情報
+  proposerId        String   @map("proposer_id") @db.VarChar(50)
+  proposerName      String   @map("proposer_name") @db.VarChar(100)
+  department        String   @db.VarChar(100)
+
+  // プロジェクト詳細
+  objectives        String   @db.JSON // JSON形式で目標リストを保存
+  expectedOutcomes  String   @map("expected_outcomes") @db.Text
+  estimatedBudget   Float?   @map("estimated_budget") @db.Decimal(15, 2)
+  actualBudget      Float?   @map("actual_budget") @db.Decimal(15, 2)
+
+  // タイムライン
+  startDate         DateTime? @map("start_date") @db.Date
+  endDate           DateTime? @map("end_date") @db.Date
+  actualStartDate   DateTime? @map("actual_start_date") @db.Date
+  actualEndDate     DateTime? @map("actual_end_date") @db.Date
+
+  // ステータス管理
+  status            String   @default("proposed") @db.VarChar(30) // proposed, under_review, approved, in_progress, completed, cancelled
+  priority          String   @default("normal") @db.VarChar(20) // low, normal, high, critical
+  approvalLevel     Int      @default(1) @map("approval_level") @db.TinyInt // 1-13の承認レベル
+
+  // 承認プロセス
+  currentApproverId String?  @map("current_approver_id") @db.VarChar(50)
+  approvalHistory   String?  @map("approval_history") @db.JSON // 承認履歴をJSON形式で保存
+
+  // 成果測定
+  kpiMetrics        String?  @map("kpi_metrics") @db.JSON // KPI定義をJSON形式で保存
+  progressPercentage Int     @default(0) @map("progress_percentage") @db.TinyInt // 0-100
+
+  // メタデータ
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  // リレーション
+  members           ProjectMember[]
+
+  @@index([status, priority])
+  @@index([proposerId])
+  @@index([approvalLevel])
+  @@index([category])
+  @@map("projects")
+}
+
+// プロジェクトメンバーテーブル（中間テーブル）
+model ProjectMember {
+  id                String   @id @default(cuid()) @db.VarChar(50)
+  projectId         String   @map("project_id") @db.VarChar(50)
+  userId            String   @map("user_id") @db.VarChar(50)
+
+  // メンバー役割
+  role              String   @db.VarChar(50) // owner, manager, member, viewer
+  responsibilities  String?  @db.Text
+
+  // 参加期間
+  joinedAt          DateTime @default(now()) @map("joined_at") @db.Timestamp(0)
+  leftAt            DateTime? @map("left_at") @db.DateTime(0)
+
+  // アクティブ状態
+  isActive          Boolean  @default(true) @map("is_active")
+
+  // リレーション
+  project           Project  @relation(fields: [projectId], references: [id])
+  user              User     @relation(fields: [userId], references: [id])
+
+  @@unique([projectId, userId])
+  @@index([userId])
+  @@index([projectId])
+  @@map("project_members")
+}
+
+// 通知テーブル
+model Notification {
+  id                String   @id @default(cuid()) @db.VarChar(50)
+  recipientId       String   @map("recipient_id") @db.VarChar(50)
+
+  // 通知内容
+  type              String   @db.VarChar(50) // announcement, reminder, alert, approval_request, etc.
+  category          String   @db.VarChar(50) // interview, evaluation, survey, project, system
+  title             String   @db.VarChar(200)
+  content           String   @db.Text
+
+  // 優先度と状態
+  priority          String   @default("normal") @db.VarChar(20) // low, normal, high, urgent
+  status            String   @default("unread") @db.VarChar(20) // unread, read, archived
+
+  // アクション関連
+  actionRequired    Boolean  @default(false) @map("action_required")
+  actionUrl         String?  @map("action_url") @db.VarChar(255)
+  actionDeadline    DateTime? @map("action_deadline") @db.DateTime(0)
+
+  // 送信者情報
+  senderId          String?  @map("sender_id") @db.VarChar(50)
+  senderName        String?  @map("sender_name") @db.VarChar(100)
+
+  // 配信管理
+  deliveryMethod    String   @default("in_app") @map("delivery_method") @db.VarChar(50) // in_app, email, sms, push
+  deliveredAt       DateTime? @map("delivered_at") @db.DateTime(0)
+  readAt            DateTime? @map("read_at") @db.DateTime(0)
+
+  // メタデータ
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  expiresAt         DateTime? @map("expires_at") @db.DateTime(0)
+
+  // リレーション
+  recipient         User     @relation(fields: [recipientId], references: [id])
+
+  @@index([recipientId, status])
+  @@index([type, category])
+  @@index([priority, actionRequired])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// フィードバックテーブル
+model Feedback {
+  id                String   @id @default(cuid()) @db.VarChar(50)
+  fromUserId        String   @map("from_user_id") @db.VarChar(50)
+  toUserId          String?  @map("to_user_id") @db.VarChar(50) // nullの場合は一般的なフィードバック
+
+  // フィードバック内容
+  type              String   @db.VarChar(50) // appreciation, suggestion, concern, complaint
+  category          String   @db.VarChar(50) // work, behavior, process, system
+  content           String   @db.Text
+
+  // 関連コンテキスト
+  contextType       String?  @map("context_type") @db.VarChar(50) // project, evaluation, interview, general
+  contextId         String?  @map("context_id") @db.VarChar(50) // 関連するエンティティのID
+
+  // プライバシー設定
+  isAnonymous       Boolean  @default(false) @map("is_anonymous")
+  visibility        String   @default("private") @db.VarChar(20) // private, managers, public
+
+  // ステータス管理
+  status            String   @default("submitted") @db.VarChar(20) // submitted, acknowledged, in_progress, resolved
+  priority          String   @default("normal") @db.VarChar(20) // low, normal, high, urgent
+
+  // レスポンス管理
+  responseRequired  Boolean  @default(false) @map("response_required")
+  respondedAt       DateTime? @map("responded_at") @db.DateTime(0)
+  response          String?  @db.Text
+  responderId       String?  @map("responder_id") @db.VarChar(50)
+
+  // メタデータ
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  // リレーション
+  fromUser          User     @relation(fields: [fromUserId], references: [id])
+
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([status, priority])
+  @@index([type, category])
+  @@map("feedbacks")
+}
+
+// ユーザー分析テーブル
+model UserAnalytics {
+  id                String   @id @default(cuid()) @db.VarChar(50)
+  userId            String   @map("user_id") @db.VarChar(50)
+  period            String   @db.VarChar(20) // 例: "2025_Q1", "2025_W12"
+  periodType        String   @map("period_type") @db.VarChar(20) // daily, weekly, monthly, quarterly, yearly
+
+  // エンゲージメント指標
+  loginCount        Int      @default(0) @map("login_count") @db.Int
+  activeMinutes     Int      @default(0) @map("active_minutes") @db.Int
+  interviewsScheduled Int    @default(0) @map("interviews_scheduled") @db.Int
+  interviewsCompleted Int    @default(0) @map("interviews_completed") @db.Int
+  surveysCompleted  Int      @default(0) @map("surveys_completed") @db.Int
+  feedbacksGiven    Int      @default(0) @map("feedbacks_given") @db.Int
+  feedbacksReceived Int      @default(0) @map("feedbacks_received") @db.Int
+  projectsParticipated Int   @default(0) @map("projects_participated") @db.Int
+
+  // パフォーマンス指標
+  averageResponseTime Float? @map("average_response_time") @db.Float // 分単位
+  taskCompletionRate Float?  @map("task_completion_rate") @db.Float // 0-100%
+
+  // 満足度指標
+  satisfactionScore Float?   @map("satisfaction_score") @db.Float // 0-10
+  npsScore          Int?     @map("nps_score") @db.SmallInt // -100 to 100
+
+  // メタデータ
+  calculatedAt      DateTime @default(now()) @map("calculated_at") @db.Timestamp(0)
+
+  // リレーション
+  user              User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, period, periodType])
+  @@index([period, periodType])
+  @@index([userId])
+  @@map("user_analytics")
+}
+
+// ========================================
+// Enum定義（MySQLではStringとして扱う）
+// ========================================
+
+// アカウントタイプは文字列として管理
+// AccountType: CHAIRMAN, GENERAL_ADMINISTRATIVE_DIRECTOR, FACILITY_DIRECTOR, etc.
+
+// ステークホルダーカテゴリは文字列として管理
+// StakeholderCategory: frontline, management, veteran, zGen
+
+// 面談ステータスは文字列として管理
+// InterviewStatus: pending, scheduled, in_progress, completed, cancelled
+
+// 緊急度レベルは文字列として管理
+// UrgencyLevel: low, medium, high, urgent

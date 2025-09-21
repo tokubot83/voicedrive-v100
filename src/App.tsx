@@ -6,6 +6,7 @@ import { TabProvider } from './components/tabs/TabContext';
 import { AuthProvider } from './hooks/useAuth';
 import NotificationService from './services/NotificationService';
 import ErrorDebugger from './components/debug/ErrorDebugger';
+import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 
 function App() {
   useEffect(() => {
@@ -35,6 +36,7 @@ function App() {
             <TabProvider>
               <DemoModeController />
               <AppRouter />
+              <PWAInstallPrompt />
             </TabProvider>
           </DemoModeProvider>
         </AuthProvider>
