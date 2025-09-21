@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Bell, Settings } from 'lucide-react';
+import { Home, Mail, Settings } from 'lucide-react';
 
 export function MobileFooter() {
   const location = useLocation();
@@ -61,7 +61,7 @@ export function MobileFooter() {
           }`}
         >
           <div className="relative">
-            <Bell
+            <Mail
               className="w-6 h-6"
               fill={isHRPage ? 'currentColor' : 'none'}
               strokeWidth={isHRPage ? 0 : 2}
