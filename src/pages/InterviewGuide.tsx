@@ -505,21 +505,16 @@ const InterviewGuide: React.FC = () => {
                 <p className="text-gray-300 mb-4">
                   上記の面談タイプは基本的な枠組みです。実際の面談では、あなたの状況やニーズに応じて柔軟に対応します。
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-gray-800/50 rounded-xl p-4 text-center">
-                    <p className="text-2xl mb-2">🏠</p>
+                    <p className="text-3xl mb-2">🏠</p>
                     <p className="text-white font-semibold">オンライン対応</p>
                     <p className="text-gray-300 text-sm">在宅勤務でも面談可能</p>
                   </div>
                   <div className="bg-gray-800/50 rounded-xl p-4 text-center">
-                    <p className="text-2xl mb-2">👥</p>
-                    <p className="text-white font-semibold">グループ面談</p>
-                    <p className="text-gray-300 text-sm">チーム単位での相談もOK</p>
-                  </div>
-                  <div className="bg-gray-800/50 rounded-xl p-4 text-center">
-                    <p className="text-2xl mb-2">🌙</p>
-                    <p className="text-white font-semibold">時間外対応</p>
-                    <p className="text-gray-300 text-sm">シフト勤務にも配慮</p>
+                    <p className="text-3xl mb-2">🌙</p>
+                    <p className="text-white font-semibold">時間外対応（応相談）</p>
+                    <p className="text-gray-300 text-sm">シフト勤務にも配慮し、必要に応じて調整可能</p>
                   </div>
                 </div>
               </div>
