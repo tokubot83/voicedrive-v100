@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { NotificationCategory } from '../types/notification';
+import AppBadgeService from '../services/AppBadgeService';
 
 // 通知データの型定義
 interface Notification {
@@ -100,6 +101,52 @@ const NotificationsPage = () => {
       priority: 'low'
     }
   ]);
+
+  // バッジサービスの初期化と既読処理
+  useEffect(() => {
+    const badgeService = AppBadgeService.getInstance();
+
+    // 未読数を計算してバッジを更新
+    const updateBadge = () => {
+      const unreadCount = notifications.filter(n => !n.isRead).length;
+
+      // localStorageに保存（AppBadgeServiceが参照）
+      localStorage.setItem('notifications', JSON.stringify(notifications));
+
+      // バッジを更新
+      badgeService.updateBadge(unreadCount);
+    };
+
+    // 初回更新
+    updateBadge();
+
+    // 通知が変更されるたびに更新
+    return () => {
+      // クリーンアップ不要
+    };
+  }, [notifications]);
+
+  // 通知を既読にする関数
+  const markAsRead = (notificationId: string) => {
+    setNotifications(prev =>
+      prev.map(n =>
+        n.id === notificationId ? { ...n, isRead: true } : n
+      )
+    );
+
+    // バッジサービスに通知
+    AppBadgeService.getInstance().onNotificationRead();
+  };
+
+  // 全て既読にする関数
+  const markAllAsRead = () => {
+    setNotifications(prev =>
+      prev.map(n => ({ ...n, isRead: true }))
+    );
+
+    // バッジをクリア
+    AppBadgeService.getInstance().clearBadge();
+  };
 
   // フィルタリングされた通知
   const filteredNotifications = useMemo(() => {
