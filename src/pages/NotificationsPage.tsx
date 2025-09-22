@@ -123,7 +123,14 @@ const NotificationsPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       {/* 固定ヘッダー */}
-      <div className="sticky top-0 z-40 bg-black/80 backdrop-blur border-b border-gray-800">
+      <div
+        className="sticky top-0 z-40 bg-black/80 backdrop-blur"
+        style={{
+          borderBottom: '3px solid transparent',
+          borderImage: 'linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%)',
+          borderImageSlice: 1
+        }}
+      >
         <div className="px-6 py-6">
           <div className="flex items-center gap-3">
             <div className="text-3xl">🔔</div>
