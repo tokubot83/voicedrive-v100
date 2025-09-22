@@ -260,40 +260,44 @@ export const PersonalStationPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 w-full">
-      <div className="w-full p-6">
-        {/* ヘッダー */}
-        <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-2xl p-6 backdrop-blur-xl border border-blue-500/20 mb-6">
-          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-            <span className="text-4xl">💫</span>
-            パーソナルステーション
-          </h1>
-          <p className="text-gray-300">
-            ようこそ、{currentUser?.name || 'ゲスト'}さん！あなた専用のワークスペースです。
-          </p>
+      {/* ヘッダー */}
+      <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white flex items-center">
+              <span className="mr-3 text-3xl">💫</span>
+              パーソナルステーション
+            </h1>
+            <p className="text-gray-400 text-sm">
+              ようこそ、{currentUser?.name || 'ゲスト'}さん！あなた専用のワークスペースです。
+            </p>
+          </div>
         </div>
+      </header>
+
+      <div className="w-full p-6">
 
         {/* タブナビゲーション */}
-        <div className="mb-6">
-          <div className="bg-gray-800/50 rounded-xl p-1 backdrop-blur border border-gray-700/50">
-            <nav className="flex space-x-1">
+        <div className="bg-slate-900 border-b border-gray-700 -mx-6 mb-6">
+          <div className="px-6">
+            <div className="flex space-x-8">
               {personalTabs.map(tab => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`py-3 px-6 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
+                    className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                       activeTab === tab.id
-                        ? 'bg-blue-600 text-white shadow-lg'
-                        : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                        ? 'border-blue-500 text-blue-500'
+                        : 'border-transparent text-gray-400 hover:text-gray-300'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
                     {tab.label}
                   </button>
                 );
               })}
-            </nav>
+            </div>
           </div>
         </div>
 

@@ -273,12 +273,40 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       {/* システム機能（下部固定） */}
       <div className="absolute bottom-0 left-0 right-0 p-4 space-y-1 border-t border-slate-700/50 bg-slate-800/95 backdrop-blur-xl">
         <button
+          onClick={() => onNavigate('/interview-guide')}
+          className={`
+            w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+            transition-all duration-150
+            ${currentPath === '/interview-guide'
+              ? 'bg-purple-600 text-white shadow-lg'
+              : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+            }
+          `}
+        >
+          <span className="text-base">📅</span>
+          <span>面談予約ガイド</span>
+        </button>
+        <button
+          onClick={() => onNavigate('/compliance-guide')}
+          className={`
+            w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+            transition-all duration-150
+            ${currentPath === '/compliance-guide'
+              ? 'bg-red-600 text-white shadow-lg'
+              : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+            }
+          `}
+        >
+          <span className="text-base">🛡️</span>
+          <span>コンプライアンス窓口</span>
+        </button>
+        <button
           onClick={() => onNavigate('/idea-voice-guide')}
           className={`
             w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
             transition-all duration-150
-            ${currentPath === '/idea-voice-guide' 
-              ? 'bg-blue-600 text-white shadow-lg' 
+            ${currentPath === '/idea-voice-guide'
+              ? 'bg-blue-600 text-white shadow-lg'
               : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
             }
           `}
@@ -291,42 +319,14 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
           className={`
             w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
             transition-all duration-150
-            ${currentPath === '/free-voice-guide' 
-              ? 'bg-green-600 text-white shadow-lg' 
+            ${currentPath === '/free-voice-guide'
+              ? 'bg-green-600 text-white shadow-lg'
               : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
             }
           `}
         >
           <span className="text-base">💬</span>
           <span>フリーボイスガイド</span>
-        </button>
-        <button
-          onClick={() => onNavigate('/compliance-guide')}
-          className={`
-            w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
-            transition-all duration-150
-            ${currentPath === '/compliance-guide' 
-              ? 'bg-red-600 text-white shadow-lg' 
-              : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
-            }
-          `}
-        >
-          <span className="text-base">🛡️</span>
-          <span>コンプライアンス窓口</span>
-        </button>
-        <button
-          onClick={() => onNavigate('/interview-guide')}
-          className={`
-            w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
-            transition-all duration-150
-            ${currentPath === '/interview-guide' 
-              ? 'bg-purple-600 text-white shadow-lg' 
-              : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
-            }
-          `}
-        >
-          <span className="text-base">📅</span>
-          <span>面談予約ガイド</span>
         </button>
         <button
           onClick={() => onNavigate('/notifications')}
