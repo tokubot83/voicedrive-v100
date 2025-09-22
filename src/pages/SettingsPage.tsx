@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { User, Bell, Shield, Palette } from 'lucide-react';
+import { User, Bell, Shield, Palette, Smartphone } from 'lucide-react';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { NotificationSettings } from '../components/settings/NotificationSettings';
+import { PWAInstallSettings } from '../components/settings/PWAInstallSettings';
 
 const SettingsPage = () => {
   const { currentUser } = useDemoMode();
-  const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'privacy' | 'display'>('notifications');
+  const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'privacy' | 'display' | 'app'>('notifications');
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -24,7 +25,7 @@ const SettingsPage = () => {
 
           {/* タブナビゲーション */}
           <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-2 border border-slate-700/50 mb-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
               <button
                 onClick={() => setActiveTab('profile')}
                 className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors ${
@@ -69,6 +70,17 @@ const SettingsPage = () => {
               >
                 <Palette className="w-5 h-5" />
                 <span className="hidden md:inline">表示</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('app')}
+                className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors ${
+                  activeTab === 'app'
+                    ? 'bg-indigo-500 text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-slate-700'
+                }`}
+              >
+                <Smartphone className="w-5 h-5" />
+                <span className="hidden md:inline">アプリ</span>
               </button>
             </div>
           </div>
@@ -201,6 +213,9 @@ const SettingsPage = () => {
                 </div>
               </div>
             )}
+
+            {/* App Settings */}
+            {activeTab === 'app' && <PWAInstallSettings />}
           </div>
         </div>
       </div>

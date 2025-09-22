@@ -122,8 +122,8 @@ const NotificationsPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      {/* ヘッダー */}
-      <div className="bg-black/80 backdrop-blur border-b border-gray-800">
+      {/* 固定ヘッダー */}
+      <div className="sticky top-0 z-40 bg-black/80 backdrop-blur border-b border-gray-800">
         <div className="px-6 py-6">
           <div className="flex items-center gap-3">
             <div className="text-3xl">🔔</div>
@@ -173,7 +173,7 @@ const NotificationsPage = () => {
       </div>
       
       {/* 通知リスト */}
-      <div className="p-6">
+      <div className="p-6 pb-20">
         <div className="max-w-7xl mx-auto">
           {filteredNotifications.length === 0 ? (
             <div className="text-center py-12">

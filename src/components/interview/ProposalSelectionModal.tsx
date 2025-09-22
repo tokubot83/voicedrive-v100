@@ -191,25 +191,25 @@ const ProposalSelectionModal: React.FC<ProposalSelectionModalProps> = ({
                 </div>
 
                 {/* アクションボタン */}
-                <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2 justify-center mt-2 sm:mt-3">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center mt-3 sm:mt-4">
                   <button
                     onClick={handleConfirmSelection}
                     disabled={!selectedProposalId}
-                    className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all flex items-center justify-center ${
+                    className={`px-5 py-3 sm:px-6 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all flex items-center justify-center ${
                       selectedProposalId
                         ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg'
                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     }`}
                   >
                     この日程で予約を確定
-                    <ChevronRight className="w-3 sm:w-4 h-3 sm:h-4 ml-1" />
+                    <ChevronRight className="w-4 sm:w-5 h-4 sm:h-5 ml-1.5" />
                   </button>
 
                   <button
                     onClick={() => setShowRescheduleForm(true)}
-                    className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center"
+                    className="px-5 py-3 sm:px-6 sm:py-3 rounded-lg font-semibold text-sm sm:text-base bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all flex items-center justify-center"
                   >
-                    <RefreshCw className="w-3 sm:w-4 h-3 sm:h-4 mr-1" />
+                    <RefreshCw className="w-4 sm:w-5 h-4 sm:h-5 mr-1.5" />
                     再調整を依頼
                   </button>
                 </div>
