@@ -316,48 +316,178 @@ const InterviewGuide: React.FC = () => {
               }`} data-section="booking-header">
                 <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                   <span className="text-purple-400">📱</span>
-                  予約はたったの4ステップ！
+                  2つの予約方法から選べる！
                 </h2>
                 <p className="text-lg text-gray-300">
-                  スマホから簡単に、あなたの都合に合わせて面談を予約できます。
+                  通常予約とおまかせ予約、あなたのニーズに合わせて選択できます。
                 </p>
               </div>
 
-              {/* 予約ステップ */}
-              {[
-                {
-                  step: 1,
-                  title: '面談予約ボタンをタップ',
-                  desc: 'ホーム画面またはメニューから「面談予約」を選択',
-                  detail: 'VoiceDriveのどの画面からでもアクセス可能。緊急の場合は「緊急相談」ボタンも用意。',
-                  icon: '👆',
-                  screenshot: '予約ボタンのスクリーンショット'
-                },
-                {
-                  step: 2,
-                  title: '面談タイプと相手を選択',
-                  desc: '目的に合った面談タイプと、相談したい相手を選ぶ',
-                  detail: '直属の上司、人事担当、メンターなど、相談内容に応じて最適な相手を選択できます。',
-                  icon: '👥',
-                  screenshot: '相手選択画面のスクリーンショット'
-                },
-                {
-                  step: 3,
-                  title: '日時を選択',
-                  desc: 'カレンダーから都合の良い日時を選択',
-                  detail: '相手の空き時間が色分けで表示。あなたのシフトも考慮した最適な時間帯を提案。',
-                  icon: '📅',
-                  screenshot: 'カレンダー画面のスクリーンショット'
-                },
-                {
-                  step: 4,
-                  title: '相談内容を入力して予約確定',
-                  desc: '簡単な相談内容を記入して予約完了',
-                  detail: '詳細は任意入力。事前に共有することで、より充実した面談が可能に。',
-                  icon: '✅',
-                  screenshot: '予約確認画面のスクリーンショット'
-                }
-              ].map(item => (
+              {/* 予約方法選択 */}
+              <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-2xl p-6 border border-purple-500/30">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-gray-800/50 rounded-xl p-6 border border-purple-500/30">
+                    <h3 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                      <span className="text-2xl">📅</span>
+                      通常予約（詳細10ステップ）
+                    </h3>
+                    <p className="text-gray-300 mb-3">
+                      細かい希望を指定して、理想の面談を予約
+                    </p>
+                    <ul className="space-y-1 text-sm text-gray-400">
+                      <li>• 全ての条件を細かく設定可能</li>
+                      <li>• 即座に予約確定</li>
+                      <li>• 空き時間から選択</li>
+                    </ul>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-xl p-6 border border-pink-500/30">
+                    <h3 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                      <span className="text-2xl">🤖</span>
+                      おまかせ予約（AI最適化）
+                    </h3>
+                    <p className="text-gray-300 mb-3">
+                      希望条件を伝えて、AIが最適な面談を提案
+                    </p>
+                    <ul className="space-y-1 text-sm text-gray-400">
+                      <li>• 医療チームがAIで最適化</li>
+                      <li>• 3つの提案から選択</li>
+                      <li>• 忙しい方におすすめ</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* 通常予約の詳細10ステップ */}
+              <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-purple-500/30 mb-6">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-purple-400">📅</span>
+                  通常予約の詳細フロー（10ステップ）
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { step: 1, title: '面談種類', desc: '定期・サポート・特別から選択', icon: '📋' },
+                    { step: 2, title: '面談種別', desc: '具体的な面談タイプを選択', icon: '🎯' },
+                    { step: 3, title: 'カテゴリ', desc: 'キャリア・業務・メンタル等', icon: '🏷️' },
+                    { step: 4, title: '希望時期', desc: '今週・来週・今月から選択', icon: '📆' },
+                    { step: 5, title: '時間帯', desc: '午前・午後・夕方を指定', icon: '⏰' },
+                    { step: 6, title: '希望曜日', desc: '都合の良い曜日を複数選択可', icon: '📅' },
+                    { step: 7, title: '担当者', desc: '面談官の希望を指定', icon: '👤' },
+                    { step: 8, title: '場所', desc: '対面・オンラインを選択', icon: '📍' },
+                    { step: 9, title: 'その他', desc: '追加要望や相談内容を記入', icon: '💭' },
+                    { step: 10, title: '確認', desc: '入力内容を確認して予約確定', icon: '✅' }
+                  ].map(item => (
+                    <div key={item.step} className="bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg w-8 h-8 flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-sm font-bold">{item.step}</span>
+                        </div>
+                        <span className="text-xl">{item.icon}</span>
+                        <h4 className="text-white font-semibold">{item.title}</h4>
+                      </div>
+                      <p className="text-gray-400 text-sm ml-14">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 bg-blue-900/20 rounded-xl p-4 border border-blue-500/30">
+                  <p className="text-blue-300 text-sm">
+                    💡 細かい設定が可能なため、あなたの理想の面談を確実に予約できます
+                  </p>
+                </div>
+              </div>
+
+              {/* おまかせ予約のフロー */}
+              <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-pink-500/30 mb-6">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-pink-400">🤖</span>
+                  おまかせ予約のフロー
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    {
+                      step: 1,
+                      title: '仮予約申込',
+                      desc: '希望条件を入力して送信',
+                      detail: 'VoiceDriveで簡単に入力。医療チームに即座に通知されます。',
+                      status: 'pending_review',
+                      icon: '📝'
+                    },
+                    {
+                      step: 2,
+                      title: 'AI最適化処理',
+                      desc: '医療チームがAIで最適な面談を検討',
+                      detail: 'あなたの希望と面談官のスケジュールをAIが最適マッチング。',
+                      status: 'processing',
+                      icon: '🤖'
+                    },
+                    {
+                      step: 3,
+                      title: '3パターン提案',
+                      desc: '最適な3つの候補から選択',
+                      detail: '日時・担当者・場所の異なる3つの提案が届きます。',
+                      status: 'proposals_ready',
+                      icon: '💡'
+                    },
+                    {
+                      step: 4,
+                      title: '本予約確定',
+                      desc: '選択後、医療チーム承認で確定',
+                      detail: '選択した提案が承認され、正式に予約が確定します。',
+                      status: 'confirmed',
+                      icon: '✅'
+                    }
+                  ].map(item => (
+                    <div key={item.step} className="flex items-start gap-4">
+                      <div className="bg-gradient-to-br from-pink-600 to-purple-600 rounded-xl w-16 h-16 flex items-center justify-center flex-shrink-0">
+                        <span className="text-3xl">{item.icon}</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="text-lg font-bold text-white">
+                            Step {item.step}: {item.title}
+                          </h4>
+                          {item.status === 'pending_review' && (
+                            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">調整中</span>
+                          )}
+                          {item.status === 'proposals_ready' && (
+                            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">準備完了</span>
+                          )}
+                          {item.status === 'confirmed' && (
+                            <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">確定</span>
+                          )}
+                        </div>
+                        <p className="text-gray-300 mb-2">{item.desc}</p>
+                        <p className="text-sm text-gray-400">{item.detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 bg-pink-900/20 rounded-xl p-4 border border-pink-500/30">
+                  <p className="text-pink-300 text-sm">
+                    🎯 忙しい方や、最適な面談を専門家に任せたい方におすすめです
+                  </p>
+                </div>
+              </div>
+
+              {/* 簡易版4ステップ（概要理解用） */}
+              <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 border border-gray-600/30 mb-6">
+                <h3 className="text-xl font-semibold text-gray-300 mb-4">📌 簡単に理解！基本の4ステップ</h3>
+                <div className="space-y-3">
+                  {[
+                    { step: 1, title: '面談予約を開始', icon: '👆' },
+                    { step: 2, title: '条件を設定', icon: '⚙️' },
+                    { step: 3, title: '日時を選択', icon: '📅' },
+                    { step: 4, title: '予約確定', icon: '✅' }
+                  ].map(item => (
+                    <div key={item.step} className="flex items-center gap-3 bg-gray-700/30 rounded-lg p-3">
+                      <span className="text-2xl">{item.icon}</span>
+                      <span className="text-gray-300">Step {item.step}: {item.title}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 既存の詳細ステップは削除（上記で統合済み） */}
+              {[].map(item => (
                 <div key={item.step} className={`bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-pink-500/30 animate-section transition-all duration-1000 ${
                   visibleSections.has(`booking${item.step}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
                 }`} data-section={`booking${item.step}`}>
