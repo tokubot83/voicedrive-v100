@@ -198,86 +198,304 @@ const InterviewGuide: React.FC = () => {
               }`} data-section="types-header">
                 <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                   <span className="text-purple-400">📋</span>
-                  あなたに合った面談を選ぼう
+                  面談の3つの分類と10種類の詳細
                 </h2>
                 <p className="text-lg text-gray-300">
-                  目的や状況に応じて、最適な面談タイプを選択できます。
+                  目的や状況に応じて、3つの分類から最適な面談タイプを選択できます。
                 </p>
               </div>
 
-              {/* 面談タイプ一覧 */}
-              {[
-                {
-                  type: '定期面談',
-                  icon: '📅',
-                  duration: '30-60分',
-                  frequency: '月1回〜四半期1回',
-                  purpose: '目標設定、進捗確認、フィードバック',
-                  suitable: '全職員対象の基本的な面談',
-                  color: 'blue'
-                },
-                {
-                  type: 'キャリア相談',
-                  icon: '🚀',
-                  duration: '45-90分',
-                  frequency: '必要に応じて',
-                  purpose: 'キャリアプラン、スキル開発、昇進相談',
-                  suitable: '将来について真剣に考えたい方',
-                  color: 'purple'
-                },
-                {
-                  type: '緊急相談',
-                  icon: '🆘',
-                  duration: '15-30分',
-                  frequency: '即日〜3日以内',
-                  purpose: '急な問題、トラブル対応、メンタルケア',
-                  suitable: 'すぐに相談が必要な方',
-                  color: 'red'
-                },
-                {
-                  type: 'プロジェクト相談',
-                  icon: '💼',
-                  duration: '30-45分',
-                  frequency: 'プロジェクト期間中',
-                  purpose: '業務の進め方、チーム課題、リソース調整',
-                  suitable: 'プロジェクトリーダーや担当者',
-                  color: 'green'
-                },
-                {
-                  type: 'メンター面談',
-                  icon: '🌟',
-                  duration: '60-90分',
-                  frequency: '月2回程度',
-                  purpose: '成長支援、スキル指導、キャリアアドバイス',
-                  suitable: '新入職員や成長意欲の高い方',
-                  color: 'yellow'
-                }
-              ].map((type, index) => (
-                <div key={index} className={`bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 border border-${type.color}-500/30 animate-section transition-all duration-1000 ${
-                  visibleSections.has(`type${index + 1}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-                }`} data-section={`type${index + 1}`}>
-                  <div className="flex items-start gap-4">
-                    <span className="text-5xl">{type.icon}</span>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-white mb-3">{type.type}</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div className="bg-gray-700/30 rounded-xl p-3">
-                          <p className="text-sm text-gray-400 mb-1">所要時間</p>
-                          <p className="text-white font-semibold">{type.duration}</p>
-                        </div>
-                        <div className="bg-gray-700/30 rounded-xl p-3">
-                          <p className="text-sm text-gray-400 mb-1">頻度</p>
-                          <p className="text-white font-semibold">{type.frequency}</p>
+              {/* 3つの面談分類 */}
+              <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-2xl p-6 border border-purple-500/30 mb-6">
+                <h3 className="text-xl font-bold text-white mb-4">🗂️ 面談の3つの分類</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-green-900/30 rounded-xl p-4 border border-green-500/30">
+                    <h4 className="text-lg font-bold text-green-400 mb-2 flex items-center gap-2">
+                      <span>📅</span> 定期面談
+                    </h4>
+                    <p className="text-gray-300 text-sm">
+                      月次・年次・半期など定期的に実施される面談。
+                      職員の成長と法人の発展を継続的に支援。
+                    </p>
+                  </div>
+                  <div className="bg-orange-900/30 rounded-xl p-4 border border-orange-500/30">
+                    <h4 className="text-lg font-bold text-orange-400 mb-2 flex items-center gap-2">
+                      <span>⚠️</span> 特別面談
+                    </h4>
+                    <p className="text-gray-300 text-sm">
+                      特定の状況で実施される面談。
+                      復職・インシデント・退職など重要な節目での支援。
+                    </p>
+                  </div>
+                  <div className="bg-blue-900/30 rounded-xl p-4 border border-blue-500/30">
+                    <h4 className="text-lg font-bold text-blue-400 mb-2 flex items-center gap-2">
+                      <span>💬</span> サポート面談
+                    </h4>
+                    <p className="text-gray-300 text-sm">
+                      職員の希望に応じて実施される支援面談。
+                      キャリア・職場環境・個別相談など幅広いニーズに対応。
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 定期面談（3種類） */}
+              <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 border border-green-500/30 mb-6">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="text-green-400">🟢</span> 定期面談（3種類）
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    {
+                      type: '新入職員月次面談',
+                      icon: '🌱',
+                      duration: '30分',
+                      frequency: '月1回',
+                      purpose: '新入職員の定着支援と成長促進',
+                      suitable: '入職1年未満の職員'
+                    },
+                    {
+                      type: '一般職員年次面談',
+                      icon: '📊',
+                      duration: '45分',
+                      frequency: '年1回',
+                      purpose: '年間の振り返りと次年度目標設定',
+                      suitable: '全職員'
+                    },
+                    {
+                      type: '管理職半年面談',
+                      icon: '👔',
+                      duration: '45-60分',
+                      frequency: '半年1回',
+                      purpose: '管理職としての成長と組織課題解決',
+                      suitable: '管理職'
+                    }
+                  ].map((type, index) => (
+                    <div key={index} className="bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+                      <div className="flex items-start gap-3">
+                        <span className="text-3xl">{type.icon}</span>
+                        <div className="flex-1">
+                          <h4 className="text-lg font-bold text-white mb-2">{type.type}</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
+                            <div className="text-sm">
+                              <span className="text-gray-400">対象：</span>
+                              <span className="text-gray-300 ml-1">{type.suitable}</span>
+                            </div>
+                            <div className="text-sm">
+                              <span className="text-gray-400">頻度：</span>
+                              <span className="text-gray-300 ml-1">{type.frequency}</span>
+                            </div>
+                            <div className="text-sm">
+                              <span className="text-gray-400">時間：</span>
+                              <span className="text-gray-300 ml-1">{type.duration}</span>
+                            </div>
+                          </div>
+                          <p className="text-gray-300 text-sm">{type.purpose}</p>
                         </div>
                       </div>
-                      <div className="space-y-2">
-                        <p className="text-gray-300"><span className="text-purple-400 font-semibold">目的：</span>{type.purpose}</p>
-                        <p className="text-gray-300"><span className="text-pink-400 font-semibold">対象：</span>{type.suitable}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 特別面談（3種類） */}
+              <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 border border-orange-500/30 mb-6">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="text-orange-400">🟠</span> 特別面談（3種類）
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    {
+                      type: '復職面談',
+                      icon: '🔄',
+                      timing: '復職時',
+                      purpose: 'スムーズな職場復帰の支援',
+                      suitable: '休職からの復職者'
+                    },
+                    {
+                      type: 'インシデント後面談',
+                      icon: '⚠️',
+                      timing: 'インシデント発生後',
+                      purpose: '再発防止と心理的ケア',
+                      suitable: '当事者職員'
+                    },
+                    {
+                      type: '退職面談',
+                      icon: '🚪',
+                      timing: '退職前',
+                      purpose: '退職理由の把握と組織改善',
+                      suitable: '退職予定者'
+                    }
+                  ].map((type, index) => (
+                    <div key={index} className="bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+                      <div className="flex items-start gap-3">
+                        <span className="text-3xl">{type.icon}</span>
+                        <div className="flex-1">
+                          <h4 className="text-lg font-bold text-white mb-2">{type.type}</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
+                            <div className="text-sm">
+                              <span className="text-gray-400">対象：</span>
+                              <span className="text-gray-300 ml-1">{type.suitable}</span>
+                            </div>
+                            <div className="text-sm">
+                              <span className="text-gray-400">実施タイミング：</span>
+                              <span className="text-gray-300 ml-1">{type.timing}</span>
+                            </div>
+                          </div>
+                          <p className="text-gray-300 text-sm">{type.purpose}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* サポート面談（4種類） */}
+              <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 border border-blue-500/30 mb-6">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="text-blue-400">🔵</span> サポート面談（4種類）
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    {
+                      type: 'フィードバック面談',
+                      icon: '📈',
+                      categoryRequired: false,
+                      content: '人事評価結果の詳細説明と今後の成長支援',
+                      suitable: '評価開示後の希望者'
+                    },
+                    {
+                      type: 'キャリア系面談',
+                      icon: '🚀',
+                      categoryRequired: true,
+                      categories: ['キャリアプラン相談', '資格取得支援', '異動・転職相談', 'スキルアップ相談'],
+                      content: 'キャリアプラン、スキル開発、昇進、異動相談',
+                      suitable: '全職員'
+                    },
+                    {
+                      type: '職場環境系面談',
+                      icon: '🏢',
+                      categoryRequired: true,
+                      categories: ['人間関係の悩み', 'ハラスメント相談', '業務負荷相談', '職場改善提案', '勤務体制相談'],
+                      content: '人間関係、業務負荷、職場改善、健康相談',
+                      suitable: '全職員'
+                    },
+                    {
+                      type: '個別相談面談',
+                      icon: '👤',
+                      categoryRequired: true,
+                      categories: ['プライベート相談', '健康相談', 'その他の相談'],
+                      content: 'パフォーマンス、給与待遇、研修、その他相談',
+                      suitable: '全職員'
+                    }
+                  ].map((type, index) => (
+                    <div key={index} className="bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+                      <div className="flex items-start gap-3">
+                        <span className="text-3xl">{type.icon}</span>
+                        <div className="flex-1">
+                          <h4 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                            {type.type}
+                            {type.categoryRequired && (
+                              <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">カテゴリ必須</span>
+                            )}
+                          </h4>
+                          <div className="mb-2">
+                            <div className="text-sm mb-1">
+                              <span className="text-gray-400">対象：</span>
+                              <span className="text-gray-300 ml-1">{type.suitable}</span>
+                            </div>
+                            <p className="text-gray-300 text-sm">{type.content}</p>
+                          </div>
+                          {type.categories && (
+                            <div className="bg-gray-800/50 rounded-lg p-3">
+                              <p className="text-xs text-gray-400 mb-2">選択可能なカテゴリ：</p>
+                              <div className="flex flex-wrap gap-2">
+                                {type.categories.map((cat, i) => (
+                                  <span key={i} className="bg-gray-700/50 text-gray-300 text-xs px-2 py-1 rounded">
+                                    {cat}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 面談時間の選択肢 */}
+              <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 border border-purple-500/30 mb-6">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="text-purple-400">⏰</span> 面談時間の選択肢
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-gray-700/30 rounded-xl p-4">
+                    <h4 className="text-lg font-semibold text-purple-400 mb-3">職位別の標準時間</h4>
+                    <ul className="space-y-2 text-gray-300 text-sm">
+                      <li>• 新入職員: 30分〜45分</li>
+                      <li>• 一般職員: 15分・30分・45分から選択可</li>
+                      <li>• リーダー/主任: 45分</li>
+                      <li>• 管理職: 45分〜60分</li>
+                    </ul>
+                  </div>
+                  <div className="bg-gray-700/30 rounded-xl p-4">
+                    <h4 className="text-lg font-semibold text-pink-400 mb-3">面談種類別の推奨時間</h4>
+                    <ul className="space-y-2 text-gray-300 text-sm">
+                      <li>• 月次面談: 30分</li>
+                      <li>• 年次面談: 45分</li>
+                      <li>• キャリア相談: 45分〜60分</li>
+                      <li>• 緊急相談: 15分〜30分</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* 緊急度・機密性レベル */}
+              <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 border border-pink-500/30 mb-6">
+                <h3 className="text-xl font-bold text-white mb-4">🔴 緊急度・機密性レベル</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-gray-700/30 rounded-xl p-4">
+                    <h4 className="text-lg font-semibold text-red-400 mb-3">緊急度レベル</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">通常</span>
+                        <span className="text-gray-400">1〜2週間以内</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-yellow-400">中程度</span>
+                        <span className="text-gray-400">3〜5営業日以内</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-orange-400">高</span>
+                        <span className="text-gray-400">1〜2営業日以内</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-red-400">緊急</span>
+                        <span className="text-gray-400">当日〜翌営業日</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-700/30 rounded-xl p-4">
+                    <h4 className="text-lg font-semibold text-purple-400 mb-3">機密性レベル</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="bg-gray-800/50 rounded p-2">
+                        <span className="text-gray-300 font-semibold">通常：</span>
+                        <span className="text-gray-400 ml-1">上司・人事部門で共有可</span>
+                      </div>
+                      <div className="bg-gray-800/50 rounded p-2">
+                        <span className="text-yellow-400 font-semibold">機密：</span>
+                        <span className="text-gray-400 ml-1">限定的な共有</span>
+                      </div>
+                      <div className="bg-gray-800/50 rounded p-2">
+                        <span className="text-red-400 font-semibold">高機密：</span>
+                        <span className="text-gray-400 ml-1">面談者のみ保持</span>
                       </div>
                     </div>
                   </div>
                 </div>
-              ))}
+              </div>
 
               {/* 柔軟な対応 */}
               <div className={`bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-2xl p-8 border border-purple-500/30 animate-section transition-all duration-1000 ${
@@ -468,21 +686,44 @@ const InterviewGuide: React.FC = () => {
                 </div>
               </div>
 
-              {/* 簡易版4ステップ（概要理解用） */}
-              <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 border border-gray-600/30 mb-6">
-                <h3 className="text-xl font-semibold text-gray-300 mb-4">📌 簡単に理解！基本の4ステップ</h3>
+              {/* 予約時の重要ポイント */}
+              <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 border border-purple-500/30 mb-6">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="text-purple-400">💡</span> 予約時の重要ポイント
+                </h3>
                 <div className="space-y-3">
-                  {[
-                    { step: 1, title: '面談予約を開始', icon: '👆' },
-                    { step: 2, title: '条件を設定', icon: '⚙️' },
-                    { step: 3, title: '日時を選択', icon: '📅' },
-                    { step: 4, title: '予約確定', icon: '✅' }
-                  ].map(item => (
-                    <div key={item.step} className="flex items-center gap-3 bg-gray-700/30 rounded-lg p-3">
-                      <span className="text-2xl">{item.icon}</span>
-                      <span className="text-gray-300">Step {item.step}: {item.title}</span>
-                    </div>
-                  ))}
+                  <div className="bg-gray-700/30 rounded-xl p-4">
+                    <h4 className="text-white font-semibold mb-2">1. 面談種類の選択</h4>
+                    <ul className="space-y-1 text-gray-300 text-sm ml-4">
+                      <li>• まず3つの分類から選択</li>
+                      <li>• 次に具体的な面談種類を選択</li>
+                      <li>• サポート面談の場合はカテゴリも選択</li>
+                    </ul>
+                  </div>
+                  <div className="bg-gray-700/30 rounded-xl p-4">
+                    <h4 className="text-white font-semibold mb-2">2. 事前準備項目</h4>
+                    <ul className="space-y-1 text-gray-300 text-sm ml-4">
+                      <li>• 相談したいテーマを3つまで選択可能</li>
+                      <li>• 具体的な相談内容を記載（任意）</li>
+                      <li>• 緊急度レベルを選択</li>
+                    </ul>
+                  </div>
+                  <div className="bg-gray-700/30 rounded-xl p-4">
+                    <h4 className="text-white font-semibold mb-2">3. 面談者の選択</h4>
+                    <ul className="space-y-1 text-gray-300 text-sm ml-4">
+                      <li>• 希望する面談者がいれば指定可能</li>
+                      <li>• 面談者レベル（1〜5）で専門性を確認</li>
+                      <li>• 不在時は代理面談者を自動提案</li>
+                    </ul>
+                  </div>
+                  <div className="bg-gray-700/30 rounded-xl p-4">
+                    <h4 className="text-white font-semibold mb-2">4. 予約確定後</h4>
+                    <ul className="space-y-1 text-gray-300 text-sm ml-4">
+                      <li>• 確認メールが自動送信</li>
+                      <li>• リマインダーは3日前と前日に送信</li>
+                      <li>• 変更・キャンセルは前日まで可能</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
 
