@@ -50,25 +50,47 @@ const Breadcrumb = () => {
   const location = useLocation();
   const { isDemoMode } = useDemoMode();
 
-  // Don't show breadcrumb on home page, hr-announcements page, and stress-check-demo page
-  if (location.pathname === '/' || location.pathname === '/hr-announcements' || location.pathname === '/stress-check-demo') {
+  // Don't show breadcrumb on home page, hr-announcements page, stress-check-demo page, and settings page
+  if (location.pathname === '/' || location.pathname === '/hr-announcements' || location.pathname === '/stress-check-demo' || location.pathname === '/settings') {
     return null;
   }
-  
+
   // Generate breadcrumb items from pathname
   const pathSegments = location.pathname.split('/').filter(Boolean);
   const breadcrumbItems: BreadcrumbItem[] = [
     { path: '/', label: 'ホーム' }
   ];
-  
+
   let currentPath = '';
   pathSegments.forEach((segment) => {
     currentPath += `/${segment}`;
     const label = pathNameMap[currentPath] || segment;
     breadcrumbItems.push({ path: currentPath, label });
   });
-  
-  return null;
+
+  return (
+    <nav className={`px-6 py-3 text-sm border-b border-slate-700/50 ${isDemoMode ? 'mt-4' : 'mt-4'}`}>
+      <ol className="flex items-center space-x-1">
+        {breadcrumbItems.map((item, index) => (
+          <li key={item.path} className="flex items-center">
+            {index > 0 && (
+              <ChevronRight className="mx-1 h-4 w-4 text-gray-500" />
+            )}
+            {index === breadcrumbItems.length - 1 ? (
+              <span className="text-gray-400">{item.label}</span>
+            ) : (
+              <Link
+                to={item.path}
+                className="text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                {item.label}
+              </Link>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
 };
 
 export default Breadcrumb;

@@ -725,22 +725,24 @@ const InterviewStation: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-20">
-      {/* ヘッダー */}
-      <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white flex items-center">
-              <span className="mr-3 text-3xl">🗣️</span>
-              面談ステーション
-            </h1>
-            <p className="text-gray-400 text-sm">面談予約の管理・確認・リマインダー設定</p>
+      {/* 固定ヘッダーコンテナ */}
+      <div className="sticky top-0 z-30">
+        {/* ヘッダー */}
+        <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-white flex items-center">
+                <span className="mr-3 text-3xl">🗣️</span>
+                面談ステーション
+              </h1>
+              <p className="text-gray-400 text-sm">面談予約の管理・確認・リマインダー設定</p>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* タブナビゲーション */}
-      <div className="bg-slate-900 border-b border-gray-700">
-        <div className="px-6">
+        {/* タブナビゲーション */}
+        <div className="bg-slate-900 border-b border-gray-700">
+          <div className="px-6">
           <div className="flex space-x-8">
             <button
               onClick={() => setActiveTab('dashboard')}
@@ -796,6 +798,7 @@ const InterviewStation: React.FC = () => {
             )}
           </div>
         </div>
+      </div>
       </div>
 
       {/* コンテンツエリア */}

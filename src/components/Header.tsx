@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { MainTabs } from './tabs/MainTabs';
 import { SubFilters } from './tabs/SubFilters';
 import { useTabContext } from './tabs/TabContext';
@@ -15,6 +15,7 @@ interface HeaderProps {
 }
 
 const Header = ({ toggleSidebar }: HeaderProps) => {
+  const location = useLocation();
   const { tabState, setActiveMainTab, setActiveSubFilter } = useTabContext();
   const { activeMainTab, activeSubFilter } = tabState;
   const { isDemoMode } = useDemoMode();
@@ -49,8 +50,15 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
     }
   };
 
+  // 設定ページでは非表示
+  if (location.pathname === '/settings') {
+    return null;
+  }
+
   return (
-    <header className="hidden">
+    <header className={`fixed left-0 right-0 top-0 z-50 bg-black/80 backdrop-blur border-b border-gray-800 transition-transform duration-300 ${
+      isVisible ? 'translate-y-0' : '-translate-y-full'
+    }`}>
       <div className="flex items-center justify-between px-4 py-3">
         {/* 左側のスペーサー */}
         <div className="flex-1"></div>

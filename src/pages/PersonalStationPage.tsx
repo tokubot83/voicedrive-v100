@@ -260,25 +260,25 @@ export const PersonalStationPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 w-full">
-      {/* ヘッダー */}
-      <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white flex items-center">
-              <span className="mr-3 text-3xl">💫</span>
-              パーソナルステーション
-            </h1>
-            <p className="text-gray-400 text-sm">
-              ようこそ、{currentUser?.name || 'ゲスト'}さん！あなた専用のワークスペースです。
-            </p>
+      {/* 固定ヘッダーコンテナ */}
+      <div className="sticky top-0 z-50">
+        {/* ヘッダー */}
+        <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-white flex items-center">
+                <span className="mr-3 text-3xl">💫</span>
+                パーソナルステーション
+              </h1>
+              <p className="text-gray-400 text-sm">
+                ようこそ、{currentUser?.name || 'ゲスト'}さん！あなた専用のワークスペースです。
+              </p>
+            </div>
           </div>
-        </div>
-      </header>
-
-      <div className="w-full p-6">
+        </header>
 
         {/* タブナビゲーション */}
-        <div className="bg-slate-900 border-b border-gray-700 -mx-6 mb-6">
+        <div className="bg-slate-900 border-b border-gray-700">
           <div className="px-6">
             <div className="flex space-x-8">
               {personalTabs.map(tab => {
@@ -300,14 +300,14 @@ export const PersonalStationPage: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* コンテンツ */}
-        <div>
-          {activeTab === 'overview' && renderOverview()}
-          {activeTab === 'my_posts' && renderMyPosts()}
-          {activeTab === 'my_projects' && renderMyProjects()}
-          {activeTab === 'activity' && renderActivity()}
-        </div>
+      {/* コンテンツ */}
+      <div className="p-6">
+        {activeTab === 'overview' && renderOverview()}
+        {activeTab === 'my_posts' && renderMyPosts()}
+        {activeTab === 'my_projects' && renderMyProjects()}
+        {activeTab === 'activity' && renderActivity()}
       </div>
       
       {/* フッター */}

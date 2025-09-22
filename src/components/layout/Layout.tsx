@@ -25,6 +25,9 @@ const Layout: React.FC = () => {
   // HRお知らせページかどうか判定
   const isHRAnnouncementsPage = location.pathname === '/hr-announcements';
 
+  // 設定ページかどうか判定
+  const isSettingsPage = location.pathname === '/settings';
+
   // 専用管理画面のパスを定義
   const managementPaths = [
     '/retirement-processing',
@@ -144,8 +147,8 @@ const Layout: React.FC = () => {
     <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 ${isDemoMode ? 'pt-[80px] md:pt-[60px]' : ''} pb-16 md:pb-0`}>
       {/* ヘッダーを最上部に配置（HRお知らせページでは非表示） */}
       {!isManagementPage && !isHRAnnouncementsPage && <Header toggleSidebar={toggleSidebar} />}
-      {/* モバイルメニューボタン（lg以下で表示、管理画面とHRお知らせページでは非表示） */}
-      {!isManagementPage && !isHRAnnouncementsPage && (
+      {/* モバイルメニューボタン（lg以下で表示、管理画面とHRお知らせページと設定ページでは非表示） */}
+      {!isManagementPage && !isHRAnnouncementsPage && !isSettingsPage && (
         <button
           onClick={toggleSidebar}
           className={`lg:hidden fixed left-4 top-4 z-50 bg-slate-800/90 backdrop-blur-lg border border-slate-700/50 rounded-full p-3 shadow-lg hover:bg-slate-700/90 transition-all duration-300 ${
