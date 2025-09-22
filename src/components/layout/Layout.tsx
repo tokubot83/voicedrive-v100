@@ -74,7 +74,9 @@ const Layout: React.FC = () => {
     '/personal-station',
     '/leader-station',
     '/department-station',
-    '/section-station'
+    '/section-station',
+    // 通知ページもパンくずリスト非表示
+    '/notifications'
   ];
   
   // 現在のパスが専用管理画面かどうかを判定（修正版）
