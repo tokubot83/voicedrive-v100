@@ -1,6 +1,8 @@
 // 承認ワークフローエンジン - Phase 2 実装 (8段階権限システム対応)
 import { PostType } from '../types';
 import { PermissionLevel, ProjectScope } from '../permissions/types/PermissionTypes';
+import NotificationService from './NotificationService';
+import { CategoryNotificationService } from './CategoryNotificationService';
 
 export interface WorkflowStage {
   id: string;
@@ -64,6 +66,14 @@ export interface WorkflowEscalation {
 }
 
 export class ApprovalWorkflowEngine {
+  private notificationService: NotificationService;
+  private categoryNotificationService: CategoryNotificationService;
+
+  constructor() {
+    this.notificationService = NotificationService.getInstance();
+    this.categoryNotificationService = CategoryNotificationService.getInstance();
+  }
+
   private workflowTemplates = {
     // チームレベルプロジェクト（予算上限：5万円）
     TEAM: [
@@ -307,8 +317,8 @@ export class ApprovalWorkflowEngine {
   }
   
   async completeStage(
-    workflow: ProjectWorkflow, 
-    stageIndex: number, 
+    workflow: ProjectWorkflow,
+    stageIndex: number,
     completedBy: string,
     comments?: string
   ): Promise<void> {
@@ -316,33 +326,36 @@ export class ApprovalWorkflowEngine {
     if (!stage || stage.status !== 'IN_PROGRESS') {
       throw new Error('Invalid stage or stage not in progress');
     }
-    
+
     // ステージを完了
     stage.status = 'COMPLETED';
     stage.completedAt = new Date();
     stage.comments = comments;
-    
+
     // APPROVAL_COMPLETEDステージの場合、承認完了をマーク
     if (stage.stage === 'APPROVAL_COMPLETED') {
       workflow.isApprovalCompleted = true;
       workflow.approvalCompletedAt = new Date();
-      
+
       // メンバー選出通知を送信
       await this.notifyMemberSelectionStart(workflow);
     }
-    
+
     // 次のステージに進む
     if (stageIndex < workflow.stages.length - 1) {
       workflow.currentStage = stageIndex + 1;
       const nextStage = workflow.stages[stageIndex + 1];
       nextStage.status = 'IN_PROGRESS';
-      
+
       // 次のステージが自動完了の場合は即座に実行
       if (nextStage.autoComplete) {
         await this.completeStage(workflow, stageIndex + 1, 'SYSTEM', '自動完了');
+      } else if (nextStage.assignedTo) {
+        // 次の承認者に通知を送信
+        await this.notifyNextApprover(workflow, nextStage);
       }
     }
-    
+
     workflow.updatedAt = new Date();
   }
   
@@ -606,10 +619,33 @@ export class ApprovalWorkflowEngine {
   private async notifyMemberSelectionStart(workflow: ProjectWorkflow): Promise<void> {
     // メンバー選出ステージを找す
     const memberSelectionStage = workflow.stages.find(s => s.stage === 'MEMBER_SELECTION');
-    if (memberSelectionStage) {
+    if (memberSelectionStage && memberSelectionStage.assignedTo) {
       memberSelectionStage.memberSelectionStatus = 'NOT_STARTED';
-      // 実際のアプリケーションではNotificationServiceを使用
-      console.log(`メンバー選出開始通知: プロジェクトID ${workflow.projectId}`);
+
+      // プロジェクトリーダーへメンバー選出開始を通知
+      await this.notificationService.sendNotification({
+        type: 'system_notification',
+        title: '🎯 メンバー選出フェーズ開始',
+        message: `プロジェクト承認が完了しました。メンバー選出を開始してください。`,
+        urgency: 'high',
+        channels: ['browser', 'websocket', 'email'],
+        timestamp: new Date().toISOString(),
+        data: {
+          projectId: workflow.projectId,
+          stage: 'MEMBER_SELECTION',
+          assignedTo: memberSelectionStage.assignedTo.id
+        },
+        actionRequired: true
+      });
+
+      // ワークフロー通知履歴に記録
+      workflow.notifications.push({
+        id: `notif_${Date.now()}`,
+        type: 'MEMBER_SELECTION_START',
+        recipient: memberSelectionStage.assignedTo.id,
+        sentAt: new Date(),
+        status: 'SENT'
+      });
     }
   }
   
@@ -618,9 +654,32 @@ export class ApprovalWorkflowEngine {
     const memberSelectionStage = workflow.stages.find(s => s.stage === 'MEMBER_SELECTION');
     if (memberSelectionStage && memberSelectionStage.memberSelectionStatus === 'IN_PROGRESS') {
       memberSelectionStage.memberSelectionStatus = 'CANCELLED';
+
       // 仮メンバーへのキャンセル通知
-      if (memberSelectionStage.provisionalMembers) {
-        console.log(`メンバー選出キャンセル通知: ${memberSelectionStage.provisionalMembers.join(', ')}`);
+      if (memberSelectionStage.provisionalMembers && memberSelectionStage.provisionalMembers.length > 0) {
+        for (const memberId of memberSelectionStage.provisionalMembers) {
+          await this.notificationService.sendNotification({
+            type: 'system_notification',
+            title: '⚠️ プロジェクト参加キャンセル',
+            message: `プロジェクトが却下されたため、メンバー選出がキャンセルされました。`,
+            urgency: 'normal',
+            channels: ['browser', 'websocket'],
+            timestamp: new Date().toISOString(),
+            data: {
+              projectId: workflow.projectId,
+              reason: workflow.rejectionReason
+            }
+          });
+        }
+
+        // ワークフロー通知履歴に記録
+        workflow.notifications.push({
+          id: `notif_${Date.now()}`,
+          type: 'MEMBER_SELECTION_CANCELLED',
+          recipient: memberSelectionStage.provisionalMembers.join(','),
+          sentAt: new Date(),
+          status: 'SENT'
+        });
       }
     }
   }
@@ -695,24 +754,145 @@ export class ApprovalWorkflowEngine {
     if (!stage?.multipleApprovers) {
       return false;
     }
-    
+
     if (!stage.approvedBy) {
       stage.approvedBy = [];
     }
-    
+
     if (!stage.approvedBy.includes(approvedBy)) {
       stage.approvedBy.push(approvedBy);
     }
-    
+
     // 必要な承認者数をチェック（例：全員の80%以上）
     const requiredApprovals = stage.requiredApprovers ? stage.requiredApprovers.length : 1;
-    
+
     if (stage.approvedBy.length >= requiredApprovals) {
       await this.completeStage(workflow, stageIndex, 'MULTIPLE_APPROVERS', '複数承認者による承認完了');
       return true;
     }
-    
+
     return false;
+  }
+
+  // 次の承認者への通知
+  private async notifyNextApprover(workflow: ProjectWorkflow, stage: WorkflowStage): Promise<void> {
+    if (!stage.assignedTo) return;
+
+    const stageDisplayName = this.getStageDisplayName(stage.stage);
+    const projectLevel = this.getProjectLevelFromWorkflow(workflow);
+
+    // カテゴリ別通知サービスを使用
+    await this.categoryNotificationService.createCategoryApprovalNotification(
+      stage.assignedTo.id,
+      {
+        category: this.getProjectCategory(workflow),
+        title: `プロジェクト承認依頼: ${stageDisplayName}`,
+        deadline: stage.dueDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // デフォルト3日後
+        projectId: workflow.projectId
+      }
+    );
+
+    // 複数承認者の場合は全員に通知
+    if (stage.multipleApprovers && stage.requiredApprovers) {
+      for (const approverId of stage.requiredApprovers) {
+        if (approverId !== stage.assignedTo.id) {
+          await this.categoryNotificationService.createCategoryApprovalNotification(
+            approverId,
+            {
+              category: this.getProjectCategory(workflow),
+              title: `プロジェクト承認依頼（複数承認）: ${stageDisplayName}`,
+              deadline: stage.dueDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+              projectId: workflow.projectId
+            }
+          );
+        }
+      }
+    }
+
+    // ワークフロー通知履歴に記録
+    workflow.notifications.push({
+      id: `notif_${Date.now()}`,
+      type: 'APPROVAL_REQUEST',
+      recipient: stage.assignedTo.id,
+      sentAt: new Date(),
+      status: 'SENT'
+    });
+  }
+
+  // エスカレーション処理
+  async escalateStage(
+    workflow: ProjectWorkflow,
+    stageIndex: number,
+    escalateTo: string,
+    reason: string
+  ): Promise<void> {
+    const stage = workflow.stages[stageIndex];
+    if (!stage || stage.status !== 'IN_PROGRESS') {
+      return;
+    }
+
+    stage.status = 'ESCALATED';
+    stage.completedAt = new Date();
+
+    // エスカレーション記録
+    workflow.escalations.push({
+      stageId: stage.id,
+      escalatedAt: new Date(),
+      escalatedTo: escalateTo,
+      reason: reason
+    });
+
+    // エスカレーション通知
+    await this.notificationService.sendNotification({
+      type: 'system_notification',
+      title: '⚠️ 承認エスカレーション',
+      message: `${this.getStageDisplayName(stage.stage)}が期限超過のため上位者にエスカレーションされました。理由: ${reason}`,
+      urgency: 'urgent',
+      channels: ['browser', 'websocket', 'email'],
+      timestamp: new Date().toISOString(),
+      data: {
+        projectId: workflow.projectId,
+        stageId: stage.id,
+        originalAssignee: stage.assignedTo?.id,
+        escalatedTo: escalateTo
+      },
+      actionRequired: true
+    });
+
+    workflow.updatedAt = new Date();
+  }
+
+  // ヘルパーメソッド: プロジェクトレベル取得
+  private getProjectLevelFromWorkflow(workflow: ProjectWorkflow): string {
+    // ワークフローのステージ構成からプロジェクトレベルを判定
+    const hasEmergencyOverride = workflow.stages.some(s => s.stage === 'EMERGENCY_OVERRIDE');
+    const hasCEOApproval = workflow.stages.some(s => s.stage === 'CEO_APPROVAL');
+    const hasAllFacilitiesApproval = workflow.stages.some(s => s.stage === 'ALL_FACILITIES_LEVEL5_APPROVAL');
+    const hasAllLevel4Approval = workflow.stages.some(s => s.stage === 'ALL_LEVEL4_APPROVAL');
+
+    if (hasEmergencyOverride) return 'STRATEGIC';
+    if (hasAllFacilitiesApproval) return 'ORGANIZATION';
+    if (hasAllLevel4Approval) return 'FACILITY';
+    if (hasCEOApproval) return 'DEPARTMENT';
+    return 'TEAM';
+  }
+
+  // ヘルパーメソッド: プロジェクトカテゴリ取得
+  private getProjectCategory(workflow: ProjectWorkflow): 'operational' | 'communication' | 'innovation' | 'strategic' {
+    // ワークフローメタデータからカテゴリを判定（実装時は実際のプロジェクトデータから取得）
+    const level = this.getProjectLevelFromWorkflow(workflow);
+
+    switch (level) {
+      case 'STRATEGIC':
+        return 'strategic';
+      case 'ORGANIZATION':
+        return 'innovation';
+      case 'FACILITY':
+      case 'DEPARTMENT':
+        return 'communication';
+      default:
+        return 'operational';
+    }
   }
 }
 

@@ -168,22 +168,17 @@ const NotificationsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className="min-h-screen bg-gray-900">
       {/* 固定ヘッダー */}
-      <div
-        className="sticky top-0 z-40 bg-black/80 backdrop-blur"
-        style={{
-          borderBottom: '3px solid transparent',
-          borderImage: 'linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%)',
-          borderImageSlice: 1
-        }}
-      >
+      <div className="sticky top-0 z-40 bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/30">
         <div className="px-6 py-6">
-          <div className="flex items-center gap-3">
-            <div className="text-3xl">🔔</div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">通知センター</h1>
-              <p className="text-gray-400 text-sm mt-1">すべての通知を一元管理</p>
+          <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-2xl p-6 backdrop-blur-xl border border-blue-500/20">
+            <div className="flex items-center gap-3">
+              <div className="text-3xl">🔔</div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">通知センター</h1>
+                <p className="text-gray-300 text-sm mt-1">すべての通知を一元管理</p>
+              </div>
             </div>
           </div>
         </div>
@@ -204,8 +199,8 @@ const NotificationsPage = () => {
                   className={`
                     flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all
                     ${isActive
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-slate-800/50 text-gray-300 hover:bg-slate-700/50'
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
+                      : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
                     }
                   `}
                 >
@@ -243,9 +238,9 @@ const NotificationsPage = () => {
                   <div
                     key={notification.id}
                     className={`
-                      bg-slate-800/50 backdrop-blur-lg rounded-xl p-4 border
-                      ${notification.isRead ? 'border-slate-700/50' : 'border-blue-500/50'}
-                      hover:bg-slate-700/50 transition-colors cursor-pointer
+                      bg-gray-800/50 backdrop-blur-xl rounded-xl p-4 border
+                      ${notification.isRead ? 'border-gray-700/30' : 'border-blue-500/30'}
+                      hover:bg-gray-700/50 transition-colors cursor-pointer
                     `}
                   >
                     <div className="flex items-start gap-3">
@@ -266,11 +261,11 @@ const NotificationsPage = () => {
                             <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
                           )}
                         </div>
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-gray-300 text-sm">
                           {notification.content}
                         </p>
                         <div className="flex items-center gap-3 mt-2">
-                          <span className="text-gray-500 text-xs">
+                          <span className="text-gray-400 text-xs">
                             {formatTime(notification.timestamp)}
                           </span>
                           {notification.priority === 'critical' && (
