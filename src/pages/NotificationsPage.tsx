@@ -238,9 +238,9 @@ const NotificationsPage = () => {
                   <div
                     key={notification.id}
                     className={`
-                      bg-gray-800/50 backdrop-blur-xl rounded-xl p-4 border
-                      ${notification.isRead ? 'border-gray-700/30' : 'border-blue-500/30'}
-                      hover:bg-gray-700/50 transition-colors cursor-pointer
+                      bg-white/90 backdrop-blur-xl rounded-xl p-4 border shadow-sm
+                      ${notification.isRead ? 'border-gray-200' : 'border-blue-400'}
+                      hover:bg-white transition-colors cursor-pointer hover:shadow-md
                     `}
                   >
                     <div className="flex items-start gap-3">
@@ -253,7 +253,7 @@ const NotificationsPage = () => {
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
                           <h3 className={`font-semibold ${
-                            notification.isRead ? 'text-gray-300' : 'text-white'
+                            notification.isRead ? 'text-gray-600' : 'text-gray-900'
                           }`}>
                             {notification.title}
                           </h3>
@@ -261,20 +261,20 @@ const NotificationsPage = () => {
                             <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
                           )}
                         </div>
-                        <p className="text-gray-300 text-sm">
+                        <p className="text-gray-700 text-sm leading-relaxed">
                           {notification.content}
                         </p>
                         <div className="flex items-center gap-3 mt-2">
-                          <span className="text-gray-400 text-xs">
+                          <span className="text-gray-500 text-xs">
                             {formatTime(notification.timestamp)}
                           </span>
                           {notification.priority === 'critical' && (
-                            <span className="text-xs px-2 py-0.5 bg-red-500/20 text-red-400 rounded-full">
+                            <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full font-semibold">
                               緊急
                             </span>
                           )}
                           {notification.priority === 'high' && (
-                            <span className="text-xs px-2 py-0.5 bg-orange-500/20 text-orange-400 rounded-full">
+                            <span className="text-xs px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full font-semibold">
                               重要
                             </span>
                           )}
