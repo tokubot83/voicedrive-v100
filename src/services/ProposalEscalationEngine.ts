@@ -409,7 +409,7 @@ export class ProposalEscalationEngine {
     level: string,
     adjustmentFactors: any
   ): void {
-    
+
     const history = {
       proposalId,
       timestamp: new Date().toISOString(),
@@ -418,9 +418,101 @@ export class ProposalEscalationEngine {
       adjustmentFactors,
       milestone: score >= 100 ? 'COMMITTEE_ELIGIBLE' : null
     };
-    
+
     // データベースへの保存（実装時）
     console.log('[ScoreHistory]', JSON.stringify(history, null, 2));
+  }
+
+  /**
+   * 投票データから議題提案書を自動生成（新規追加メソッド）
+   */
+  async generateAgendaDocument(proposalData: any): Promise<any> {
+    const supportVotes = (proposalData.votes?.['strongly-support'] || 0) + (proposalData.votes?.['support'] || 0);
+    const totalVotes = Object.values(proposalData.votes || {}).reduce((a: number, b: any) => a + Number(b), 0);
+    const supportRate = totalVotes > 0 ? (supportVotes / totalVotes * 100).toFixed(1) : '0';
+
+    const document = {
+      title: proposalData.title,
+      proposedAt: new Date(),
+      department: proposalData.department,
+      currentScore: proposalData.currentScore,
+      requiredScore: this.getRequiredThreshold(proposalData.currentScore),
+      supportRate: `${supportRate}%`,
+      participantCount: proposalData.participantCount,
+      content: {
+        background: this.generateBackground(proposalData),
+        objectives: this.generateObjectives(proposalData),
+        implementation: this.generateImplementationPlan(proposalData),
+        expectedEffects: this.generateExpectedEffects(proposalData),
+        risks: this.generateRiskAssessment(proposalData),
+        budget: this.generateBudgetEstimate(proposalData),
+        supportComments: proposalData.topComments || []
+      },
+      metadata: {
+        generatedAt: new Date().toISOString(),
+        generatorVersion: '1.0.0',
+        proposalId: proposalData.id,
+        submittedAt: proposalData.submittedAt
+      }
+    };
+
+    return document;
+  }
+
+  // ヘルパーメソッド群
+  private generateBackground(proposalData: any): string {
+    return `【現状の課題】\n${proposalData.department}において、以下の課題が指摘されています。\n\n` +
+           `本議題は${proposalData.participantCount}名の職員から注目を集め、` +
+           `${proposalData.currentScore}点の支持を獲得しています。`;
+  }
+
+  private generateObjectives(proposalData: any): string[] {
+    return [
+      '業務効率の改善',
+      '職員満足度の向上',
+      '患者サービスの質向上'
+    ];
+  }
+
+  private generateImplementationPlan(proposalData: any): string {
+    return `1. 現状調査と要件定義（1ヶ月）\n` +
+           `2. 実施計画の策定（2週間）\n` +
+           `3. 段階的な導入（3ヶ月）\n` +
+           `4. 効果測定とフィードバック（継続的）`;
+  }
+
+  private generateExpectedEffects(proposalData: any): string[] {
+    return [
+      '業務効率20%改善',
+      '残業時間の削減',
+      'スタッフ満足度の向上'
+    ];
+  }
+
+  private generateRiskAssessment(proposalData: any): string {
+    return '導入初期の混乱、教育コスト、システム移行リスク';
+  }
+
+  private generateBudgetEstimate(proposalData: any): string {
+    return '詳細見積もりは実施計画策定後に算出';
+  }
+
+  private calculateSupportRate(proposalData: any): number {
+    const supportVotes = (proposalData.votes?.['strongly-support'] || 0) +
+                        (proposalData.votes?.['support'] || 0);
+    const totalVotes = Object.values(proposalData.votes || {})
+                            .reduce((a: number, b: any) => a + Number(b), 0);
+    return totalVotes > 0 ? (supportVotes / totalVotes * 100) : 0;
+  }
+
+  private getRequiredThreshold(currentScore: number): number {
+    const thresholds = [30, 50, 100, 300, 600];
+    for (const threshold of thresholds) {
+      if (currentScore < threshold) {
+        return threshold;
+      }
+    }
+    return 600;
   }
 }
 

@@ -6,6 +6,8 @@ import { useUser } from '../contexts/UserContext';
 import { useUserPermission } from '../hooks/useUserPermission';
 import { PermissionLevelBadge } from '../components/permission/PermissionLevelBadge';
 import { AttentionList } from '../components/management/AttentionList';
+import { CommitteeBridge } from '../components/committee/CommitteeBridge';
+import { VoteWeightVisualizer } from '../components/voting/VoteWeightVisualizer';
 import { MainTabs } from '../components/tabs/MainTabs';
 import { SubFilters } from '../components/tabs/SubFilters';
 import { Post } from '../components/Post';
@@ -170,6 +172,14 @@ export const PersonalStationPage: React.FC = () => {
       {permission.calculatedLevel >= 5 && (
         <AttentionList />
       )}
+
+      {/* 委員会ブリッジ（レベル7以上） */}
+      {permission.calculatedLevel >= 7 && (
+        <CommitteeBridge />
+      )}
+
+      {/* 投票重み付け可視化 */}
+      <VoteWeightVisualizer />
 
       {/* 統計カード */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
