@@ -1,4 +1,4 @@
-// 13段階権限レベル対応メニュー設定
+// 18段階権限レベル対応メニュー設定
 
 import { MenuStructure, MenuVisibility } from '../types/menuTypes';
 
@@ -114,7 +114,7 @@ export const MENU_STRUCTURE: MenuStructure = {
       label: '面談管理',
       icon: '🗣️',
       path: '/interview-management',
-      requiredLevel: 8,
+      requiredLevel: 14,
       category: 'hr',
       children: [
         {
@@ -370,9 +370,9 @@ export const MENU_STRUCTURE: MenuStructure = {
   }
 };
 
-// 13段階権限レベル別メニュー可視性設定
+// 18段階権限レベル別メニュー可視性設定
 export const MENU_VISIBILITY: MenuVisibility = {
-  1: { // 一般職員 (STAFF)
+  1: { // 新人（1年目）
     station: ['personal'],
     management: [],
     hr: [],
@@ -381,7 +381,43 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: [],
     executive: []
   },
-  2: { // 主任 (SUPERVISOR)
+  1.5: { // 新人看護師（リーダー可）
+    station: ['personal'],
+    management: [],
+    hr: [],
+    strategic_hr: [],
+    facility: [],
+    analytics: [],
+    executive: []
+  },
+  2: { // 若手（2-3年目）
+    station: ['personal'],
+    management: [],
+    hr: [],
+    strategic_hr: [],
+    facility: [],
+    analytics: [],
+    executive: []
+  },
+  2.5: { // 若手看護師（リーダー可）
+    station: ['personal', 'leader'],
+    management: ['team'],
+    hr: [],
+    strategic_hr: [],
+    facility: [],
+    analytics: [],
+    executive: []
+  },
+  3: { // 中堅（4-10年目）
+    station: ['personal', 'leader'],
+    management: ['team'],
+    hr: [],
+    strategic_hr: [],
+    facility: [],
+    analytics: [],
+    executive: []
+  },
+  3.5: { // 中堅看護師（リーダー可）
     station: ['personal', 'leader'],
     management: ['team', 'authority_basic'],
     hr: [],
@@ -390,7 +426,25 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: [],
     executive: []
   },
-  3: { // 師長 (HEAD_NURSE)
+  4: { // ベテラン（11年以上）
+    station: ['personal', 'leader'],
+    management: ['team', 'authority_basic'],
+    hr: [],
+    strategic_hr: [],
+    facility: [],
+    analytics: [],
+    executive: []
+  },
+  4.5: { // ベテラン看護師（リーダー可）
+    station: ['personal', 'leader', 'department'],
+    management: ['team', 'authority_basic', 'department'],
+    hr: [],
+    strategic_hr: [],
+    facility: [],
+    analytics: ['dept_user'],
+    executive: []
+  },
+  5: { // 副主任
     station: ['personal', 'leader', 'department'],
     management: ['team', 'authority_basic', 'department'],
     hr: [],
@@ -399,16 +453,52 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: ['dept_user', 'dept_generation'],
     executive: []
   },
-  4: { // 部長・課長 (DEPARTMENT_HEAD)
-    station: ['personal', 'leader', 'department', 'section'],
-    management: ['team', 'authority_basic', 'department', 'section', 'budget'],
-    hr: [],
+  6: { // 主任
+    station: ['personal', 'leader', 'department'],
+    management: ['team', 'authority_basic', 'department'],
+    hr: ['policy'],
     strategic_hr: [],
     facility: [],
     analytics: ['dept_user', 'dept_generation'],
     executive: []
   },
-  5: { // 事務長 (ADMINISTRATIVE_DIRECTOR)
+  7: { // 副師長・副科長
+    station: ['personal', 'leader', 'department'],
+    management: ['team', 'authority_basic', 'department', 'section'],
+    hr: ['policy'],
+    strategic_hr: [],
+    facility: [],
+    analytics: ['dept_user', 'dept_generation'],
+    executive: []
+  },
+  8: { // 師長・科長・課長
+    station: ['personal', 'leader', 'department', 'section'],
+    management: ['team', 'authority_basic', 'department', 'section', 'budget'],
+    hr: ['policy'],
+    strategic_hr: [],
+    facility: [],
+    analytics: ['dept_user', 'dept_generation', 'facility_hierarchy'],
+    executive: []
+  },
+  9: { // 副部長
+    station: ['personal', 'leader', 'department', 'section'],
+    management: ['team', 'authority_basic', 'department', 'section', 'budget'],
+    hr: ['policy'],
+    strategic_hr: [],
+    facility: ['own_facility'],
+    analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
+    executive: []
+  },
+  10: { // 部長・医局長
+    station: ['personal', 'leader', 'department', 'section'],
+    management: ['team', 'authority_basic', 'department', 'section', 'budget', 'users'],
+    hr: ['policy'],
+    strategic_hr: [],
+    facility: ['own_facility', 'own_strategy'],
+    analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
+    executive: []
+  },
+  11: { // 事務長
     station: ['personal', 'leader', 'department', 'section'],
     management: ['team', 'authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs'],
     hr: ['policy'],
@@ -417,52 +507,61 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
     executive: []
   },
-  6: { // 副院長 (VICE_DIRECTOR)
+  12: { // 副院長
     station: ['personal', 'leader', 'department', 'section'],
     management: ['team', 'authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs', 'system_settings'],
     hr: ['policy'],
     strategic_hr: [],
     facility: ['own_facility', 'own_strategy', 'own_budget'],
     analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
-    executive: []
+    executive: ['overview']
   },
-  7: { // 院長・施設長 (HOSPITAL_DIRECTOR)
+  13: { // 院長・施設長
     station: ['personal', 'leader', 'department', 'section'],
     management: ['team', 'authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs', 'system_settings'],
     hr: ['policy'],
     strategic_hr: [],
     facility: ['own_facility', 'own_strategy', 'own_budget'],
     analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
-    executive: []
+    executive: ['overview', 'strategic_initiatives']
   },
-  8: { // 人財統括本部事務員 (HR_ADMIN_STAFF)
+  14: { // 人事部門員
     station: ['personal'],
     management: ['users', 'audit_logs'],
     hr: ['interview', 'policy', 'talent'],
     strategic_hr: [],
     facility: [],
-    analytics: [],
+    analytics: ['all_user'],
     executive: []
   },
-  9: { // 人財統括本部 キャリア支援部門員 (CAREER_SUPPORT_STAFF)
+  15: { // 人事各部門長
     station: ['personal'],
     management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
-    strategic_hr: [],
-    facility: [],
-    analytics: [],
+    strategic_hr: ['planning', 'org_development'],
+    facility: ['all_facility'],
+    analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession'],
     executive: []
   },
-  10: { // 人財統括本部 各部門長 (HR_DEPARTMENT_HEAD)
+  16: { // 戦略企画・統括管理部門員
+    station: ['personal'],
+    management: ['users', 'audit_logs', 'system_settings'],
+    hr: ['interview', 'policy', 'talent', 'dashboard'],
+    strategic_hr: ['planning', 'org_development', 'performance'],
+    facility: ['all_facility', 'all_strategy'],
+    analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
+    executive: ['overview', 'organization_analytics']
+  },
+  17: { // 戦略企画・統括管理部門長
     station: ['personal'],
     management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'performance', 'retirement'],
     facility: ['all_facility', 'all_strategy', 'all_budget'],
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
-    executive: []
+    executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports']
   },
-  11: { // 人財統括本部 統括管理部門長 (HR_GENERAL_MANAGER)
+  18: { // 理事長・法人事務局長
     station: ['personal'],
     management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
@@ -471,22 +570,13 @@ export const MENU_VISIBILITY: MenuVisibility = {
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
     executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance']
   },
-  12: { // 厚生会本部統括事務局長 (GENERAL_ADMINISTRATIVE_DIRECTOR)
-    station: ['personal'],
-    management: ['users', 'audit_logs', 'system_settings'],
+  'X': { // システム管理者
+    station: ['personal', 'leader', 'department', 'section'],
+    management: ['team', 'authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'performance', 'retirement'],
-    facility: ['all_facility', 'all_strategy', 'all_budget'],
-    analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
-    executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance']
-  },
-  13: { // 理事長 (CHAIRMAN)
-    station: ['personal'],
-    management: ['users', 'audit_logs', 'system_settings'],
-    hr: ['interview', 'policy', 'talent', 'dashboard'],
-    strategic_hr: ['planning', 'org_development', 'performance', 'retirement'],
-    facility: ['all_facility', 'all_strategy', 'all_budget'],
-    analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
+    facility: ['all_facility', 'all_strategy', 'all_budget', 'own_facility', 'own_strategy', 'own_budget'],
+    analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report', 'dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
     executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance']
   }
 };
