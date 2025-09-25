@@ -117,22 +117,23 @@ const VotingSection: React.FC<VotingSectionProps> = ({
           {/* ProjectLevelBadgeの内容部分 */}
           <ProjectLevelBadge
             level={
-              currentScore >= 1200 ? 'STRATEGIC' :
-              currentScore >= 600 ? 'ORGANIZATION' :
-              currentScore >= 300 ? 'FACILITY' :
-              currentScore >= 100 ? 'DEPARTMENT' :
-              currentScore >= 50 ? 'TEAM' : 'PENDING'
+              currentScore >= 600 ? 'CORP_AGENDA' :      // 法人議題（理事会提出）
+              currentScore >= 300 ? 'CORP_REVIEW' :      // 法人検討
+              currentScore >= 100 ? 'FACILITY_AGENDA' :  // 施設議題（委員会提出）
+              currentScore >= 50 ? 'DEPT_AGENDA' :       // 部署議題
+              currentScore >= 30 ? 'DEPT_REVIEW' :       // 部署検討
+              'PENDING'                                   // 検討中
             }
             score={currentScore}
             isAnimated={false}
             showNextLevel={true}
             nextLevelInfo={
-              currentScore >= 1200 ? undefined :
-              currentScore >= 600 ? { label: '戦略レベル', remainingPoints: Math.round(1200 - currentScore) } :
-              currentScore >= 300 ? { label: '法人レベル', remainingPoints: Math.round(600 - currentScore) } :
-              currentScore >= 100 ? { label: '施設レベル', remainingPoints: Math.round(300 - currentScore) } :
-              currentScore >= 50 ? { label: '部署レベル', remainingPoints: Math.round(100 - currentScore) } :
-              { label: 'チームレベル', remainingPoints: Math.round(50 - currentScore) }
+              currentScore >= 600 ? undefined :
+              currentScore >= 300 ? { label: '法人議題', remainingPoints: Math.round(600 - currentScore) } :
+              currentScore >= 100 ? { label: '法人検討', remainingPoints: Math.round(300 - currentScore) } :
+              currentScore >= 50 ? { label: '施設議題', remainingPoints: Math.round(100 - currentScore) } :
+              currentScore >= 30 ? { label: '部署議題', remainingPoints: Math.round(50 - currentScore) } :
+              { label: '部署検討', remainingPoints: Math.round(30 - currentScore) }
             }
             compact={true}
           />

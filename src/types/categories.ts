@@ -52,7 +52,7 @@ export const POST_CATEGORIES: Record<PostCategory, CategoryInfo> = {
   innovation: {
     id: 'innovation',
     name: 'イノベーション',
-    description: '新技術導入・新サービス開発・制度改革などの革新的提案',
+    description: '技術革新（AI・DX導入）・制度革新（人事制度・評価制度）・働き方革新（シフト改善・業務効率化）',
     mainTab: 'improvement',
     icon: '💡',
     requiresCarefulConsideration: true // 大きな変革のため慎重検討

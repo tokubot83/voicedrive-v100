@@ -10,6 +10,9 @@ import { FACILITIES } from '../data/medical/facilities';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 import ProjectLevelBadge from './projects/ProjectLevelBadge';
 import { usePostVisibility } from '../hooks/visibility/usePostVisibility';
+import { AgendaLevelIndicator } from './post/AgendaLevelIndicator';
+import { agendaVisibilityEngine } from '../services/AgendaVisibilityEngine';
+import { AgendaLevel } from '../types/committee';
 
 interface EnhancedPostProps {
   post: PostType;
@@ -23,23 +26,41 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
   const [showComments, setShowComments] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const { calculateScore, convertVotesToEngagements } = useProjectScoring();
-  
+
   // 投稿権限チェック
-  const { canVote, canComment, getVisibilityInfo } = usePostVisibility(post, currentUser);
+  const { canVote: legacyCanVote, canComment: legacyCanComment, getVisibilityInfo } = usePostVisibility(post, currentUser);
 
   // プロジェクトレベルの計算（改善提案のみ）
   const currentScore = post.type === 'improvement' && post.votes
     ? calculateScore(convertVotesToEngagements(post.votes), post.proposalType)
     : 0;
 
-  const getProjectLevel = (score: number) => {
-    if (score >= 1200) return 'STRATEGIC';
-    if (score >= 600) return 'ORGANIZATION';
-    if (score >= 300) return 'FACILITY';
-    if (score >= 100) return 'DEPARTMENT';
-    if (score >= 50) return 'TEAM';
-    return 'PENDING';
+  const getProjectLevel = (score: number): AgendaLevel => {
+    if (score >= 600) return 'CORP_AGENDA';      // 法人議題（理事会提出）
+    if (score >= 300) return 'CORP_REVIEW';      // 法人検討
+    if (score >= 100) return 'FACILITY_AGENDA';  // 施設議題（委員会提出）
+    if (score >= 50) return 'DEPT_AGENDA';       // 部署議題
+    if (score >= 30) return 'DEPT_REVIEW';       // 部署検討
+    return 'PENDING';                             // 検討中
   };
+
+  // 新しい権限制御システム
+  const agendaLevel = getProjectLevel(currentScore);
+  const permissions = agendaVisibilityEngine.getPermissions(post, currentUser, currentScore);
+  const canVote = permissions.canVote;
+  const canComment = permissions.canComment;
+
+  // 支持率の計算
+  const calculateSupportRate = () => {
+    if (!post.votes || post.votes.length === 0) return 0;
+    const supportVotes = post.votes.filter(v =>
+      v.option === 'strong_agree' || v.option === 'agree' || v.option === 'somewhat_agree'
+    ).length;
+    return Math.round((supportVotes / post.votes.length) * 100);
+  };
+
+  const supportRate = calculateSupportRate();
+  const totalVotes = post.votes?.length || 0;
 
   // コメント関連の処理
   const handleCommentClick = () => {
@@ -208,6 +229,19 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
           </div>
         )}
       </div>
+
+      {/* 議題レベルインジケーター（改善提案のみ） */}
+      {post.type === 'improvement' && (
+        <div className="px-4 pb-3">
+          <AgendaLevelIndicator
+            agendaLevel={agendaLevel}
+            currentScore={currentScore}
+            permissions={permissions}
+            supportRate={supportRate}
+            totalVotes={totalVotes}
+          />
+        </div>
+      )}
 
       {/* 投票・合意システム */}
       {post.type === 'improvement' && (

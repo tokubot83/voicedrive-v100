@@ -45,488 +45,449 @@ const generateVoteRecord = (voteData: {
 };
 
 export const demoPosts: Post[] = [
-  // 1. 非常勤職員の慶弔休暇制度（施設内投票フェーズ）
+  // 1. 法人議題レベル（600点以上） - 理事会提出案件
   {
     id: 'post-1',
     type: 'improvement' as PostType,
-    proposalType: 'operational',
-    filterCategory: 'voting', // 投票対象
-    facilityScope: 'tategami_hospital',
-    departmentScope: '医療療養病棟',
-    content: `非常勤職員の慶弔休暇取得制度の導入提案
+    proposalType: 'innovation',
+    filterCategory: 'voting',
+    facilityScope: 'obara_hospital',
+    departmentScope: '医療情報部',
+    content: `全法人統一のAI問診システム導入提案
 
-現在、非常勤職員には慶弔休暇の制度がありません。実際の現場では、非常勤職員が常勤職員に気を使って、親族の葬儀等でも通常の欠勤扱いで休暇を取得している状況が見受けられます。
+全法人3施設で現在バラバラの問診システムを使用していますが、統一システム導入で大幅な効率化とコスト削減が期待できます。
 
 【現状の課題】
-・非常勤職員が慶弔時に有給休暇を使用するか、欠勤扱いになる
-・常勤職員との待遇差により、職場の一体感が損なわれる
-・優秀な非常勤職員の定着率に影響
+・3施設で異なるシステムを使用（維持費用の重複）
+・患者情報の施設間連携が困難
+・AI活用機能がなく、問診時間が長い
+・システム更新タイミングがバラバラ
 
 【提案内容】
-1. 非常勤職員にも慶弔休暇制度を適用
-2. 適用範囲：配偶者、子、父母の死亡時（3日間）
-3. 勤続6ヶ月以上の非常勤職員を対象
+1. 法人全体でAI問診システムを統一導入
+2. 初期投資：約2,000万円（システム開発・導入費用）
+3. 年間維持費：600万円（現在の3分の1に削減）
+4. 問診時間を平圧30%短縮見込み
+5. 患者満足度の向上
 
-この提案により、全ての職員が安心して働ける環境を整備できると考えます。`,
+この投資は3年で回収可能で、将来的には大幅なコスト削減と医療の質向上が実現できます。`,
     author: {
       id: 'user-7',
       name: '渡辺 由美',
-      department: '医療療養病棟',
-      role: '看護師（非常勤）',
-      avatar: '/api/placeholder/150/150'
+      department: '医療情報部',
+      role: 'システムエンジニア',
+      avatar: '/api/placeholder/150/150',
+      permissionLevel: 5
     },
     anonymityLevel: 'real_name' as AnonymityLevel,
-    priority: 'high' as Priority,
-    timestamp: new Date('2025-05-15T10:00:00'),
+    priority: 'urgent' as Priority,
+    timestamp: new Date('2025-01-15T10:00:00'),
     votes: generateVoteRecord({
-      stronglySupport: 6,
-      support: 2,
-      neutral: 0,
-      oppose: 0,
-      stronglyOppose: 0
+      stronglySupport: 45,
+      support: 32,
+      neutral: 8,
+      oppose: 3,
+      stronglyOppose: 1
     }),
     comments: generateComments('post-1', [
       {
         userId: 'user-4',
-        content: '現場の声を形にしてくださり、ありがとうございます。看護主任として、この提案を全面的に支持します。実際に非常勤の方が遠慮されている場面を何度も見てきました。'
+        content: '経営企画部でも同様の問題意識を持っていました。法人全体での統一は必須ですね。理事会への提出を支持します。'
       },
       {
         userId: 'user-9',
-        content: '非常勤の立場から、本当にありがたい提案です。先月、祖母が亡くなった際も有給を使いました。常勤の方に申し訳なくて...',
-        isAnonymous: true
+        content: '小原病院でもシステム更新を検討していたので、統一システムはありがたいです。'
       },
       {
         userId: 'user-3',
-        content: '病棟師長として、この提案の重要性を認識しています。人事部門と協議を進めており、前向きな検討をいただいています。'
+        content: '立神リハビリテーション温泉病院のシステム担当です。AI機能の導入で、リハビリ計画の立案も効率化できそうです。'
       },
       {
         userId: 'user-8',
-        content: '私も非常勤から常勤になりましたが、当時はとても苦労しました。後輩たちのためにも実現してほしいです。'
+        content: '初期投資は大きいですが、長期的に見ればコスト削減効果は明らかですね。理事会での承認を期待します。'
+      },
+      {
+        userId: 'user-10',
+        content: '患者様にとっても、待ち時間短縮は大きなメリットです。是非実現してほしいです。'
       }
     ]),
-    projectStatus: {
-      stage: 'ready' as const,
-      score: 180,
-      threshold: 150,
-      progress: 85
-    },
-    projectId: 'proj-1',
-    votingDeadline: new Date('2025-06-30T23:59:59'),
-    eligibleVoters: 10,
-    voteBreakdown: {
-      agree: 8,
-      disagree: 0,
-      hold: 0
+    // 法人議題レベル（スコア650点相当）
+    committeeStatus: 'committee_submitted' as const,
+    committeeInfo: {
+      committees: ['病院運営委員会', '情報システム委員会'],
+      submissionDate: new Date('2025-01-10'),
+      submittedBy: {
+        id: 'user-admin-1',
+        name: '山田院長',
+        permissionLevel: 15
+      },
+      note: '理事会への上申準備中'
     }
   },
 
-  // 2. 委員会運営の効率化提案
+  // 2. 施設議題レベル（100-299点） - 委員会提出可能
   {
     id: 'post-2',
     type: 'improvement' as PostType,
-    proposalType: 'innovation',
-    filterCategory: 'facility', // 施設内投稿
-    facilityScope: 'tategami_hospital',
-    departmentScope: '医療療養病棟',
-    content: `各種委員会の運営方法見直しによる業務効率化
+    proposalType: 'operational',
+    filterCategory: 'facility',
+    facilityScope: 'obara_hospital',
+    departmentScope: '看護部',
+    content: `看護職員の勤務シフト最適化システム導入
 
-当院では医療安全、感染対策、褥瘡対策など多数の委員会が運営されていますが、会議時間の長期化や資料作成の負担が課題となっています。
+現在、看護部では紙ベースのシフト管理を行っており、毎月のシフト作成に多大な時間を要しています。
 
-【現状の問題点】
-・月1回の定例会議が2時間以上かかることが多い
-・紙資料の印刷・配布に時間がかかる
-・議事録作成に担当者が残業している
-・決定事項の周知に時間差がある
+【現状の課題】
+・シフト作成に毎月3日間程度かかる
+・急な欠勤・休暇への対応が困難
+・スタッフのスキル・資格を考慮した配置が難しい
+・労働基準法の遵守確認が手作業
 
-【改善提案】
-1. オンライン会議システムの活用（現場から参加可能に）
-2. 資料の電子化と事前共有システムの導入
-3. 議事録のテンプレート化と音声記録の活用
-4. 決定事項の院内ポータルでの即時共有
+【提案内容】
+1. AI活用シフト作成システムの導入
+2. スタッフの希望、スキル、資格を自動考慮
+3. 労働基準法チェック機能搭載
+4. スマホでのシフト確認・変更申請機能
 
-これにより、月間約20時間の業務時間削減が見込まれます。`,
+導入費用約300万円で、年間400時間以上の業務時間削減が見込まれます。`,
     author: {
       id: 'user-6',
       name: '伊藤 麻衣',
-      department: '医療療養病棟',
-      role: '看護師',
-      avatar: '/api/placeholder/150/150'
+      department: '看護部',
+      role: '看護師長',
+      avatar: '/api/placeholder/150/150',
+      permissionLevel: 8
     },
     anonymityLevel: 'real_name' as AnonymityLevel,
-    priority: 'medium' as Priority,
-    timestamp: new Date('2025-06-10T14:30:00'),
+    priority: 'high' as Priority,
+    timestamp: new Date('2025-01-10T14:30:00'),
     votes: generateVoteRecord({
-      stronglySupport: 4,
-      support: 3,
-      neutral: 1,
-      oppose: 0,
+      stronglySupport: 18,
+      support: 14,
+      neutral: 5,
+      oppose: 2,
       stronglyOppose: 0
     }),
     comments: generateComments('post-2', [
       {
         userId: 'user-3',
-        content: '素晴らしい提案です。特に音声記録の活用は、議事録作成の負担を大幅に軽減できそうですね。'
+        content: '看護部以外の部門でも同様の課題があります。病院全体で導入を検討してほしいです。'
       },
       {
         userId: 'user-5',
-        content: 'オンライン参加ができれば、病棟を離れられない時でも参加できます。ぜひ実現してほしいです。'
+        content: 'シフト作成の負担が減れば、患者様へのケアにもっと時間をかけられます。'
+      },
+      {
+        userId: 'user-4',
+        content: '委員会での検討を提案します。業務改善委員会で取り上げるべき重要案件です。'
       }
     ]),
-    projectStatus: {
-      stage: 'approaching' as const,
-      score: 95,
-      threshold: 100,
-      progress: 65
-    },
-    projectId: 'proj-3'
+    // 施設議題レベル（スコア150点相当）
+    committeeStatus: 'under_review' as const
   },
 
-  // 3. 休憩室の環境改善
+  // 3. 部署議題レベル（50-99点）
   {
     id: 'post-3',
     type: 'improvement' as PostType,
     proposalType: 'operational',
-    filterCategory: 'facility', // 施設内投稿
-    facilityScope: 'tategami_hospital',
-    departmentScope: '医療療養病棟',
-    content: `職員休憩室の環境改善について
+    filterCategory: 'department',
+    facilityScope: 'obara_hospital',
+    departmentScope: '事務部',
+    content: `請求業務のRPA化による効率改善
 
-療養病棟の休憩室が手狭で、昼食時に座れないスタッフがいます。
+毎月のレセプト請求業務に多くの時間がかかっており、月末月初の残業が常態化しています。
 
-【提案】
-・休憩時間の分散化（11:30〜、12:00〜、12:30〜の3グループ制）
-・立ち食いカウンターの設置
-・休憩室の換気扇増設
+【現状の課題】
+・レセプト点数計算に1件あたり5分
+・月間約2000件の処理が必要
+・入力ミスによる返戻が月数50件程度
 
-快適な休憩は午後の業務効率にも影響します。ご検討をお願いします。`,
+【提案内容】
+1. RPAツール導入で定型業務を自動化
+2. 点数計算・チェックの自動化
+3. エラー検出機能の実装
+
+導入費用約50万円で、月隓40時間の業務時間削減が期待できます。`,
     author: {
       id: 'user-8',
       name: '中村 さゆり',
-      department: '医療療養病棟',
-      role: '介護看護補助者',
-      avatar: '/api/placeholder/150/150'
+      department: '事務部',
+      role: '医事課主任',
+      avatar: '/api/placeholder/150/150',
+      permissionLevel: 4
     },
     anonymityLevel: 'real_name' as AnonymityLevel,
-    priority: 'low' as Priority,
-    timestamp: new Date('2025-06-12T09:15:00'),
+    priority: 'medium' as Priority,
+    timestamp: new Date('2025-01-12T09:15:00'),
     votes: generateVoteRecord({
-      stronglySupport: 2,
-      support: 4,
-      neutral: 2,
-      oppose: 0,
+      stronglySupport: 5,
+      support: 8,
+      neutral: 3,
+      oppose: 1,
       stronglyOppose: 0
     }),
     comments: generateComments('post-3', [
       {
         userId: 'user-9',
-        content: '私も同感です。特に金曜日は人が多くて大変です。',
-        isAnonymous: true
+        content: '事務部全体の問題ですね。RPA導入は必須だと思います。'
       },
       {
         userId: 'user-4',
-        content: '休憩時間の分散化は良いアイデアですね。シフト調整と合わせて検討してみます。'
+        content: '初期費用はかかりますが、残業削減効果を考えれば十分ペイしますね。'
+      },
+      {
+        userId: 'user-6',
+        content: '部門内での合意が得られれば、予算申請を検討します。'
       }
     ]),
-    projectStatus: {
-      stage: 'approaching' as const,
-      score: 44,
-      threshold: 75,
-      progress: 45
-    }
+    // 部署議題レベル（スコア65点相当）
   },
 
-  // 4. 音声入力システム導入提案
+  // 4. 部署検討レベル（30-49点）
   {
     id: 'post-4',
     type: 'improvement' as PostType,
-    proposalType: 'innovation',
-    filterCategory: 'voting', // 投票対象
-    facilityScope: 'tategami_hospital',
-    departmentScope: '医療療養病棟',
-    content: `音声入力を活用した申し送り業務の効率化
+    proposalType: 'operational',
+    filterCategory: 'department',
+    facilityScope: 'obara_hospital',
+    departmentScope: '外来',
+    content: `外来待合室の混雑緩和対策
 
-毎日の申し送り記録作成に多くの時間を費やしています。
+午前中の外来が非常に混雑し、患者様から苦情が寄せられています。
 
-【現状】
-・手書きメモから電子カルテへの転記に15-20分
-・重要事項の記載漏れリスク
-・字が読みにくく確認に時間がかかる
+【現状の課題】
+・午前9-11時に患者が集中
+・待ち時間が最大90分を超える
+・待合室の座席不足
+・スタッフの精神的負担増
 
-【提案】
-音声入力システムの導入により：
-・記録時間を5分程度に短縮
-・リアルタイムでの記録が可能
-・検索可能なテキストデータ化
+【提案内容】
+1. 予約時間枠の細分化（15分単位→
+10分単位）
+2. ウェブ予約システムの導入
+3. 待ち時間表示モニターの設置
+4. 混雑状況リアルタイム配信
 
-初期投資は必要ですが、年間の残業時間削減効果を考えると十分な費用対効果が見込めます。`,
+これらの対策で患者満足度の向上とスタッフの負担軽減が期待できます。`,
     author: {
       id: 'user-4',
       name: '田中 恵子',
-      department: '医療療養病棟',
-      role: '看護主任',
-      avatar: '/api/placeholder/150/150'
+      department: '外来',
+      role: '外来看護師長',
+      avatar: '/api/placeholder/150/150',
+      permissionLevel: 3
     },
     anonymityLevel: 'real_name' as AnonymityLevel,
     priority: 'medium' as Priority,
-    timestamp: new Date('2025-06-08T16:45:00'),
+    timestamp: new Date('2025-01-08T16:45:00'),
     votes: generateVoteRecord({
-      stronglySupport: 5,
-      support: 2,
-      neutral: 1,
-      oppose: 0,
+      stronglySupport: 3,
+      support: 4,
+      neutral: 2,
+      oppose: 1,
       stronglyOppose: 0
     }),
     comments: generateComments('post-4', [
       {
         userId: 'user-6',
-        content: '音声入力は個人情報保護の観点から、セキュリティ面での検討も必要ですね。'
+        content: '予約システムの導入は大賛成です。患者様の利便性も向上します。'
       },
       {
         userId: 'user-3',
-        content: 'IT部門に相談したところ、院内ネットワーク内で完結するシステムなら導入可能とのことでした。'
-      },
-      {
-        userId: 'user-10',
-        content: 'リハビリ部門でも同様の課題があります。病院全体での導入を検討してはどうでしょうか。'
+        content: '待ち時間表示だけでもストレスが減ると思います。ぜひ実現したいですね。'
       }
     ]),
-    projectStatus: {
-      stage: 'ready' as const,
-      score: 125,
-      threshold: 100,
-      progress: 78
-    },
-    projectId: 'proj-2'
+    // 部署検討レベル（スコア35点相当）
   },
 
-  // 5. 新人教育プログラムの改善
+  // 5. 検討中レベル（0-29点）
   {
     id: 'post-5',
     type: 'improvement' as PostType,
     proposalType: 'operational',
-    filterCategory: 'facility', // 施設内投稿
-    facilityScope: 'tategami_hospital',
-    departmentScope: '医療療養病棟',
-    content: `新人看護師・介護職員の教育プログラム改善案
+    filterCategory: 'department',
+    facilityScope: 'obara_hospital',
+    departmentScope: '医療情報部',
+    content: `カルテ記載テンプレートの改善提案
 
-来年度の新人受け入れに向けて、教育プログラムの見直しを提案します。
+電子カルテの記載テンプレートが使いにくいとの声があります。
 
-【現行の課題】
-・OJT依存で指導者により差がある
-・夜勤導入時期の判断基準が不明確
-・メンタルフォローが不十分
+【問題点】
+・疾患別のテンプレートが不足
+・入力項目が多すぎる
+・表示が見づらい
 
-【改善案】
-1. チェックリスト式の技術習得確認表の導入
-2. メンター制度の確立（1年目職員に2-3年目の先輩を配置）
-3. 月1回の新人面談の実施
-4. 夜勤導入の客観的基準の設定
+【提案】
+1. よく使う疾患のテンプレート追加
+2. 必須項目を明確化
+3. UIの改善
 
-皆様のご意見をお聞かせください。`,
+まずは部署内で話し合ってみたいと思います。`,
     author: {
       id: 'user-5',
       name: '高橋 真理',
-      department: '医療療養病棟',
-      role: '介護看護補助者主任',
-      avatar: '/api/placeholder/150/150'
+      department: '医療情報部',
+      role: 'システム担当',
+      avatar: '/api/placeholder/150/150',
+      permissionLevel: 2
     },
     anonymityLevel: 'real_name' as AnonymityLevel,
-    priority: 'high' as Priority,
-    timestamp: new Date('2025-06-11T11:00:00'),
+    priority: 'low' as Priority,
+    timestamp: new Date('2025-01-11T11:00:00'),
     votes: generateVoteRecord({
-      stronglySupport: 4,
-      support: 3,
-      neutral: 1,
+      stronglySupport: 1,
+      support: 2,
+      neutral: 2,
       oppose: 0,
       stronglyOppose: 0
     }),
     comments: generateComments('post-5', [
       {
         userId: 'user-7',
-        content: '私が新人の頃、メンターがいたらもっと安心できたと思います。ぜひ実現してください。'
+        content: '私も同じことを感じていました。部署内で話し合いましょう。'
       },
       {
         userId: 'user-6',
-        content: 'チェックリストは良いですね。到達度が見える化されると、新人も指導者も安心です。'
-      },
-      {
-        userId: 'user-3',
-        content: '看護部として、この提案を前向きに検討します。特にメンタルフォローは重要課題です。'
+        content: 'テンプレート改善は業務効率に直結しますね。'
       }
     ]),
-    projectStatus: {
-      stage: 'approaching' as const,
-      score: 110,
-      threshold: 125,
-      progress: 88
-    }
+    // 検討中レベル（スコア18点相当）
   },
 
-  // 6. 感染対策の効率化（匿名投稿）
+  // 6. 法人検討レベル（300-599点）
   {
     id: 'post-6',
     type: 'improvement' as PostType,
-    proposalType: 'operational',
-    filterCategory: 'facility', // 施設内投稿
-    facilityScope: 'tategami_hospital',
-    departmentScope: '医療療養病棟',
-    content: `手指消毒剤の配置場所最適化の提案
+    proposalType: 'innovation',
+    filterCategory: 'corporation',
+    facilityScope: 'all',
+    departmentScope: 'all',
+    content: `全法人統一の職員評価制度改革
 
-感染対策は重要ですが、現在の消毒剤配置に改善の余地があります。
+現在の職員評価制度について、法人全体で根本的な見直しが必要です。
 
-・病室入口にはあるが、ナースステーション内が不足
-・詰め替え作業が非効率（月2回、計3時間）
-・使用期限管理が煩雑
+【現状の課題】
+・年功序列型が主体で若手のモチベーション低下
+・評価基準が不明確で不公平感がある
+・スキルアップへのインセンティブ不足
+・部署間での評価格差
 
-センサー式ディスペンサーの増設と、配置マップの作成を提案します。`,
+【提案内容】
+1. コンピテンシー評価制度の導入
+2. 360度フィードバックの実施
+3. 目標管理制度の導入
+4. キャリアパスの明確化
+
+これにより、職員満足度の向上と定着率改善が期待できます。`,
     author: {
-      id: 'user-6',
-      name: '匿名',
-      department: '医療療養病棟',
-      role: 'スタッフ',
-      avatar: '/api/placeholder/150/150'
+      id: 'user-11',
+      name: '立神 太郎',
+      department: '経営企画部',
+      role: '理事',
+      avatar: '/api/placeholder/150/150',
+      permissionLevel: 12
     },
-    anonymityLevel: 'anonymous' as AnonymityLevel,
-    priority: 'medium' as Priority,
-    timestamp: new Date('2025-06-13T13:20:00'),
+    anonymityLevel: 'real_name' as AnonymityLevel,
+    priority: 'high' as Priority,
+    timestamp: new Date('2025-01-05T13:20:00'),
     votes: generateVoteRecord({
-      stronglySupport: 2,
-      support: 3,
-      neutral: 1,
-      oppose: 0,
-      stronglyOppose: 0
+      stronglySupport: 28,
+      support: 22,
+      neutral: 8,
+      oppose: 3,
+      stronglyOppose: 1
     }),
     comments: generateComments('post-6', [
       {
         userId: 'user-4',
-        content: '感染対策委員会でも同様の意見が出ていました。来月の会議で検討します。'
+        content: '人事評価制度の改革は組織全体の活性化につながりますね。'
+      },
+      {
+        userId: 'user-3',
+        content: '特に若手職員のモチベーション向上は急務です。全面的に支持します。'
+      },
+      {
+        userId: 'user-8',
+        content: '360度評価は公平性が高まりそうで良いですね。'
       }
     ]),
-    projectStatus: {
-      stage: 'approaching' as const,
-      score: 44,
-      threshold: 75,
-      progress: 35
-    }
+    // 法人検討レベル（スコア380点相当）
   },
 
-  // 7. 法人全体のデジタル化推進（全体表示対象）
+  // 7. フリーボイス（改善提案以外）
   {
     id: 'post-7',
-    type: 'improvement' as PostType,
-    proposalType: 'innovation',
-    filterCategory: 'all', // 全体表示
-    facilityScope: 'all', // 全法人
-    departmentScope: 'all',
-    content: `法人全体でのペーパーレス化推進について
+    type: 'community' as PostType,
+    filterCategory: 'all',
+    facilityScope: 'obara_hospital',
+    departmentScope: '外来',
+    content: `最近、患者様から「外来のスタッフが親切になった」というお褒めの言葉をいただきました！
 
-医療業界全体でDXが求められる中、当法人でも段階的なペーパーレス化を進めています。
+みんなで取り組んだ「笑顔で挨拶キャンペーン」の成果が出ているようで、とても嬉しいです。
 
-【現状】
-・各施設でバラバラなシステム運用
-・紙書類の保管コストと管理負担
-・情報共有の遅延
-
-【提案】
-1. 統一電子カルテシステムの導入
-2. 会議資料の完全電子化
-3. 職員間情報共有プラットフォームの構築
-
-法人内の皆様からのご意見をお待ちしています。`,
+これからも患者様に寄り添った対応を心がけていきましょう！`,
     author: {
-      id: 'user-11',
-      name: '立神 太郎',
-      department: '法人本部',
-      role: '理事長',
-      avatar: '/api/placeholder/150/150'
+      id: 'user-2',
+      name: '佐藤 花子',
+      department: '外来',
+      role: '看護師',
+      avatar: '/api/placeholder/150/150',
+      permissionLevel: 2
     },
     anonymityLevel: 'real_name' as AnonymityLevel,
-    priority: 'high' as Priority,
-    timestamp: new Date('2025-06-01T09:00:00'),
-    votes: generateVoteRecord({
-      stronglySupport: 12,
-      support: 8,
-      neutral: 2,
-      oppose: 1,
-      stronglyOppose: 0
-    }),
+    timestamp: new Date('2025-01-14T09:00:00'),
     comments: generateComments('post-7', [
       {
         userId: 'user-3',
-        content: '立神リハビリテーション温泉病院として、この取り組みを全面的に支持します。段階的な導入が現実的ですね。'
+        content: '素晴らしい！みんなの努力が実を結びましたね。'
       },
       {
-        userId: 'user-12',
-        content: '他の施設職員です。システム統一により情報共有がスムーズになることを期待しています。'
+        userId: 'user-4',
+        content: '患者様からのお褒めの言葉が一番のご褒美ですね！'
       }
-    ]),
-    projectStatus: {
-      stage: 'approaching' as const,
-      score: 150,
-      threshold: 200,
-      progress: 75
-    }
+    ])
   },
 
-  // 8. 他施設職員からの投票対象投稿
+  // 8. コンプライアンス窓口
   {
     id: 'post-8',
-    type: 'improvement' as PostType,
-    proposalType: 'operational',
-    filterCategory: 'voting', // 投票対象
-    facilityScope: 'other_hospital', // 他施設
-    departmentScope: '看護部',
-    content: `夜勤者用の仮眠室改善プロジェクト
+    type: 'report' as PostType,
+    filterCategory: 'all',
+    facilityScope: 'obara_hospital',
+    departmentScope: '匿療情報部',
+    content: `患者情報の取り扱いに関する注意喚起
 
-夜勤の質向上のため、仮眠室の環境改善を提案します。
+最近、患者情報の取り扱いに関するインシデントが発生しました。
 
-【課題】
-・防音が不十分で日中の騒音が気になる
-・照明調整ができない
-・ベッドの快適性に課題
+【事例】
+・メモ用紙をデスクに放置したまま離席
+・患者名が見える状態でパソコンを放置
+・共用スペースでの患者情報に関する会話
 
-【改善案】
-1. 防音対策の強化
-2. 調光可能な照明設備
-3. マットレスの交換
+【対策】
+1. クリアデスクの徹底
+2. パソコンのロック習慣化
+3. 情報セキュリティ研修の実施
 
-同じ課題を抱える他施設の皆様のご意見もお聞かせください。`,
+全職員で情報管理の重要性を再確認しましょう。`,
     author: {
       id: 'user-13',
-      name: '山田 美咲',
-      department: '看護部',
-      role: '看護師長',
-      avatar: '/api/placeholder/150/150'
+      name: '匿名',
+      department: '医療情報部',
+      role: 'スタッフ',
+      avatar: '/api/placeholder/150/150',
+      permissionLevel: 1
     },
-    anonymityLevel: 'real_name' as AnonymityLevel,
-    priority: 'medium' as Priority,
-    timestamp: new Date('2025-06-05T14:00:00'),
-    votes: generateVoteRecord({
-      stronglySupport: 7,
-      support: 3,
-      neutral: 1,
-      oppose: 0,
-      stronglyOppose: 0
-    }),
+    anonymityLevel: 'anonymous' as AnonymityLevel,
+    priority: 'urgent' as Priority,
+    timestamp: new Date('2025-01-14T15:00:00'),
     comments: generateComments('post-8', [
       {
-        userId: 'user-4',
-        content: '立神リハビリテーション温泉病院でも同様の課題があります。参考にさせてください。'
+        userId: 'user-12',
+        content: '情報管理の徹底は重要ですね。全員で意識を高めましょう。'
       }
-    ]),
-    projectStatus: {
-      stage: 'ready' as const,
-      score: 95,
-      threshold: 100,
-      progress: 85
-    },
-    votingDeadline: new Date('2025-06-25T23:59:59'),
-    eligibleVoters: 15,
-    voteBreakdown: {
-      agree: 11,
-      disagree: 0,
-      hold: 1
-    }
+    ])
   },
 
   // === 小原病院看護部デモ投稿 ===
