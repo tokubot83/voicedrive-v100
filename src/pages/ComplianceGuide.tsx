@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MobileFooter } from '../components/layout/MobileFooter';
 import { DesktopFooter } from '../components/layout/DesktopFooter';
 
 const ComplianceGuide: React.FC = () => {
+  const navigate = useNavigate();
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'overview' | 'types' | 'flow' | 'cases' | 'protection' | 'results'>('overview');
 
@@ -98,6 +100,29 @@ const ComplianceGuide: React.FC = () => {
                   <div className="bg-gradient-to-r from-red-900/30 to-orange-900/30 rounded-xl p-6 border border-red-500/20">
                     <p className="text-white font-semibold mb-2">🎯 重要ポイント</p>
                     <p>相談者の秘密は厳守され、不利益な扱いを受けることは絶対にありません！</p>
+                  </div>
+
+                  {/* 新機能のハイライト */}
+                  <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-xl p-6 border border-blue-500/20 mt-6">
+                    <p className="text-white font-semibold mb-3">✨ VoiceDriveの最新機能</p>
+                    <ul className="space-y-2 text-gray-300">
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-400 mt-1">•</span>
+                        <span><strong>5段階の通報プロセス：</strong>段階的な入力で負担を軽減</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-400 mt-1">•</span>
+                        <span><strong>3つの匿名性レベル：</strong>完全匿名、条件付き開示、実名通報から選択可能</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-400 mt-1">•</span>
+                        <span><strong>18段階権限システム：</strong>適切な担当者が迅速に対応</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-400 mt-1">•</span>
+                        <span><strong>証拠アップロード機能：</strong>写真や文書を安全に送信</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -316,9 +341,21 @@ const ComplianceGuide: React.FC = () => {
                   <span className="text-red-400">📞</span>
                   相談から解決までの流れ
                 </h2>
-                <p className="text-lg text-gray-300">
+                <p className="text-lg text-gray-300 mb-4">
                   相談から問題解決まで、専門スタッフが丁寧にサポートします。
                 </p>
+
+                {/* 5段階入力プロセスの説明 */}
+                <div className="bg-blue-900/20 rounded-xl p-4 border border-blue-500/30">
+                  <p className="text-blue-400 font-semibold mb-2">📋 新しい5段階入力プロセス</p>
+                  <div className="text-gray-300 text-sm space-y-1">
+                    <p>1️⃣ <strong>通報方法選択：</strong>匿名性レベル（完全匿名/条件付き/実名）を選択</p>
+                    <p>2️⃣ <strong>カテゴリ選択：</strong>相談内容の大分類・小分類を選択</p>
+                    <p>3️⃣ <strong>詳細入力：</strong>いつ・どこで・誰が・何をしたかを記載</p>
+                    <p>4️⃣ <strong>証拠添付：</strong>写真や文書があれば添付（任意）</p>
+                    <p>5️⃣ <strong>確認・送信：</strong>内容を確認して送信</p>
+                  </div>
+                </div>
               </div>
 
               {/* ステップ詳細 */}
@@ -714,6 +751,21 @@ const ComplianceGuide: React.FC = () => {
                     <span className="text-2xl">🎯</span> あなたの相談が、次の改善につながります
                   </p>
                 </div>
+
+                {/* 18段階権限システムの成果 */}
+                <div className="mt-6 bg-purple-900/20 rounded-xl p-6 border border-purple-500/30">
+                  <h4 className="text-purple-400 font-semibold mb-3">🔐 18段階権限システムによる成果</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300 text-sm">
+                    <div>
+                      <p className="mb-2">✅ <strong>迅速な対応：</strong>適切な権限者への自動振り分けで対応時間が50%短縮</p>
+                      <p>✅ <strong>機密性向上：</strong>Need-to-Know原則に基づいた情報アクセス制御</p>
+                    </div>
+                    <div>
+                      <p className="mb-2">✅ <strong>適材適所：</strong>専門性に応じた担当者アサインで解決率が向上</p>
+                      <p>✅ <strong>透明性確保：</strong>段階的なエスカレーションで組織全体での問題共有</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </>
           )}
@@ -727,7 +779,10 @@ const ComplianceGuide: React.FC = () => {
           <p className="text-xl text-white/90 mb-6">
             あなたの声が、より良い職場を作ります
           </p>
-          <button className="bg-white text-red-600 px-8 py-4 rounded-xl font-bold text-lg hover:transform hover:scale-105 transition-all duration-300 shadow-lg">
+          <button
+            onClick={() => navigate('/whistleblowing')}
+            className="bg-white text-red-600 px-8 py-4 rounded-xl font-bold text-lg hover:transform hover:scale-105 transition-all duration-300 shadow-lg"
+          >
             コンプライアンス窓口に相談する
           </button>
           <p className="text-white/80 mt-4 text-sm">

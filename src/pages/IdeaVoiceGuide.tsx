@@ -42,12 +42,16 @@ const IdeaVoiceGuide: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  // 重み付けチャートデータ
+  // 重み付けチャートデータ（18段階権限対応）
   const weightData = [
-    { name: '医師', weight: 3.0, color: 'rgba(220, 38, 127, 0.8)', percentage: 100 },
-    { name: '看護師', weight: 2.0, color: 'rgba(59, 130, 246, 0.8)', percentage: 67 },
-    { name: 'その他医療職', weight: 1.5, color: 'rgba(16, 185, 129, 0.8)', percentage: 50 },
-    { name: '事務職', weight: 1.0, color: 'rgba(245, 158, 11, 0.8)', percentage: 33 }
+    { name: '理事長（Lv.18）', weight: 5.0, color: 'rgba(220, 38, 127, 0.8)', percentage: 100 },
+    { name: '院長（Lv.13）', weight: 4.0, color: 'rgba(147, 51, 234, 0.8)', percentage: 80 },
+    { name: '部長（Lv.10）', weight: 2.8, color: 'rgba(59, 130, 246, 0.8)', percentage: 56 },
+    { name: '師長（Lv.8）', weight: 2.3, color: 'rgba(16, 185, 129, 0.8)', percentage: 46 },
+    { name: '主任（Lv.6）', weight: 1.8, color: 'rgba(245, 158, 11, 0.8)', percentage: 36 },
+    { name: 'ベテラン（Lv.4）', weight: 1.3, color: 'rgba(239, 68, 68, 0.8)', percentage: 26 },
+    { name: '中堅（Lv.3）', weight: 1.2, color: 'rgba(107, 114, 128, 0.8)', percentage: 24 },
+    { name: '新人（Lv.1）', weight: 1.0, color: 'rgba(156, 163, 175, 0.8)', percentage: 20 }
   ];
 
   const votingScale = [
@@ -59,12 +63,12 @@ const IdeaVoiceGuide: React.FC = () => {
   ];
 
   const projectLevels = [
-    { level: 'PENDING', range: '0-49点', icon: '💭', color: 'from-gray-400 to-gray-500', description: '議論段階' },
-    { level: 'TEAM', range: '50-99点', icon: '👥', color: 'from-blue-400 to-blue-500', description: 'チームレベル' },
-    { level: 'DEPARTMENT', range: '100-299点', icon: '🏢', color: 'from-cyan-400 to-cyan-500', description: '部署レベル' },
-    { level: 'FACILITY', range: '300-599点', icon: '🏥', color: 'from-green-400 to-green-500', description: '施設レベル' },
-    { level: 'ORGANIZATION', range: '600-1199点', icon: '🏛️', color: 'from-purple-400 to-purple-500', description: '法人レベル' },
-    { level: 'STRATEGIC', range: '1200点以上', icon: '🚀', color: 'from-pink-400 to-pink-500', description: '戦略レベル' }
+    { level: 'PENDING', range: '0-29点', icon: '💭', color: 'from-gray-400 to-gray-500', description: '検討中' },
+    { level: 'DEPT_REVIEW', range: '30-49点', icon: '📋', color: 'from-yellow-400 to-yellow-500', description: '部署検討' },
+    { level: 'DEPT_AGENDA', range: '50-99点', icon: '👥', color: 'from-blue-400 to-blue-500', description: '部署議題' },
+    { level: 'FACILITY_AGENDA', range: '100-299点', icon: '🏥', color: 'from-green-400 to-green-500', description: '施設議題（委員会提出）' },
+    { level: 'CORP_REVIEW', range: '300-599点', icon: '🏢', color: 'from-purple-400 to-purple-500', description: '法人検討' },
+    { level: 'CORP_AGENDA', range: '600点以上', icon: '🏛️', color: 'from-pink-400 to-pink-500', description: '法人議題（理事会提出）' }
   ];
 
   const anonymityLevels = [
@@ -187,16 +191,13 @@ const IdeaVoiceGuide: React.FC = () => {
                   <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30">
                     <h4 className="text-xl font-semibold text-white mb-3 flex items-center gap-3">
                       <span className="text-3xl">🏗️</span>
-                      重み付けシステム
+                      18段階ハイブリッド重み付けシステム
                     </h4>
-                    <p className="text-gray-300 mb-4">職種・経験・役職に応じた適切な重み付けで、専門性と責任を考慮</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {weightData.map(item => (
-                        <div key={item.name} className="text-center">
-                          <div className="text-2xl font-bold text-white">{item.weight}倍</div>
-                          <div className="text-sm text-gray-400">{item.name}</div>
-                        </div>
-                      ))}
+                    <p className="text-gray-300 mb-4">権限レベル・職種・経験・資格を総合的に評価する3層システム</p>
+                    <div className="bg-gray-800/50 rounded-lg p-3 text-sm">
+                      <p className="text-blue-300 mb-1">📊 権限レベル重み（1.0〜5.0倍）</p>
+                      <p className="text-green-300 mb-1">🏥 職種特性重み（職種+経験+資格）</p>
+                      <p className="text-purple-300">🎯 カテゴリ調整（専門分野との相性）</p>
                     </div>
                   </div>
                   <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30">
@@ -209,9 +210,9 @@ const IdeaVoiceGuide: React.FC = () => {
                   <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30">
                     <h4 className="text-xl font-semibold text-white mb-3 flex items-center gap-3">
                       <span className="text-3xl">📊</span>
-                      段階的実行システム
+                      段階的議題化システム
                     </h4>
-                    <p className="text-gray-300">得点に応じて6段階のレベルで、小さなアイデアから大きな変革まで対応</p>
+                    <p className="text-gray-300">30→50→100→300→600点の5段階で、部署検討から理事会議題まで段階的にエスカレーション</p>
                   </div>
                 </div>
               </div>
@@ -317,15 +318,19 @@ const IdeaVoiceGuide: React.FC = () => {
                     </div>
                   </div>
                   <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30">
-                    <h4 className="text-xl font-semibold text-white mb-4">追加重み付け要素</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <h4 className="text-xl font-semibold text-white mb-4">ハイブリッド重み付け要素</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <p className="text-blue-400 font-semibold mb-2">👔 役職加算</p>
-                        <p className="text-gray-300 text-sm">管理職: +0.2倍、主任: +0.1倍</p>
+                        <p className="text-blue-400 font-semibold mb-2">🏥 職種重み</p>
+                        <p className="text-gray-300 text-sm">医師: 3.0倍<br/>看護師: 2.5倍<br/>事務: 1.0倍</p>
                       </div>
                       <div>
-                        <p className="text-green-400 font-semibold mb-2">📅 経験加算</p>
-                        <p className="text-gray-300 text-sm">20年以上: +0.3倍、10年以上: +0.2倍</p>
+                        <p className="text-green-400 font-semibold mb-2">📅 経験ボーナス</p>
+                        <p className="text-gray-300 text-sm">5年毎に+0.2倍<br/>最大1.0倍まで</p>
+                      </div>
+                      <div>
+                        <p className="text-purple-400 font-semibold mb-2">🎖️ 資格加算</p>
+                        <p className="text-gray-300 text-sm">認定看護師: +0.3倍<br/>専門医: +0.5倍</p>
                       </div>
                     </div>
                   </div>
@@ -384,10 +389,11 @@ const IdeaVoiceGuide: React.FC = () => {
                     </div>
                   </div>
                   <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30">
-                    <h4 className="text-xl font-semibold text-white mb-4">計算式</h4>
+                    <h4 className="text-xl font-semibold text-white mb-4">計算式（ハイブリッド投票システム）</h4>
                     <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-600/30 font-mono text-sm">
-                      <p className="text-green-400">最終スコア = Σ(投票値 × 職種重み × 役職重み × 経験重み)</p>
-                      <p className="text-gray-300 mt-2">例: 医師(3.0) × 管理職(1.2) × 20年以上(1.3) × 賛成(+1) = 4.68点</p>
+                      <p className="text-green-400">最終スコア = 投票基礎点 × 権限レベル重み × (職種重み + 経験ボーナス + 資格加算) × カテゴリ調整</p>
+                      <p className="text-gray-300 mt-2">例: 師長Lv.8の看護師（経験20年、認定看護師）が医療安全に賛成投票</p>
+                      <p className="text-blue-300 mt-1">= 10点 × 2.3(Lv.8) × (2.5 + 0.8 + 0.3) × 1.4(カテゴリ) = 116.48点</p>
                     </div>
                   </div>
                 </div>
@@ -399,8 +405,14 @@ const IdeaVoiceGuide: React.FC = () => {
               }`} data-section="levels">
                 <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                   <span className="text-blue-400">📊</span>
-                  プロジェクトレベル
+                  議題提出レベル（18段階権限対応）
                 </h3>
+                <div className="mb-4 bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+                  <p className="text-gray-300">
+                    <span className="text-blue-400 font-semibold">部署規模調整：</span>
+                    小規模部署（5人以下）は0.4倍、中規模（6-15人）は0.6倍、大規模（16-30人）は0.8倍、超大規模（31人以上）は1.0倍
+                  </p>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {projectLevels.map(level => (
                     <div key={level.level} className={`bg-gradient-to-r ${level.color} rounded-xl p-6 text-white`}>
@@ -416,19 +428,19 @@ const IdeaVoiceGuide: React.FC = () => {
               <div className={`bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-2xl p-8 border border-blue-500/30 animate-section transition-all duration-1000 ${
                 visibleSections.has('approval') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
               }`} data-section="approval">
-                <h3 className="text-2xl font-bold text-white mb-4">✅ 承認・実行システム</h3>
+                <h3 className="text-2xl font-bold text-white mb-4">✅ 議題化・実行システム</h3>
                 <div className="space-y-4">
                   <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
-                    <p className="text-white font-semibold mb-2">🎯 自動承認</p>
-                    <p className="text-gray-300 text-sm">50点以上で自動的にプロジェクトとして承認され、実行に移ります</p>
+                    <p className="text-white font-semibold mb-2">🎯 段階的議題化</p>
+                    <p className="text-gray-300 text-sm">30点で部署検討、50点で部署議題、100点で委員会提出、600点で理事会議題に</p>
                   </div>
                   <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
-                    <p className="text-white font-semibold mb-2">📈 段階的拡大</p>
-                    <p className="text-gray-300 text-sm">スコアに応じて影響範囲が拡大し、必要な承認レベルも上がります</p>
+                    <p className="text-white font-semibold mb-2">📋 委員会自動連携</p>
+                    <p className="text-gray-300 text-sm">100点以上で関連する委員会（医療安全、感染対策等）へ自動で議題提出</p>
                   </div>
                   <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
-                    <p className="text-white font-semibold mb-2">🔄 継続的改善</p>
-                    <p className="text-gray-300 text-sm">実行後も継続的に投票を受け付け、改善を続けます</p>
+                    <p className="text-white font-semibold mb-2">🗳️ 投票範囲拡大</p>
+                    <p className="text-gray-300 text-sm">スコアに応じて投票範囲が部署→施設→法人へ段階的に拡大</p>
                   </div>
                 </div>
               </div>
