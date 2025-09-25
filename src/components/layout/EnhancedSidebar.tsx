@@ -381,8 +381,8 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
         {((typeof userPermissionLevel === 'number' && userPermissionLevel >= 9) ||
           oldPermissionLevel >= 4) && renderCategory('facility')}
 
-        {/* 分析機能 - レベル3.5以上（中堅看護師リーダー以上） */}
-        {((typeof userPermissionLevel === 'number' && userPermissionLevel >= 3.5) ||
+        {/* 分析機能 - レベル5以上（副主任以上の管理職） */}
+        {((typeof userPermissionLevel === 'number' && userPermissionLevel >= 5) ||
           oldPermissionLevel >= 2) && renderCategory('analytics')}
 
         {/* 経営機能 - レベル12以上（副院長以上） */}
