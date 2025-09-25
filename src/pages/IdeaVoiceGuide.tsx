@@ -601,7 +601,7 @@ const IdeaVoiceGuide: React.FC = () => {
                 <div className="mb-6 bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
                   <p className="text-gray-300 mb-2">
                     <span className="text-purple-400 font-semibold">対象：</span>
-                    新技術導入・新サービス開発・制度改革
+                    技術革新（AI・DX導入）・制度革新（人事制度・評価制度）・働き方革新（シフト改善・業務効率化）
                   </p>
                   <p className="text-gray-300">
                     <span className="text-purple-400 font-semibold">重み付け：</span>
@@ -618,18 +618,18 @@ const IdeaVoiceGuide: React.FC = () => {
                       difficulty: '実現可能性：中'
                     },
                     {
-                      title: 'VR技術を活用したリハビリ',
-                      content: 'VRゲームを使った楽しいリハビリプログラムを提案します。患者様のモチベーション向上と、従来より効果的な機能回復が期待できます。',
-                      submitter: '理学療法士（3年目）',
-                      expectedEffect: '患者満足度向上、回復率20%向上',
-                      difficulty: '実現可能性：低'
+                      title: '人事評価制度のデジタル化と透明化',
+                      content: '360度評価システムを導入し、評価プロセスを可視化。公平で透明な評価制度により、職員のモチベーション向上と成長促進を実現します。',
+                      submitter: '人事課職員（5年目）',
+                      expectedEffect: '評価満足度向上、離職率15%低下',
+                      difficulty: '実現可能性：高'
                     },
                     {
-                      title: 'IoTセンサーによる患者見守り',
-                      content: 'ベッドサイドにIoTセンサーを設置し、患者様の状態を24時間モニタリング。異常の早期発見と職員の負担軽減が同時に実現できます。',
-                      submitter: '看護師（2年目）',
-                      expectedEffect: '事故防止、職員負担軽減',
-                      difficulty: '実現可能性：中'
+                      title: 'シフト最適化システムの導入',
+                      content: 'AIによるシフト自動作成で、職員の希望と業務負荷を最適化。公平な勤務割り当てと残業時間削減を実現し、働きやすい環境を作ります。',
+                      submitter: '看護師（3年目）',
+                      expectedEffect: '残業30%削減、シフト満足度向上',
+                      difficulty: '実現可能性：高'
                     }
                   ].map((example, index) => (
                     <div key={index} className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30">
