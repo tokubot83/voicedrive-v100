@@ -364,24 +364,30 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       {/* メニューセクション */}
       <div className="flex-1 overflow-y-auto p-4 pb-40 space-y-2">
         {/* その他のカテゴリメニュー（ステーション系は上部に移動済み） */}
-        
-        {/* 管理機能 */}
-        {userPermissionLevel >= 2 && renderCategory('management')}
-        
-        {/* 人事機能 */}
-        {userPermissionLevel >= 8 && renderCategory('hr')}
-        
-        {/* 戦略的人事機能 */}
-        {userPermissionLevel >= 10 && renderCategory('strategic_hr')}
-        
-        {/* 施設管理機能 */}
-        {userPermissionLevel >= 5 && renderCategory('facility')}
-        
-        {/* 分析機能 */}
-        {userPermissionLevel >= 3 && renderCategory('analytics')}
-        
-        {/* 経営機能 */}
-        {userPermissionLevel >= 11 && renderCategory('executive')}
+
+        {/* 管理機能 - レベル5以上（副主任以上） */}
+        {((typeof userPermissionLevel === 'number' && userPermissionLevel >= 5) ||
+          oldPermissionLevel >= 2) && renderCategory('management')}
+
+        {/* 人事機能 - レベル14以上（人事部門員以上） */}
+        {((typeof userPermissionLevel === 'number' && userPermissionLevel >= 14) ||
+          oldPermissionLevel >= 8) && renderCategory('hr')}
+
+        {/* 戦略的人事機能 - レベル16以上（戦略企画部門員以上） */}
+        {((typeof userPermissionLevel === 'number' && userPermissionLevel >= 16) ||
+          oldPermissionLevel >= 10) && renderCategory('strategic_hr')}
+
+        {/* 施設管理機能 - レベル9以上（副部長以上） */}
+        {((typeof userPermissionLevel === 'number' && userPermissionLevel >= 9) ||
+          oldPermissionLevel >= 4) && renderCategory('facility')}
+
+        {/* 分析機能 - レベル3.5以上（中堅看護師リーダー以上） */}
+        {((typeof userPermissionLevel === 'number' && userPermissionLevel >= 3.5) ||
+          oldPermissionLevel >= 2) && renderCategory('analytics')}
+
+        {/* 経営機能 - レベル12以上（副院長以上） */}
+        {((typeof userPermissionLevel === 'number' && userPermissionLevel >= 12) ||
+          oldPermissionLevel >= 6) && renderCategory('executive')}
       </div>
 
       {/* システム機能（下部固定） */}
