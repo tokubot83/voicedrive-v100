@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePermissions } from '../../hooks/usePermissions';
 import { useDemoMode } from '../demo/DemoModeController';
+import { useUserPermission } from '../../hooks/useUserPermission';
 import { MENU_STRUCTURE, MENU_VISIBILITY } from '../../config/menuConfig';
 import { MenuItem, MenuCategory } from '../../types/menuTypes';
-import { PermissionLevel } from '../../permissions/types/PermissionTypes';
+import { PermissionLevel, SpecialPermissionLevel } from '../../permissions/types/PermissionTypes';
 import { EnhancedSidebarMenuItem } from './EnhancedSidebarMenuItem';
 import Avatar from '../common/Avatar';
 import { generatePersonalAvatar } from '../../utils/avatarGenerator';
@@ -52,9 +53,33 @@ const categoryLabels: Record<MenuCategory, string> = {
 };
 
 export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, onNavigate }) => {
-  const { userLevel: userPermissionLevel } = usePermissions();
+  const { userLevel: oldPermissionLevel } = usePermissions();
+  const permission = useUserPermission();
   const { isDemoMode, currentUser } = useDemoMode();
   const [expandedCategories, setExpandedCategories] = useState<Set<MenuCategory>>(() => new Set(['station']));
+  const [ideaVoiceExpanded, setIdeaVoiceExpanded] = useState(false);
+
+  // 旧13段階から新18段階へのマッピング
+  const mapOldLevelToNew = (oldLevel: number): PermissionLevel | SpecialPermissionLevel => {
+    const mapping: { [key: number]: PermissionLevel | SpecialPermissionLevel } = {
+      1: PermissionLevel.LEVEL_2,    // 一般職員 → 若手
+      2: PermissionLevel.LEVEL_6,    // 主任
+      3: PermissionLevel.LEVEL_8,    // 師長
+      4: PermissionLevel.LEVEL_10,   // 部長・課長
+      5: PermissionLevel.LEVEL_11,   // 事務長
+      6: PermissionLevel.LEVEL_12,   // 副院長
+      7: PermissionLevel.LEVEL_13,   // 院長
+      8: PermissionLevel.LEVEL_14,   // 人事部門員
+      9: PermissionLevel.LEVEL_15,   // キャリア支援
+      10: PermissionLevel.LEVEL_16,  // 各部門長
+      11: PermissionLevel.LEVEL_17,  // 統括管理部門長
+      12: PermissionLevel.LEVEL_18,  // 理事長
+      13: SpecialPermissionLevel.LEVEL_X // システム管理者
+    };
+    return mapping[oldLevel] || PermissionLevel.LEVEL_1;
+  };
+
+  const userPermissionLevel = permission.level || mapOldLevelToNew(oldPermissionLevel);
 
   const toggleCategory = (category: MenuCategory) => {
     const newExpanded = new Set(expandedCategories);
@@ -136,22 +161,36 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
   };
 
   const getPermissionLevelDisplay = () => {
-    const levelNames = {
-      1: '一般職員',
-      2: '主任', 
-      3: '師長',
-      4: '部長・課長',
-      5: '事務長',
-      6: '副院長',
-      7: '院長・施設長',
-      8: '人財統括本部事務員',
-      9: '人財統括本部キャリア支援部門員',
-      10: '人財統括本部各部門長',
-      11: '人財統括本部統括管理部門長',
-      12: '厚生会本部統括事務局長',
-      13: '理事長'
+    if (permission.levelDescription) {
+      return permission.levelDescription;
+    }
+
+    const levelNames: { [key: number | string]: string } = {
+      1: '新人（1年目）',
+      1.5: '新人看護師（リーダー可）',
+      2: '若手（2-3年目）',
+      2.5: '若手看護師（リーダー可）',
+      3: '中堅（4-10年目）',
+      3.5: '中堅看護師（リーダー可）',
+      4: 'ベテラン（11年以上）',
+      4.5: 'ベテラン看護師（リーダー可）',
+      5: '副主任',
+      6: '主任',
+      7: '副師長・副科長・副課長',
+      8: '師長・科長・課長・室長',
+      9: '副部長',
+      10: '部長・医局長',
+      11: '事務長',
+      12: '副院長',
+      13: '院長・施設長',
+      14: '人事部門員',
+      15: '人事各部門長',
+      16: '戦略企画・統括管理部門員',
+      17: '戦略企画・統括管理部門長',
+      18: '理事長・法人事務局長',
+      'X': 'システム管理者'
     };
-    
+
     return levelNames[userPermissionLevel as keyof typeof levelNames] || `レベル${userPermissionLevel}`;
   };
 
@@ -201,17 +240,17 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
             className={`
               w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
               transition-all duration-150
-              ${currentPath === '/personal-station' 
-                ? 'bg-gradient-to-r from-green-600 to-blue-600 text-white shadow-lg' 
+              ${currentPath === '/personal-station'
+                ? 'bg-gradient-to-r from-green-600 to-blue-600 text-white shadow-lg'
                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
               }
             `}
           >
-            <span className="text-base">👤</span>
+            <span className="text-base">🏠</span>
             <span>パーソナルステーション</span>
           </button>
 
-          {/* 面談ステーション */}
+          {/* 面談ステーション（変更不可） */}
           <button
             onClick={() => onNavigate('/interview-station')}
             className={`
@@ -223,27 +262,89 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
               }
             `}
           >
-            <span className="text-base">🗣️</span>
+            <span className="text-base">📅</span>
             <span>面談ステーション</span>
           </button>
 
-          {/* 評価ステーション（Level 1-3のみ表示） */}
-          {userPermissionLevel <= 3 && (
+          {/* 評価ステーション（変更不可） */}
+          <button
+            onClick={() => onNavigate('/evaluation-station')}
+            className={`
+              w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+              transition-all duration-150
+              ${currentPath.startsWith('/evaluation-station')
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+              }
+            `}
+          >
+            <span className="text-base">⭐</span>
+            <span>評価ステーション</span>
+          </button>
+
+          {/* アイデアボイスハブ（新規追加） */}
+          <div>
             <button
-              onClick={() => onNavigate('/evaluation-station')}
+              onClick={() => setIdeaVoiceExpanded(!ideaVoiceExpanded)}
               className={`
-                w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+                w-full flex items-center justify-between px-3 py-2 rounded-md text-sm
                 transition-all duration-150
-                ${currentPath.startsWith('/evaluation-station')
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                ${currentPath.startsWith('/idea-voice')
+                  ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg'
                   : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
                 }
               `}
             >
-              <span className="text-base">📊</span>
-              <span>評価ステーション</span>
+              <div className="flex items-center gap-3">
+                <span className="text-base">💡</span>
+                <span>アイデアボイスハブ</span>
+              </div>
+              {ideaVoiceExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
             </button>
-          )}
+
+            {ideaVoiceExpanded && (
+              <div className="ml-8 mt-1 space-y-1">
+                <button
+                  onClick={() => onNavigate('/idea-voice/new')}
+                  className="w-full text-left px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-700/50 rounded flex items-center gap-2"
+                >
+                  <span>📝</span> 新規投稿
+                </button>
+                <button
+                  onClick={() => onNavigate('/idea-voice/vote')}
+                  className="w-full text-left px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-700/50 rounded flex items-center gap-2"
+                >
+                  <span>🗳️</span> 投票
+                </button>
+                <button
+                  onClick={() => onNavigate('/idea-voice/progress')}
+                  className="w-full text-left px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-700/50 rounded flex items-center gap-2"
+                >
+                  <span>📊</span> 議題進捗
+                </button>
+
+                {/* レベル5以上：議題提案書作成 */}
+                {(permission.calculatedLevel >= 5 || oldPermissionLevel >= 2) && (
+                  <button
+                    onClick={() => onNavigate('/idea-voice/proposal')}
+                    className="w-full text-left px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-700/50 rounded flex items-center gap-2"
+                  >
+                    <span>📄</span> 議題提案書作成
+                  </button>
+                )}
+
+                {/* レベル3.5以上：投票分析 */}
+                {(permission.calculatedLevel >= 3.5 || oldPermissionLevel >= 2) && (
+                  <button
+                    onClick={() => onNavigate('/idea-voice/analytics')}
+                    className="w-full text-left px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-700/50 rounded flex items-center gap-2"
+                  >
+                    <span>📈</span> 投票分析
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { useDemoMode } from '../components/demo/DemoModeController';
+import { useUser } from '../contexts/UserContext';
+import { useUserPermission } from '../hooks/useUserPermission';
+import { PermissionLevelBadge } from '../components/permission/PermissionLevelBadge';
 import { MainTabs } from '../components/tabs/MainTabs';
 import { SubFilters } from '../components/tabs/SubFilters';
 import { Post } from '../components/Post';
@@ -11,7 +14,7 @@ import EnhancedPost from '../components/EnhancedPost';
 import { posts } from '../data/demo/posts';
 import { projects } from '../data/demo/projects';
 import { Card } from '../components/ui/Card';
-import { Home, User, MessageSquare, TrendingUp } from 'lucide-react';
+import { Home, User, MessageSquare, TrendingUp, Shield, BarChart3, Award, UserCheck } from 'lucide-react';
 import { PostType, VoteOption, Comment } from '../types';
 import { MobileFooter } from '../components/layout/MobileFooter';
 import { DesktopFooter } from '../components/layout/DesktopFooter';
@@ -20,6 +23,8 @@ export const PersonalStationPage: React.FC = () => {
   const { user } = useAuth();
   const { currentUser } = useDemoMode();
   const { userPermissionLevel, hasPermission } = usePermissions();
+  const { user: contextUser } = useUser();
+  const permission = useUserPermission();
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedPostType, setSelectedPostType] = useState<PostType>('improvement');
 
@@ -70,6 +75,70 @@ export const PersonalStationPage: React.FC = () => {
 
   const renderOverview = () => (
     <div className="space-y-6">
+      {/* 権限レベル表示セクション（新規追加） */}
+      <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            {/* ユーザー詳細 */}
+            <div>
+              <h2 className="text-xl font-bold text-white">{contextUser?.name || currentUser?.name || 'ゲスト'}</h2>
+              <p className="text-sm text-gray-400">
+                {contextUser?.department || '未設定'} • {contextUser?.facility || '大原記念財団'}
+              </p>
+              <p className="text-sm text-gray-400">
+                {contextUser?.profession || '医療従事者'} {contextUser?.position && `• ${contextUser.position}`}
+              </p>
+            </div>
+          </div>
+
+          {/* 権限レベルバッジ */}
+          {permission.level && (
+            <div className="flex flex-col items-end space-y-2">
+              <PermissionLevelBadge
+                level={permission.level}
+                size="large"
+              />
+              <span className="text-sm text-gray-300">{permission.levelDescription}</span>
+              {permission.isNursingLeader && (
+                <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">
+                  リーダー業務可
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* 権限情報 */}
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="text-center p-3 bg-gray-700/30 rounded-lg">
+            <div className="text-2xl font-bold text-white">{permission.calculatedLevel || 1}</div>
+            <div className="text-xs text-gray-400">権限レベル</div>
+          </div>
+
+          <div className="text-center p-3 bg-gray-700/30 rounded-lg">
+            <div className="text-2xl font-bold text-white">{contextUser?.experienceYears || 0}年</div>
+            <div className="text-xs text-gray-400">経験年数</div>
+          </div>
+
+          <div className="text-center p-3 bg-gray-700/30 rounded-lg">
+            <div className="text-2xl font-bold text-blue-400">
+              {permission.availableMenus?.length || 0}
+            </div>
+            <div className="text-xs text-gray-400">利用可能機能</div>
+          </div>
+
+          <div className="text-center p-3 bg-gray-700/30 rounded-lg">
+            <div className="flex justify-center space-x-1">
+              {permission.canCreatePost && <span title="投稿">📝</span>}
+              {permission.canVote && <span title="投票">🗳️</span>}
+              {permission.canApproveProjects && <span title="承認">✅</span>}
+              {permission.canAccessAnalytics && <span title="分析">📊</span>}
+            </div>
+            <div className="text-xs text-gray-400 mt-1">権限</div>
+          </div>
+        </div>
+      </div>
+
       {/* 統計カード */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
@@ -88,7 +157,7 @@ export const PersonalStationPage: React.FC = () => {
           </div>
           <div className="text-3xl font-bold text-white">{myVotes.impactScore}</div>
           <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
-            <div 
+            <div
               className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
               style={{ width: `${myVotes.impactScore}%` }}
             />
@@ -104,6 +173,54 @@ export const PersonalStationPage: React.FC = () => {
           <div className="text-sm text-blue-400 mt-1">承認率 66.7%</div>
         </div>
       </div>
+
+      {/* アクセス可能機能一覧（新規追加） */}
+      {permission.availableMenus && permission.availableMenus.length > 0 && (
+        <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Shield className="w-5 h-5" />
+            利用可能な機能
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {permission.availableMenus.map((menu, index) => (
+              <button
+                key={index}
+                className="flex flex-col items-center p-4 bg-gray-700/30 hover:bg-gray-700/50 rounded-lg transition-colors"
+              >
+                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-2">
+                  {getMenuIcon(menu)}
+                </div>
+                <span className="text-sm text-gray-300">{getMenuLabel(menu)}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* 権限による制限メッセージ */}
+          {permission.isNewcomer && (
+            <div className="mt-6 p-4 bg-blue-500/10 rounded-lg">
+              <p className="text-sm text-blue-400">
+                🌱 新人期間中です。経験を積むことで、より多くの機能が利用可能になります。
+              </p>
+            </div>
+          )}
+
+          {permission.isManager && (
+            <div className="mt-6 p-4 bg-purple-500/10 rounded-lg">
+              <p className="text-sm text-purple-400">
+                👔 管理職権限があります。承認業務と分析機能をご利用いただけます。
+              </p>
+            </div>
+          )}
+
+          {permission.isSystemAdmin && (
+            <div className="mt-6 p-4 bg-red-500/10 rounded-lg">
+              <p className="text-sm text-red-400">
+                ⚠️ システム管理者モードです。全ての機能にアクセス可能です。
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 最近の通知 */}
       <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
@@ -315,4 +432,38 @@ export const PersonalStationPage: React.FC = () => {
       <DesktopFooter />
     </div>
   );
+};
+
+// メニューアイコン取得
+const getMenuIcon = (menuKey: string): React.ReactNode => {
+  const iconMap: { [key: string]: React.ReactNode } = {
+    'personal_station': <Home className="w-5 h-5 text-blue-400" />,
+    'department_board': <User className="w-5 h-5 text-blue-400" />,
+    'team_dashboard': <BarChart3 className="w-5 h-5 text-blue-400" />,
+    'proposal_review': <MessageSquare className="w-5 h-5 text-blue-400" />,
+    'committee_tools': <Award className="w-5 h-5 text-blue-400" />,
+  };
+
+  return iconMap[menuKey] || <Home className="w-5 h-5 text-blue-400" />;
+};
+
+// メニューラベル取得
+const getMenuLabel = (menuKey: string): string => {
+  const labels: { [key: string]: string } = {
+    'personal_station': 'パーソナルステーション',
+    'department_board': '部署掲示板',
+    'team_dashboard': 'チームダッシュボード',
+    'proposal_review': '提案レビュー',
+    'committee_tools': '委員会ツール',
+    'quick_implementation': '迅速実装',
+    'department_station': '部署ステーション',
+    'agenda_generator': '議題ジェネレーター',
+    'committee_bridge': '委員会ブリッジ',
+    'operations_committee': '運営委員会',
+    'facility_governance': '施設ガバナンス',
+    'strategic_decision': '戦略決定',
+    'executive_dashboard': 'エグゼクティブダッシュボード',
+  };
+
+  return labels[menuKey] || menuKey;
 };
