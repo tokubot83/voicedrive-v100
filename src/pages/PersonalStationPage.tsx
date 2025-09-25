@@ -23,8 +23,34 @@ export const PersonalStationPage: React.FC = () => {
   const { user } = useAuth();
   const { currentUser } = useDemoMode();
   const { userPermissionLevel, hasPermission } = usePermissions();
-  const { user: contextUser } = useUser();
-  const permission = useUserPermission();
+
+  // UserContextのフックを条件付きで使用
+  let contextUser = null;
+  let permission = {
+    level: null as any,
+    calculatedLevel: 1,
+    levelDescription: '',
+    isNursingLeader: false,
+    availableMenus: [],
+    canCreatePost: true,
+    canVote: true,
+    canApproveProjects: false,
+    canAccessAnalytics: false,
+    isNewcomer: false,
+    isManager: false,
+    isSystemAdmin: false
+  };
+
+  try {
+    const userContext = useUser();
+    const userPermission = useUserPermission();
+    contextUser = userContext.user;
+    permission = { ...permission, ...userPermission };
+  } catch (error) {
+    // UserProviderが存在しない場合はデフォルト値を使用
+    console.log('UserProvider not available, using default values');
+  }
+
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedPostType, setSelectedPostType] = useState<PostType>('improvement');
 

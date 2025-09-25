@@ -4,6 +4,7 @@ import AppRouter from './router/AppRouter';
 import { DemoModeProvider, DemoModeController } from './components/demo/DemoModeController';
 import { TabProvider } from './components/tabs/TabContext';
 import { AuthProvider } from './hooks/useAuth';
+import { UserProvider } from './contexts/UserContext';
 import NotificationService from './services/NotificationService';
 import AppBadgeService from './services/AppBadgeService';
 import ErrorDebugger from './components/debug/ErrorDebugger';
@@ -62,13 +63,15 @@ function App() {
     <ErrorDebugger>
       <BrowserRouter>
         <AuthProvider>
-          <DemoModeProvider>
-            <TabProvider>
-              <DemoModeController />
-              <AppRouter />
-              <PWAInstallPrompt />
-            </TabProvider>
-          </DemoModeProvider>
+          <UserProvider>
+            <DemoModeProvider>
+              <TabProvider>
+                <DemoModeController />
+                <AppRouter />
+                <PWAInstallPrompt />
+              </TabProvider>
+            </DemoModeProvider>
+          </UserProvider>
         </AuthProvider>
       </BrowserRouter>
     </ErrorDebugger>

@@ -54,10 +54,23 @@ const categoryLabels: Record<MenuCategory, string> = {
 
 export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, onNavigate }) => {
   const { userLevel: oldPermissionLevel } = usePermissions();
-  const permission = useUserPermission();
   const { isDemoMode, currentUser } = useDemoMode();
   const [expandedCategories, setExpandedCategories] = useState<Set<MenuCategory>>(() => new Set(['station']));
   const [ideaVoiceExpanded, setIdeaVoiceExpanded] = useState(false);
+
+  // UserPermissionフックを安全に使用
+  let permission = {
+    level: null as any,
+    calculatedLevel: 1,
+    levelDescription: ''
+  };
+
+  try {
+    const userPermission = useUserPermission();
+    permission = { ...permission, ...userPermission };
+  } catch (error) {
+    // UserProviderが存在しない場合はデフォルト値を使用
+  }
 
   // 旧13段階から新18段階へのマッピング
   const mapOldLevelToNew = (oldLevel: number): PermissionLevel | SpecialPermissionLevel => {
