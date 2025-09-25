@@ -5,6 +5,7 @@ import { useDemoMode } from '../components/demo/DemoModeController';
 import { useUser } from '../contexts/UserContext';
 import { useUserPermission } from '../hooks/useUserPermission';
 import { PermissionLevelBadge } from '../components/permission/PermissionLevelBadge';
+import { AttentionList } from '../components/management/AttentionList';
 import { MainTabs } from '../components/tabs/MainTabs';
 import { SubFilters } from '../components/tabs/SubFilters';
 import { Post } from '../components/Post';
@@ -164,6 +165,11 @@ export const PersonalStationPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* 管理職向け注目リスト（レベル5以上） */}
+      {permission.calculatedLevel >= 5 && (
+        <AttentionList />
+      )}
 
       {/* 統計カード */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
