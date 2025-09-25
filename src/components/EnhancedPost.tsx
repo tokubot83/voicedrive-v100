@@ -52,15 +52,22 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
 
   // 支持率の計算
   const calculateSupportRate = () => {
-    if (!post.votes || post.votes.length === 0) return 0;
-    const supportVotes = post.votes.filter(v =>
-      v.option === 'strong_agree' || v.option === 'agree' || v.option === 'somewhat_agree'
-    ).length;
-    return Math.round((supportVotes / post.votes.length) * 100);
+    if (!post.votes) return 0;
+
+    // votesはRecord<VoteOption, number>形式
+    const supportVotes =
+      (post.votes['strongly-support'] || 0) +
+      (post.votes['support'] || 0);
+
+    const totalVotes = Object.values(post.votes).reduce((sum, count) => sum + count, 0);
+
+    if (totalVotes === 0) return 0;
+    return Math.round((supportVotes / totalVotes) * 100);
   };
 
   const supportRate = calculateSupportRate();
-  const totalVotes = post.votes?.length || 0;
+  const totalVotes = post.votes ?
+    Object.values(post.votes).reduce((sum, count) => sum + count, 0) : 0;
 
   // コメント関連の処理
   const handleCommentClick = () => {
