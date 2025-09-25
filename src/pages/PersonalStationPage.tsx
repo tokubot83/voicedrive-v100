@@ -12,10 +12,8 @@ import { MainTabs } from '../components/tabs/MainTabs';
 import { SubFilters } from '../components/tabs/SubFilters';
 import { Post } from '../components/Post';
 import ComposeSection from '../components/ComposeSection';
-import ProjectProgressIndicator from '../components/ProjectProgressIndicator';
 import EnhancedPost from '../components/EnhancedPost';
 import { posts } from '../data/demo/posts';
-import { projects } from '../data/demo/projects';
 import { Card } from '../components/ui/Card';
 import { Home, User, MessageSquare, TrendingUp, Shield, BarChart3, Award, UserCheck } from 'lucide-react';
 import { PostType, VoteOption, Comment } from '../types';
@@ -59,9 +57,6 @@ export const PersonalStationPage: React.FC = () => {
 
   // 自分の投稿をフィルタリング（安全なチェック）
   const myPosts = posts?.filter(post => post.authorId === user?.id) || [];
-  const myProjects = projects?.filter(project => 
-    project.members?.some(member => member.id === user?.id)
-  ) || [];
 
   // ダミーデータ
   const myVotes = {
@@ -98,7 +93,7 @@ export const PersonalStationPage: React.FC = () => {
   const personalTabs = [
     { id: 'overview', label: '概要', icon: Home },
     { id: 'my_posts', label: 'マイポスト', icon: MessageSquare },
-    { id: 'my_projects', label: 'マイプロジェクト', icon: TrendingUp },
+    { id: 'voting_history', label: '投票履歴', icon: TrendingUp },
     { id: 'activity', label: 'アクティビティ', icon: User }
   ];
 
@@ -283,32 +278,44 @@ export const PersonalStationPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 参加プロジェクト */}
+      {/* 最近の投票活動 */}
       <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
         <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <span className="text-2xl">🚀</span>
-          参加中のプロジェクト
+          <span className="text-2xl">🗳️</span>
+          カテゴリ別投票実績
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-gradient-to-r from-blue-600/20 to-blue-600/10 p-4 rounded-lg border border-blue-500/30">
-            <h3 className="text-white font-medium mb-2">社内コミュニケーション改善</h3>
+            <h3 className="text-white font-medium mb-2">🏥 業務改善</h3>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">進捗</span>
-              <span className="text-blue-400">65%</span>
+              <span className="text-gray-400">投票数</span>
+              <span className="text-blue-400">23回</span>
             </div>
-            <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
-              <div className="bg-blue-500 h-2 rounded-full" style={{ width: '65%' }} />
+            <div className="text-xs text-gray-400 mt-2">影響力: 中〜高</div>
+          </div>
+          <div className="bg-gradient-to-r from-yellow-600/20 to-yellow-600/10 p-4 rounded-lg border border-yellow-500/30">
+            <h3 className="text-white font-medium mb-2">👥 コミュニケーション</h3>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-400">投票数</span>
+              <span className="text-yellow-400">15回</span>
             </div>
+            <div className="text-xs text-gray-400 mt-2">影響力: 標準</div>
           </div>
           <div className="bg-gradient-to-r from-purple-600/20 to-purple-600/10 p-4 rounded-lg border border-purple-500/30">
-            <h3 className="text-white font-medium mb-2">業務効率化ツール導入</h3>
+            <h3 className="text-white font-medium mb-2">💡 イノベーション</h3>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">進捗</span>
-              <span className="text-purple-400">30%</span>
+              <span className="text-gray-400">投票数</span>
+              <span className="text-purple-400">8回</span>
             </div>
-            <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
-              <div className="bg-purple-500 h-2 rounded-full" style={{ width: '30%' }} />
+            <div className="text-xs text-gray-400 mt-2">影響力: やや高</div>
+          </div>
+          <div className="bg-gradient-to-r from-orange-600/20 to-orange-600/10 p-4 rounded-lg border border-orange-500/30">
+            <h3 className="text-white font-medium mb-2">🎯 戦略提案</h3>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-400">投票数</span>
+              <span className="text-orange-400">5回</span>
             </div>
+            <div className="text-xs text-gray-400 mt-2">影響力: レベルに応じて変動</div>
           </div>
         </div>
       </div>
@@ -465,7 +472,7 @@ export const PersonalStationPage: React.FC = () => {
       <div className="p-6">
         {activeTab === 'overview' && renderOverview()}
         {activeTab === 'my_posts' && renderMyPosts()}
-        {activeTab === 'my_projects' && renderMyProjects()}
+        {activeTab === 'voting_history' && renderVotingHistory()}
         {activeTab === 'activity' && renderActivity()}
       </div>
       
