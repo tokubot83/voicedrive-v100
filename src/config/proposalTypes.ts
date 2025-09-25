@@ -31,7 +31,7 @@ export const proposalTypeConfigs: Record<ProposalType, ProposalTypeConfig> = {
     type: 'innovation',
     label: 'イノベーション',
     icon: '💡',
-    description: '新技術導入・新サービス開発・制度改革などの革新的提案',
+    description: '技術革新（AI・DX導入）・制度革新（人事制度・評価制度）・働き方革新（シフト改善・業務効率化）',
     borderColor: 'border-green-500',
     weights: [
       { category: 'zGen', weight: 0.4, label: 'Z世代', description: '新技術への親和性' },

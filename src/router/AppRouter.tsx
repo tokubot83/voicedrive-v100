@@ -42,6 +42,9 @@ import ComplianceGuide from '../pages/ComplianceGuide';
 import InterviewGuide from '../pages/InterviewGuide';
 import { ProposalGeneratorPage } from '../pages/ProposalGeneratorPage';
 
+// Test pages
+import MedicalAPITestPanel from '../components/test/MedicalAPITestPanel';
+
 // Dashboard pages
 import PersonalDashboardPage from '../pages/PersonalDashboardPage';
 import TeamLeaderDashboardPage from '../pages/TeamLeaderDashboardPage';
@@ -245,6 +248,11 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
         
+        {/* Medical API Test Panel (開発環境のみ) */}
+        {import.meta.env.DEV && (
+          <Route path="api-test" element={<MedicalAPITestPanel />} />
+        )}
+
         {/* Authority management (Level 3+) */}
         <Route path="authority" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
