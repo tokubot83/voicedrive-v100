@@ -49,7 +49,7 @@ export const MedicalAPITestPanel: React.FC = () => {
       id: `test-${index}`,
       staffId: staff.staffId,
       name: staff.name,
-      expectedLevel: staff.level,
+      expectedLevel: staff.expectedLevel,
       status: 'pending' as const
     }));
     setTestResults(initialResults);

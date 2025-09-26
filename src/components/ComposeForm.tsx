@@ -11,6 +11,8 @@ import { CreateEventData } from '../types/event';
 import { FreespaceExpirationService } from '../services/FreespaceExpirationService';
 import { ContentModerationService, ModerationResult } from '../services/ContentModerationService';
 import PostingGuidelinesModal from './common/PostingGuidelinesModal';
+import { useUser } from '../contexts/UserContext';
+import { medicalSystemWebhook } from '../services/MedicalSystemWebhook';
 
 interface ComposeFormProps {
   selectedType: PostType;
@@ -24,6 +26,10 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   const [priority, setPriority] = useState<Priority>('medium');
   const [anonymity, setAnonymity] = useState<AnonymityLevel>('real_name');
   const [currentProposalCount] = useState(7); // TODO: Get from actual data
+
+  // Phase 3: ユーザー権限情報取得
+  const { user, refreshPermissionLevel } = useUser();
+  const [userPermissionLevel, setUserPermissionLevel] = useState<number | null>(null);
   
   // フリースペース用の状態
   const [freespaceCategory, setFreespaceCategory] = useState<FreespaceCategory>(FreespaceCategory.CASUAL_DISCUSSION);
@@ -91,6 +97,22 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
 
   const config = typeConfigs[selectedType];
 
+  // Phase 3: ユーザーの権限レベル初期化
+  useEffect(() => {
+    if (user) {
+      setUserPermissionLevel(user.calculatedLevel || (user.accountLevel as number));
+      console.log(`[Phase 3] 投稿者権限レベル: ${user.name} -> Level ${user.calculatedLevel || user.accountLevel}`);
+    }
+  }, [user]);
+
+  // Phase 3: 議題レベル自動判定
+  const getExpectedAgendaLevel = (permissionLevel: number): string => {
+    if (permissionLevel >= 8) return '施設議題レベル（100点以上で委員会提出可能）';
+    if (permissionLevel >= 5) return '部署議題レベル（50点以上で部署課題として扱われます）';
+    if (permissionLevel >= 3) return '部署検討レベル（30点以上で部署内検討対象）';
+    return '検討中レベル（まずは関係者から意見を集めます）';
+  };
+
   // Content moderation check
   const handleContentModeration = async (contentToCheck: string, titleToCheck?: string) => {
     setIsModeratingContent(true);
@@ -147,20 +169,50 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
         );
       }
     }
-    
-    console.log('Submitting:', { 
-      content, 
-      priority, 
-      anonymity, 
-      type: selectedType, 
+
+    // Phase 3: 議題作成データ作成
+    const proposalId = `proposal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    console.log('Submitting:', {
+      content,
+      priority,
+      anonymity,
+      type: selectedType,
       proposalType: selectedType === 'improvement' ? proposalType : undefined,
       freespaceCategory: selectedType === 'community' ? freespaceCategory : undefined,
       freespaceScope: selectedType === 'community' ? freespaceScope : undefined,
       pollData: selectedType === 'community' ? pollData : undefined,
       eventData: selectedType === 'community' ? eventData : undefined,
       expirationDate: selectedType === 'community' ? expirationDate : undefined,
-      season: currentSeason 
+      season: currentSeason
     });
+
+    // Phase 3: 医療システムWebhook通知（議題作成）
+    if (user && userPermissionLevel && selectedType === 'improvement') {
+      try {
+        const webhookSuccess = await medicalSystemWebhook.notifyProposalCreated({
+          proposalId,
+          staffId: user.staffId,
+          staffName: user.name,
+          department: user.department,
+          title: content.slice(0, 50) + (content.length > 50 ? '...' : ''), // 最初の50文字をタイトルとして使用
+          content,
+          proposalType: proposalType,
+          priority,
+          permissionLevel: userPermissionLevel,
+          expectedAgendaLevel: getExpectedAgendaLevel(userPermissionLevel)
+        });
+
+        if (webhookSuccess) {
+          console.log(`[Phase 3] 医療システムに議題作成を通知しました: ${proposalId}`);
+        } else {
+          console.warn(`[Phase 3] 医療システムへの通知に失敗しましたが、投稿は継続します: ${proposalId}`);
+        }
+      } catch (error) {
+        console.error('[Phase 3] Webhook通知エラー:', error);
+      }
+    }
+
     alert('投稿が完了しました！');
     onCancel();
   };

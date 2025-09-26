@@ -14,6 +14,9 @@ import ExecutiveLevelDashboard from './dashboards/ExecutiveLevelDashboard';
 import { PostType } from '../types';
 import { useTabContext } from './tabs/TabContext';
 import { useDemoMode } from './demo/DemoModeController';
+import { medicalSystemWebhook } from '../services/MedicalSystemWebhook';
+import { useUser } from '../contexts/UserContext';
+import { proposalEscalationEngine } from '../services/ProposalEscalationEngine';
 
 interface MainContentProps {
   currentPage: string;
@@ -26,6 +29,7 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
   const { tabState, getFilteredPosts } = useTabContext();
   const { activeMainTab } = tabState;
   const { currentUser } = useDemoMode();
+  const { user } = useUser(); // Phase 3: ユーザー情報取得
 
   // Sample post data for unified status display
   const samplePost: Post = {
@@ -52,8 +56,66 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
     projectStatus: 'active'
   };
 
-  const handleVote = (postId: string, option: VoteOption) => {
+  // Phase 3: 投票完了時のWebhook通知対応
+  const handleVote = async (postId: string, option: VoteOption) => {
     console.log(`Voted ${option} on post ${postId}`);
+
+    // TODO: 実際の投票処理を実装後、以下のロジックを有効化
+    // 現在はデモ表示のため、実際の投票データ更新は未実装
+
+    // Phase 3: 投票後の状態を仮計算（実際の実装では投票更新後のデータを使用）
+    try {
+      // 投票完了後の仮データ（実装時は実際のpost状態から取得）
+      const simulatedVotingResult = {
+        totalVotes: 15,
+        currentScore: 75,
+        supportRate: 73.3,
+        participantCount: 12
+      };
+
+      // 議題レベルの判定（スコアベース）
+      const getAgendaLevelFromScore = (score: number): string => {
+        if (score >= 600) return '法人議題レベル';
+        if (score >= 300) return '法人検討レベル';
+        if (score >= 100) return '施設議題レベル';
+        if (score >= 50) return '部署議題レベル';
+        if (score >= 30) return '部署検討レベル';
+        return '検討中レベル';
+      };
+
+      // Phase 3: 医療システムWebhook通知（投票完了）
+      if (user) {
+        const webhookSuccess = await medicalSystemWebhook.notifyVotingCompleted({
+          proposalId: postId,
+          totalVotes: simulatedVotingResult.totalVotes,
+          currentScore: simulatedVotingResult.currentScore,
+          agendaLevel: getAgendaLevelFromScore(simulatedVotingResult.currentScore),
+          supportRate: simulatedVotingResult.supportRate,
+          participantCount: simulatedVotingResult.participantCount
+        });
+
+        if (webhookSuccess) {
+          console.log(`[Phase 3] 医療システムに投票完了を通知しました: ${postId}`);
+        } else {
+          console.warn(`[Phase 3] 投票完了通知に失敗: ${postId}`);
+        }
+
+        // Phase 3: エスカレーションチェック（スコア更新により議題レベルが上がった場合）
+        const previousScore = 45; // 実装時は投票前のスコアを取得
+        const escalationOccurred = await proposalEscalationEngine.checkAndTriggerEscalation(
+          postId,
+          previousScore,
+          simulatedVotingResult.currentScore,
+          user.staffId
+        );
+
+        if (escalationOccurred) {
+          console.log(`[Phase 3] エスカレーション発生: ${postId}`);
+        }
+      }
+    } catch (error) {
+      console.error('[Phase 3] 投票Webhook通知エラー:', error);
+    }
   };
 
   const handleComment = (postId: string) => {

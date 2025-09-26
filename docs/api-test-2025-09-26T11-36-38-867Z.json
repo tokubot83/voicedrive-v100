@@ -1,0 +1,56 @@
+{
+  "timestamp": "2025-09-26T11:36:38.867Z",
+  "environment": "https://medical-test.example.com",
+  "summary": {
+    "total": 5,
+    "success": 0,
+    "failed": 5
+  },
+  "results": [
+    {
+      "test": "ヘルスチェック",
+      "status": "FAILED",
+      "error": "getaddrinfo ENOTFOUND medical-test.example.com"
+    },
+    {
+      "test": "認証検証",
+      "status": "FAILED",
+      "error": "getaddrinfo ENOTFOUND medical-test.example.com"
+    },
+    {
+      "test": "権限計算",
+      "status": "COMPLETED",
+      "details": [
+        {
+          "staffId": "TATE_TEST_001",
+          "error": "getaddrinfo ENOTFOUND medical-test.example.com"
+        },
+        {
+          "staffId": "TATE_TEST_002",
+          "error": "getaddrinfo ENOTFOUND medical-test.example.com"
+        },
+        {
+          "staffId": "TATE_TEST_003",
+          "error": "getaddrinfo ENOTFOUND medical-test.example.com"
+        },
+        {
+          "staffId": "TATE_TEST_004",
+          "error": "getaddrinfo ENOTFOUND medical-test.example.com"
+        },
+        {
+          "staffId": "TATE_TEST_005",
+          "error": "getaddrinfo ENOTFOUND medical-test.example.com"
+        }
+      ]
+    },
+    {
+      "test": "エラーハンドリング",
+      "status": "FAILED",
+      "error": "getaddrinfo ENOTFOUND medical-test.example.com"
+    },
+    {
+      "test": "パフォーマンス",
+      "status": "FAILED"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import { PermissionLevel, SpecialPermissionLevel } from '../permissions/types/PermissionTypes';
 import { VoteCalculationResult } from './HybridVotingCalculator';
+import { medicalSystemWebhook } from './MedicalSystemWebhook';
 
 // ========== 型定義 ==========
 export interface ProposalThreshold {
@@ -376,13 +377,13 @@ export class ProposalEscalationEngine {
   }
 
   /**
-   * エスカレーション通知
+   * エスカレーション内部通知
    */
-  async notifyEscalation(
+  async notifyEscalationInternal(
     proposalStatus: ProposalStatus,
     targetCommittee: CommitteeInfo | null
   ): Promise<void> {
-    
+
     const notification = {
       type: 'PROPOSAL_ESCALATION',
       proposalId: proposalStatus.id,
@@ -392,10 +393,10 @@ export class ProposalEscalationEngine {
       committee: targetCommittee?.name || null,
       timestamp: new Date()
     };
-    
+
     // 通知処理（実際の実装では通知サービスを呼び出す）
     console.log('[ProposalEscalation]', JSON.stringify(notification, null, 2));
-    
+
     // 関係者へのメール/Slack通知
     // await this.notificationService.send(notification);
   }
@@ -424,96 +425,77 @@ export class ProposalEscalationEngine {
   }
 
   /**
-   * 投票データから議題提案書を自動生成（新規追加メソッド）
+   * Phase 3: エスカレーション発生時の医療システム通知
    */
-  async generateAgendaDocument(proposalData: any): Promise<any> {
-    const supportVotes = (proposalData.votes?.['strongly-support'] || 0) + (proposalData.votes?.['support'] || 0);
-    const totalVotes = Object.values(proposalData.votes || {}).reduce((a: number, b: any) => a + Number(b), 0);
-    const supportRate = totalVotes > 0 ? (supportVotes / totalVotes * 100).toFixed(1) : '0';
+  async notifyEscalation(
+    proposalId: string,
+    fromLevel: string,
+    toLevel: string,
+    currentScore: number,
+    requiredScore: number,
+    staffId: string
+  ): Promise<boolean> {
+    try {
+      console.log(`[Phase 3] エスカレーション通知: ${proposalId} ${fromLevel} → ${toLevel}`);
 
-    const document = {
-      title: proposalData.title,
-      proposedAt: new Date(),
-      department: proposalData.department,
-      currentScore: proposalData.currentScore,
-      requiredScore: this.getRequiredThreshold(proposalData.currentScore),
-      supportRate: `${supportRate}%`,
-      participantCount: proposalData.participantCount,
-      content: {
-        background: this.generateBackground(proposalData),
-        objectives: this.generateObjectives(proposalData),
-        implementation: this.generateImplementationPlan(proposalData),
-        expectedEffects: this.generateExpectedEffects(proposalData),
-        risks: this.generateRiskAssessment(proposalData),
-        budget: this.generateBudgetEstimate(proposalData),
-        supportComments: proposalData.topComments || []
-      },
-      metadata: {
-        generatedAt: new Date().toISOString(),
-        generatorVersion: '1.0.0',
-        proposalId: proposalData.id,
-        submittedAt: proposalData.submittedAt
+      const webhookSuccess = await medicalSystemWebhook.notifyProposalEscalated({
+        proposalId,
+        fromLevel,
+        toLevel,
+        currentScore,
+        requiredScore,
+        staffId
+      });
+
+      if (webhookSuccess) {
+        console.log(`[Phase 3] 医療システムにエスカレーションを通知しました: ${proposalId}`);
+        return true;
+      } else {
+        console.warn(`[Phase 3] エスカレーション通知に失敗: ${proposalId}`);
+        return false;
       }
-    };
-
-    return document;
-  }
-
-  // ヘルパーメソッド群
-  private generateBackground(proposalData: any): string {
-    return `【現状の課題】\n${proposalData.department}において、以下の課題が指摘されています。\n\n` +
-           `本議題は${proposalData.participantCount}名の職員から注目を集め、` +
-           `${proposalData.currentScore}点の支持を獲得しています。`;
-  }
-
-  private generateObjectives(proposalData: any): string[] {
-    return [
-      '業務効率の改善',
-      '職員満足度の向上',
-      '患者サービスの質向上'
-    ];
-  }
-
-  private generateImplementationPlan(proposalData: any): string {
-    return `1. 現状調査と要件定義（1ヶ月）\n` +
-           `2. 実施計画の策定（2週間）\n` +
-           `3. 段階的な導入（3ヶ月）\n` +
-           `4. 効果測定とフィードバック（継続的）`;
-  }
-
-  private generateExpectedEffects(proposalData: any): string[] {
-    return [
-      '業務効率20%改善',
-      '残業時間の削減',
-      'スタッフ満足度の向上'
-    ];
-  }
-
-  private generateRiskAssessment(proposalData: any): string {
-    return '導入初期の混乱、教育コスト、システム移行リスク';
-  }
-
-  private generateBudgetEstimate(proposalData: any): string {
-    return '詳細見積もりは実施計画策定後に算出';
-  }
-
-  private calculateSupportRate(proposalData: any): number {
-    const supportVotes = (proposalData.votes?.['strongly-support'] || 0) +
-                        (proposalData.votes?.['support'] || 0);
-    const totalVotes = Object.values(proposalData.votes || {})
-                            .reduce((a: number, b: any) => a + Number(b), 0);
-    return totalVotes > 0 ? (supportVotes / totalVotes * 100) : 0;
-  }
-
-  private getRequiredThreshold(currentScore: number): number {
-    const thresholds = [30, 50, 100, 300, 600];
-    for (const threshold of thresholds) {
-      if (currentScore < threshold) {
-        return threshold;
-      }
+    } catch (error) {
+      console.error('[Phase 3] エスカレーションWebhook通知エラー:', error);
+      return false;
     }
-    return 600;
   }
+
+  /**
+   * Phase 3: スコア更新時の自動エスカレーションチェック
+   */
+  async checkAndTriggerEscalation(
+    proposalId: string,
+    previousScore: number,
+    newScore: number,
+    staffId: string
+  ): Promise<boolean> {
+    const previousLevel = this.getCurrentLevel(previousScore);
+    const newLevel = this.getCurrentLevel(newScore);
+
+    // レベルが変更されていない場合はエスカレーションなし
+    if (previousLevel?.level === newLevel?.level) {
+      return false;
+    }
+
+    // エスカレーション発生
+    if (newLevel && newLevel.minScore > (previousLevel?.minScore || 0)) {
+      console.log(`[Phase 3] 自動エスカレーション検出: ${previousLevel?.level} → ${newLevel.level}`);
+
+      await this.notifyEscalation(
+        proposalId,
+        previousLevel?.level || '検討中',
+        newLevel.level,
+        newScore,
+        newLevel.minScore,
+        staffId
+      );
+
+      return true;
+    }
+
+    return false;
+  }
+
 }
 
 // シングルトンインスタンス
