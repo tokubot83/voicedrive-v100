@@ -1,5 +1,5 @@
 {
-  "lastSync": "2025-09-20T21:45:30Z",
+  "lastSync": "2025-09-28T10:30:00Z",
   "syncedFiles": {
     "config": {
       "interview-types.json": {
@@ -9,6 +9,16 @@
         "checksum": "a7b9c3d2",
         "syncStatus": "success",
         "syncedTo": ["medical-system", "voicedrive"]
+      },
+      "facility-mappings.json": {
+        "path": "mcp-shared/config/facility-mappings.json",
+        "lastModified": "2025-09-28T10:30:00Z",
+        "size": 7852,
+        "checksum": "facility_map_v2",
+        "syncStatus": "new",
+        "syncedTo": [],
+        "priority": "HIGH",
+        "type": "configuration"
       }
     },
     "interfaces": {
@@ -19,6 +29,16 @@
         "checksum": "e5f2a8b1",
         "syncStatus": "success",
         "syncedTo": ["medical-system", "voicedrive"]
+      },
+      "facility.interface.ts": {
+        "path": "mcp-shared/interfaces/facility.interface.ts",
+        "lastModified": "2025-09-28T10:30:00Z",
+        "size": 3214,
+        "checksum": "facility_types_v1",
+        "syncStatus": "new",
+        "syncedTo": [],
+        "priority": "HIGH",
+        "type": "type-definition"
       }
     },
     "api": {
@@ -59,6 +79,19 @@
         "mysqlMigrationReady": true,
         "lightsailConfigReady": true
       },
+      "espoir-integration-notice.md": {
+        "path": "mcp-shared/docs/espoir-integration-notice.md",
+        "lastModified": "2025-09-28T10:30:00Z",
+        "size": 2471,
+        "checksum": "espoir_integration_2025",
+        "syncStatus": "new",
+        "syncedTo": [],
+        "priority": "HIGH",
+        "type": "facility-integration",
+        "urgentFlag": true,
+        "responseRequired": true,
+        "actionRequired": "エスポワール立神統合設定"
+      },
       "integration-test-report-20250820.md": {
         "path": "mcp-shared/docs/integration-test-report-20250820.md",
         "lastModified": "2025-08-20T14:40:00Z",
@@ -83,15 +116,15 @@
       }
     }
   },
-  "totalFiles": 5,
+  "totalFiles": 9,
   "successfulSyncs": 4,
-  "pendingSyncs": 1,
+  "pendingSyncs": 5,
   "failedSyncs": 0,
   "nextSyncScheduled": "2025-08-20T15:30:00Z",
   "urgent": {
-    "newReports": 2,
+    "newReports": 3,
     "priority": "CRITICAL",
-    "message": "🚀 Lightsail統合マスタープラン待機中！VoiceDrive側100%準備完了",
+    "message": "🏥 エスポワール立神統合実装完了！設定ファイル同期待機中",
     "completionAchievement": "Phase 3完全成功・MySQL移行計画完成・全API実装完了",
     "implementationStatus": "128,299行コードベース完成・統合テスト100%成功・即座実行可能",
     "readyForIntegrationTest": true,

@@ -137,6 +137,43 @@ describe('医療システムAPI統合テスト', () => {
       expect(convertedLevel).toBe(8);
       console.log(`✅ 権限変換: 立神(${sourceLevel}) → 小原(${convertedLevel})`);
     });
+
+    test('エスポワール立神への異動（介護施設特有の調整）', async () => {
+      // 病院看護部長→介護施設看護師長への異動
+      const sourceLevel = 10; // 小原病院での看護部長
+
+      const convertedLevel = await permissionService.translatePermissionLevel(
+        'obara-hospital',
+        'espoir-tategami',
+        sourceLevel
+      );
+
+      // 同等レベルを維持（両方とも看護部門トップ）
+      expect(convertedLevel).toBe(10);
+      console.log(`✅ 権限変換: 小原看護部長(${sourceLevel}) → エスポワール看護師長(${convertedLevel})`);
+    });
+
+    test('エスポワール立神の主任職レベル確認', async () => {
+      // エスポワール立神の各主任職が統一レベル5であることを確認
+      const espoirMainPositions = [
+        '事務主任',
+        '看護主任',
+        '介護部Aフロア主任',
+        '介護部Bフロアマネージャー',
+        'ケアプラン管理部リーダー',
+        '栄養管理部主任',
+        'リハビリテーション部主任'
+      ];
+
+      for (const position of espoirMainPositions) {
+        const level = await permissionService.getPositionLevel(
+          'espoir-tategami',
+          position
+        );
+        expect(level).toBe(5);
+        console.log(`✅ ${position}: Level ${level}`);
+      }
+    });
   });
 
   describe('シナリオ4: Webhook受信テスト', () => {
