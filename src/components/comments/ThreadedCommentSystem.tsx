@@ -71,8 +71,8 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
     const commentType = commentTypes.find(ct => ct.type === comment.commentType);
     
     return (
-      <div className={`${depth > 0 ? 'ml-8 border-l-2 border-gray-700 pl-4' : ''} mb-4`}>
-        <div className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-800/70 transition-colors">
+      <div className={`${depth > 0 ? 'ml-8 border-l-2 border-gray-300 pl-4' : ''} mb-4`}>
+        <div className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all">
           {/* コメントヘッダー */}
           <div className="flex items-start justify-between mb-2">
             <div className="flex items-center gap-2">
@@ -82,8 +82,8 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
                   <span className={`text-sm ${commentType?.color} font-medium`}>
                     {commentType?.label}
                   </span>
-                  <span className="text-gray-500">•</span>
-                  <span className="text-sm text-gray-400">
+                  <span className="text-gray-400">•</span>
+                  <span className="text-sm text-gray-600">
                     {getAuthorDisplay(comment)}
                   </span>
                 </div>
@@ -95,14 +95,14 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
           </div>
 
           {/* コメント内容 */}
-          <p className="text-gray-200 mb-3">{comment.content}</p>
+          <p className="text-gray-700 mb-3">{comment.content}</p>
 
           {/* アクションボタン */}
           <div className="flex items-center gap-4 text-sm">
             {canComment && (
               <button
                 onClick={() => setReplyingTo(comment.id)}
-                className="flex items-center gap-1 text-gray-400 hover:text-blue-400 transition-colors"
+                className="flex items-center gap-1 text-gray-500 hover:text-blue-600 transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>返信</span>
@@ -112,7 +112,7 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
 
           {/* 返信フォーム */}
           {replyingTo === comment.id && (
-            <div className="mt-4 pl-4 border-l-2 border-blue-500">
+            <div className="mt-4 pl-4 border-l-2 border-blue-400">
               <CommentForm
                 onSubmit={() => handleSubmitComment(comment.id)}
                 onCancel={() => setReplyingTo(null)}
@@ -140,7 +140,7 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
     isReply?: boolean;
   }> = ({ onSubmit, onCancel, isReply = false }) => {
     return (
-      <div className="bg-gray-800/30 rounded-lg p-4">
+      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
         {/* コメントタイプ選択 */}
         <div className="flex gap-2 mb-3">
           {commentTypes.map(ct => (
@@ -149,8 +149,8 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
               onClick={() => setSelectedCommentType(ct.type)}
               className={`px-3 py-1 rounded-lg text-sm transition-all ${
                 selectedCommentType === ct.type
-                  ? 'bg-gray-700 ring-2 ring-blue-500'
-                  : 'bg-gray-800/50 hover:bg-gray-700'
+                  ? 'bg-blue-100 ring-2 ring-blue-500 text-blue-700'
+                  : 'bg-white border border-gray-300 hover:bg-gray-100'
               }`}
             >
               <span className="mr-1">{ct.icon}</span>
@@ -164,17 +164,17 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
           value={commentContent}
           onChange={(e) => setCommentContent(e.target.value)}
           placeholder={`${isReply ? '返信' : 'コメント'}を入力...`}
-          className="w-full bg-gray-900/50 text-white rounded-lg px-4 py-3 mb-3 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full bg-white text-gray-800 border border-gray-300 rounded-lg px-4 py-3 mb-3 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
           rows={3}
         />
 
         {/* 匿名性設定 */}
         <div className="flex items-center gap-3 mb-3">
-          <span className="text-sm text-gray-400">公開範囲:</span>
+          <span className="text-sm text-gray-600">公開範囲:</span>
           <select
             value={anonymityLevel}
             onChange={(e) => setAnonymityLevel(e.target.value as AnonymityLevel)}
-            className="bg-gray-800 text-white rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="bg-white text-gray-800 border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="anonymous">完全匿名</option>
             <option value="partial">職種・経験年数のみ</option>
@@ -188,7 +188,7 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
           {onCancel && (
             <button
               onClick={onCancel}
-              className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
             >
               キャンセル
             </button>
@@ -217,7 +217,7 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
       {!showCommentForm && canComment && (
         <button
           onClick={() => setShowCommentForm(true)}
-          className="w-full py-3 bg-gray-800/50 hover:bg-gray-800/70 rounded-lg text-gray-300 hover:text-white transition-all flex items-center justify-center gap-2"
+          className="w-full py-3 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg text-gray-700 hover:text-blue-600 transition-all flex items-center justify-center gap-2"
         >
           <MessageCircle className="w-5 h-5" />
           <span>ディスカッションに参加する</span>
