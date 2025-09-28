@@ -51,7 +51,7 @@ export const PersonalStationPage: React.FC = () => {
     console.log('UserProvider not available, using default values');
   }
 
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   // 自分の投稿をフィルタリング（安全なチェック）
   const myPosts = posts?.filter(post => post.authorId === user?.id) || [];
@@ -89,13 +89,12 @@ export const PersonalStationPage: React.FC = () => {
   };
 
   const personalTabs = [
-    { id: 'overview', label: '概要', icon: Home },
+    { id: 'dashboard', label: 'ダッシュボード', icon: Home },
     { id: 'my_posts', label: 'マイポスト', icon: MessageSquare },
-    { id: 'voting_history', label: '投票履歴', icon: TrendingUp },
-    { id: 'activity', label: 'アクティビティ', icon: User }
+    { id: 'voting_history', label: '投票履歴', icon: TrendingUp }
   ];
 
-  const renderOverview = () => (
+  const renderDashboard = () => (
     <div className="space-y-6">
       {/* 権限レベル表示セクション（新規追加） */}
       <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
@@ -472,29 +471,6 @@ export const PersonalStationPage: React.FC = () => {
     </div>
   );
 
-  const renderActivity = () => (
-    <div className="space-y-4">
-      <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
-        <h3 className="text-lg font-semibold text-white mb-4">最近のアクティビティ</h3>
-        <div className="space-y-3">
-          <div className="flex items-center gap-3 p-3 bg-blue-500/10 rounded-lg">
-            <MessageSquare className="w-5 h-5 text-blue-400" />
-            <div>
-              <p className="text-sm font-medium text-gray-200">新しい投稿を作成しました</p>
-              <p className="text-xs text-gray-500">2時間前</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-3 bg-green-500/10 rounded-lg">
-            <TrendingUp className="w-5 h-5 text-green-400" />
-            <div>
-              <p className="text-sm font-medium text-gray-200">プロジェクトが承認されました</p>
-              <p className="text-xs text-gray-500">1日前</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gray-900 w-full">
@@ -542,10 +518,9 @@ export const PersonalStationPage: React.FC = () => {
 
       {/* コンテンツ */}
       <div className="p-6">
-        {activeTab === 'overview' && renderOverview()}
+        {activeTab === 'dashboard' && renderDashboard()}
         {activeTab === 'my_posts' && renderMyPosts()}
         {activeTab === 'voting_history' && renderVotingHistory()}
-        {activeTab === 'activity' && renderActivity()}
       </div>
       
       {/* フッター */}

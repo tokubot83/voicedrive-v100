@@ -35,7 +35,7 @@ const InterviewStation: React.FC = () => {
   const assistedBookingService = new AssistedBookingService();
   const notificationService = NotificationService.getInstance();
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'booking' | 'history' | 'reminder' | 'offline'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'history' | 'reminder' | 'offline'>('dashboard');
   const [upcomingBookings, setUpcomingBookings] = useState<InterviewBooking[]>([]);
   const [pastBookings, setPastBookings] = useState<InterviewBooking[]>([]);
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -409,94 +409,187 @@ const InterviewStation: React.FC = () => {
         </div>
       </div>
 
-      {/* 次回の面談 */}
+      {/* 予約中の面談 */}
       <div className="mb-6">
         <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white">
-        <h3 className="text-xl font-bold mb-4 flex items-center">
-          <span className="mr-2">📅</span> 次回の面談
-        </h3>
-        {upcomingBookings.length > 0 ? (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-2xl font-bold">
-                {formatDate(upcomingBookings[0].bookingDate)}
-              </p>
-              <div className="flex items-center">
-                {upcomingBookings[0].status === 'confirmed' && (
-                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
-                    ✓ 本予約確定
-                  </span>
-                )}
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold flex items-center">
+              <span className="mr-2">📅</span> 予約中の面談
+            </h3>
+            {upcomingBookings.length > 0 && (
+              <span className="bg-blue-800/50 px-3 py-1 rounded-full text-sm">
+                {upcomingBookings.length}件
+              </span>
+            )}
+          </div>
+
+          {upcomingBookings.length > 0 ? (
+            <div className="space-y-4">
+              {/* メイン予約（最も近い予約） */}
+              <div className="bg-blue-800/30 rounded-lg p-4 border border-blue-500/30">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {formatDate(upcomingBookings[0].bookingDate)}
+                    </p>
+                    <p className="text-lg opacity-90 mt-1">
+                      {upcomingBookings[0].timeSlot.startTime} - {upcomingBookings[0].timeSlot.endTime}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    {upcomingBookings[0].status === 'confirmed' && (
+                      <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
+                        ✓ 本予約確定
+                      </span>
+                    )}
+                    {upcomingBookings[0].status === 'pending' && (
+                      <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full flex items-center">
+                        📝 仮予約中（承認待ち）
+                      </span>
+                    )}
+                    {upcomingBookings[0].status === 'reschedule_pending' && (
+                      <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full flex items-center">
+                        📅 変更申請中
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-sm opacity-80">
+                      <span className="inline-block mr-2">👤</span>
+                      担当: {upcomingBookings[0].interviewerName || '調整中'}
+                    </p>
+                    {upcomingBookings[0].description && (
+                      <p className="text-sm opacity-70 mt-1">
+                        <span className="inline-block mr-2">📝</span>
+                        {upcomingBookings[0].description}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleRescheduleClick(upcomingBookings[0])}
+                      className="text-sm bg-blue-700/50 hover:bg-blue-700/70 px-3 py-1 rounded-lg transition-colors"
+                      disabled={upcomingBookings[0].status === 'cancelled' || upcomingBookings[0].status === 'completed' || upcomingBookings[0].status === 'reschedule_pending'}
+                    >
+                      日時変更
+                    </button>
+                    <button
+                      onClick={() => handleCancelClick(upcomingBookings[0])}
+                      className="text-sm bg-red-700/50 hover:bg-red-700/70 px-3 py-1 rounded-lg transition-colors"
+                      disabled={upcomingBookings[0].status === 'cancelled' || upcomingBookings[0].status === 'completed'}
+                    >
+                      キャンセル
+                    </button>
+                  </div>
+                </div>
+
                 {upcomingBookings[0].status === 'pending' && (
-                  <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full flex items-center">
-                    📝 仮予約中（承認待ち）
-                  </span>
+                  <div className="mt-3 text-sm bg-blue-900/30 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium">📋 承認フロー</span>
+                      <span className="text-xs opacity-75">通常1-2営業日</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                        <span className="text-xs">① 申込完了</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+                        <span className="text-xs">② 人事部確認中</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                        <span className="text-xs opacity-60">③ 本予約確定</span>
+                      </div>
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-blue-700/30">
+                      <p className="text-xs opacity-80">
+                        💡 確定通知が届き次第、自動で更新されます
+                      </p>
+                    </div>
+                  </div>
                 )}
-                {upcomingBookings[0].status === 'reschedule_pending' && (
-                  <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full flex items-center">
-                    📅 変更申請中
-                  </span>
+                {upcomingBookings[0].status === 'confirmed' && (
+                  <div className="mt-3 text-sm bg-green-800/20 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-green-400">🎉</span>
+                      <span className="font-medium text-green-300">面談予約が確定しました</span>
+                    </div>
+                    <div className="space-y-1 text-xs opacity-90">
+                      <p>• 予約確定通知を送信済み</p>
+                      <p>• 面談前日にリマインダーをお送りします</p>
+                      <p>• 変更が必要な場合は24時間前までにご連絡ください</p>
+                    </div>
+                  </div>
                 )}
               </div>
+
+              {/* その他の予約（2件目以降） */}
+              {upcomingBookings.length > 1 && (
+                <div>
+                  <p className="text-sm font-medium opacity-80 mb-2">その他の予約</p>
+                  <div className="space-y-2">
+                    {upcomingBookings.slice(1, 3).map(booking => (
+                      <div key={booking.id} className="bg-blue-900/20 rounded-lg p-3 flex justify-between items-center">
+                        <div className="flex-1">
+                          <p className="font-medium">
+                            {formatDate(booking.bookingDate)}
+                          </p>
+                          <p className="text-sm opacity-80">
+                            {booking.timeSlot.startTime} - {booking.timeSlot.endTime}
+                            {booking.interviewerName && ` | ${booking.interviewerName}`}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {getStatusBadge(booking.status)}
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => handleRescheduleClick(booking)}
+                              className="text-xs text-blue-300 hover:text-blue-200"
+                              disabled={booking.status === 'cancelled' || booking.status === 'completed'}
+                            >
+                              変更
+                            </button>
+                            <span className="text-gray-500">|</span>
+                            <button
+                              onClick={() => handleCancelClick(booking)}
+                              className="text-xs text-red-300 hover:text-red-200"
+                              disabled={booking.status === 'cancelled' || booking.status === 'completed'}
+                            >
+                              取消
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {upcomingBookings.length > 3 && (
+                      <button
+                        onClick={() => setActiveTab('history')}
+                        className="text-sm text-blue-300 hover:text-blue-200 mt-2"
+                      >
+                        すべての予約を見る（{upcomingBookings.length - 3}件）→
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
-            <p className="text-lg opacity-90">
-              {upcomingBookings[0].timeSlot.startTime} - {upcomingBookings[0].timeSlot.endTime}
-            </p>
-            <p className="mt-2 opacity-80">
-              担当: {upcomingBookings[0].interviewerName || '調整中'}
-            </p>
-            {upcomingBookings[0].status === 'pending' && (
-              <div className="mt-3 text-sm bg-blue-800/30 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium">📋 承認フロー</span>
-                  <span className="text-xs opacity-75">通常1-2営業日</span>
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                    <span className="text-xs">① 申込完了</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
-                    <span className="text-xs">② 人事部確認中</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
-                    <span className="text-xs opacity-60">③ 本予約確定</span>
-                  </div>
-                </div>
-                <div className="mt-2 pt-2 border-t border-blue-700/30">
-                  <p className="text-xs opacity-80">
-                    💡 確定通知が届き次第、自動で更新されます
-                  </p>
-                </div>
-              </div>
-            )}
-            {upcomingBookings[0].status === 'confirmed' && (
-              <div className="mt-3 text-sm bg-green-800/20 rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-green-400">🎉</span>
-                  <span className="font-medium text-green-300">面談予約が確定しました</span>
-                </div>
-                <div className="space-y-1 text-xs opacity-90">
-                  <p>• 予約確定通知を送信済み</p>
-                  <p>• 面談前日にリマインダーをお送りします</p>
-                  <p>• 変更が必要な場合は24時間前までにご連絡ください</p>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div>
-            <p className="opacity-80 mb-4">予定されている面談はありません</p>
-            <button
-              onClick={() => setShowBookingModal(true)}
-              className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors"
-            >
-              面談を予約する
-            </button>
-          </div>
-        )}
+          ) : (
+            <div>
+              <p className="opacity-80 mb-4">予定されている面談はありません</p>
+              <button
+                onClick={() => setShowBookingModal(true)}
+                className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors"
+              >
+                面談を予約する
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
 
@@ -546,69 +639,6 @@ const InterviewStation: React.FC = () => {
     </div>
   );
 
-  // 予約一覧ビュー
-  const BookingListView = () => (
-    <div className="bg-slate-800 rounded-xl p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-2xl font-bold text-white">予約中の面談</h3>
-        <button
-          onClick={() => setShowBookingModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          ➕ 新規予約
-        </button>
-      </div>
-      
-      {loading ? (
-        <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-        </div>
-      ) : upcomingBookings.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-400 mb-4">予約中の面談はありません</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {upcomingBookings.map(booking => (
-            <div key={booking.id} className="bg-slate-700 rounded-lg p-4">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h4 className="text-white font-semibold">{booking.interviewType}</h4>
-                    {getStatusBadge(booking.status)}
-                  </div>
-                  <div className="space-y-1 text-sm text-gray-300">
-                    <p>📅 {formatDate(booking.bookingDate)}</p>
-                    <p>⏰ {booking.timeSlot.startTime} - {booking.timeSlot.endTime}</p>
-                    <p>👤 {booking.interviewerName || '調整中'}</p>
-                    {booking.description && (
-                      <p className="text-gray-400 mt-2">📝 {booking.description}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleRescheduleClick(booking)}
-                    className="text-blue-400 hover:text-blue-300 disabled:opacity-50"
-                    disabled={booking.status === 'cancelled' || booking.status === 'completed' || booking.status === 'reschedule_pending'}
-                  >
-                    日時変更
-                  </button>
-                  <button
-                    onClick={() => handleCancelClick(booking)}
-                    className="text-red-400 hover:text-red-300 disabled:opacity-50"
-                    disabled={booking.status === 'cancelled' || booking.status === 'completed'}
-                  >
-                    キャンセル
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
 
   // 履歴ビュー
   const HistoryView = () => (
@@ -638,9 +668,54 @@ const InterviewStation: React.FC = () => {
         </div>
       </div>
 
+      {/* すべての予約（今後の予約も含む） */}
+      {upcomingBookings.length > 0 && (
+        <div className="bg-slate-800 rounded-xl p-6">
+          <h3 className="text-2xl font-bold text-white mb-6">すべての予約</h3>
+          <div className="space-y-4">
+            {upcomingBookings.map(booking => (
+              <div key={booking.id} className="bg-slate-700 rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h4 className="text-white font-semibold">{booking.interviewType}</h4>
+                      {getStatusBadge(booking.status)}
+                    </div>
+                    <div className="space-y-1 text-sm text-gray-300">
+                      <p>📅 {formatDate(booking.bookingDate)}</p>
+                      <p>⏰ {booking.timeSlot.startTime} - {booking.timeSlot.endTime}</p>
+                      <p>👤 {booking.interviewerName || '調整中'}</p>
+                      {booking.description && (
+                        <p className="text-gray-400 mt-2">📝 {booking.description}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleRescheduleClick(booking)}
+                      className="text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                      disabled={booking.status === 'cancelled' || booking.status === 'completed' || booking.status === 'reschedule_pending'}
+                    >
+                      日時変更
+                    </button>
+                    <button
+                      onClick={() => handleCancelClick(booking)}
+                      className="text-red-400 hover:text-red-300 disabled:opacity-50"
+                      disabled={booking.status === 'cancelled' || booking.status === 'completed'}
+                    >
+                      キャンセル
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 面談履歴 */}
       <div className="bg-slate-800 rounded-xl p-6">
-        <h3 className="text-2xl font-bold text-white mb-6">面談履歴</h3>
+        <h3 className="text-2xl font-bold text-white mb-6">過去の面談</h3>
 
         {pastBookings.length === 0 ? (
         <div className="text-center py-8">
@@ -755,16 +830,6 @@ const InterviewStation: React.FC = () => {
               ダッシュボード
             </button>
             <button
-              onClick={() => setActiveTab('booking')}
-              className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'booking'
-                  ? 'border-blue-500 text-blue-500'
-                  : 'border-transparent text-gray-400 hover:text-gray-300'
-              }`}
-            >
-              予約一覧
-            </button>
-            <button
               onClick={() => setActiveTab('history')}
               className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'history'
@@ -805,7 +870,6 @@ const InterviewStation: React.FC = () => {
       <div className="p-6">
         <div className="max-w-7xl mx-auto">
           {activeTab === 'dashboard' && <DashboardView />}
-          {activeTab === 'booking' && <BookingListView />}
           {activeTab === 'history' && <HistoryView />}
           {activeTab === 'reminder' && <ReminderView />}
           {activeTab === 'offline' && (
