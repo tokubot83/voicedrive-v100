@@ -592,9 +592,8 @@ const InterviewStation: React.FC = () => {
         </div>
       </div>
 
-
-        {/* 前回の面談情報 */}
-        <div className="bg-slate-800 rounded-xl p-6">
+      {/* 前回の面談情報 */}
+      <div className="bg-slate-800 rounded-xl p-6">
           <h3 className="text-xl font-bold mb-4 text-white flex items-center">
             <span className="mr-2">📋</span> 前回の面談情報
           </h3>
@@ -635,7 +634,6 @@ const InterviewStation: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
     </div>
   );
 
