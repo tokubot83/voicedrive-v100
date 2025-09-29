@@ -459,4 +459,3 @@ export default class AppealServiceV3 {
 
 // V3サービスのシングルトンインスタンス
 export const appealServiceV3 = new AppealServiceV3();
-export default AppealServiceV3;
