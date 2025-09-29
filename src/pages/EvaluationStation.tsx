@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { usePermissions } from '../hooks/usePermissions';
 import { useDemoMode } from '../components/demo/DemoModeController';
+import FeedbackInterviewForm from '../components/evaluation/FeedbackInterviewForm';
+import AppealForm from '../components/evaluation/AppealForm';
+import { useEvaluationAPI } from '../hooks/useEvaluationAPI';
 import { 
   Bell, 
   Calendar, 
@@ -110,7 +113,20 @@ const EvaluationStation: React.FC = () => {
   const { userLevel: userPermissionLevel } = usePermissions();
   const { isDemoMode, currentUser } = useDemoMode();
   const [evaluationData, setEvaluationData] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'notifications' | 'history' | 'interviews' | 'appeals'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'history' | 'actions'>('dashboard');
+  const [showInterviewForm, setShowInterviewForm] = useState(false);
+  const [showAppealForm, setShowAppealForm] = useState(false);
+  const [actionType, setActionType] = useState<'interview' | 'appeal' | null>(null);
+  const [selectedEvaluation, setSelectedEvaluation] = useState<any>(null);
+  const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // APIフックを使用
+  const {
+    submitFeedbackInterview,
+    submitAppeal,
+    isLoading,
+    error
+  } = useEvaluationAPI();
 
   // Level 4以上（部長・事務長・副院長・院長等）は評価対象外
   const isEvaluationTarget = userPermissionLevel <= 3;
@@ -174,7 +190,12 @@ const EvaluationStation: React.FC = () => {
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
             <Bell className="w-5 h-5 text-blue-400" />
-            新しい評価通知
+            評価通知
+            {evaluationData.currentNotifications.filter((n: any) => !n.isRead).length > 0 && (
+              <span className="ml-2 px-2 py-1 bg-red-500/20 text-red-400 text-xs font-medium rounded-full">
+                {evaluationData.currentNotifications.filter((n: any) => !n.isRead).length}件の未読
+              </span>
+            )}
           </h2>
           <div className="grid gap-4">
             {evaluationData.currentNotifications.map((notification: any) => (
@@ -218,6 +239,18 @@ const EvaluationStation: React.FC = () => {
                         異議申立
                       </Link>
                     )}
+                    <button
+                      onClick={() => {
+                        setSelectedEvaluation(notification);
+                        setActionType('interview');
+                        setShowInterviewForm(true);
+                        setShowAppealForm(false);
+                        setActiveTab('actions');
+                      }}
+                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm text-center"
+                    >
+                      面談予約
+                    </button>
                   </div>
                 </div>
               </div>
@@ -284,7 +317,11 @@ const EvaluationStation: React.FC = () => {
               <h3 className="text-lg font-semibold text-white">面談予約</h3>
             </div>
             <button
-              onClick={() => setActiveTab('interviews')}
+              onClick={() => {
+                setActiveTab('actions');
+                setActionType('interview');
+                setShowInterviewForm(false);
+              }}
               className="text-sm text-blue-400 hover:text-blue-300 font-medium"
             >
               予約管理
@@ -311,7 +348,12 @@ const EvaluationStation: React.FC = () => {
               <Calendar className="w-8 h-8 text-gray-600 mx-auto mb-2" />
               <p className="text-sm text-gray-400 mb-3">予定された面談はありません</p>
               <button
-                onClick={() => setActiveTab('interviews')}
+                onClick={() => {
+                  setActiveTab('actions');
+                  setActionType('interview');
+                  setShowInterviewForm(true);
+                  setSelectedEvaluation(evaluationData.currentNotifications[0] || evaluationData.recentEvaluations[0]);
+                }}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
               >
                 <Calendar className="w-4 h-4" />
@@ -358,16 +400,6 @@ const EvaluationStation: React.FC = () => {
                 ダッシュボード
               </button>
               <button
-                onClick={() => setActiveTab('notifications')}
-                className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === 'notifications'
-                    ? 'border-blue-500 text-blue-500'
-                    : 'border-transparent text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                評価通知
-              </button>
-              <button
                 onClick={() => setActiveTab('history')}
                 className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === 'history'
@@ -378,24 +410,14 @@ const EvaluationStation: React.FC = () => {
                 履歴
               </button>
               <button
-                onClick={() => setActiveTab('interviews')}
+                onClick={() => setActiveTab('actions')}
                 className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === 'interviews'
+                  activeTab === 'actions'
                     ? 'border-blue-500 text-blue-500'
                     : 'border-transparent text-gray-400 hover:text-gray-300'
                 }`}
               >
-                面談予約
-              </button>
-              <button
-                onClick={() => setActiveTab('appeals')}
-                className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === 'appeals'
-                    ? 'border-blue-500 text-blue-500'
-                    : 'border-transparent text-gray-400 hover:text-gray-300'
-                }`}
-              >
-                異議申立
+                対応・申立
               </button>
             </div>
           </div>
@@ -405,29 +427,34 @@ const EvaluationStation: React.FC = () => {
       {/* コンテンツエリア */}
       <div className="p-6">
         <div className="max-w-7xl mx-auto">
-          {activeTab === 'dashboard' && renderDashboard()}
-          {activeTab === 'notifications' && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-white mb-4">評価通知一覧</h2>
-              {evaluationData.currentNotifications.length > 0 ? (
-                evaluationData.currentNotifications.map((notification: any) => (
-                  <div key={notification.id} className="bg-gray-800/50 backdrop-blur rounded-xl border border-gray-700 p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <h3 className="text-lg font-semibold text-white">{notification.period}</h3>
-                      {!notification.isRead && (
-                        <span className="px-2 py-1 bg-red-500/20 text-red-400 text-xs font-medium rounded-full">
-                          未読
-                        </span>
-                      )}
-                    </div>
-                    <GradeDisplay grade={notification.grade} score={notification.score} />
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-gray-400">通知がありません</div>
-              )}
+          {/* サブミットメッセージ */}
+          {submitMessage && (
+            <div className={`mb-4 p-4 rounded-lg border ${
+              submitMessage.type === 'success'
+                ? 'bg-green-500/10 border-green-500 text-green-400'
+                : 'bg-red-500/10 border-red-500 text-red-400'
+            }`}>
+              <div className="flex items-center gap-2">
+                {submitMessage.type === 'success' ? (
+                  <CheckCircle className="w-5 h-5" />
+                ) : (
+                  <AlertCircle className="w-5 h-5" />
+                )}
+                <span>{submitMessage.message}</span>
+              </div>
             </div>
           )}
+
+          {/* ローディングインジケータ */}
+          {isLoading && (
+            <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-50">
+              <div className="bg-gray-800 rounded-lg p-6 flex flex-col items-center gap-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                <p className="text-white">処理中...</p>
+              </div>
+            </div>
+          )}
+          {activeTab === 'dashboard' && renderDashboard()}
           {activeTab === 'history' && (
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-white mb-4">評価履歴</h2>
@@ -444,10 +471,157 @@ const EvaluationStation: React.FC = () => {
               ))}
             </div>
           )}
-          {activeTab === 'interviews' && (
+          {activeTab === 'actions' && (
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-white mb-4">面談予約</h2>
-              {evaluationData.upcomingInterviews.length > 0 ? (
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-white">対応・申立</h2>
+              </div>
+
+              {/* アクション選択 */}
+              {!showInterviewForm && !showAppealForm && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <button
+                    onClick={() => {
+                      setActionType('interview');
+                      setShowInterviewForm(true);
+                      setShowAppealForm(false);
+                      setSelectedEvaluation(evaluationData.currentNotifications[0] || evaluationData.recentEvaluations[0]);
+                    }}
+                    className="bg-purple-600/20 border border-purple-500 rounded-xl p-6 hover:bg-purple-600/30 transition-all text-left"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <Calendar className="w-8 h-8 text-purple-400" />
+                      <h3 className="text-lg font-semibold text-white">フィードバック面談予約</h3>
+                    </div>
+                    <p className="text-sm text-gray-400">
+                      評価結果について詳しい説明を受けたり、今後の改善点について相談できます
+                    </p>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActionType('appeal');
+                      setShowAppealForm(true);
+                      setShowInterviewForm(false);
+                      setSelectedEvaluation(evaluationData.currentNotifications[0] || evaluationData.recentEvaluations[0]);
+                    }}
+                    className="bg-orange-600/20 border border-orange-500 rounded-xl p-6 hover:bg-orange-600/30 transition-all text-left"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <AlertCircle className="w-8 h-8 text-orange-400" />
+                      <h3 className="text-lg font-semibold text-white">異議申立手続き</h3>
+                    </div>
+                    <p className="text-sm text-gray-400">
+                      評価結果に異議がある場合、正式な再審査を要求できます
+                    </p>
+                  </button>
+                </div>
+              )}
+
+              {/* 面談予約フォーム */}
+              {showInterviewForm && (
+                <div className="bg-gray-800/50 backdrop-blur rounded-xl border border-gray-700 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-white">フィードバック面談予約</h3>
+                    <button
+                      onClick={() => {
+                        setShowInterviewForm(false);
+                        setActionType(null);
+                      }}
+                      className="text-gray-400 hover:text-gray-300"
+                    >
+                      ✖
+                    </button>
+                  </div>
+                  <FeedbackInterviewForm
+                    evaluationData={selectedEvaluation}
+                    onSubmit={async (data) => {
+                      try {
+                        const employeeId = currentUser?.id || 'demo-user';
+                        const result = await submitFeedbackInterview(employeeId, data);
+
+                        setSubmitMessage({
+                          type: 'success',
+                          message: `面談予約が完了しました。予約ID: ${result.bookingId}`
+                        });
+
+                        setShowInterviewForm(false);
+                        setActionType(null);
+
+                        // 3秒後にメッセージを消去
+                        setTimeout(() => setSubmitMessage(null), 3000);
+                      } catch (err) {
+                        setSubmitMessage({
+                          type: 'error',
+                          message: err instanceof Error ? err.message : '予約に失敗しました'
+                        });
+                        setTimeout(() => setSubmitMessage(null), 5000);
+                      }
+                    }}
+                    onCancel={() => {
+                      setShowInterviewForm(false);
+                      setActionType(null);
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* 異議申立フォーム */}
+              {showAppealForm && (
+                <div className="bg-gray-800/50 backdrop-blur rounded-xl border border-gray-700 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-white">異議申立手続き</h3>
+                    <button
+                      onClick={() => {
+                        setShowAppealForm(false);
+                        setActionType(null);
+                      }}
+                      className="text-gray-400 hover:text-gray-300"
+                    >
+                      ✖
+                    </button>
+                  </div>
+                  <AppealForm
+                    evaluationData={{
+                      ...selectedEvaluation,
+                      appealDeadline: selectedEvaluation?.appealDeadline || '2025-03-29'
+                    }}
+                    onSubmit={async (data) => {
+                      try {
+                        const employeeId = currentUser?.id || 'demo-user';
+                        const employeeName = currentUser?.name || 'デモユーザー';
+                        const result = await submitAppeal(employeeId, employeeName, data);
+
+                        setSubmitMessage({
+                          type: 'success',
+                          message: `異議申立を受理しました。受理番号: ${result.appealId}`
+                        });
+
+                        setShowAppealForm(false);
+                        setActionType(null);
+
+                        setTimeout(() => setSubmitMessage(null), 3000);
+                      } catch (err) {
+                        setSubmitMessage({
+                          type: 'error',
+                          message: err instanceof Error ? err.message : '異議申立に失敗しました'
+                        });
+                        setTimeout(() => setSubmitMessage(null), 5000);
+                      }
+                    }}
+                    onCancel={() => {
+                      setShowAppealForm(false);
+                      setActionType(null);
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* 既存の予約・申立一覧 */}
+              {!showInterviewForm && !showAppealForm && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-white mb-3">進行中の予約・申立</h3>
+                  {evaluationData.upcomingInterviews.length > 0 ? (
                 evaluationData.upcomingInterviews.map((interview: any) => (
                   <div key={interview.id} className="bg-gray-800/50 backdrop-blur rounded-xl border border-gray-700 p-6">
                     <h3 className="text-lg font-semibold text-white mb-2">{interview.type}</h3>
@@ -461,30 +635,17 @@ const EvaluationStation: React.FC = () => {
                     </div>
                   </div>
                 ))
-              ) : (
-                <div className="text-center py-8">
-                  <Calendar className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-400 mb-4">予定された面談はありません</p>
-                  <Link
-                    to="/interview-station"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                  >
-                    <Calendar className="w-5 h-5" />
-                    面談を予約する
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
-          {activeTab === 'appeals' && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-white mb-4">異議申立</h2>
-              {evaluationData.activeAppeals && evaluationData.activeAppeals.length > 0 ? (
-                <div className="text-gray-400">異議申立中の件数: {evaluationData.activeAppeals.length}</div>
-              ) : (
-                <div className="text-center py-8">
-                  <AlertCircle className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-400">異議申立はありません</p>
+                  ) : (
+                    <div className="text-center py-6 text-gray-400">
+                      現在、進行中の予約や申立はありません
+                    </div>
+                  )}
+
+                  {evaluationData.activeAppeals && evaluationData.activeAppeals.length > 0 && (
+                    <div className="mt-4">
+                      <div className="text-sm text-gray-400 mb-2">異議申立中: {evaluationData.activeAppeals.length}件</div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

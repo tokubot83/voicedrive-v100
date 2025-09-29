@@ -14,7 +14,7 @@ const MEDICAL_SYSTEM_URL = import.meta.env.VITE_MEDICAL_API_URL || 'http://local
  * V3評価システム異議申立サービス
  * 医療システムチームとの合意に基づく新API仕様
  */
-class AppealServiceV3 {
+export default class AppealServiceV3 {
   private readonly MAX_RETRY_ATTEMPTS = 3;
   private readonly RETRY_DELAY_MS = 1000;
   private readonly LOCAL_STORAGE_KEY = 'v3_appeal_draft';
@@ -166,10 +166,46 @@ class AppealServiceV3 {
   }
 
   /**
+   * 異議申立を送信（公開API）
+   */
+  async submitAppeal(request: V3AppealRequest): Promise<V3AppealResponse> {
+    return this.submitAppealV3(request);
+  }
+
+  /**
+   * 異議申立のステータス確認
+   */
+  async getAppealStatus(appealId: string): Promise<V3AppealRecord> {
+    try {
+      const response = await this.apiClient.get(`/${appealId}`);
+      return response.data;
+    } catch (error) {
+      console.error('ステータス確認エラー:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 異議申立の取り下げ
+   */
+  async withdrawAppeal(appealId: string, reason: string): Promise<V3AppealResponse> {
+    try {
+      const response = await this.apiClient.put(`/${appealId}/withdraw`, {
+        reason,
+        withdrawnAt: new Date().toISOString()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('取り下げエラー:', error);
+      throw error;
+    }
+  }
+
+  /**
    * V3異議申し立てを医療システムAPIに直接送信
    * 医療チーム提案の新フロー対応
    */
-  async submitAppealV3(request: V3AppealRequest): Promise<V3AppealResponse> {
+  private async submitAppealV3(request: V3AppealRequest): Promise<V3AppealResponse> {
     try {
       // V3バリデーション
       this.validateV3Appeal(request);

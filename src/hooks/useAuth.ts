@@ -7,6 +7,8 @@ interface AuthContextType {
   currentUser: HierarchicalUser | null;
   setCurrentUser: (user: HierarchicalUser | null) => void;
   isAuthenticated: boolean;
+  // 互換性のためuserプロパティを追加
+  user: HierarchicalUser | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,7 +26,8 @@ export const AuthProvider = React.forwardRef<any, AuthProviderProps>(({ children
   const value = {
     currentUser,
     setCurrentUser,
-    isAuthenticated
+    isAuthenticated,
+    user: currentUser // 互換性のため追加
   };
 
   return React.createElement(AuthContext.Provider, { value }, children);
