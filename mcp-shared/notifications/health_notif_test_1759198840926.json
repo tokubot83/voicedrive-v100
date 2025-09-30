@@ -1,0 +1,50 @@
+{
+  "type": "health_risk_assessment",
+  "staffId": "TEST002",
+  "timestamp": "2025-09-30T02:20:40.926Z",
+  "assessment": {
+    "overallScore": 80,
+    "overallLevel": "very-high",
+    "highRiskCategories": [
+      {
+        "category": "代謝リスク",
+        "score": 65,
+        "level": "high"
+      },
+      {
+        "category": "心血管リスク",
+        "score": 70,
+        "level": "high"
+      }
+    ],
+    "priorityActions": [
+      "禁煙外来の受診",
+      "減塩食の開始",
+      "有酸素運動の実施"
+    ],
+    "nextCheckup": "2025-12-29T02:20:40.926Z"
+  },
+  "recommendations": {
+    "lifestyle": [
+      "禁煙プログラムへの参加",
+      "適度な運動習慣の確立"
+    ],
+    "diet": [
+      "塩分制限（1日6g以下）",
+      "野菜摂取量の増加"
+    ],
+    "exercise": [
+      "週3回30分以上の有酸素運動",
+      "ウォーキングの習慣化"
+    ],
+    "medicalFollowUp": [
+      "3ヶ月後の再検査",
+      "必要に応じて降圧薬の検討"
+    ]
+  },
+  "metadata": {
+    "source": "staff-medical-system",
+    "version": "1.0.0",
+    "priority": "urgent"
+  }
+}

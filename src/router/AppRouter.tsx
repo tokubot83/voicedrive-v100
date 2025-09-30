@@ -126,6 +126,9 @@ import AppealV3Page from '../pages/AppealV3Page';
 import EvaluationNotificationPage from '../pages/EvaluationNotificationPage';
 import EvaluationStation from '../pages/EvaluationStation';
 
+// Health Station
+import HealthStation from '../pages/HealthStation';
+
 // Error pages
 import NotFoundPage from '../pages/NotFoundPage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
@@ -454,6 +457,7 @@ const AppRouter: React.FC = () => {
       <Route path="personal-station" element={<PersonalStationPage />} />
       <Route path="interview-station" element={<InterviewStation />} />
       <Route path="evaluation-station" element={<EvaluationStation />} />
+      <Route path="health-station" element={<HealthStation />} />
       <Route path="staff-voting-guide" element={<StaffVotingGuide />} />
       <Route path="voting-system-guide" element={<VotingSystemGuide />} />
       <Route path="idea-voice-guide" element={<IdeaVoiceGuide />} />

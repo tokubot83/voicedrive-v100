@@ -7,6 +7,7 @@ import permissionsRoutes from './routes/permissions.routes';
 import proposalsRoutes from './routes/proposals.routes';
 import votesRoutes from './routes/votes.routes';
 import webhookRoutes from './routes/webhook.routes';
+import healthRoutes from './routes/health.routes';
 
 const app: Application = express();
 const PORT = process.env.PORT || 4000;
@@ -130,6 +131,7 @@ app.use('/api/users', apiLimiter, permissionsRoutes);
 app.use('/api', calculateLevelLimiter, permissionsRoutes); // /api/v1/calculate-level用
 app.use('/api/proposals', apiLimiter, proposalsRoutes);
 app.use('/api/votes', apiLimiter, votesRoutes);
+app.use('/api/health', apiLimiter, healthRoutes);
 app.use('/webhook', webhookLimiter, webhookRoutes);
 
 // 404ハンドラー

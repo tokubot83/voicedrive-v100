@@ -1,0 +1,21 @@
+{
+  "reportId": "report_test_1759198841392",
+  "staffId": "TEST003",
+  "reportType": "individual",
+  "period": {
+    "start": "2025-08-31T02:20:41.392Z",
+    "end": "2025-09-30T02:20:41.392Z"
+  },
+  "summary": {
+    "totalStaff": 1,
+    "averageScore": 65,
+    "highRiskCount": 1,
+    "actionRequiredCount": 1
+  },
+  "data": {
+    "healthTrends": "改善傾向",
+    "recommendations": "継続的な健康管理が必要"
+  },
+  "generatedAt": "2025-09-30T02:20:41.392Z",
+  "format": "json"
+}
