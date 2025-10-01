@@ -11,6 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Ca
 import { Badge } from '../../components/ui/Badge';
 import { CareerCourseChangeRequest, ApprovalStatus } from '../../types/career-course';
 import { ArrowLeft, FileText, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import CareerCourseNotificationService from '../../services/CareerCourseNotificationService';
 
 const STATUS_INFO: Record<ApprovalStatus, { label: string; color: string; icon: React.ReactNode }> = {
   pending: {
@@ -103,6 +104,19 @@ export const MyRequestsPage: React.FC = () => {
 
   useEffect(() => {
     fetchRequests();
+
+    // リアルタイム通知のリスナーを登録
+    const notificationService = CareerCourseNotificationService.getInstance();
+    const unsubscribe = notificationService.subscribeToCareerCourseUpdates((data) => {
+      console.log('📥 キャリアコース更新通知:', data);
+      // 申請履歴を再取得
+      fetchRequests();
+    });
+
+    // クリーンアップ
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const fetchRequests = async () => {

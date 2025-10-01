@@ -14,6 +14,7 @@ import { CareerCourseCard } from '../../components/career-course/CareerCourseCar
 import { CareerCourseSelection } from '../../types/career-course';
 import { FileText, Clock, User, Briefcase, Building2, Calendar, AlertCircle } from 'lucide-react';
 import { useDemoMode } from '../../components/demo/DemoModeController';
+import { WebhookTestPanel } from '../../components/career-course/WebhookTestPanel';
 
 interface StaffInfo {
   id: string;
@@ -259,6 +260,9 @@ export const CareerSelectionStationPage: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Webhook通知テストパネル（開発環境のみ） */}
+        {process.env.NODE_ENV === 'development' && <WebhookTestPanel />}
       </div>
     </div>
   );
