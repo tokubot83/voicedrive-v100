@@ -9,6 +9,7 @@ import RescheduleModal from '../components/interview/RescheduleModal';
 import OfflineBookingViewer from '../components/interview/OfflineBookingViewer';
 import { usePushNotificationSettings, useOnlineStatus } from '../hooks/usePushNotifications';
 import NotificationService from '../services/NotificationService';
+import { MobileFooter } from '../components/layout/MobileFooter';
 
 // Pattern D 統合コンポーネント
 import PendingBookingCard from '../components/interview/PendingBookingCard';
@@ -797,170 +798,173 @@ const InterviewStation: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-20">
-      {/* 固定ヘッダーコンテナ */}
-      <div className="sticky top-0 z-30">
-        {/* ヘッダー */}
-        <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-white flex items-center">
-                <span className="mr-3 text-3xl">🗣️</span>
-                面談ステーション
-              </h1>
-              <p className="text-gray-400 text-sm">面談予約の管理・確認・リマインダー設定</p>
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-20">
+        {/* 固定ヘッダーコンテナ */}
+        <div className="sticky top-0 z-30">
+          {/* ヘッダー */}
+          <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-white flex items-center">
+                  <span className="mr-3 text-3xl">🗣️</span>
+                  面談ステーション
+                </h1>
+                <p className="text-gray-400 text-sm">面談予約の管理・確認・リマインダー設定</p>
+              </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* タブナビゲーション */}
-        <div className="bg-slate-900 border-b border-gray-700">
-          <div className="px-6">
-          <div className="flex space-x-8">
-            <button
-              onClick={() => setActiveTab('dashboard')}
-              className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'dashboard'
-                  ? 'border-blue-500 text-blue-500'
-                  : 'border-transparent text-gray-400 hover:text-gray-300'
-              }`}
-            >
-              ダッシュボード
-            </button>
-            <button
-              onClick={() => setActiveTab('history')}
-              className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'history'
-                  ? 'border-blue-500 text-blue-500'
-                  : 'border-transparent text-gray-400 hover:text-gray-300'
-              }`}
-            >
-              履歴
-            </button>
-            <button
-              onClick={() => setActiveTab('reminder')}
-              className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'reminder'
-                  ? 'border-blue-500 text-blue-500'
-                  : 'border-transparent text-gray-400 hover:text-gray-300'
-              }`}
-            >
-              リマインダー
-            </button>
-            {!isOnline && (
+          {/* タブナビゲーション */}
+          <div className="bg-slate-900 border-b border-gray-700">
+            <div className="px-6">
+            <div className="flex space-x-8">
               <button
-                onClick={() => setActiveTab('offline')}
-                className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-1 ${
-                  activeTab === 'offline'
-                    ? 'border-orange-500 text-orange-500'
-                    : 'border-transparent text-orange-400 hover:text-orange-300'
+                onClick={() => setActiveTab('dashboard')}
+                className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'dashboard'
+                    ? 'border-blue-500 text-blue-500'
+                    : 'border-transparent text-gray-400 hover:text-gray-300'
                 }`}
               >
-                📱 オフライン
+                ダッシュボード
               </button>
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'history'
+                    ? 'border-blue-500 text-blue-500'
+                    : 'border-transparent text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                履歴
+              </button>
+              <button
+                onClick={() => setActiveTab('reminder')}
+                className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'reminder'
+                    ? 'border-blue-500 text-blue-500'
+                    : 'border-transparent text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                リマインダー
+              </button>
+              {!isOnline && (
+                <button
+                  onClick={() => setActiveTab('offline')}
+                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-1 ${
+                    activeTab === 'offline'
+                      ? 'border-orange-500 text-orange-500'
+                      : 'border-transparent text-orange-400 hover:text-orange-300'
+                  }`}
+                >
+                  📱 オフライン
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+        </div>
+
+        {/* コンテンツエリア */}
+        <div className="p-6">
+          <div className="max-w-7xl mx-auto">
+            {activeTab === 'dashboard' && <DashboardView />}
+            {activeTab === 'history' && <HistoryView />}
+            {activeTab === 'reminder' && <ReminderView />}
+            {activeTab === 'offline' && (
+              <OfflineBookingViewer
+                isOnline={isOnline}
+                onSyncRequest={handleSyncRequest}
+                currentUserId={activeUser?.id || ''}
+              />
             )}
           </div>
         </div>
-      </div>
-      </div>
 
-      {/* コンテンツエリア */}
-      <div className="p-6">
-        <div className="max-w-7xl mx-auto">
-          {activeTab === 'dashboard' && <DashboardView />}
-          {activeTab === 'history' && <HistoryView />}
-          {activeTab === 'reminder' && <ReminderView />}
-          {activeTab === 'offline' && (
-            <OfflineBookingViewer
-              isOnline={isOnline}
-              onSyncRequest={handleSyncRequest}
-              currentUserId={activeUser?.id || ''}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* 予約モーダル */}
-      {showBookingModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-auto">
-            <div className="relative">
-              <button
-                onClick={() => setShowBookingModal(false)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10"
-              >
-                ✕
-              </button>
-              <SimpleInterviewFlow
-                onComplete={handleInterviewFlowComplete}
-                employeeId={activeUser?.id || ''}
-                onCancel={() => {
-                  console.log('onCancel called - closing modal');
-                  setShowBookingModal(false);
-                }}
-              />
+        {/* 予約モーダル */}
+        {showBookingModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-auto">
+              <div className="relative">
+                <button
+                  onClick={() => setShowBookingModal(false)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl z-10"
+                >
+                  ✕
+                </button>
+                <SimpleInterviewFlow
+                  onComplete={handleInterviewFlowComplete}
+                  employeeId={activeUser?.id || ''}
+                  onCancel={() => {
+                    console.log('onCancel called - closing modal');
+                    setShowBookingModal(false);
+                  }}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* デモ通知コンポーネント */}
-      <ProposalNotificationDemo />
+        {/* デモ通知コンポーネント */}
+        <ProposalNotificationDemo />
 
-      {/* Pattern D: 推薦結果表示モーダル */}
-      {showRecommendations && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-xl max-w-6xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-white">面談候補の選択</h2>
-                <button
-                  onClick={() => {
+        {/* Pattern D: 推薦結果表示モーダル */}
+        {showRecommendations && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-slate-800 rounded-xl max-w-6xl w-full max-h-[90vh] overflow-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold text-white">面談候補の選択</h2>
+                  <button
+                    onClick={() => {
+                      setShowRecommendations(false);
+                      setCurrentRecommendations([]);
+                      setSelectedRequestId('');
+                    }}
+                    className="text-gray-400 hover:text-white text-2xl"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <StaffRecommendationDisplay
+                  recommendations={currentRecommendations}
+                  onSelectRecommendation={handleSelectRecommendation}
+                  onCancel={() => {
                     setShowRecommendations(false);
                     setCurrentRecommendations([]);
                     setSelectedRequestId('');
                   }}
-                  className="text-gray-400 hover:text-white text-2xl"
-                >
-                  ✕
-                </button>
+                />
               </div>
-              <StaffRecommendationDisplay
-                recommendations={currentRecommendations}
-                onSelectRecommendation={handleSelectRecommendation}
-                onCancel={() => {
-                  setShowRecommendations(false);
-                  setCurrentRecommendations([]);
-                  setSelectedRequestId('');
-                }}
-              />
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* キャンセルモーダル */}
-      {showCancelModal && selectedBooking && (
-        <CancelBookingModal
-          booking={selectedBooking}
-          isOpen={showCancelModal}
-          onClose={handleModalClose}
-          onCancelComplete={handleActionComplete}
-          currentUserId={activeUser?.id || ''}
-        />
-      )}
+        {/* キャンセルモーダル */}
+        {showCancelModal && selectedBooking && (
+          <CancelBookingModal
+            booking={selectedBooking}
+            isOpen={showCancelModal}
+            onClose={handleModalClose}
+            onCancelComplete={handleActionComplete}
+            currentUserId={activeUser?.id || ''}
+          />
+        )}
 
-      {/* 日時変更モーダル */}
-      {showRescheduleModal && selectedBooking && (
-        <RescheduleModal
-          booking={selectedBooking}
-          isOpen={showRescheduleModal}
-          onClose={handleModalClose}
-          onRescheduleComplete={handleActionComplete}
-          currentUserId={activeUser?.id || ''}
-        />
-      )}
-    </div>
+        {/* 日時変更モーダル */}
+        {showRescheduleModal && selectedBooking && (
+          <RescheduleModal
+            booking={selectedBooking}
+            isOpen={showRescheduleModal}
+            onClose={handleModalClose}
+            onRescheduleComplete={handleActionComplete}
+            currentUserId={activeUser?.id || ''}
+          />
+        )}
+      </div>
+      <MobileFooter />
+    </>
   );
 };
 

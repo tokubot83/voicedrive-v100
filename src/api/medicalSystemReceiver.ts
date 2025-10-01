@@ -8,6 +8,7 @@ import {
   CancellationConfirmedResponse,
   NotificationMessage
 } from '../types/medicalSystemIntegration';
+import { InterviewSummary, ReceiveSummaryResponse } from '../types/interviewSummary';
 
 // Express Routerを使用（実際のNext.js APIルートとして使用）
 const router = express.Router();
@@ -309,6 +310,75 @@ export async function handleCancellationConfirmed(
   }
 }
 
+// 6. 面談サマリ受信
+export async function handleSummaryReceived(
+  req: express.Request,
+  res: express.Response
+): Promise<void> {
+  try {
+    const summaryData: InterviewSummary = req.body;
+
+    // バリデーション
+    if (!summaryData.summaryId || !summaryData.interviewId || !summaryData.staffId) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid summary data: missing required fields'
+      });
+      return;
+    }
+
+    // 面談種類のバリデーション
+    if (!['regular', 'support', 'special'].includes(summaryData.interviewType)) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid interviewType: must be regular, support, or special'
+      });
+      return;
+    }
+
+    // データ保存（共通DB構築前はローカルストレージ）
+    await saveInterviewSummary(summaryData);
+
+    // 通知送信
+    const typeLabels = {
+      regular: '定期面談',
+      support: 'サポート面談',
+      special: '特別面談'
+    };
+
+    await NotificationService.getInstance().sendNotification({
+      type: 'summary_received',
+      title: '面談サマリ受信',
+      message: `${typeLabels[summaryData.interviewType as keyof typeof typeLabels]}のサマリが届きました`,
+      timestamp: new Date().toISOString(),
+      data: {
+        summaryId: summaryData.summaryId,
+        interviewDate: summaryData.interviewDate,
+        createdBy: summaryData.createdBy
+      },
+      priority: 'medium',
+      actionRequired: false
+    });
+
+    console.log(`✅ Interview summary received: ${summaryData.summaryId}`);
+
+    const response: ReceiveSummaryResponse = {
+      success: true,
+      message: 'サマリを受信しました',
+      receivedAt: new Date().toISOString()
+    };
+
+    res.status(200).json(response);
+
+  } catch (error) {
+    console.error('Error handling summary received:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+}
+
 // ヘルスチェックエンドポイント
 export async function handleHealthCheck(
   req: express.Request,
@@ -348,6 +418,29 @@ async function saveCancellationConfirmation(data: CancellationConfirmedResponse)
   console.log('Saving cancellation confirmation:', data.bookingId);
 }
 
+async function saveInterviewSummary(data: InterviewSummary): Promise<void> {
+  // 共通DB構築前はローカルストレージに保存
+  try {
+    const storageKey = 'interviewSummaries';
+    const existingSummaries = localStorage.getItem(storageKey);
+    const summaries: InterviewSummary[] = existingSummaries ? JSON.parse(existingSummaries) : [];
+
+    // 既存のサマリIDがあれば上書き、なければ追加
+    const index = summaries.findIndex(s => s.summaryId === data.summaryId);
+    if (index >= 0) {
+      summaries[index] = data;
+    } else {
+      summaries.push(data);
+    }
+
+    localStorage.setItem(storageKey, JSON.stringify(summaries));
+    console.log('Interview summary saved to localStorage:', data.summaryId);
+  } catch (error) {
+    console.error('Error saving interview summary:', error);
+    throw error;
+  }
+}
+
 async function prepareCalendarIntegration(data: BookingConfirmedResponse): Promise<void> {
   // 実装: カレンダー連携データの準備
   const calendarEvent = {
@@ -370,6 +463,7 @@ export function setupMedicalSystemRoutes(app: express.Application): void {
   app.post('/api/voicedrive/reschedule-approved', handleRescheduleApproval);
   app.post('/api/voicedrive/reschedule-rejected', handleRescheduleApproval);
   app.post('/api/voicedrive/cancellation-confirmed', handleCancellationConfirmed);
+  app.post('/api/summaries/receive', handleSummaryReceived);
 
   // ヘルスチェック
   app.get('/api/voicedrive/health', handleHealthCheck);
