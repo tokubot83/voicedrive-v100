@@ -108,18 +108,17 @@ export const MyRequestsPage: React.FC = () => {
   const fetchRequests = async () => {
     try {
       setIsLoading(true);
-      // TODO: 実際のAPIエンドポイントに置き換える
-      // const response = await fetch('/api/career-course/my-requests');
-      // const data = await response.json();
-      // setRequests(data);
 
-      // モックデータ
-      setTimeout(() => {
-        setRequests(MOCK_REQUESTS);
-        setIsLoading(false);
-      }, 500);
+      // APIサービスを使用して申請履歴取得
+      const { getMyRequests } = await import('../../services/careerCourseService');
+      const data = await getMyRequests();
+      setRequests(data);
+
+      setIsLoading(false);
     } catch (error) {
       console.error('申請履歴の取得に失敗しました', error);
+      // エラー時はモックデータを表示（開発用）
+      setRequests(MOCK_REQUESTS);
       setIsLoading(false);
     }
   };

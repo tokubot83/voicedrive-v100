@@ -131,6 +131,8 @@ import HealthStation from '../pages/HealthStation';
 
 // Career Selection Station
 import { CareerSelectionStationPage } from '../pages/career-selection-station/CareerSelectionStationPage';
+import { ChangeRequestPage } from '../pages/career-selection-station/ChangeRequestPage';
+import { MyRequestsPage } from '../pages/career-selection-station/MyRequestsPage';
 
 // Error pages
 import NotFoundPage from '../pages/NotFoundPage';
@@ -461,7 +463,11 @@ const AppRouter: React.FC = () => {
       <Route path="interview-station" element={<InterviewStation />} />
       <Route path="evaluation-station" element={<EvaluationStation />} />
       <Route path="health-station" element={<HealthStation />} />
-      <Route path="career-selection-station" element={<CareerSelectionStationPage />} />
+      <Route path="career-selection-station">
+        <Route index element={<CareerSelectionStationPage />} />
+        <Route path="change-request" element={<ChangeRequestPage />} />
+        <Route path="my-requests" element={<MyRequestsPage />} />
+      </Route>
       <Route path="staff-voting-guide" element={<StaffVotingGuide />} />
       <Route path="voting-system-guide" element={<VotingSystemGuide />} />
       <Route path="idea-voice-guide" element={<IdeaVoiceGuide />} />

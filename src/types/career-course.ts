@@ -180,3 +180,7 @@ export interface ApiError {
   details?: string;
   code?: string;
 }
+
+// サービス層で使用する型エイリアス
+export type ChangeRequest = CareerCourseChangeRequest;
+export type ChangeReason = CourseChangeReason;

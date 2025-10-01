@@ -109,30 +109,27 @@ export const ChangeRequestPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // TODO: 実際のAPIエンドポイントに置き換える
-      // const formData = new FormData();
-      // formData.append('currentCourseCode', currentCourse);
-      // formData.append('requestedCourseCode', selectedCourse!);
-      // formData.append('changeReason', changeReason!);
-      // formData.append('reasonDetail', reasonDetail);
-      // formData.append('requestedEffectiveDate', requestedDate);
-      // attachments.forEach(file => {
-      //   formData.append('attachments', file);
-      // });
-      //
-      // const response = await fetch('/api/career-course/change-request', {
-      //   method: 'POST',
-      //   body: formData
-      // });
+      // APIサービスを使用して申請送信
+      const { submitChangeRequest } = await import('../../services/careerCourseService');
 
-      // モック: 成功レスポンス
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // TODO: 添付ファイルのアップロード処理
+      // 現在はファイル名のみを送信（実装時はStorageにアップロード）
+      const attachmentUrls = attachments.map(f => f.name);
+
+      await submitChangeRequest({
+        currentCourseCode: currentCourse,
+        requestedCourseCode: selectedCourse!,
+        changeReason: changeReason!,
+        reasonDetail: reasonDetail.trim(),
+        requestedEffectiveDate: requestedDate,
+        attachments: attachmentUrls,
+      });
 
       // 成功メッセージを表示して一覧ページへ
       alert('コース変更申請を受け付けました。人事部の審査をお待ちください。');
       navigate('/career-selection-station/my-requests');
-    } catch (error) {
-      alert('申請の送信に失敗しました。もう一度お試しください。');
+    } catch (error: any) {
+      alert(error.message || '申請の送信に失敗しました。もう一度お試しください。');
     } finally {
       setIsSubmitting(false);
       setShowConfirmModal(false);
