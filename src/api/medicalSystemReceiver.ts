@@ -1,5 +1,7 @@
 // 医療システムからの受信API処理
 import express from 'express';
+import fs from 'fs/promises';
+import path from 'path';
 import {
   ProposalResponse,
   BookingConfirmedResponse,
@@ -16,6 +18,10 @@ const router = express.Router();
 // 通知システムとの連携用
 import NotificationService from '../services/NotificationService';
 import WebSocketNotificationService from '../services/WebSocketNotificationService';
+
+// データ保存パス設定
+const DATA_DIR = path.join(process.cwd(), 'data', 'interview-summaries');
+const SUMMARIES_FILE = path.join(DATA_DIR, 'summaries.json');
 
 // 1. AI提案3パターン受信
 export async function handleProposalReceived(
@@ -336,29 +342,29 @@ export async function handleSummaryReceived(
       return;
     }
 
-    // データ保存（共通DB構築前はローカルストレージ）
+    // データ保存（共通DB構築前はファイルシステムに保存）
     await saveInterviewSummary(summaryData);
 
-    // 通知送信
-    const typeLabels = {
-      regular: '定期面談',
-      support: 'サポート面談',
-      special: '特別面談'
-    };
+    // 通知送信（共通DB構築後に有効化）
+    // const typeLabels = {
+    //   regular: '定期面談',
+    //   support: 'サポート面談',
+    //   special: '特別面談'
+    // };
 
-    await NotificationService.getInstance().sendNotification({
-      type: 'summary_received',
-      title: '面談サマリ受信',
-      message: `${typeLabels[summaryData.interviewType as keyof typeof typeLabels]}のサマリが届きました`,
-      timestamp: new Date().toISOString(),
-      data: {
-        summaryId: summaryData.summaryId,
-        interviewDate: summaryData.interviewDate,
-        createdBy: summaryData.createdBy
-      },
-      priority: 'medium',
-      actionRequired: false
-    });
+    // await NotificationService.getInstance().sendNotification({
+    //   type: 'summary_received',
+    //   title: '面談サマリ受信',
+    //   message: `${typeLabels[summaryData.interviewType as keyof typeof typeLabels]}のサマリが届きました`,
+    //   timestamp: new Date().toISOString(),
+    //   data: {
+    //     summaryId: summaryData.summaryId,
+    //     interviewDate: summaryData.interviewDate,
+    //     createdBy: summaryData.createdBy
+    //   },
+    //   priority: 'medium',
+    //   actionRequired: false
+    // });
 
     console.log(`✅ Interview summary received: ${summaryData.summaryId}`);
 
@@ -371,10 +377,12 @@ export async function handleSummaryReceived(
     res.status(200).json(response);
 
   } catch (error) {
-    console.error('Error handling summary received:', error);
+    console.error('[VoiceDrive] Error handling summary received:', error);
+    console.error('[VoiceDrive] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 }
@@ -419,24 +427,47 @@ async function saveCancellationConfirmation(data: CancellationConfirmedResponse)
 }
 
 async function saveInterviewSummary(data: InterviewSummary): Promise<void> {
-  // 共通DB構築前はローカルストレージに保存
+  // 共通DB構築前はファイルシステムに保存
   try {
-    const storageKey = 'interviewSummaries';
-    const existingSummaries = localStorage.getItem(storageKey);
-    const summaries: InterviewSummary[] = existingSummaries ? JSON.parse(existingSummaries) : [];
+    // データディレクトリが存在しない場合は作成
+    try {
+      await fs.access(DATA_DIR);
+    } catch {
+      await fs.mkdir(DATA_DIR, { recursive: true });
+      console.log('[VoiceDrive] データディレクトリ作成:', DATA_DIR);
+    }
+
+    // 既存データを読み込み
+    let summaries: InterviewSummary[] = [];
+    try {
+      const fileContent = await fs.readFile(SUMMARIES_FILE, 'utf-8');
+      summaries = JSON.parse(fileContent);
+    } catch (error) {
+      // ファイルが存在しない場合は空配列で開始
+      summaries = [];
+    }
 
     // 既存のサマリIDがあれば上書き、なければ追加
     const index = summaries.findIndex(s => s.summaryId === data.summaryId);
     if (index >= 0) {
       summaries[index] = data;
+      console.log(`[VoiceDrive] 面談サマリ更新: ${data.summaryId}`);
     } else {
       summaries.push(data);
+      console.log(`[VoiceDrive] 面談サマリ新規保存: ${data.summaryId}`);
     }
 
-    localStorage.setItem(storageKey, JSON.stringify(summaries));
-    console.log('Interview summary saved to localStorage:', data.summaryId);
+    // ファイルに保存
+    await fs.writeFile(
+      SUMMARIES_FILE,
+      JSON.stringify(summaries, null, 2),
+      'utf-8'
+    );
+
+    console.log(`[VoiceDrive] 面談サマリ保存成功 (合計: ${summaries.length}件)`);
+    console.log(`[VoiceDrive] 保存先: ${SUMMARIES_FILE}`);
   } catch (error) {
-    console.error('Error saving interview summary:', error);
+    console.error('[VoiceDrive] 面談サマリ保存エラー:', error);
     throw error;
   }
 }
