@@ -311,6 +311,22 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
             <span>健康ステーション</span>
           </button>
 
+          {/* キャリア選択ステーション（新規追加） */}
+          <button
+            onClick={() => onNavigate('/career-selection-station')}
+            className={`
+              w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
+              transition-all duration-150
+              ${currentPath.startsWith('/career-selection-station')
+                ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white shadow-lg'
+                : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+              }
+            `}
+          >
+            <span className="text-base">🎯</span>
+            <span>キャリア選択ステーション</span>
+          </button>
+
           {/* アイデアボイスハブ（新規追加） */}
           <div>
             <button
