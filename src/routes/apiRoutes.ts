@@ -6,6 +6,7 @@ import { standardRateLimit } from '../middleware/rateLimitMiddleware';
 import { NotificationService } from '../api/db/notificationService';
 import { UserService } from '../api/db/userService';
 import interviewRoutes from './interviewRoutes';
+import { handleSummaryReceived } from '../api/medicalSystemReceiver';
 
 const router = Router();
 
@@ -18,6 +19,9 @@ router.use(validatePayloadSize(1048576)); // 1MB
 
 // 面談予約API
 router.use('/interviews', interviewRoutes);
+
+// 面談サマリ受信API
+router.post('/summaries/receive', standardRateLimit, handleSummaryReceived);
 
 // ====================
 // 認証API

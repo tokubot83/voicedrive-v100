@@ -54,6 +54,7 @@ app.listen(PORT, () => {
 │ Available Endpoints:                        │
 │ • POST /api/interviews                      │
 │ • GET  /api/interviews                      │
+│ • POST /api/summaries/receive               │
 │ • POST /api/notifications                   │
 │ • GET  /api/users/me                        │
 │ • GET  /api/health                          │

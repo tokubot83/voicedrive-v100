@@ -44,6 +44,7 @@ import { ProposalGeneratorPage } from '../pages/ProposalGeneratorPage';
 
 // Test pages
 import MedicalAPITestPanel from '../components/test/MedicalAPITestPanel';
+import TestSummaryReceiver from '../pages/TestSummaryReceiver';
 
 // Dashboard pages
 import PersonalDashboardPage from '../pages/PersonalDashboardPage';
@@ -258,7 +259,10 @@ const AppRouter: React.FC = () => {
         
         {/* Medical API Test Panel (開発環境のみ) */}
         {import.meta.env.DEV && (
-          <Route path="api-test" element={<MedicalAPITestPanel />} />
+          <>
+            <Route path="api-test" element={<MedicalAPITestPanel />} />
+            <Route path="test-summary-receiver" element={<TestSummaryReceiver />} />
+          </>
         )}
 
         {/* Authority management (Level 3+) */}
