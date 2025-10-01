@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDemoMode } from '../components/demo/DemoModeController';
+import { MobileFooter } from '../components/layout/MobileFooter';
 import {
   Heart,
   Activity,
@@ -161,64 +162,79 @@ const HealthStation: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* ヘッダー */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Heart className="w-8 h-8 text-red-400" />
-            <h1 className="text-3xl font-bold text-white">健康ステーション</h1>
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-20">
+        {/* 固定ヘッダーコンテナ */}
+        <div className="sticky top-0 z-30">
+          {/* ヘッダー */}
+          <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-white flex items-center">
+                  <span className="mr-3 text-3xl">❤️</span>
+                  健康ステーション
+                </h1>
+                <p className="text-gray-400 text-sm">あなたの健康データと推奨事項を確認できます</p>
+              </div>
+            </div>
+          </header>
+
+          {/* タブナビゲーション */}
+          <div className="bg-slate-900 border-b border-gray-700">
+            <div className="px-6">
+              <div className="flex space-x-8">
+                <button
+                  onClick={() => setActiveTab('dashboard')}
+                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === 'dashboard'
+                      ? 'border-blue-500 text-blue-500'
+                      : 'border-transparent text-gray-400 hover:text-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4" />
+                    <span>ダッシュボード</span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('notifications')}
+                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === 'notifications'
+                      ? 'border-blue-500 text-blue-500'
+                      : 'border-transparent text-gray-400 hover:text-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Bell className="w-4 h-4" />
+                    <span>健康通知</span>
+                    {stats && stats.pending > 0 && (
+                      <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                        {stats.pending}
+                      </span>
+                    )}
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('reports')}
+                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === 'reports'
+                      ? 'border-blue-500 text-blue-500'
+                      : 'border-transparent text-gray-400 hover:text-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    <span>レポート</span>
+                  </div>
+                </button>
+              </div>
+            </div>
           </div>
-          <p className="text-slate-400">あなたの健康データと推奨事項を確認できます</p>
         </div>
 
-        {/* タブナビゲーション */}
-        <div className="flex gap-2 mb-6 border-b border-slate-700">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`px-6 py-3 font-medium transition-all ${
-              activeTab === 'dashboard'
-                ? 'text-white border-b-2 border-red-400'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              <span>ダッシュボード</span>
-            </div>
-          </button>
-          <button
-            onClick={() => setActiveTab('notifications')}
-            className={`px-6 py-3 font-medium transition-all ${
-              activeTab === 'notifications'
-                ? 'text-white border-b-2 border-red-400'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4" />
-              <span>健康通知</span>
-              {stats && stats.pending > 0 && (
-                <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                  {stats.pending}
-                </span>
-              )}
-            </div>
-          </button>
-          <button
-            onClick={() => setActiveTab('reports')}
-            className={`px-6 py-3 font-medium transition-all ${
-              activeTab === 'reports'
-                ? 'text-white border-b-2 border-red-400'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              <span>レポート</span>
-            </div>
-          </button>
-        </div>
+        {/* コンテンツエリア */}
+        <div className="p-6">
+          <div className="max-w-7xl mx-auto">
 
         {/* ダッシュボード */}
         {activeTab === 'dashboard' && (
@@ -467,8 +483,11 @@ const HealthStation: React.FC = () => {
             </div>
           </div>
         )}
+          </div>
+        </div>
       </div>
-    </div>
+      <MobileFooter />
+    </>
   );
 };
 
