@@ -24,6 +24,10 @@ import { InterviewResultModal } from '../components/interview-results/InterviewR
 // Phase 6: 面談タイプ表示名マッピング
 import { getInterviewTypeLabel, getInterviewTypeIcon } from '../utils/interviewTypeMapper';
 
+// Phase 7: モバイルスワイプナビゲーション
+import { useSwipeableTabs } from '../hooks/useSwipeableTabs';
+import { SwipeIndicator } from '../components/common/SwipeableTabContainer';
+
 const InterviewStation: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -43,6 +47,14 @@ const InterviewStation: React.FC = () => {
   const notificationService = NotificationService.getInstance();
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'history' | 'reminder' | 'offline'>('dashboard');
+
+  // Phase 7: スワイプナビゲーション
+  const { handlers: swipeHandlers } = useSwipeableTabs({
+    activeTab,
+    tabs: ['dashboard', 'history', 'reminder', 'offline'] as const,
+    onTabChange: (tab) => setActiveTab(tab as typeof activeTab),
+  });
+
   const [upcomingBookings, setUpcomingBookings] = useState<InterviewBooking[]>([]);
   const [pastBookings, setPastBookings] = useState<InterviewBooking[]>([]);
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -1291,8 +1303,21 @@ const InterviewStation: React.FC = () => {
         </div>
         </div>
 
-        {/* コンテンツエリア */}
-        <div className="p-6">
+        {/* Phase 7-C: スワイプインジケーター（モバイルのみ表示） */}
+        <div className="lg:hidden">
+          <SwipeIndicator
+            tabs={[
+              { id: 'dashboard', label: 'ダッシュボード', content: null },
+              { id: 'history', label: '履歴', content: null },
+              { id: 'reminder', label: 'リマインダー', content: null },
+              ...(isOnline ? [] : [{ id: 'offline', label: 'オフライン', content: null }])
+            ]}
+            activeTab={activeTab}
+          />
+        </div>
+
+        {/* コンテンツエリア - Phase 7: スワイプ対応 */}
+        <div className="p-6" {...swipeHandlers}>
           <div className="max-w-7xl mx-auto">
             {activeTab === 'dashboard' && <DashboardView />}
             {activeTab === 'history' && <HistoryView />}

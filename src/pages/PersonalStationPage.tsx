@@ -19,6 +19,10 @@ import { PostType, VoteOption, Comment } from '../types';
 import { MobileFooter } from '../components/layout/MobileFooter';
 import { DesktopFooter } from '../components/layout/DesktopFooter';
 
+// Phase 7: モバイルスワイプナビゲーション
+import { useSwipeableTabs } from '../hooks/useSwipeableTabs';
+import { SwipeIndicator } from '../components/common/SwipeableTabContainer';
+
 export const PersonalStationPage: React.FC = () => {
   const { user } = useAuth();
   const { currentUser } = useDemoMode();
@@ -52,6 +56,13 @@ export const PersonalStationPage: React.FC = () => {
   }
 
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  // Phase 7: スワイプナビゲーション
+  const { handlers: swipeHandlers } = useSwipeableTabs({
+    activeTab,
+    tabs: ['dashboard', 'my_posts', 'voting_history'] as const,
+    onTabChange: (tab) => setActiveTab(tab as typeof activeTab),
+  });
 
   // 自分の投稿をフィルタリング（安全なチェック）
   const myPosts = posts?.filter(post => post.authorId === user?.id) || [];
@@ -516,8 +527,16 @@ export const PersonalStationPage: React.FC = () => {
         </div>
       </div>
 
-      {/* コンテンツ */}
-      <div className="p-6">
+      {/* Phase 7-C: スワイプインジケーター（モバイルのみ表示） */}
+      <div className="lg:hidden">
+        <SwipeIndicator
+          tabs={tabs}
+          activeTab={activeTab}
+        />
+      </div>
+
+      {/* コンテンツ - Phase 7: スワイプ対応 */}
+      <div className="p-6" {...swipeHandlers}>
         {activeTab === 'dashboard' && renderDashboard()}
         {activeTab === 'my_posts' && renderMyPosts()}
         {activeTab === 'voting_history' && renderVotingHistory()}

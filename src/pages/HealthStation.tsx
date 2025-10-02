@@ -7,6 +7,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { MobileFooter } from '../components/layout/MobileFooter';
+
+// Phase 7: モバイルスワイプナビゲーション
+import { useSwipeableTabs } from '../hooks/useSwipeableTabs';
+import { SwipeIndicator } from '../components/common/SwipeableTabContainer';
+
 import {
   Heart,
   Activity,
@@ -44,6 +49,14 @@ interface HealthStats {
 const HealthStation: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'notifications' | 'reports'>('dashboard');
+
+  // Phase 7: スワイプナビゲーション
+  const { handlers: swipeHandlers } = useSwipeableTabs({
+    activeTab,
+    tabs: ['dashboard', 'notifications', 'reports'] as const,
+    onTabChange: (tab) => setActiveTab(tab as typeof activeTab),
+  });
+
   const [notifications, setNotifications] = useState<HealthNotification[]>([]);
   const [stats, setStats] = useState<HealthStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -232,8 +245,20 @@ const HealthStation: React.FC = () => {
           </div>
         </div>
 
-        {/* コンテンツエリア */}
-        <div className="p-6">
+        {/* Phase 7-C: スワイプインジケーター（モバイルのみ表示） */}
+        <div className="lg:hidden">
+          <SwipeIndicator
+            tabs={[
+              { id: 'dashboard', label: 'ダッシュボード', content: null },
+              { id: 'notifications', label: '通知', content: null },
+              { id: 'reports', label: 'レポート', content: null }
+            ]}
+            activeTab={activeTab}
+          />
+        </div>
+
+        {/* コンテンツエリア - Phase 7: スワイプ対応 */}
+        <div className="p-6" {...swipeHandlers}>
           <div className="max-w-7xl mx-auto">
 
         {/* ダッシュボード */}
