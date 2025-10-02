@@ -530,7 +530,7 @@ export const PersonalStationPage: React.FC = () => {
       {/* Phase 7-C: スワイプインジケーター（モバイルのみ表示） */}
       <div className="lg:hidden">
         <SwipeIndicator
-          tabs={tabs}
+          tabs={personalTabs.map(tab => ({ ...tab, content: null }))}
           activeTab={activeTab}
         />
       </div>
