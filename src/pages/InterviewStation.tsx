@@ -21,6 +21,9 @@ import ProposalNotificationDemo from '../components/demo/ProposalNotificationDem
 // Phase 4-A: 面談サマリモーダル統合
 import { InterviewResultModal } from '../components/interview-results/InterviewResultModal';
 
+// Phase 6: 面談タイプ表示名マッピング
+import { getInterviewTypeLabel, getInterviewTypeIcon } from '../utils/interviewTypeMapper';
+
 const InterviewStation: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -419,16 +422,6 @@ const InterviewStation: React.FC = () => {
   };
 
   // Phase 4-A: ヘルパー関数
-  const getInterviewIcon = (type: string): string => {
-    if (type.includes('定期') || type.includes('regular')) return '📝';
-    if (type.includes('キャリア') || type.includes('career')) return '🎯';
-    if (type.includes('メンタル') || type.includes('stress') || type.includes('ストレス')) return '💚';
-    if (type.includes('退職') || type.includes('exit')) return '👋';
-    if (type.includes('復職') || type.includes('return')) return '🔄';
-    if (type.includes('フィードバック') || type.includes('feedback')) return '💬';
-    return '💼';
-  };
-
   const getSummaryStatusBadge = (status: 'received' | 'waiting' | null) => {
     if (status === 'received') {
       return (
@@ -705,7 +698,7 @@ const InterviewStation: React.FC = () => {
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h4 className="text-white font-semibold">{booking.interviewType}</h4>
+                      <h4 className="text-white font-semibold">{getInterviewTypeLabel(booking.interviewType)}</h4>
                       {getStatusBadge(booking.status)}
                     </div>
                     <div className="space-y-1 text-sm text-gray-300">
@@ -859,7 +852,7 @@ const InterviewStation: React.FC = () => {
         labels.push(`ステータス: ${getStatusFilterLabel(filters.status)}`);
       }
       if (filters.interviewType !== 'all') {
-        labels.push(`タイプ: ${filters.interviewType}`);
+        labels.push(`タイプ: ${getInterviewTypeLabel(filters.interviewType)}`);
       }
       if (filters.keyword.trim()) {
         labels.push(`キーワード: "${filters.keyword}"`);
@@ -979,7 +972,7 @@ const InterviewStation: React.FC = () => {
                 >
                   <option value="all">全て</option>
                   {getUniqueInterviewTypes(enhancedBookings).map(type => (
-                    <option key={type} value={type}>{type}</option>
+                    <option key={type} value={type}>{getInterviewTypeLabel(type)}</option>
                   ))}
                 </select>
               </div>
@@ -1094,8 +1087,8 @@ const InterviewStation: React.FC = () => {
                 {/* ヘッダー: タイトル + ステータス */}
                 <div className="flex justify-between items-start mb-3">
                   <h4 className="text-white font-semibold text-lg flex items-center gap-2">
-                    {getInterviewIcon(booking.interviewType)}
-                    {booking.interviewType}
+                    {getInterviewTypeIcon(booking.interviewType)}
+                    {getInterviewTypeLabel(booking.interviewType)}
                   </h4>
                   {getSummaryStatusBadge(booking.summaryStatus)}
                 </div>
