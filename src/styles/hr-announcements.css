@@ -120,9 +120,6 @@
   background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
   border-bottom: none;
   padding: 20px 20px 0 20px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
   box-shadow: none;
 }
 
@@ -183,9 +180,6 @@
   border-image: linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
   border-image-slice: 1;
   padding: 20px 12px 12px 12px;
-  position: sticky;
-  top: 52px;
-  z-index: 90;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
 }
 

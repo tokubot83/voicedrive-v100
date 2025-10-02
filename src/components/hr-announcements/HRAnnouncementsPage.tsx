@@ -320,22 +320,25 @@ const HRAnnouncementsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 hr-announcements-page">
-      {/* タイトルヘッダー */}
-      <div className="hr-title-header">
-        <div className="hr-title-content">
-          <div className="hr-title-icon">📢</div>
-          <h1 className="hr-title-text">
-            人事部からのお知らせ
-          </h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-20">
+      {/* 固定ヘッダーコンテナ */}
+      <div className="sticky top-0 z-30">
+        {/* タイトルヘッダー */}
+        <div className="hr-title-header">
+          <div className="hr-title-content">
+            <div className="hr-title-icon">📢</div>
+            <h1 className="hr-title-text">
+              人事部からのお知らせ
+            </h1>
+          </div>
         </div>
-      </div>
 
-      {/* カテゴリフィルター */}
-      <HRCategoryFilter
-        categories={categoryConfigs}
-        onFilter={handleCategoryFilter}
-      />
+        {/* カテゴリフィルター */}
+        <HRCategoryFilter
+          categories={categoryConfigs}
+          onFilter={handleCategoryFilter}
+        />
+      </div>
 
       {/* メッセージエリア */}
       <div className="hr-messages-container">
