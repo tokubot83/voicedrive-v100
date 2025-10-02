@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { NotificationCategory } from '../types/notification';
 import AppBadgeService from '../services/AppBadgeService';
+import { InterviewResultModal } from '../components/interview-results/InterviewResultModal';
 
 // 通知データの型定義
 interface Notification {
@@ -29,7 +30,9 @@ const categoryConfigs = [
 
 const NotificationsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [notifications] = useState<Notification[]>([
+  const [summaryModalOpen, setSummaryModalOpen] = useState(false);
+  const [selectedInterviewId, setSelectedInterviewId] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: '1',
       category: 'interview',
@@ -167,25 +170,35 @@ const NotificationsPage = () => {
     return `${days}日前`;
   };
 
+  // 通知コンテンツからinterviewIdを抽出
+  const extractInterviewId = (content: string): string | null => {
+    const match = content.match(/\[INTERVIEW_ID:([^\]]+)\]/);
+    return match ? match[1] : null;
+  };
+
+  // サマリボタンクリック
+  const handleViewSummary = (interviewId: string) => {
+    setSelectedInterviewId(interviewId);
+    setSummaryModalOpen(true);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* 固定ヘッダー */}
-      <div className="sticky top-0 z-40 bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/30">
-        <div className="px-6 py-6">
-          <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-2xl p-6 backdrop-blur-xl border border-blue-500/20">
-            <div className="flex items-center gap-3">
-              <div className="text-3xl">🔔</div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">通知センター</h1>
-                <p className="text-gray-300 text-sm mt-1">すべての通知を一元管理</p>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-20">
+      {/* 固定ヘッダーコンテナ */}
+      <div className="sticky top-0 z-30">
+        {/* タイトルヘッダー */}
+        <div className="hr-title-header">
+          <div className="hr-title-content">
+            <div className="hr-title-icon">🔔</div>
+            <h1 className="hr-title-text">
+              通知センター
+            </h1>
           </div>
         </div>
 
         {/* カテゴリーフィルター */}
-        <div className="px-6 pb-4">
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+        <div className="hr-category-filter">
+          <div className="hr-category-container">
             {categoryConfigs.map((category) => {
               const isActive = selectedCategory === category.key;
               const count = category.key === 'all'
@@ -196,16 +209,10 @@ const NotificationsPage = () => {
                 <button
                   key={category.key}
                   onClick={() => setSelectedCategory(category.key)}
-                  className={`
-                    flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all
-                    ${isActive
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
-                      : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
-                    }
-                  `}
+                  className={`hr-category-btn ${isActive ? 'active' : ''}`}
                 >
-                  <span className="text-lg">{category.icon}</span>
-                  <span className="text-sm font-medium">{category.label}</span>
+                  <span>{category.icon}</span>
+                  <span>{category.label}</span>
                   {count > 0 && (
                     <span className={`
                       px-1.5 py-0.5 text-xs rounded-full font-bold
@@ -220,9 +227,9 @@ const NotificationsPage = () => {
           </div>
         </div>
       </div>
-      
+
       {/* 通知リスト */}
-      <div className="p-6 pb-20">
+      <div className="hr-messages-container">
         <div className="max-w-7xl mx-auto">
           {filteredNotifications.length === 0 ? (
             <div className="text-center py-12">
@@ -230,55 +237,69 @@ const NotificationsPage = () => {
               <p className="text-gray-400">このカテゴリーの通知はありません</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {filteredNotifications.map((notification) => {
                 const categoryConfig = categoryConfigs.find(c => c.key === notification.category) || categoryConfigs[0];
 
                 return (
-                  <div
-                    key={notification.id}
-                    className={`
-                      bg-white/90 backdrop-blur-xl rounded-xl p-4 border shadow-sm
-                      ${notification.isRead ? 'border-gray-200' : 'border-blue-400'}
-                      hover:bg-white transition-colors cursor-pointer hover:shadow-md
-                    `}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: `${categoryConfig.color}20` }}
-                      >
-                        <span className="text-xl">{notification.icon}</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className={`font-semibold ${
-                            notification.isRead ? 'text-gray-600' : 'text-gray-900'
-                          }`}>
-                            {notification.title}
-                          </h3>
-                          {!notification.isRead && (
-                            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-                          )}
-                        </div>
-                        <p className="text-gray-700 text-sm leading-relaxed">
-                          {notification.content}
-                        </p>
-                        <div className="flex items-center gap-3 mt-2">
-                          <span className="text-gray-500 text-xs">
-                            {formatTime(notification.timestamp)}
+                  <div key={notification.id} className="hr-message">
+                    <div
+                      className="hr-message-icon"
+                      style={{
+                        background: `linear-gradient(135deg, ${categoryConfig.color} 0%, ${categoryConfig.color}dd 100%)`
+                      }}
+                    >
+                      {notification.icon}
+                    </div>
+                    <div className="hr-message-content">
+                      <div className={`hr-message-bubble ${!notification.isRead ? 'border-blue-400 border-l-4' : ''}`}>
+                        <div className="hr-message-header">
+                          <span className="hr-category-tag" style={{
+                            background: `${categoryConfig.color}20`,
+                            color: categoryConfig.color,
+                            border: `1px solid ${categoryConfig.color}40`
+                          }}>
+                            {categoryConfig.icon} {categoryConfig.label}
                           </span>
-                          {notification.priority === 'critical' && (
-                            <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full font-semibold">
-                              緊急
-                            </span>
-                          )}
-                          {notification.priority === 'high' && (
-                            <span className="text-xs px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full font-semibold">
-                              重要
-                            </span>
-                          )}
+                          <span className="hr-time-label">{formatTime(notification.timestamp)}</span>
                         </div>
+
+                        <h3 className="hr-message-title flex items-center justify-between">
+                          {notification.title}
+                          {!notification.isRead && (
+                            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse ml-2"></span>
+                          )}
+                        </h3>
+
+                        <p className="hr-message-text">
+                          {notification.content.replace(/\[INTERVIEW_ID:[^\]]+\]/, '')}
+                        </p>
+
+                        {(notification.priority === 'critical' || notification.priority === 'high') && (
+                          <div className="hr-message-info">
+                            <span>
+                              {notification.priority === 'critical' ? '🚨' : '⚠️'}
+                            </span>
+                            <span>
+                              {notification.priority === 'critical' ? '緊急の通知です' : '重要な通知です'}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Phase 2: 面談サマリ通知の場合、サマリボタンを表示 */}
+                        {extractInterviewId(notification.content) && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const interviewId = extractInterviewId(notification.content);
+                              if (interviewId) handleViewSummary(interviewId);
+                            }}
+                            className="hr-action-button meeting"
+                          >
+                            <span>📝</span>
+                            <span>サマリを見る</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -297,6 +318,18 @@ const NotificationsPage = () => {
           )}
         </div>
       </div>
+
+      {/* Phase 2: サマリモーダル */}
+      {selectedInterviewId && (
+        <InterviewResultModal
+          isOpen={summaryModalOpen}
+          onClose={() => {
+            setSummaryModalOpen(false);
+            setSelectedInterviewId(null);
+          }}
+          interviewId={selectedInterviewId}
+        />
+      )}
     </div>
   );
 };
