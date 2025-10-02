@@ -317,7 +317,7 @@ const AppealFormV3: React.FC<AppealFormV3Props> = ({
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900">
-          V3評価システム 異議申し立てフォーム
+          評価システム 異議申し立てフォーム
         </h2>
         <p className="text-gray-600 mt-2">
           100点満点・7段階グレードシステム対応
@@ -372,7 +372,7 @@ const AppealFormV3: React.FC<AppealFormV3Props> = ({
               errors.evaluationPeriod ? 'border-red-500' : 'border-gray-300'
             }`}
           >
-            <option value="">V3評価期間を選択してください</option>
+            <option value="">評価期間を選択してください</option>
             {evaluationPeriods.map(period => (
               <option key={period.id} value={period.id}>
                 {period.name} (申し立て期限: {new Date(period.appealDeadline).toLocaleDateString()})
@@ -385,7 +385,7 @@ const AppealFormV3: React.FC<AppealFormV3Props> = ({
         {/* V3スコア入力 */}
         <div className="bg-blue-50 p-6 rounded-lg">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            V3評価スコア・グレード情報
+            評価スコア・グレード情報
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -470,7 +470,7 @@ const AppealFormV3: React.FC<AppealFormV3Props> = ({
             className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
               errors.appealReason ? 'border-red-500' : 'border-gray-300'
             }`}
-            placeholder="V3評価システム（100点満点）における具体的な異議申し立て理由を100文字以上で詳細に記載してください..."
+            placeholder="評価システム（100点満点）における具体的な異議申し立て理由を100文字以上で詳細に記載してください..."
           />
           {errors.appealReason && <p className="text-red-600 text-sm mt-1">{errors.appealReason}</p>}
           <p className="text-gray-500 text-sm mt-1">
@@ -528,7 +528,7 @@ const AppealFormV3: React.FC<AppealFormV3Props> = ({
             disabled={isSubmitting}
             className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300 transition duration-200"
           >
-            {isSubmitting ? 'V3システムに送信中...' : 'V3異議申し立てを送信'}
+            {isSubmitting ? 'システムに送信中...' : '異議申し立てを送信'}
           </button>
         </div>
       </form>

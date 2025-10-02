@@ -1,0 +1,27 @@
+{
+  "requestId": "test-req-001",
+  "interviewId": "test-int-001",
+  "completedAt": "2025-10-02T10:00:00.000Z",
+  "duration": 45,
+  "summary": "定期面談を実施しました。職員の状況は良好です。",
+  "keyPoints": [
+    "業務遂行能力向上",
+    "コミュニケーション活発"
+  ],
+  "actionItems": [
+    {
+      "description": "キャリアプラン作成",
+      "dueDate": "2025-10-09T00:00:00.000Z"
+    }
+  ],
+  "followUpRequired": true,
+  "followUpDate": "2025-11-01T00:00:00.000Z",
+  "feedbackToEmployee": "今回の面談では成長を確認できました。",
+  "nextRecommendations": {
+    "suggestedNextInterview": "2026-01-01T00:00:00.000Z",
+    "suggestedTopics": [
+      "キャリア開発",
+      "スキルアップ"
+    ]
+  }
+}

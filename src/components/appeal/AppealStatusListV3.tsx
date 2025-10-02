@@ -190,7 +190,7 @@ const AppealStatusListV3: React.FC<AppealStatusListV3Props> = ({
     return (
       <div className="flex justify-center items-center py-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2">V3異議申し立てを読み込み中...</span>
+        <span className="ml-2">異議申し立てを読み込み中...</span>
       </div>
     );
   }
@@ -199,7 +199,7 @@ const AppealStatusListV3: React.FC<AppealStatusListV3Props> = ({
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">
-          V3異議申し立て状況
+          異議申し立て状況
         </h2>
         <button
           onClick={loadV3Appeals}
@@ -211,7 +211,7 @@ const AppealStatusListV3: React.FC<AppealStatusListV3Props> = ({
 
       {appeals.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
-          V3異議申し立ては見つかりませんでした
+          異議申し立ては見つかりませんでした
         </div>
       ) : (
         <div className="bg-white shadow rounded-lg overflow-hidden">
@@ -226,7 +226,7 @@ const AppealStatusListV3: React.FC<AppealStatusListV3Props> = ({
                     職員情報
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    V3スコア・グレード
+                    スコア・グレード
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     ステータス
@@ -315,7 +315,7 @@ const AppealStatusListV3: React.FC<AppealStatusListV3Props> = ({
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  V3異議申し立て詳細
+                  異議申し立て詳細
                 </h3>
                 <button
                   onClick={() => setSelectedAppeal(null)}
@@ -344,7 +344,7 @@ const AppealStatusListV3: React.FC<AppealStatusListV3Props> = ({
 
                 {selectedAppeal.details && (
                   <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-gray-900 mb-3">V3スコア・グレード情報</h4>
+                    <h4 className="font-semibold text-gray-900 mb-3">スコア・グレード情報</h4>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="text-sm font-medium text-gray-500">現在の評価</label>

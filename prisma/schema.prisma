@@ -312,3 +312,44 @@ model AuditLog {
 
   createdAt         DateTime @default(now())
 }
+
+// ========================================
+// 医療システム連携
+// ========================================
+
+// 面談結果受信テーブル（医療システムからの送信データ）
+model InterviewResult {
+  id                String   @id @default(cuid())
+
+  // 連携ID
+  requestId         String   @unique // VoiceDrive側の申込ID
+  interviewId       String   @unique // 医療システム側の面談ID
+
+  // 実施情報
+  completedAt       DateTime // 面談実施日時
+  duration          Int      // 実施時間（分）
+
+  // 面談内容
+  summary           String   // 面談サマリ
+  keyPoints         Json     // 重要ポイント（配列）
+  actionItems       Json     // アクションアイテム
+
+  // フォローアップ情報
+  followUpRequired  Boolean  @default(false)
+  followUpDate      DateTime?
+
+  // 職員フィードバック
+  feedbackToEmployee String  // 職員向けフィードバック文
+
+  // 次回推奨事項
+  nextRecommendations Json   // 次回推奨情報（日付・トピック）
+
+  // 受信管理
+  receivedAt        DateTime @default(now())
+  processedAt       DateTime?
+  status            String   @default("received") // received, processed, error
+  errorMessage      String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}

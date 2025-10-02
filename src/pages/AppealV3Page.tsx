@@ -62,7 +62,7 @@ const AppealV3Page: React.FC = () => {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                V3評価システム 異議申し立て
+                評価システム 異議申し立て
               </h1>
               <p className="mt-1 text-sm text-gray-600">
                 100点満点・7段階グレードシステム対応
@@ -133,10 +133,10 @@ const AppealV3Page: React.FC = () => {
               <div>
                 <div className="mb-8">
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                    V3新規異議申し立て
+                    新規異議申し立て
                   </h2>
                   <p className="text-gray-600">
-                    V3評価システムの100点満点評価に対する異議申し立てを行います。
+                    評価システムの100点満点評価に対する異議申し立てを行います。
                     7段階グレード（S, A+, A, B+, B, C, D）での表示に対応しています。
                   </p>
                 </div>
@@ -153,10 +153,10 @@ const AppealV3Page: React.FC = () => {
               <div>
                 <div className="mb-8">
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                    V3異議申し立て状況一覧
+                    異議申し立て状況一覧
                   </h2>
                   <p className="text-gray-600">
-                    V3評価システムで送信した異議申し立ての現在の状況を確認できます。
+                    評価システムで送信した異議申し立ての現在の状況を確認できます。
                     スコア変更とグレード変更の詳細も表示されます。
                   </p>
                 </div>
@@ -172,7 +172,7 @@ const AppealV3Page: React.FC = () => {
         {/* V3システム情報パネル */}
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-blue-900 mb-4">
-            📊 V3評価システムについて
+            📊 評価システムについて
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
@@ -192,7 +192,7 @@ const AppealV3Page: React.FC = () => {
             <div className="space-y-2">
               <h4 className="font-semibold text-blue-800">優先度判定</h4>
               <p className="text-sm text-blue-700">
-                V3では15点以上の差で高優先度、8点以上で中優先度、
+                15点以上の差で高優先度、8点以上で中優先度、
                 それ未満で低優先度として処理されます。
               </p>
             </div>
@@ -201,7 +201,7 @@ const AppealV3Page: React.FC = () => {
 
         {/* フッター */}
         <div className="mt-12 pb-8 text-center text-sm text-gray-500">
-          <p>VoiceDrive V3評価システム - 医療職員管理システム統合版</p>
+          <p>VoiceDrive 評価システム - 医療職員管理システム統合版</p>
           <p className="mt-1">
             技術的な問題については 
             <a href="#" className="text-blue-600 hover:text-blue-800 ml-1">
