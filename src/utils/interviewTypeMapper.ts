@@ -1,36 +1,40 @@
 /**
- * Phase 6: 面談タイプ表示名マッピング
+ * Phase 6: 面談タイプ表示名マッピング（修正版）
  *
  * データベース/APIのコード値をユーザー向け表示名に変換
  * データ保存は元のコード値のまま、表示のみ変更
+ *
+ * 面談予約ガイドページに基づく正式な面談タイプ:
+ * - 3つの分類: regular(定期面談), special(特別面談), support(サポート面談)
+ * - 10種類の詳細タイプ: newcomer, general, manager, return, incident, resignation,
+ *                      feedback, career, workplace, consultation
  */
 
 /**
- * 面談タイプコードから表示名を取得
+ * 面談タイプ分類コードから表示名を取得
  */
 export const getInterviewTypeLabel = (typeCode: string): string => {
   const mapping: Record<string, string> = {
-    // 定期面談系
+    // 3つの主要分類（面談予約ガイドページに記載）
     'regular': '定期面談',
-    'career_support': '定期面談',
-
-    // 特別面談系
     'special': '特別面談',
-    'individual_consultation': '個別相談',
+    'support': 'サポート面談',
 
-    // サポート面談系
-    'workplace_support': '職場サポート面談',
-    'mental_health': 'メンタルヘルス面談',
-    'stress_check': 'ストレスチェック面談',
+    // 定期面談の詳細タイプ（3種類）
+    'newcomer': '新入職員月次面談',
+    'general': '一般職員年次面談',
+    'manager': '管理職半年面談',
 
-    // ライフイベント系
-    'exit': '退職面談',
+    // 特別面談の詳細タイプ（3種類）
     'return': '復職面談',
-    'maternity': '産休・育休面談',
+    'incident': 'インシデント後面談',
+    'resignation': '退職面談',
 
-    // その他
-    'emergency': '緊急面談',
-    'follow_up': 'フォローアップ面談'
+    // サポート面談の詳細タイプ（4種類）
+    'feedback': 'フィードバック面談',
+    'career': 'キャリア系面談',
+    'workplace': '職場環境系面談',
+    'consultation': '個別相談面談'
   };
 
   return mapping[typeCode] || typeCode; // マッピングにない場合は元の値を返す
@@ -41,72 +45,87 @@ export const getInterviewTypeLabel = (typeCode: string): string => {
  */
 export const getInterviewTypeIcon = (typeCode: string): string => {
   const iconMap: Record<string, string> = {
-    // 定期面談系
-    'regular': '📝',
-    'career_support': '📝',
+    // 3つの主要分類
+    'regular': '📅',
+    'special': '⚠️',
+    'support': '💬',
 
-    // 特別面談系
-    'special': '⭐',
-    'individual_consultation': '💬',
+    // 定期面談の詳細タイプ（3種類）
+    'newcomer': '🌱',
+    'general': '📊',
+    'manager': '👔',
 
-    // サポート面談系
-    'workplace_support': '🤝',
-    'mental_health': '💚',
-    'stress_check': '🧘',
-
-    // ライフイベント系
-    'exit': '👋',
+    // 特別面談の詳細タイプ（3種類）
     'return': '🔄',
-    'maternity': '👶',
+    'incident': '⚠️',
+    'resignation': '🚪',
 
-    // その他
-    'emergency': '🚨',
-    'follow_up': '📋'
+    // サポート面談の詳細タイプ（4種類）
+    'feedback': '📈',
+    'career': '🚀',
+    'workplace': '🏢',
+    'consultation': '👤'
   };
 
   return iconMap[typeCode] || '💼'; // デフォルトアイコン
 };
 
 /**
- * 面談タイプコードのカテゴリを取得
+ * 面談タイプコードのカテゴリを取得（3つの公式分類に統一）
  */
-export const getInterviewTypeCategory = (typeCode: string): 'regular' | 'special' | 'support' | 'life_event' | 'other' => {
-  const categoryMap: Record<string, 'regular' | 'special' | 'support' | 'life_event' | 'other'> = {
+export const getInterviewTypeCategory = (typeCode: string): 'regular' | 'special' | 'support' => {
+  const categoryMap: Record<string, 'regular' | 'special' | 'support'> = {
+    // 3つの主要分類
     'regular': 'regular',
-    'career_support': 'regular',
     'special': 'special',
-    'individual_consultation': 'special',
-    'workplace_support': 'support',
-    'mental_health': 'support',
-    'stress_check': 'support',
-    'exit': 'life_event',
-    'return': 'life_event',
-    'maternity': 'life_event',
-    'emergency': 'other',
-    'follow_up': 'other'
+    'support': 'support',
+
+    // 定期面談の詳細タイプ
+    'newcomer': 'regular',
+    'general': 'regular',
+    'manager': 'regular',
+
+    // 特別面談の詳細タイプ
+    'return': 'special',
+    'incident': 'special',
+    'resignation': 'special',
+
+    // サポート面談の詳細タイプ
+    'feedback': 'support',
+    'career': 'support',
+    'workplace': 'support',
+    'consultation': 'support'
   };
 
-  return categoryMap[typeCode] || 'other';
+  return categoryMap[typeCode] || 'support'; // デフォルトはサポート面談
 };
 
 /**
- * すべての面談タイプコードを取得
+ * すべての面談タイプコードを取得（面談予約ガイドページの公式10種類）
  */
 export const getAllInterviewTypeCodes = (): string[] => {
   return [
-    'regular',
-    'career_support',
-    'special',
-    'individual_consultation',
-    'workplace_support',
-    'mental_health',
-    'stress_check',
-    'exit',
+    // 定期面談（3種類）
+    'newcomer',
+    'general',
+    'manager',
+    // 特別面談（3種類）
     'return',
-    'maternity',
-    'emergency',
-    'follow_up'
+    'incident',
+    'resignation',
+    // サポート面談（4種類）
+    'feedback',
+    'career',
+    'workplace',
+    'consultation'
   ];
+};
+
+/**
+ * 面談分類コードを取得（3つの主要分類）
+ */
+export const getInterviewClassifications = (): string[] => {
+  return ['regular', 'special', 'support'];
 };
 
 /**
