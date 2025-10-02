@@ -7,6 +7,7 @@ import { NotificationService } from '../api/db/notificationService';
 import { UserService } from '../api/db/userService';
 import interviewRoutes from './interviewRoutes';
 import syncRoutes from './syncRoutes';
+import myInterviewRoutes from './myInterviewRoutes';
 import { handleSummaryReceived } from '../api/medicalSystemReceiver';
 
 const router = Router();
@@ -23,6 +24,9 @@ router.use('/interviews', interviewRoutes);
 
 // 医療システム同期API
 router.use('/sync', syncRoutes);
+
+// マイページAPI（認証必須）
+router.use('/my', authenticateToken, myInterviewRoutes);
 
 // 面談サマリ受信API
 router.post('/summaries/receive', standardRateLimit, handleSummaryReceived);

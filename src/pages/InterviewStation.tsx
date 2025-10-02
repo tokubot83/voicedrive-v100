@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { InterviewBookingService } from '../services/InterviewBookingService';
-import { InterviewBooking } from '../types/interview';
+import { InterviewBooking, InterviewResult, EnhancedBooking } from '../types/interview';
 import CancelBookingModal from '../components/interview/CancelBookingModal';
 import RescheduleModal from '../components/interview/RescheduleModal';
 import OfflineBookingViewer from '../components/interview/OfflineBookingViewer';
@@ -17,6 +17,9 @@ import StaffRecommendationDisplay from '../components/interview/StaffRecommendat
 import AssistedBookingService, { AssistedBookingRequest, StaffFriendlyRecommendation } from '../services/AssistedBookingService';
 import SimpleInterviewFlow from '../components/interview/simple/SimpleInterviewFlow';
 import ProposalNotificationDemo from '../components/demo/ProposalNotificationDemo';
+
+// Phase 4-A: 面談サマリモーダル統合
+import { InterviewResultModal } from '../components/interview-results/InterviewResultModal';
 
 const InterviewStation: React.FC = () => {
   const navigate = useNavigate();
@@ -48,6 +51,12 @@ const InterviewStation: React.FC = () => {
 
   // Pattern D 統合用のstate
   const [pendingRequests, setPendingRequests] = useState<AssistedBookingRequest[]>([]);
+
+  // Phase 4-A: 面談サマリ統合用のstate
+  const [interviewResults, setInterviewResults] = useState<InterviewResult[]>([]);
+  const [summaryModalOpen, setSummaryModalOpen] = useState(false);
+  const [selectedInterviewId, setSelectedInterviewId] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [currentRecommendations, setCurrentRecommendations] = useState<StaffFriendlyRecommendation[]>([]);
   const [selectedRequestId, setSelectedRequestId] = useState<string>('');
@@ -151,6 +160,41 @@ const InterviewStation: React.FC = () => {
     }
   };
 
+  // Phase 4-A: 面談サマリ取得関数
+  const fetchInterviewResults = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.warn('Token not found - skipping interview results fetch');
+      return;
+    }
+
+    try {
+      setSummaryLoading(true);
+      const response = await fetch('/api/my/interview-results', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch interview results');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        setInterviewResults(data.data || []);
+      } else {
+        console.error('API returned error:', data.error);
+        setInterviewResults([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch interview results:', error);
+      setInterviewResults([]);
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
   const loadInterviewData = async () => {
     setLoading(true);
     try {
@@ -170,6 +214,13 @@ const InterviewStation: React.FC = () => {
         } catch (error) {
           console.error('調整中リクエスト取得エラー:', error);
           setPendingRequests([]);
+        }
+
+        // Phase 4-A: 面談サマリ取得
+        try {
+          await fetchInterviewResults();
+        } catch (error) {
+          console.error('面談サマリ取得エラー:', error);
         }
       } else {
         // オフライン時：キャッシュデータ取得
@@ -365,6 +416,37 @@ const InterviewStation: React.FC = () => {
       day: 'numeric',
       weekday: 'short'
     });
+  };
+
+  // Phase 4-A: ヘルパー関数
+  const getInterviewIcon = (type: string): string => {
+    if (type.includes('定期') || type.includes('regular')) return '📝';
+    if (type.includes('キャリア') || type.includes('career')) return '🎯';
+    if (type.includes('メンタル') || type.includes('stress') || type.includes('ストレス')) return '💚';
+    if (type.includes('退職') || type.includes('exit')) return '👋';
+    if (type.includes('復職') || type.includes('return')) return '🔄';
+    if (type.includes('フィードバック') || type.includes('feedback')) return '💬';
+    return '💼';
+  };
+
+  const getSummaryStatusBadge = (status: 'received' | 'waiting' | null) => {
+    if (status === 'received') {
+      return (
+        <span className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white text-sm rounded-full">
+          <span>✅</span>
+          <span>サマリ受信済</span>
+        </span>
+      );
+    }
+    if (status === 'waiting') {
+      return (
+        <span className="flex items-center gap-1 px-3 py-1 bg-yellow-600 text-white text-sm rounded-full">
+          <span>⏳</span>
+          <span>サマリ待ち</span>
+        </span>
+      );
+    }
+    return null;
   };
 
   // ダッシュボードビュー
@@ -640,32 +722,52 @@ const InterviewStation: React.FC = () => {
 
 
   // 履歴ビュー
-  const HistoryView = () => (
-    <div className="space-y-6">
-      {/* 面談統計 */}
-      <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl p-6 text-white">
-        <h3 className="text-xl font-bold mb-4 flex items-center">
-          <span className="mr-2">📊</span> 面談統計
-        </h3>
-        <div className="space-y-3">
-          <div className="flex justify-between">
-            <span>今年の面談回数:</span>
-            <span className="font-bold">{pastBookings.filter(b => b.status === 'completed').length}回</span>
-          </div>
-          <div className="flex justify-between">
-            <span>予約中の面談:</span>
-            <span className="font-bold">{upcomingBookings.length}件</span>
-          </div>
-          <div className="flex justify-between">
-            <span>キャンセル率:</span>
-            <span className="font-bold">
-              {pastBookings.length > 0
-                ? Math.round((pastBookings.filter(b => b.status === 'cancelled').length / pastBookings.length) * 100)
-                : 0}%
-            </span>
+  const HistoryView = () => {
+    // Phase 4-A: 面談履歴とサマリをマージ
+    const enhancedBookings: EnhancedBooking[] = pastBookings.map(booking => {
+      const summary = interviewResults.find(r => r.interviewId === booking.id);
+      return {
+        ...booking,
+        hasSummary: !!summary,
+        summaryData: summary,
+        summaryStatus: booking.status === 'completed'
+          ? (summary ? 'received' : 'waiting')
+          : null
+      } as EnhancedBooking;
+    });
+
+    // Phase 4-A: 統計計算（サマリ受信済み件数を追加）
+    const stats = {
+      totalInterviews: pastBookings.filter(b => b.status === 'completed').length,
+      summariesReceived: interviewResults.length,
+      scheduledBookings: upcomingBookings.length,
+      cancelRate: pastBookings.length > 0
+        ? Math.round((pastBookings.filter(b => b.status === 'cancelled').length / pastBookings.length) * 100)
+        : 0
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* 面談統計 - Phase 4-A 強化版 */}
+        <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl p-6 text-white">
+          <h3 className="text-xl font-bold mb-4 flex items-center">
+            <span className="mr-2">📊</span> 面談統計
+          </h3>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-white/10 rounded-lg p-3">
+              <div className="text-sm opacity-90">今年の面談回数</div>
+              <div className="text-2xl font-bold">{stats.totalInterviews}回</div>
+            </div>
+            <div className="bg-white/10 rounded-lg p-3">
+              <div className="text-sm opacity-90">サマリ受信済み</div>
+              <div className="text-2xl font-bold">{stats.summariesReceived}件</div>
+            </div>
+            <div className="bg-white/10 rounded-lg p-3">
+              <div className="text-sm opacity-90">予約中</div>
+              <div className="text-2xl font-bold">{stats.scheduledBookings}件</div>
+            </div>
           </div>
         </div>
-      </div>
 
       {/* すべての予約（今後の予約も含む） */}
       {upcomingBookings.length > 0 && (
@@ -712,41 +814,114 @@ const InterviewStation: React.FC = () => {
         </div>
       )}
 
-      {/* 面談履歴 */}
+      {/* 面談履歴 - Phase 4-A 強化版 */}
       <div className="bg-slate-800 rounded-xl p-6">
-        <h3 className="text-2xl font-bold text-white mb-6">過去の面談</h3>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-2xl font-bold text-white">過去の面談</h3>
+          {/* Phase 4-B でフィルタボタン追加予定 */}
+        </div>
 
-        {pastBookings.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-400">面談履歴はありません</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {pastBookings.map(booking => (
-            <div key={booking.id} className="bg-slate-700 rounded-lg p-4">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h4 className="text-white font-semibold">{booking.interviewType}</h4>
-                    {getStatusBadge(booking.status)}
-                  </div>
-                  <div className="space-y-1 text-sm text-gray-300">
-                    <p>📅 {formatDate(booking.bookingDate)}</p>
-                    <p>👤 {booking.interviewerName || '記録なし'}</p>
-                    {booking.description && (
-                      <p className="text-gray-400 mt-2">📝 {booking.description}</p>
-                    )}
-                  </div>
+        {summaryLoading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
+            <p className="text-gray-400 mt-2">読み込み中...</p>
+          </div>
+        ) : enhancedBookings.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-400">面談履歴はありません</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {enhancedBookings.map(booking => (
+              <div key={booking.id} className="bg-slate-700 rounded-lg p-5 hover:bg-slate-600 transition-colors">
+                {/* ヘッダー: タイトル + ステータス */}
+                <div className="flex justify-between items-start mb-3">
+                  <h4 className="text-white font-semibold text-lg flex items-center gap-2">
+                    {getInterviewIcon(booking.interviewType)}
+                    {booking.interviewType}
+                  </h4>
+                  {getSummaryStatusBadge(booking.summaryStatus)}
                 </div>
-                <button className="text-blue-400 hover:text-blue-300">詳細</button>
+
+                {/* 面談情報 */}
+                <div className="space-y-2 mb-4">
+                  <div className="text-gray-300 flex items-center gap-2">
+                    <span>📅</span>
+                    <span>{formatDate(booking.bookingDate)}</span>
+                  </div>
+                  <div className="text-gray-300 flex items-center gap-2">
+                    <span>👤</span>
+                    <span>{booking.interviewerName || '記録なし'}</span>
+                  </div>
+                  {booking.duration && (
+                    <div className="text-gray-300 flex items-center gap-2">
+                      <span>⏱️</span>
+                      <span>所要時間: {booking.duration}分</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* サマリプレビュー（受信済みの場合） */}
+                {booking.hasSummary && booking.summaryData && (
+                  <div className="bg-slate-600 rounded-lg p-3 mb-4">
+                    <div className="text-sm text-gray-300 mb-2">📌 主なポイント:</div>
+                    <ul className="space-y-1">
+                      {booking.summaryData.keyPoints.slice(0, 2).map((point, idx) => (
+                        <li key={idx} className="text-sm text-gray-200">
+                          • {point}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* アクションボタン */}
+                <div className="flex gap-3">
+                  {booking.hasSummary && (
+                    <button
+                      onClick={() => {
+                        setSelectedInterviewId(booking.id);
+                        setSummaryModalOpen(true);
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors"
+                    >
+                      <span>📝</span>
+                      <span>サマリを見る</span>
+                      {booking.summaryData && !booking.summaryData.isRead && (
+                        <span className="bg-red-500 text-xs px-2 py-0.5 rounded-full">未読</span>
+                      )}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {/* 面談詳細表示 */}}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-500 hover:bg-slate-400 text-white rounded-lg transition-colors"
+                  >
+                    <span>📄</span>
+                    <span>面談詳細</span>
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* サマリモーダル - Phase 1実装済みコンポーネント再利用 */}
+      {selectedInterviewId && (
+        <InterviewResultModal
+          isOpen={summaryModalOpen}
+          onClose={() => {
+            setSummaryModalOpen(false);
+            setSelectedInterviewId(null);
+            // モーダル閉じたら再取得（既読状態更新のため）
+            fetchInterviewResults();
+          }}
+          interviewId={selectedInterviewId}
+        />
+      )}
     </div>
   );
+  };
 
   // リマインダー設定ビュー
   const ReminderView = () => (

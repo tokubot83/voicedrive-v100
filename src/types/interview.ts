@@ -536,3 +536,50 @@ export interface BookingRescheduleResponse {
   requiresApproval: boolean;
   suggestedAlternatives?: TimeSlot[];
 }
+
+// Phase 4-A: 面談サマリ関連の型定義
+
+export interface InterviewResult {
+  id: string;
+  requestId: string;
+  interviewId: string;
+  completedAt: string;
+  duration: number;
+  summary: string;
+  keyPoints: string[];
+  actionItems: Array<{
+    description: string;
+    dueDate?: string;
+  }>;
+  followUpRequired: boolean;
+  followUpDate?: string;
+  feedbackToEmployee?: string;
+  nextRecommendations?: {
+    suggestedNextInterview?: string;
+    suggestedTopics?: string[];
+  };
+  isRead?: boolean;
+  readAt?: string;
+}
+
+export interface Booking {
+  id: string;
+  interviewType: string;
+  bookingDate: string;
+  status: 'scheduled' | 'completed' | 'cancelled';
+  interviewerName?: string;
+  duration?: number;
+  // 他の面談予約関連フィールド
+}
+
+export interface EnhancedBooking extends Booking {
+  hasSummary: boolean;
+  summaryData?: InterviewResult;
+  summaryStatus?: 'received' | 'waiting' | null;
+}
+
+export interface InterviewHistoryStats {
+  totalInterviews: number;
+  summariesReceived: number;
+  scheduledBookings: number;
+}
