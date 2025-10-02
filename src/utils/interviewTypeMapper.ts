@@ -1,40 +1,46 @@
 /**
- * Phase 6: 面談タイプ表示名マッピング（修正版）
+ * Phase 6: 面談タイプ表示名マッピング（人事システム統合仕様書準拠版）
  *
  * データベース/APIのコード値をユーザー向け表示名に変換
  * データ保存は元のコード値のまま、表示のみ変更
  *
- * 面談予約ガイドページに基づく正式な面談タイプ:
- * - 3つの分類: regular(定期面談), special(特別面談), support(サポート面談)
- * - 10種類の詳細タイプ: newcomer, general, manager, return, incident, resignation,
- *                      feedback, career, workplace, consultation
+ * 正式な面談タイプ（VoiceDrive面談制度_人事システム統合仕様書.md より）:
+ * 11種類の面談タイプ + 3つの分類（UI表示用）
  */
 
 /**
- * 面談タイプ分類コードから表示名を取得
+ * 面談タイプコードから表示名を取得
+ *
+ * @param typeCode - データベースに保存されている面談タイプコード
+ * @returns ユーザー向け表示名（日本語）
  */
 export const getInterviewTypeLabel = (typeCode: string): string => {
   const mapping: Record<string, string> = {
-    // 3つの主要分類（面談予約ガイドページに記載）
+    // 【定期面談】3種類
+    'new_employee_monthly': '新入職員月次面談',     // 入職1年未満の職員向け月次面談
+    'regular_annual': '一般職員年次面談',           // 全職員向け年次面談
+    'management_biannual': '管理職半年面談',        // 管理職向け半年面談
+
+    // 【特別面談】3種類
+    'incident_followup': 'インシデント後面談',      // インシデント発生後のフォローアップ
+    'return_to_work': '復職面談',                   // 休職から復職する職員向け
+    'exit_interview': '退職面談',                   // 退職予定者向け
+
+    // 【サポート面談】5種類
+    'career_development': 'キャリア開発面談',       // キャリアパス・スキル開発相談
+    'stress_care': 'ストレスケア面談',              // メンタルヘルス・ストレス相談
+    'performance_review': '人事評価面談',           // 人事評価結果のフィードバック
+    'grievance': '苦情・相談面談',                  // 職場環境・人間関係等の相談
+    'ad_hoc': '随時面談',                           // その他の個別相談
+
+    // 【UI表示用の分類】（面談予約ガイドページに記載）
     'regular': '定期面談',
     'special': '特別面談',
     'support': 'サポート面談',
 
-    // 定期面談の詳細タイプ（3種類）
-    'newcomer': '新入職員月次面談',
-    'general': '一般職員年次面談',
-    'manager': '管理職半年面談',
-
-    // 特別面談の詳細タイプ（3種類）
-    'return': '復職面談',
-    'incident': 'インシデント後面談',
-    'resignation': '退職面談',
-
-    // サポート面談の詳細タイプ（4種類）
-    'feedback': 'フィードバック面談',
-    'career': 'キャリア系面談',
-    'workplace': '職場環境系面談',
-    'consultation': '個別相談面談'
+    // 【旧コード（互換性のため残す）】
+    'career_support': 'キャリア開発面談',           // career_development の旧名称
+    'workplace_support': '苦情・相談面談'           // grievance の旧名称
   };
 
   return mapping[typeCode] || typeCode; // マッピングにない場合は元の値を返す
@@ -45,79 +51,90 @@ export const getInterviewTypeLabel = (typeCode: string): string => {
  */
 export const getInterviewTypeIcon = (typeCode: string): string => {
   const iconMap: Record<string, string> = {
-    // 3つの主要分類
+    // 【定期面談】3種類
+    'new_employee_monthly': '🌱',    // 新入職員
+    'regular_annual': '📊',          // 一般職員
+    'management_biannual': '👔',     // 管理職
+
+    // 【特別面談】3種類
+    'incident_followup': '⚠️',       // インシデント
+    'return_to_work': '🔄',          // 復職
+    'exit_interview': '🚪',          // 退職
+
+    // 【サポート面談】5種類
+    'career_development': '🚀',      // キャリア開発
+    'stress_care': '💚',             // ストレスケア
+    'performance_review': '📈',      // 人事評価
+    'grievance': '💬',               // 苦情・相談
+    'ad_hoc': '📋',                  // 随時
+
+    // 【UI表示用の分類】
     'regular': '📅',
     'special': '⚠️',
     'support': '💬',
 
-    // 定期面談の詳細タイプ（3種類）
-    'newcomer': '🌱',
-    'general': '📊',
-    'manager': '👔',
-
-    // 特別面談の詳細タイプ（3種類）
-    'return': '🔄',
-    'incident': '⚠️',
-    'resignation': '🚪',
-
-    // サポート面談の詳細タイプ（4種類）
-    'feedback': '📈',
-    'career': '🚀',
-    'workplace': '🏢',
-    'consultation': '👤'
+    // 【旧コード（互換性）】
+    'career_support': '🚀',
+    'workplace_support': '💬'
   };
 
   return iconMap[typeCode] || '💼'; // デフォルトアイコン
 };
 
 /**
- * 面談タイプコードのカテゴリを取得（3つの公式分類に統一）
+ * 面談タイプコードのカテゴリを取得（3つの公式分類）
  */
 export const getInterviewTypeCategory = (typeCode: string): 'regular' | 'special' | 'support' => {
   const categoryMap: Record<string, 'regular' | 'special' | 'support'> = {
-    // 3つの主要分類
+    // 【定期面談】3種類
+    'new_employee_monthly': 'regular',
+    'regular_annual': 'regular',
+    'management_biannual': 'regular',
+
+    // 【特別面談】3種類
+    'incident_followup': 'special',
+    'return_to_work': 'special',
+    'exit_interview': 'special',
+
+    // 【サポート面談】5種類
+    'career_development': 'support',
+    'stress_care': 'support',
+    'performance_review': 'support',
+    'grievance': 'support',
+    'ad_hoc': 'support',
+
+    // 【UI表示用の分類】
     'regular': 'regular',
     'special': 'special',
     'support': 'support',
 
-    // 定期面談の詳細タイプ
-    'newcomer': 'regular',
-    'general': 'regular',
-    'manager': 'regular',
-
-    // 特別面談の詳細タイプ
-    'return': 'special',
-    'incident': 'special',
-    'resignation': 'special',
-
-    // サポート面談の詳細タイプ
-    'feedback': 'support',
-    'career': 'support',
-    'workplace': 'support',
-    'consultation': 'support'
+    // 【旧コード（互換性）】
+    'career_support': 'support',
+    'workplace_support': 'support'
   };
 
   return categoryMap[typeCode] || 'support'; // デフォルトはサポート面談
 };
 
 /**
- * すべての面談タイプコードを取得（面談予約ガイドページの公式10種類）
+ * すべての面談タイプコードを取得（人事システム統合仕様書の公式11種類）
  */
 export const getAllInterviewTypeCodes = (): string[] => {
   return [
     // 定期面談（3種類）
-    'newcomer',
-    'general',
-    'manager',
+    'new_employee_monthly',
+    'regular_annual',
+    'management_biannual',
     // 特別面談（3種類）
-    'return',
-    'incident',
-    'resignation',
-    // サポート面談（4種類）
-    'feedback',
-    'career',
-    'workplace',
-    'consultation'
+    'incident_followup',
+    'return_to_work',
+    'exit_interview',
+    // サポート面談（5種類）
+    'career_development',
+    'stress_care',
+    'performance_review',
+    'grievance',
+    'ad_hoc'
   ];
 };
 
