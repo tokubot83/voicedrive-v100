@@ -583,3 +583,21 @@ export interface InterviewHistoryStats {
   summariesReceived: number;
   scheduledBookings: number;
 }
+
+// Phase 4-B: フィルタリング & 検索機能の型定義
+
+export interface InterviewFilters {
+  period: 'all' | 'this_month' | 'last_month' | 'custom';
+  customStartDate?: string;
+  customEndDate?: string;
+  status: 'all' | 'summary_received' | 'summary_waiting';
+  interviewType: 'all' | string; // 'all' or specific type
+  keyword: string;
+}
+
+export interface InterviewSearchResult {
+  bookings: EnhancedBooking[];
+  totalCount: number;
+  filteredCount: number;
+  activeFilters: string[]; // 'period: 今月', 'status: サマリ受信済み' など
+}

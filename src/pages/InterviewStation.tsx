@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { InterviewBookingService } from '../services/InterviewBookingService';
-import { InterviewBooking, InterviewResult, EnhancedBooking } from '../types/interview';
+import { InterviewBooking, InterviewResult, EnhancedBooking, InterviewFilters } from '../types/interview';
 import CancelBookingModal from '../components/interview/CancelBookingModal';
 import RescheduleModal from '../components/interview/RescheduleModal';
 import OfflineBookingViewer from '../components/interview/OfflineBookingViewer';
@@ -449,6 +449,59 @@ const InterviewStation: React.FC = () => {
     return null;
   };
 
+  // Phase 4-B: フィルタ用ヘルパー関数
+  const applyPeriodFilter = (
+    bookings: EnhancedBooking[],
+    filters: InterviewFilters
+  ): EnhancedBooking[] => {
+    const now = new Date();
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+    return bookings.filter(b => {
+      const bookingDate = new Date(b.bookingDate);
+
+      switch (filters.period) {
+        case 'this_month':
+          return bookingDate >= thisMonthStart;
+        case 'last_month':
+          return bookingDate >= lastMonthStart && bookingDate <= lastMonthEnd;
+        case 'custom':
+          if (filters.customStartDate && filters.customEndDate) {
+            const start = new Date(filters.customStartDate);
+            const end = new Date(filters.customEndDate);
+            return bookingDate >= start && bookingDate <= end;
+          }
+          return true;
+        default:
+          return true;
+      }
+    });
+  };
+
+  const getPeriodLabel = (period: string): string => {
+    switch (period) {
+      case 'this_month': return '今月';
+      case 'last_month': return '先月';
+      case 'custom': return 'カスタム';
+      default: return '全期間';
+    }
+  };
+
+  const getStatusFilterLabel = (status: string): string => {
+    switch (status) {
+      case 'summary_received': return 'サマリ受信済み';
+      case 'summary_waiting': return 'サマリ待ち';
+      default: return '全て';
+    }
+  };
+
+  const getUniqueInterviewTypes = (bookings: EnhancedBooking[]): string[] => {
+    const types = new Set(bookings.map(b => b.interviewType));
+    return Array.from(types).sort();
+  };
+
   // ダッシュボードビュー
   const DashboardView = () => (
     <div className="space-y-6">
@@ -723,6 +776,15 @@ const InterviewStation: React.FC = () => {
 
   // 履歴ビュー
   const HistoryView = () => {
+    // Phase 4-B: フィルタ関連のstate
+    const [filters, setFilters] = useState<InterviewFilters>({
+      period: 'all',
+      status: 'all',
+      interviewType: 'all',
+      keyword: ''
+    });
+    const [showFilters, setShowFilters] = useState(false);
+
     // Phase 4-A: 面談履歴とサマリをマージ
     const enhancedBookings: EnhancedBooking[] = pastBookings.map(booking => {
       const summary = interviewResults.find(r => r.interviewId === booking.id);
@@ -735,6 +797,63 @@ const InterviewStation: React.FC = () => {
           : null
       } as EnhancedBooking;
     });
+
+    // Phase 4-B: フィルタリング処理
+    const filteredBookings = useMemo(() => {
+      let result = [...enhancedBookings];
+
+      // 1. 期間フィルタ
+      if (filters.period !== 'all') {
+        result = applyPeriodFilter(result, filters);
+      }
+
+      // 2. ステータスフィルタ
+      if (filters.status !== 'all') {
+        result = result.filter(b => {
+          if (filters.status === 'summary_received') {
+            return b.hasSummary;
+          } else if (filters.status === 'summary_waiting') {
+            return !b.hasSummary && b.status === 'completed';
+          }
+          return true;
+        });
+      }
+
+      // 3. 面談タイプフィルタ
+      if (filters.interviewType !== 'all') {
+        result = result.filter(b => b.interviewType === filters.interviewType);
+      }
+
+      // 4. キーワード検索
+      if (filters.keyword.trim()) {
+        const keyword = filters.keyword.toLowerCase();
+        result = result.filter(b =>
+          b.interviewerName?.toLowerCase().includes(keyword) ||
+          b.summaryData?.summary.toLowerCase().includes(keyword) ||
+          b.summaryData?.keyPoints.some(kp => kp.toLowerCase().includes(keyword))
+        );
+      }
+
+      return result;
+    }, [enhancedBookings, filters]);
+
+    // Phase 4-B: アクティブなフィルタのラベル生成
+    const activeFilterLabels = useMemo(() => {
+      const labels: string[] = [];
+      if (filters.period !== 'all') {
+        labels.push(`期間: ${getPeriodLabel(filters.period)}`);
+      }
+      if (filters.status !== 'all') {
+        labels.push(`ステータス: ${getStatusFilterLabel(filters.status)}`);
+      }
+      if (filters.interviewType !== 'all') {
+        labels.push(`タイプ: ${filters.interviewType}`);
+      }
+      if (filters.keyword.trim()) {
+        labels.push(`キーワード: "${filters.keyword}"`);
+      }
+      return labels;
+    }, [filters]);
 
     // Phase 4-A: 統計計算（サマリ受信済み件数を追加）
     const stats = {
@@ -814,11 +933,165 @@ const InterviewStation: React.FC = () => {
         </div>
       )}
 
-      {/* 面談履歴 - Phase 4-A 強化版 */}
+      {/* 面談履歴 - Phase 4-A & 4-B 強化版 */}
       <div className="bg-slate-800 rounded-xl p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-2xl font-bold text-white">過去の面談</h3>
-          {/* Phase 4-B でフィルタボタン追加予定 */}
+          {/* Phase 4-B: フィルタボタン */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          >
+            <span>🔍</span>
+            <span>{showFilters ? 'フィルタを閉じる' : 'フィルタ'}</span>
+            {activeFilterLabels.length > 0 && (
+              <span className="bg-blue-600 text-xs px-2 py-0.5 rounded-full">
+                {activeFilterLabels.length}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Phase 4-B: フィルタパネル */}
+        {showFilters && (
+          <div className="bg-slate-700 rounded-lg p-4 mb-4">
+            <div className="flex justify-between items-center mb-4">
+              <h4 className="text-white font-semibold">🔍 フィルタ & 検索</h4>
+              {activeFilterLabels.length > 0 && (
+                <button
+                  onClick={() => setFilters({
+                    period: 'all',
+                    status: 'all',
+                    interviewType: 'all',
+                    keyword: ''
+                  })}
+                  className="text-sm text-blue-400 hover:text-blue-300"
+                >
+                  フィルタクリア
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* 期間フィルタ */}
+              <div>
+                <label className="text-sm text-gray-300 mb-1 block">📅 期間</label>
+                <select
+                  value={filters.period}
+                  onChange={(e) => setFilters({ ...filters, period: e.target.value as any })}
+                  className="w-full bg-slate-600 text-white rounded px-3 py-2"
+                >
+                  <option value="all">全期間</option>
+                  <option value="this_month">今月</option>
+                  <option value="last_month">先月</option>
+                  <option value="custom">カスタム</option>
+                </select>
+              </div>
+
+              {/* ステータスフィルタ */}
+              <div>
+                <label className="text-sm text-gray-300 mb-1 block">📝 ステータス</label>
+                <select
+                  value={filters.status}
+                  onChange={(e) => setFilters({ ...filters, status: e.target.value as any })}
+                  className="w-full bg-slate-600 text-white rounded px-3 py-2"
+                >
+                  <option value="all">全て</option>
+                  <option value="summary_received">サマリ受信済み</option>
+                  <option value="summary_waiting">サマリ待ち</option>
+                </select>
+              </div>
+
+              {/* 面談タイプフィルタ */}
+              <div>
+                <label className="text-sm text-gray-300 mb-1 block">💼 面談タイプ</label>
+                <select
+                  value={filters.interviewType}
+                  onChange={(e) => setFilters({ ...filters, interviewType: e.target.value })}
+                  className="w-full bg-slate-600 text-white rounded px-3 py-2"
+                >
+                  <option value="all">全て</option>
+                  {getUniqueInterviewTypes(enhancedBookings).map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* キーワード検索 */}
+              <div>
+                <label className="text-sm text-gray-300 mb-1 block">🔎 キーワード</label>
+                <input
+                  type="text"
+                  value={filters.keyword}
+                  onChange={(e) => setFilters({ ...filters, keyword: e.target.value })}
+                  placeholder="面談者名、内容等"
+                  className="w-full bg-slate-600 text-white rounded px-3 py-2"
+                />
+              </div>
+            </div>
+
+            {/* カスタム期間選択 */}
+            {filters.period === 'custom' && (
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label className="text-sm text-gray-300 mb-1 block">開始日</label>
+                  <input
+                    type="date"
+                    value={filters.customStartDate || ''}
+                    onChange={(e) => setFilters({ ...filters, customStartDate: e.target.value })}
+                    className="w-full bg-slate-600 text-white rounded px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-300 mb-1 block">終了日</label>
+                  <input
+                    type="date"
+                    value={filters.customEndDate || ''}
+                    onChange={(e) => setFilters({ ...filters, customEndDate: e.target.value })}
+                    className="w-full bg-slate-600 text-white rounded px-3 py-2"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Phase 4-B: アクティブフィルタ表示 */}
+        {activeFilterLabels.length > 0 && (
+          <div className="bg-slate-700 rounded-lg p-3 mb-4">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm text-gray-300">🏷️ 絞り込み中:</span>
+              {activeFilterLabels.map((label, idx) => (
+                <span
+                  key={idx}
+                  className="bg-blue-600 text-white text-sm px-3 py-1 rounded-full"
+                >
+                  {label}
+                </span>
+              ))}
+              <button
+                onClick={() => setFilters({
+                  period: 'all',
+                  status: 'all',
+                  interviewType: 'all',
+                  keyword: ''
+                })}
+                className="text-sm text-red-400 hover:text-red-300 ml-2"
+              >
+                ✕ クリア
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Phase 4-B: 検索結果カウント */}
+        <div className="text-gray-300 text-sm mb-4">
+          📋 検索結果: {filteredBookings.length}件
+          {filteredBookings.length < enhancedBookings.length && (
+            <span className="text-gray-400 ml-2">
+              （全{enhancedBookings.length}件中）
+            </span>
+          )}
         </div>
 
         {summaryLoading ? (
@@ -826,13 +1099,30 @@ const InterviewStation: React.FC = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
             <p className="text-gray-400 mt-2">読み込み中...</p>
           </div>
-        ) : enhancedBookings.length === 0 ? (
+        ) : filteredBookings.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-400">面談履歴はありません</p>
+            {enhancedBookings.length === 0 ? (
+              <p className="text-gray-400">面談履歴はありません</p>
+            ) : (
+              <>
+                <p className="text-gray-400 mb-2">該当する面談が見つかりませんでした</p>
+                <button
+                  onClick={() => setFilters({
+                    period: 'all',
+                    status: 'all',
+                    interviewType: 'all',
+                    keyword: ''
+                  })}
+                  className="text-blue-400 hover:text-blue-300"
+                >
+                  フィルタをクリア
+                </button>
+              </>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
-            {enhancedBookings.map(booking => (
+            {filteredBookings.map(booking => (
               <div key={booking.id} className="bg-slate-700 rounded-lg p-5 hover:bg-slate-600 transition-colors">
                 {/* ヘッダー: タイトル + ステータス */}
                 <div className="flex justify-between items-start mb-3">
@@ -921,7 +1211,7 @@ const InterviewStation: React.FC = () => {
       )}
     </div>
   );
-  };
+};
 
   // リマインダー設定ビュー
   const ReminderView = () => (
