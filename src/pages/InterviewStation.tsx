@@ -664,53 +664,18 @@ const InterviewStation: React.FC = () => {
                 )}
               </div>
 
-              {/* その他の予約（2件目以降） */}
+              {/* その他の予約がある場合は下部にリンク表示 */}
               {upcomingBookings.length > 1 && (
-                <div>
-                  <p className="text-sm font-medium opacity-80 mb-2">その他の予約</p>
-                  <div className="space-y-2">
-                    {upcomingBookings.slice(1, 3).map(booking => (
-                      <div key={booking.id} className="bg-blue-900/20 rounded-lg p-3 flex justify-between items-center">
-                        <div className="flex-1">
-                          <p className="font-medium">
-                            {formatDate(booking.bookingDate)}
-                          </p>
-                          <p className="text-sm opacity-80">
-                            {booking.timeSlot.startTime} - {booking.timeSlot.endTime}
-                            {booking.interviewerName && ` | ${booking.interviewerName}`}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          {getStatusBadge(booking.status)}
-                          <div className="flex gap-1">
-                            <button
-                              onClick={() => handleRescheduleClick(booking)}
-                              className="text-xs text-blue-300 hover:text-blue-200"
-                              disabled={booking.status === 'cancelled' || booking.status === 'completed'}
-                            >
-                              変更
-                            </button>
-                            <span className="text-gray-500">|</span>
-                            <button
-                              onClick={() => handleCancelClick(booking)}
-                              className="text-xs text-red-300 hover:text-red-200"
-                              disabled={booking.status === 'cancelled' || booking.status === 'completed'}
-                            >
-                              取消
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    {upcomingBookings.length > 3 && (
-                      <button
-                        onClick={() => setActiveTab('history')}
-                        className="text-sm text-blue-300 hover:text-blue-200 mt-2"
-                      >
-                        すべての予約を見る（{upcomingBookings.length - 3}件）→
-                      </button>
-                    )}
-                  </div>
+                <div className="mt-4 pt-4 border-t border-blue-800/30">
+                  <p className="text-sm text-gray-400 mb-2">
+                    他に{upcomingBookings.length - 1}件の予約があります
+                  </p>
+                  <button
+                    onClick={() => window.scrollTo({ top: document.getElementById('all-bookings')?.offsetTop || 0, behavior: 'smooth' })}
+                    className="text-sm text-blue-300 hover:text-blue-200 flex items-center gap-1"
+                  >
+                    すべての予約を見る →
+                  </button>
                 </div>
               )}
             </div>
@@ -727,6 +692,53 @@ const InterviewStation: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* すべての予約済み面談 */}
+      {upcomingBookings.length > 0 && (
+        <div id="all-bookings" className="bg-slate-800 rounded-xl p-6">
+          <h3 className="text-xl font-bold mb-4 text-white flex items-center">
+            <span className="mr-2">📅</span> すべての予約済み面談
+          </h3>
+          <div className="space-y-4">
+            {upcomingBookings.map(booking => (
+              <div key={booking.id} className="bg-slate-700 rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h4 className="text-white font-semibold">{booking.interviewType}</h4>
+                      {getStatusBadge(booking.status)}
+                    </div>
+                    <div className="space-y-1 text-sm text-gray-300">
+                      <p>📅 {formatDate(booking.bookingDate)}</p>
+                      <p>⏰ {booking.timeSlot.startTime} - {booking.timeSlot.endTime}</p>
+                      <p>👤 {booking.interviewerName || '調整中'}</p>
+                      {booking.description && (
+                        <p className="text-gray-400 mt-2">📝 {booking.description}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleRescheduleClick(booking)}
+                      className="text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                      disabled={booking.status === 'cancelled' || booking.status === 'completed' || booking.status === 'reschedule_pending'}
+                    >
+                      日時変更
+                    </button>
+                    <button
+                      onClick={() => handleCancelClick(booking)}
+                      className="text-red-400 hover:text-red-300 disabled:opacity-50"
+                      disabled={booking.status === 'cancelled' || booking.status === 'completed'}
+                    >
+                      キャンセル
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 前回の面談情報 */}
       <div className="bg-slate-800 rounded-xl p-6">
@@ -855,26 +867,26 @@ const InterviewStation: React.FC = () => {
       return labels;
     }, [filters]);
 
-    // Phase 4-A: 統計計算（サマリ受信済み件数を追加）
+    // Phase 4-A & Phase 5: 統計計算（履歴タブ用）
     const stats = {
       totalInterviews: pastBookings.filter(b => b.status === 'completed').length,
       summariesReceived: interviewResults.length,
-      scheduledBookings: upcomingBookings.length,
-      cancelRate: pastBookings.length > 0
-        ? Math.round((pastBookings.filter(b => b.status === 'cancelled').length / pastBookings.length) * 100)
-        : 0
+      summaryWaiting: pastBookings.filter(b =>
+        b.status === 'completed' &&
+        !interviewResults.find(r => r.interviewId === b.id)
+      ).length
     };
 
     return (
       <div className="space-y-6">
-        {/* 面談統計 - Phase 4-A 強化版 */}
+        {/* 面談統計 - Phase 4-A & Phase 5 強化版 */}
         <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl p-6 text-white">
           <h3 className="text-xl font-bold mb-4 flex items-center">
-            <span className="mr-2">📊</span> 面談統計
+            <span className="mr-2">📊</span> 面談履歴統計
           </h3>
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-white/10 rounded-lg p-3">
-              <div className="text-sm opacity-90">今年の面談回数</div>
+              <div className="text-sm opacity-90">完了した面談</div>
               <div className="text-2xl font-bold">{stats.totalInterviews}回</div>
             </div>
             <div className="bg-white/10 rounded-lg p-3">
@@ -882,56 +894,11 @@ const InterviewStation: React.FC = () => {
               <div className="text-2xl font-bold">{stats.summariesReceived}件</div>
             </div>
             <div className="bg-white/10 rounded-lg p-3">
-              <div className="text-sm opacity-90">予約中</div>
-              <div className="text-2xl font-bold">{stats.scheduledBookings}件</div>
+              <div className="text-sm opacity-90">サマリ待ち</div>
+              <div className="text-2xl font-bold">{stats.summaryWaiting}件</div>
             </div>
           </div>
         </div>
-
-      {/* すべての予約（今後の予約も含む） */}
-      {upcomingBookings.length > 0 && (
-        <div className="bg-slate-800 rounded-xl p-6">
-          <h3 className="text-2xl font-bold text-white mb-6">すべての予約</h3>
-          <div className="space-y-4">
-            {upcomingBookings.map(booking => (
-              <div key={booking.id} className="bg-slate-700 rounded-lg p-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h4 className="text-white font-semibold">{booking.interviewType}</h4>
-                      {getStatusBadge(booking.status)}
-                    </div>
-                    <div className="space-y-1 text-sm text-gray-300">
-                      <p>📅 {formatDate(booking.bookingDate)}</p>
-                      <p>⏰ {booking.timeSlot.startTime} - {booking.timeSlot.endTime}</p>
-                      <p>👤 {booking.interviewerName || '調整中'}</p>
-                      {booking.description && (
-                        <p className="text-gray-400 mt-2">📝 {booking.description}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleRescheduleClick(booking)}
-                      className="text-blue-400 hover:text-blue-300 disabled:opacity-50"
-                      disabled={booking.status === 'cancelled' || booking.status === 'completed' || booking.status === 'reschedule_pending'}
-                    >
-                      日時変更
-                    </button>
-                    <button
-                      onClick={() => handleCancelClick(booking)}
-                      className="text-red-400 hover:text-red-300 disabled:opacity-50"
-                      disabled={booking.status === 'cancelled' || booking.status === 'completed'}
-                    >
-                      キャンセル
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* 面談履歴 - Phase 4-A & 4-B 強化版 */}
       <div className="bg-slate-800 rounded-xl p-6">
