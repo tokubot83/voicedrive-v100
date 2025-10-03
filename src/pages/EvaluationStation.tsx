@@ -21,6 +21,7 @@ import {
 // Phase 7: モバイルスワイプナビゲーション
 import { useSwipeableTabs } from '../hooks/useSwipeableTabs';
 import { SwipeIndicator } from '../components/common/SwipeableTabContainer';
+import { MobileFooter } from '../components/layout/MobileFooter';
 
 // デモ用評価データ
 const generateDemoEvaluationData = (user: any) => {
@@ -678,6 +679,9 @@ const EvaluationStation: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* モバイルフッターナビゲーション */}
+      <MobileFooter />
     </div>
   );
 };
