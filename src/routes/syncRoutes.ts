@@ -1,7 +1,9 @@
 // 医療システム同期API ルート
 import { Router, Request, Response } from 'express';
 import { InterviewResultService, InterviewResultData } from '../api/db/interviewResultService';
+import { NotificationService } from '../api/db/notificationService';
 import { standardRateLimit } from '../middleware/rateLimitMiddleware';
+import prisma from '../lib/prisma';
 
 const router = Router();
 
@@ -122,6 +124,78 @@ router.post('/interview-results',
       }
 
       console.log('[sync/interview-results] Successfully saved:', result.data?.id);
+
+      // Phase 2: サマリ受信時に通知を自動生成
+      try {
+        console.log('[sync/interview-results] Phase 2: Starting notification generation...');
+        // requestIdから対応するInterviewを取得し、従業員IDを特定
+        const interview = await prisma.interview.findUnique({
+          where: { id: requestData.requestId },
+          include: {
+            employee: {
+              select: {
+                id: true,
+                name: true,
+                employeeId: true
+              }
+            }
+          }
+        });
+        console.log('[sync/interview-results] Interview lookup result:', interview ? `Found (employeeId: ${interview.employee.employeeId})` : 'Not found');
+
+        if (interview) {
+          // システムユーザー（通知送信者）を取得または作成
+          let systemUser = await prisma.user.findFirst({
+            where: { employeeId: 'SYSTEM' }
+          });
+
+          if (!systemUser) {
+            systemUser = await prisma.user.create({
+              data: {
+                employeeId: 'SYSTEM',
+                email: 'system@voicedrive.local',
+                name: 'VoiceDriveシステム',
+                accountType: 'SYSTEM',
+                permissionLevel: 13,
+                department: 'システム管理'
+              }
+            });
+          }
+
+          // 通知作成（interviewIdをコンテンツに含める）
+          console.log('[sync/interview-results] Creating notification with params:', {
+            category: 'interview',
+            subcategory: 'summary_received',
+            target: interview.employee.employeeId,
+            senderId: systemUser.id
+          });
+
+          const notificationResult = await NotificationService.create({
+            category: 'interview',
+            subcategory: 'summary_received',
+            priority: 'high',
+            title: '📝 面談サマリが届きました',
+            content: `面談「${requestData.summary.substring(0, 50)}...」のサマリが人事部から届きました。詳細をご確認ください。\n\n[INTERVIEW_ID:${requestData.interviewId}]`,
+            target: interview.employee.employeeId, // 特定従業員宛て
+            senderId: systemUser.id
+          });
+
+          console.log('[sync/interview-results] Notification result:', { success: notificationResult.success, error: notificationResult.error });
+
+          if (notificationResult.success) {
+            // 通知を即座に送信状態に
+            await NotificationService.send(notificationResult.data!.id);
+            console.log('[sync/interview-results] Notification created and sent:', notificationResult.data!.id);
+          } else {
+            console.error('[sync/interview-results] Failed to create notification:', notificationResult.error);
+          }
+        } else {
+          console.warn('[sync/interview-results] Interview not found for requestId:', requestData.requestId);
+        }
+      } catch (notificationError) {
+        // 通知生成エラーは面談サマリ保存には影響させない
+        console.error('[sync/interview-results] Notification generation error:', notificationError);
+      }
 
       // 成功レスポンス
       return res.status(200).json({

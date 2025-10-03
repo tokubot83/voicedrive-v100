@@ -92,6 +92,7 @@ app.use('/api/medical', createProxyMiddleware({
 // VoiceDrive向け受信エンドポイント - 医療システムからの提案受信
 const proposalStore = new Map<string, any>(); // 提案データの一時保存
 const bookingStore = new Map<string, any>(); // 予約確定データの保存
+const interviewReservations = new Map<string, any>(); // フィードバック面談予約データ
 
 // 1. 医療システムからの3パターン提案受信
 app.post('/api/medical/proposals', (req, res) => {
@@ -257,6 +258,101 @@ app.get('/api/medical/status/:requestId', (req, res) => {
   res.json({
     success: true,
     status
+  });
+});
+
+// フィードバック面談予約受信API
+app.post('/api/interviews/reservations', (req, res) => {
+  const reservationData = req.body;
+
+  logger.info('Feedback interview reservation received:', {
+    staffId: reservationData.staffId,
+    type: reservationData.type,
+    category: reservationData.supportCategory,
+    urgency: reservationData.urgency,
+    evaluationId: reservationData.evaluationDetails?.evaluationId
+  });
+
+  // データ検証
+  if (!reservationData.staffId || !reservationData.type) {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid reservation data',
+      message: 'staffId and type are required'
+    });
+  }
+
+  // 予約IDを生成
+  const reservationId = `RES_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`.toUpperCase();
+
+  // 予約データを保存
+  const reservation = {
+    id: reservationId,
+    ...reservationData,
+    status: 'pending_schedule',
+    receivedAt: new Date().toISOString(),
+    processedBy: 'medical_system'
+  };
+
+  interviewReservations.set(reservationId, reservation);
+
+  logger.info(`Feedback interview reservation saved: ${reservationId}`);
+
+  // 成功レスポンス（医療システム想定）
+  res.json({
+    success: true,
+    reservationId,
+    message: 'フィードバック面談の予約を受け付けました',
+    status: 'pending_schedule',
+    estimatedResponseDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2日後
+    nextSteps: [
+      '調整担当者が面談日程を確認します',
+      '48時間以内に候補日時をご連絡します',
+      '日程確定後、正式な予約確認通知を送信します'
+    ]
+  });
+});
+
+// フィードバック面談予約一覧取得API
+app.get('/api/interviews/reservations', (req, res) => {
+  const { staffId, status } = req.query;
+
+  let reservations = Array.from(interviewReservations.values());
+
+  // フィルタリング
+  if (staffId) {
+    reservations = reservations.filter(r => r.staffId === staffId);
+  }
+  if (status) {
+    reservations = reservations.filter(r => r.status === status);
+  }
+
+  logger.info(`Reservations retrieved: ${reservations.length} records`);
+
+  res.json({
+    success: true,
+    count: reservations.length,
+    data: reservations
+  });
+});
+
+// フィードバック面談予約詳細取得API
+app.get('/api/interviews/reservations/:id', (req, res) => {
+  const { id } = req.params;
+  const reservation = interviewReservations.get(id);
+
+  if (!reservation) {
+    return res.status(404).json({
+      success: false,
+      error: 'Reservation not found'
+    });
+  }
+
+  logger.info(`Reservation details retrieved: ${id}`);
+
+  res.json({
+    success: true,
+    data: reservation
   });
 });
 
