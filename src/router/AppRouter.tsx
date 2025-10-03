@@ -83,6 +83,8 @@ import HRFunctionsPage from '../pages/HRFunctionsPage';
 
 // Whistleblowing
 import WhistleblowingPage from '../pages/WhistleblowingPage';
+import MyReportsPage from '../pages/MyReportsPage';
+import MyReportDetailPage from '../pages/MyReportDetailPage';
 
 // Compose
 import ComposePage from '../pages/ComposePage';
@@ -434,7 +436,11 @@ const AppRouter: React.FC = () => {
         
         {/* Whistleblowing System - All users can access (internal permission handling) */}
         <Route path="whistleblowing" element={<WhistleblowingPage />} />
-        
+
+        {/* Compliance Reports - All users can access their own reports */}
+        <Route path="my-reports" element={<MyReportsPage />} />
+        <Route path="my-reports/:id" element={<MyReportDetailPage />} />
+
         {/* Approvals & Notifications - Permission-based access */}
         <Route path="approvals" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>

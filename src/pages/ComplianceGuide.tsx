@@ -779,12 +779,20 @@ const ComplianceGuide: React.FC = () => {
           <p className="text-xl text-white/90 mb-6">
             あなたの声が、より良い職場を作ります
           </p>
-          <button
-            onClick={() => navigate('/whistleblowing')}
-            className="bg-white text-red-600 px-8 py-4 rounded-xl font-bold text-lg hover:transform hover:scale-105 transition-all duration-300 shadow-lg"
-          >
-            コンプライアンス窓口に相談する
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button
+              onClick={() => navigate('/whistleblowing')}
+              className="bg-white text-red-600 px-8 py-4 rounded-xl font-bold text-lg hover:transform hover:scale-105 transition-all duration-300 shadow-lg"
+            >
+              コンプライアンス窓口に相談する
+            </button>
+            <button
+              onClick={() => navigate('/my-reports')}
+              className="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/20 hover:transform hover:scale-105 transition-all duration-300"
+            >
+              📋 過去の通報履歴を確認
+            </button>
+          </div>
           <p className="text-white/80 mt-4 text-sm">
             ※ 完全匿名で相談可能です
           </p>
