@@ -9,84 +9,67 @@ const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'privacy' | 'display' | 'app'>('notifications');
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      {/* Custom Header with Back Button */}
-      <header className="sticky top-0 z-40 bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">設定</h1>
-            <p className="text-gray-400 text-sm">アカウント設定を管理</p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-20">
+      {/* 固定ヘッダーコンテナ */}
+      <div className="sticky top-0 z-30">
+        {/* タイトルヘッダー */}
+        <div className="hr-title-header">
+          <div className="hr-title-content">
+            <div className="hr-title-icon">⚙️</div>
+            <h1 className="hr-title-text">
+              設定
+            </h1>
           </div>
         </div>
-      </header>
-      
-      <div className="p-6">
+
+        {/* タブナビゲーション */}
+        <div className="hr-category-filter">
+          <div className="hr-category-container">
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`hr-category-btn ${activeTab === 'profile' ? 'active' : ''}`}
+            >
+              <User className="w-4 h-4" />
+              <span>プロフィール</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('notifications')}
+              className={`hr-category-btn ${activeTab === 'notifications' ? 'active' : ''}`}
+            >
+              <Bell className="w-4 h-4" />
+              <span>通知</span>
+              <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+            </button>
+            <button
+              onClick={() => setActiveTab('privacy')}
+              className={`hr-category-btn ${activeTab === 'privacy' ? 'active' : ''}`}
+            >
+              <Shield className="w-4 h-4" />
+              <span>プライバシー</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('display')}
+              className={`hr-category-btn ${activeTab === 'display' ? 'active' : ''}`}
+            >
+              <Palette className="w-4 h-4" />
+              <span>表示</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('app')}
+              className={`hr-category-btn ${activeTab === 'app' ? 'active' : ''}`}
+            >
+              <Smartphone className="w-4 h-4" />
+              <span>アプリ</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="hr-messages-container">
         <div className="max-w-7xl mx-auto">
 
-          {/* タブナビゲーション */}
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-2 border border-slate-700/50 mb-6">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-              <button
-                onClick={() => setActiveTab('profile')}
-                className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === 'profile'
-                    ? 'bg-indigo-500 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-slate-700'
-                }`}
-              >
-                <User className="w-5 h-5" />
-                <span className="hidden md:inline">プロフィール</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('notifications')}
-                className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors relative ${
-                  activeTab === 'notifications'
-                    ? 'bg-indigo-500 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-slate-700'
-                }`}
-              >
-                <Bell className="w-5 h-5" />
-                <span className="hidden md:inline">通知</span>
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-              </button>
-              <button
-                onClick={() => setActiveTab('privacy')}
-                className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === 'privacy'
-                    ? 'bg-indigo-500 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-slate-700'
-                }`}
-              >
-                <Shield className="w-5 h-5" />
-                <span className="hidden md:inline">プライバシー</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('display')}
-                className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === 'display'
-                    ? 'bg-indigo-500 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-slate-700'
-                }`}
-              >
-                <Palette className="w-5 h-5" />
-                <span className="hidden md:inline">表示</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('app')}
-                className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === 'app'
-                    ? 'bg-indigo-500 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-slate-700'
-                }`}
-              >
-                <Smartphone className="w-5 h-5" />
-                <span className="hidden md:inline">アプリ</span>
-              </button>
-            </div>
-          </div>
-
-          {/* タブコンテンツ */}
-          <div className="space-y-6">
+        {/* タブコンテンツ */}
+        <div className="space-y-6">
             {/* Profile Settings */}
             {activeTab === 'profile' && (
               <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
