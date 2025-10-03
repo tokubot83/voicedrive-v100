@@ -14,7 +14,6 @@ import {
   FileCheck
 } from 'lucide-react';
 import { MobileFooter } from '../components/layout/MobileFooter';
-import { DesktopFooter } from '../components/layout/DesktopFooter';
 import { WhistleblowingReport, ReportStatus, ReportCategory } from '../types/whistleblowing';
 
 const MyReportDetailPage: React.FC = () => {
@@ -161,204 +160,230 @@ const MyReportDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 w-full flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center pb-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
           <p className="text-gray-400">読み込み中...</p>
         </div>
+        <MobileFooter />
       </div>
     );
   }
 
   if (!report) {
     return (
-      <div className="min-h-screen bg-gray-900 w-full flex flex-col">
-        <div className="flex-1 w-full p-6 pb-20 lg:pb-16">
-          <div className="bg-gray-800/50 backdrop-blur-xl rounded-xl p-12 border border-gray-700/30 text-center">
-            <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-400 mb-6">通報が見つかりません</p>
-            <button
-              onClick={() => navigate('/my-reports')}
-              className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-            >
-              一覧に戻る
-            </button>
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-20">
+          {/* 固定ヘッダーコンテナ */}
+          <div className="sticky top-0 z-30">
+            {/* ヘッダー */}
+            <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-white flex items-center">
+                    <span className="mr-3 text-3xl">🛡️</span>
+                    通報詳細
+                  </h1>
+                  <p className="text-gray-400 text-sm">通報内容と対応状況の詳細</p>
+                </div>
+              </div>
+            </header>
+          </div>
+
+          <div className="px-6 py-8">
+            <div className="bg-gray-800/50 backdrop-blur-xl rounded-xl p-12 border border-gray-700/30 text-center">
+              <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-400 mb-6">通報が見つかりません</p>
+              <button
+                onClick={() => navigate('/my-reports')}
+                className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                一覧に戻る
+              </button>
+            </div>
           </div>
         </div>
         <MobileFooter />
-        <DesktopFooter />
-      </div>
+      </>
     );
   }
 
   const statusInfo = getStatusLabel(report.status);
 
   return (
-    <div className="min-h-screen bg-gray-900 w-full flex flex-col">
-      <div className="flex-1 w-full p-6 pb-20 lg:pb-16">
-        {/* ヘッダー */}
-        <div className="bg-gradient-to-r from-red-900/50 to-orange-900/50 rounded-2xl p-6 backdrop-blur-xl border border-red-500/20 mb-6">
-          <button
-            onClick={() => navigate('/my-reports')}
-            className="mb-4 flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            通報履歴に戻る
-          </button>
-          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-            <span className="text-4xl">📋</span>
-            通報詳細
-          </h1>
-          <p className="text-gray-300">
-            通報内容と対応状況の詳細を確認できます
-          </p>
-        </div>
-
-        {/* 基本情報 */}
-        <div className="bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700/30 mb-6">
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-white mb-3">{report.title}</h2>
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusInfo.color} flex items-center gap-1`}>
-                  {statusInfo.icon}
-                  {statusInfo.label}
-                </span>
-                <span className="px-3 py-1 bg-gray-700/50 rounded-lg text-sm text-gray-300">
-                  {getCategoryLabel(report.category)}
-                </span>
-                {report.isAnonymous && (
-                  <span className="px-3 py-1 bg-purple-900/30 border border-purple-500/30 rounded-lg text-sm text-purple-300">
-                    匿名通報
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className={`text-3xl ${getSeverityColor(report.severity)}`}>
-              {report.severity === 'critical' ? '🔴' :
-               report.severity === 'high' ? '🟠' :
-               report.severity === 'medium' ? '🟡' : '🟢'}
-            </div>
-          </div>
-
-          {/* メタ情報 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-700/30 rounded-lg">
-            <div className="flex items-center gap-2 text-sm">
-              <FileText className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-400">通報ID:</span>
-              <span className="text-white font-mono">{report.id}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Shield className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-400">匿名ID:</span>
-              <span className="text-white font-mono">{report.anonymousId}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <AlertCircle className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-400">優先度:</span>
-              <span className="text-white">{report.priority}/10</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-400">通報日時:</span>
-              <span className="text-white">{new Date(report.submittedAt).toLocaleString('ja-JP')}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Clock className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-400">最終更新:</span>
-              <span className="text-white">{new Date(report.updatedAt).toLocaleString('ja-JP')}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <FileCheck className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-400">重要度:</span>
-              <span className={`font-semibold ${getSeverityColor(report.severity)}`}>
-                {getSeverityLabel(report.severity)}
-              </span>
-            </div>
-          </div>
-
-          {/* 通報内容 */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-              <MessageSquare className="w-5 h-5" />
-              通報内容
-            </h3>
-            <div className="bg-gray-700/30 rounded-lg p-4">
-              <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">{report.content}</p>
-            </div>
-          </div>
-
-          {/* 担当者情報 */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-              <User className="w-5 h-5" />
-              担当調査員
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {report.assignedInvestigators.map((investigator, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-blue-900/30 border border-blue-500/30 rounded-lg text-sm text-blue-300"
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-20">
+        {/* 固定ヘッダーコンテナ */}
+        <div className="sticky top-0 z-30">
+          {/* ヘッダー */}
+          <header className="bg-black/80 backdrop-blur border-b border-gray-800 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <button
+                  onClick={() => navigate('/my-reports')}
+                  className="mb-2 flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
                 >
-                  {investigator === 'hr_specialist' ? '人事担当' :
-                   investigator === 'management' ? '管理職' :
-                   investigator === 'legal_counsel' ? '法務担当' :
-                   investigator === 'safety_officer' ? '安全管理責任者' : investigator}
-                </span>
-              ))}
+                  <ArrowLeft className="w-4 h-4" />
+                  通報履歴に戻る
+                </button>
+                <h1 className="text-2xl font-bold text-white flex items-center">
+                  <span className="mr-3 text-3xl">🛡️</span>
+                  通報詳細
+                </h1>
+                <p className="text-gray-400 text-sm">通報内容と対応状況の詳細</p>
+              </div>
             </div>
-          </div>
+          </header>
         </div>
 
-        {/* 対応完了の場合、解決サマリー表示 */}
-        {report.resolutionSummary && (
-          <div className="bg-green-900/20 border border-green-500/30 rounded-xl p-6 mb-6">
-            <h3 className="text-lg font-semibold text-green-300 mb-3 flex items-center gap-2">
-              <CheckCircle className="w-5 h-5" />
-              対応結果
-            </h3>
-            <p className="text-gray-300 leading-relaxed">{report.resolutionSummary}</p>
-          </div>
-        )}
-
-        {/* フォローアップ必要の場合 */}
-        {report.followUpRequired && (
-          <div className="bg-orange-900/20 border border-orange-500/30 rounded-xl p-6 mb-6">
-            <h3 className="text-lg font-semibold text-orange-300 mb-2 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5" />
-              フォローアップが必要です
-            </h3>
-            <p className="text-gray-300">
-              追加の情報や確認が必要な場合があります。担当者から連絡がある可能性があります。
-            </p>
-          </div>
-        )}
-
-        {/* タイムライン（将来の拡張用） */}
-        <div className="bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700/30">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Clock className="w-5 h-5" />
-            対応履歴
-          </h3>
-          <div className="space-y-4">
-            <div className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <div className="w-0.5 h-full bg-gray-700"></div>
+        {/* メインコンテンツ */}
+        <div className="px-6 py-8">
+          {/* 基本情報 */}
+          <div className="bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700/30 mb-6">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-white mb-3">{report.title}</h2>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusInfo.color} flex items-center gap-1`}>
+                    {statusInfo.icon}
+                    {statusInfo.label}
+                  </span>
+                  <span className="px-3 py-1 bg-gray-700/50 rounded-lg text-sm text-gray-300">
+                    {getCategoryLabel(report.category)}
+                  </span>
+                  {report.isAnonymous && (
+                    <span className="px-3 py-1 bg-purple-900/30 border border-purple-500/30 rounded-lg text-sm text-purple-300">
+                      匿名通報
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="flex-1 pb-6">
-                <p className="text-sm text-gray-400">{new Date(report.updatedAt).toLocaleString('ja-JP')}</p>
-                <p className="text-white font-medium">ステータス更新: {statusInfo.label}</p>
+              <div className={`text-3xl ${getSeverityColor(report.severity)}`}>
+                {report.severity === 'critical' ? '🔴' :
+                 report.severity === 'high' ? '🟠' :
+                 report.severity === 'medium' ? '🟡' : '🟢'}
               </div>
             </div>
-            <div className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <div className="w-0.5 h-full bg-gray-700"></div>
+
+            {/* メタ情報 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-700/30 rounded-lg">
+              <div className="flex items-center gap-2 text-sm">
+                <FileText className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-400">通報ID:</span>
+                <span className="text-white font-mono">{report.id}</span>
               </div>
-              <div className="flex-1 pb-6">
-                <p className="text-sm text-gray-400">{new Date(report.submittedAt).toLocaleString('ja-JP')}</p>
-                <p className="text-white font-medium">通報を受付</p>
+              <div className="flex items-center gap-2 text-sm">
+                <Shield className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-400">匿名ID:</span>
+                <span className="text-white font-mono">{report.anonymousId}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <AlertCircle className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-400">優先度:</span>
+                <span className="text-white">{report.priority}/10</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-400">通報日時:</span>
+                <span className="text-white">{new Date(report.submittedAt).toLocaleString('ja-JP')}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-400">最終更新:</span>
+                <span className="text-white">{new Date(report.updatedAt).toLocaleString('ja-JP')}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <FileCheck className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-400">重要度:</span>
+                <span className={`font-semibold ${getSeverityColor(report.severity)}`}>
+                  {getSeverityLabel(report.severity)}
+                </span>
+              </div>
+            </div>
+
+            {/* 通報内容 */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <MessageSquare className="w-5 h-5" />
+                通報内容
+              </h3>
+              <div className="bg-gray-700/30 rounded-lg p-4">
+                <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">{report.content}</p>
+              </div>
+            </div>
+
+            {/* 担当者情報 */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <User className="w-5 h-5" />
+                担当調査員
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {report.assignedInvestigators.map((investigator, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 bg-blue-900/30 border border-blue-500/30 rounded-lg text-sm text-blue-300"
+                  >
+                    {investigator === 'hr_specialist' ? '人事担当' :
+                     investigator === 'management' ? '管理職' :
+                     investigator === 'legal_counsel' ? '法務担当' :
+                     investigator === 'safety_officer' ? '安全管理責任者' : investigator}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 対応完了の場合、解決サマリー表示 */}
+          {report.resolutionSummary && (
+            <div className="bg-green-900/20 border border-green-500/30 rounded-xl p-6 mb-6">
+              <h3 className="text-lg font-semibold text-green-300 mb-3 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                対応結果
+              </h3>
+              <p className="text-gray-300 leading-relaxed">{report.resolutionSummary}</p>
+            </div>
+          )}
+
+          {/* フォローアップ必要の場合 */}
+          {report.followUpRequired && (
+            <div className="bg-orange-900/20 border border-orange-500/30 rounded-xl p-6 mb-6">
+              <h3 className="text-lg font-semibold text-orange-300 mb-2 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5" />
+                フォローアップが必要です
+              </h3>
+              <p className="text-gray-300">
+                追加の情報や確認が必要な場合があります。担当者から連絡がある可能性があります。
+              </p>
+            </div>
+          )}
+
+          {/* タイムライン */}
+          <div className="bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700/30">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              対応履歴
+            </h3>
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div className="w-0.5 h-full bg-gray-700"></div>
+                </div>
+                <div className="flex-1 pb-6">
+                  <p className="text-sm text-gray-400">{new Date(report.updatedAt).toLocaleString('ja-JP')}</p>
+                  <p className="text-white font-medium">ステータス更新: {statusInfo.label}</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <div className="w-0.5 h-full bg-gray-700"></div>
+                </div>
+                <div className="flex-1 pb-6">
+                  <p className="text-sm text-gray-400">{new Date(report.submittedAt).toLocaleString('ja-JP')}</p>
+                  <p className="text-white font-medium">通報を受付</p>
+                </div>
               </div>
             </div>
           </div>
@@ -366,8 +391,7 @@ const MyReportDetailPage: React.FC = () => {
       </div>
 
       <MobileFooter />
-      <DesktopFooter />
-    </div>
+    </>
   );
 };
 

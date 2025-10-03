@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { WhistleblowingReport, ReportStatus, ReportSeverity } from '../../types/whistleblowing';
 import { usePermissions } from '../../permissions/hooks/usePermissions';
 import { demoWhistleblowingReports, demoReportStatistics, getWhistleblowingPermissions } from '../../data/demo/whistleblowing';
@@ -8,6 +9,7 @@ interface WhistleblowingDashboardProps {
 }
 
 const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNewReport }) => {
+  const navigate = useNavigate();
   const { userLevel } = usePermissions();
   const permissions = getWhistleblowingPermissions(userLevel);
   const [selectedReport, setSelectedReport] = useState<WhistleblowingReport | null>(null);
@@ -111,12 +113,20 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
             組織内の問題やコンプライアンスに関する相談を安全に行える窓口です。<br />
             あなたの相談は専門チームが適切に対応し、匿名性を最高レベルで保護します。
           </p>
-          <button
-            onClick={onNewReport}
-            className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-lg"
-          >
-            新しい相談を開始
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button
+              onClick={onNewReport}
+              className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-lg shadow-lg"
+            >
+              新しい相談を開始
+            </button>
+            <button
+              onClick={() => navigate('/my-reports')}
+              className="px-8 py-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors font-medium text-lg border border-gray-600 flex items-center gap-2"
+            >
+              📋 通報履歴を確認
+            </button>
+          </div>
           <div className="mt-8 p-4 bg-blue-900/30 border border-blue-500/50 rounded-lg">
             <h3 className="text-blue-300 font-bold mb-2">📞 緊急時の連絡先</h3>
             <p className="text-blue-200 text-sm">
@@ -141,12 +151,20 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
             </h1>
             <p className="text-gray-300">レベル{userLevel}管理者画面</p>
           </div>
-          <button
-            onClick={onNewReport}
-            className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
-          >
-            新しい相談
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate('/my-reports')}
+              className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors font-medium border border-gray-600 flex items-center gap-2"
+            >
+              📋 通報履歴
+            </button>
+            <button
+              onClick={onNewReport}
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
+            >
+              新しい相談
+            </button>
+          </div>
         </div>
       </div>
 
