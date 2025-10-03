@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { InterviewBookingService } from '../services/InterviewBookingService';
@@ -30,7 +30,14 @@ import { SwipeIndicator } from '../components/common/SwipeableTabContainer';
 
 const InterviewStation: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { currentUser } = useAuth();
+
+  // フィードバック面談用のパラメータ検出
+  const interviewType = searchParams.get('type');
+  const evaluationId = searchParams.get('evaluationId');
+  const evaluationDetails = location.state?.evaluationDetails;
   
   // デモモード対応
   let demoUser = null;
@@ -85,6 +92,13 @@ const InterviewStation: React.FC = () => {
       loadInterviewData();
     }
   }, [activeUser]);
+
+  // フィードバック面談の自動起動
+  useEffect(() => {
+    if (interviewType === 'feedback' && evaluationId && evaluationDetails) {
+      setShowBookingModal(true);
+    }
+  }, [interviewType, evaluationId, evaluationDetails]);
 
   // プッシュ通知サービス登録
   useEffect(() => {
@@ -1346,6 +1360,7 @@ const InterviewStation: React.FC = () => {
                 <SimpleInterviewFlow
                   onComplete={handleInterviewFlowComplete}
                   employeeId={activeUser?.id || ''}
+                  evaluationDetails={evaluationDetails}
                   onCancel={() => {
                     console.log('onCancel called - closing modal');
                     setShowBookingModal(false);

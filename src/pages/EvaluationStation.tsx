@@ -317,18 +317,24 @@ const EvaluationStation: React.FC = () => {
                         異議申立
                       </Link>
                     )}
-                    <button
-                      onClick={() => {
-                        setSelectedEvaluation(notification);
-                        setActionType('interview');
-                        setShowInterviewForm(true);
-                        setShowAppealForm(false);
-                        setActiveTab('actions');
+                    <Link
+                      to={`/interview-station?type=feedback&evaluationId=${notification.id}`}
+                      state={{
+                        evaluationDetails: {
+                          evaluationId: notification.id,
+                          evaluationType: notification.period.includes('夏季') ? 'summer_provisional' :
+                                         notification.period.includes('冬季') ? 'winter_provisional' : 'annual_final',
+                          facilityGrade: notification.facilityGrade,
+                          corporateGrade: notification.corporateGrade,
+                          totalPoints: notification.overallScore ? notification.overallScore / 4.0 : 0, // 100点→25点換算
+                          appealDeadline: notification.appealDeadline,
+                          appealable: notification.canAppeal
+                        }
                       }}
                       className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm text-center"
                     >
                       面談予約
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>

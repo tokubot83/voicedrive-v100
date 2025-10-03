@@ -20,21 +20,50 @@ interface SimpleInterviewFlowProps {
   onComplete?: (state: SimpleInterviewFlowState) => void;
   employeeId?: string;
   onCancel?: () => void;
+  // フィードバック面談用
+  evaluationDetails?: {
+    evaluationId: string;
+    evaluationType: string;
+    facilityGrade?: string;
+    corporateGrade?: string;
+    totalPoints?: number;
+    appealDeadline?: string;
+    appealable?: boolean;
+  };
 }
 
 const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
   onComplete,
   employeeId,
-  onCancel
+  onCancel,
+  evaluationDetails
 }) => {
+  // フィードバック面談の場合は自動設定
+  const isFeedbackInterview = !!evaluationDetails;
+
   const [flowState, setFlowState] = useState<SimpleInterviewFlowState>({
-    currentStep: 1
+    currentStep: isFeedbackInterview ? 4 : 1, // フィードバック面談は日程選択から開始
+    classification: isFeedbackInterview ? 'support' : undefined,
+    type: isFeedbackInterview ? 'feedback' : undefined,
+    category: isFeedbackInterview ? 'feedback' : undefined
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showProposalModal, setShowProposalModal] = useState(false);
   const [proposalPatterns, setProposalPatterns] = useState<ProposalPattern[]>([]);
+
+  // 緊急度自動判定
+  const calculateUrgency = (appealDeadline: string): 'urgent' | 'high' | 'medium' | 'low' => {
+    const deadline = new Date(appealDeadline);
+    const now = new Date();
+    const daysUntilDeadline = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysUntilDeadline <= 3) return 'urgent';
+    if (daysUntilDeadline <= 7) return 'high';
+    if (daysUntilDeadline <= 14) return 'medium';
+    return 'low';
+  };
 
   // ステップタイトルを取得
   const getStepTitle = () => {
@@ -82,7 +111,47 @@ const SimpleInterviewFlow: React.FC<SimpleInterviewFlowProps> = ({
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      // 仮予約を送信
+      // フィードバック面談の場合は実際のAPI送信
+      if (evaluationDetails) {
+        const urgency = evaluationDetails.appealDeadline
+          ? calculateUrgency(evaluationDetails.appealDeadline)
+          : 'medium';
+
+        const requestBody = {
+          staffId: employeeId,
+          type: 'support',
+          supportCategory: 'feedback',
+          supportTopic: `${evaluationDetails.evaluationType}_feedback`,
+          urgency,
+          evaluationDetails,
+          notes: flowState.notes || '',
+          timing: flowState.timing,
+          timeSlot: flowState.timeSlot,
+          weekdays: flowState.weekdays
+        };
+
+        // 医療システムAPIへ送信
+        const response = await fetch('http://localhost:8080/api/interviews/reservations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+          throw new Error('予約送信に失敗しました');
+        }
+
+        const result = await response.json();
+        console.log('Feedback interview reservation created:', result);
+
+        // 完了通知
+        onComplete?.(flowState);
+        return;
+      }
+
+      // 通常の面談予約（既存処理）
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // 医療チームからの提案パターンを模擬生成（実際はAPIから取得）
