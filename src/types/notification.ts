@@ -5,7 +5,8 @@ export type NotificationPriority = 'critical' | 'high' | 'medium' | 'low';
 export type NotificationCategory =
   | 'hr_announcement'      // 人事お知らせ
   | 'interview'            // 面談予約
-  | 'evaluation'           // V3評価
+  | 'evaluation'           // 評価
+  | 'proposal'             // 議題・提案
   | 'project'              // プロジェクト
   | 'survey'               // アンケート
   | 'feedback'             // フィードバック
@@ -84,6 +85,12 @@ export const NOTIFICATION_PRESETS = {
         enabled: true,
         priority: 'medium',
         sound: false,
+        vibration: false
+      },
+      proposal: {
+        enabled: true,
+        priority: 'high',
+        sound: true,
         vibration: false
       },
       project: {
@@ -174,7 +181,7 @@ export const NOTIFICATION_CATEGORIES_INFO = {
     ]
   },
   evaluation: {
-    name: 'V3評価',
+    name: '評価',
     icon: '📊',
     description: '評価期間の通知や結果のお知らせ',
     subTypes: [
@@ -182,6 +189,17 @@ export const NOTIFICATION_CATEGORIES_INFO = {
       { id: 'deadline', name: '締切リマインダー' },
       { id: 'complete', name: '評価完了通知' },
       { id: 'appeal', name: '異議申立関連' }
+    ]
+  },
+  proposal: {
+    name: '議題・提案',
+    icon: '💡',
+    description: 'アイデアボイスから議題化された提案の通知',
+    subTypes: [
+      { id: 'adopted', name: '議題採用通知' },
+      { id: 'progress', name: '進行状況更新' },
+      { id: 'voting', name: '投票結果通知' },
+      { id: 'completed', name: '議題完了通知' }
     ]
   },
   project: {

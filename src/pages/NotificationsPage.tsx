@@ -20,6 +20,7 @@ const categoryConfigs = [
   { key: 'all', label: 'すべて', icon: '📋', color: '#6b7280' },
   { key: 'interview', label: '面談・予約', icon: '📅', color: '#3b82f6' },
   { key: 'evaluation', label: '評価', icon: '📊', color: '#8b5cf6' },
+  { key: 'proposal', label: '議題・提案', icon: '💡', color: '#f59e0b' },
   { key: 'project', label: 'プロジェクト', icon: '🚀', color: '#ec4899' },
   { key: 'feedback', label: 'フィードバック', icon: '💬', color: '#10b981' },
   { key: 'shift', label: 'シフト・勤務', icon: '⏰', color: '#f59e0b' },
@@ -55,13 +56,13 @@ const NotificationsPage = () => {
     },
     {
       id: '3',
-      category: 'project',
-      title: '新規プロジェクトメンバー選出',
-      content: 'あなたが「業務改善プロジェクト」のメンバーに選出されました',
+      category: 'proposal',
+      title: '議題が正式採用されました',
+      content: 'あなたの提案「業務改善システム導入」が経営会議で採択され、正式議題として進行します',
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      isRead: true,
-      icon: '🚀',
-      priority: 'medium'
+      isRead: false,
+      icon: '💡',
+      priority: 'high'
     },
     {
       id: '4',
