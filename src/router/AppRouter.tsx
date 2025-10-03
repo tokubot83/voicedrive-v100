@@ -437,10 +437,6 @@ const AppRouter: React.FC = () => {
         {/* Whistleblowing System - All users can access (internal permission handling) */}
         <Route path="whistleblowing" element={<WhistleblowingPage />} />
 
-        {/* Compliance Reports - All users can access their own reports */}
-        <Route path="my-reports" element={<MyReportsPage />} />
-        <Route path="my-reports/:id" element={<MyReportDetailPage />} />
-
         {/* Approvals & Notifications - Permission-based access */}
         <Route path="approvals" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
@@ -473,6 +469,10 @@ const AppRouter: React.FC = () => {
       <Route path="interview-station" element={<InterviewStation />} />
       <Route path="evaluation-station" element={<EvaluationStation />} />
       <Route path="health-station" element={<HealthStation />} />
+
+      {/* Compliance Reports - Full width without sidebar */}
+      <Route path="my-reports" element={<MyReportsPage />} />
+      <Route path="my-reports/:id" element={<MyReportDetailPage />} />
       <Route path="career-selection-station">
         <Route index element={<CareerSelectionStationPage />} />
         <Route path="change-request" element={<ChangeRequestPage />} />
