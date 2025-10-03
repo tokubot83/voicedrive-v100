@@ -11,7 +11,8 @@ import {
   ArrowLeft,
   User,
   MessageSquare,
-  FileCheck
+  FileCheck,
+  CheckSquare
 } from 'lucide-react';
 import { MobileFooter } from '../components/layout/MobileFooter';
 import { WhistleblowingReport, ReportStatus, ReportCategory } from '../types/whistleblowing';
@@ -44,7 +45,11 @@ const MyReportDetailPage: React.FC = () => {
         assignedInvestigators: ['hr_specialist', 'management'],
         followUpRequired: true,
         isAnonymous: true,
-        priority: 8
+        priority: 8,
+        medicalSystemCaseNumber: 'MED-2025-0001',
+        acknowledgementReceived: true,
+        acknowledgementDate: new Date('2025-10-01T11:00:00'),
+        estimatedResponseTime: '当日中'
       },
       {
         id: 'RPT-2025-002',
@@ -60,7 +65,11 @@ const MyReportDetailPage: React.FC = () => {
         resolutionSummary: '安全対策を強化しました。夜勤職員の増員と防犯カメラの増設を実施いたしました。ご報告ありがとうございました。',
         followUpRequired: false,
         isAnonymous: false,
-        priority: 5
+        priority: 5,
+        medicalSystemCaseNumber: 'MED-2025-0002',
+        acknowledgementReceived: true,
+        acknowledgementDate: new Date('2025-09-28T17:15:00'),
+        estimatedResponseTime: '3営業日以内'
       },
       {
         id: 'RPT-2025-003',
@@ -75,7 +84,11 @@ const MyReportDetailPage: React.FC = () => {
         assignedInvestigators: ['legal_counsel', 'management'],
         followUpRequired: true,
         isAnonymous: true,
-        priority: 10
+        priority: 10,
+        medicalSystemCaseNumber: 'MED-2025-0003',
+        acknowledgementReceived: true,
+        acknowledgementDate: new Date('2025-10-03T08:30:00'),
+        estimatedResponseTime: '1時間以内'
       }
     ];
 
@@ -256,6 +269,12 @@ const MyReportDetailPage: React.FC = () => {
                       匿名通報
                     </span>
                   )}
+                  {report.acknowledgementReceived && (
+                    <span className="px-3 py-1 bg-green-900/30 border border-green-500/30 rounded-full text-xs text-green-300 flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      受付確認済み
+                    </span>
+                  )}
                 </div>
               </div>
               <div className={`text-3xl ${getSeverityColor(report.severity)}`}>
@@ -277,6 +296,13 @@ const MyReportDetailPage: React.FC = () => {
                 <span className="text-gray-400">匿名ID:</span>
                 <span className="text-white font-mono">{report.anonymousId}</span>
               </div>
+              {report.medicalSystemCaseNumber && (
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckSquare className="w-4 h-4 text-green-400" />
+                  <span className="text-gray-400">医療システムID:</span>
+                  <span className="text-green-400 font-mono">{report.medicalSystemCaseNumber}</span>
+                </div>
+              )}
               <div className="flex items-center gap-2 text-sm">
                 <AlertCircle className="w-4 h-4 text-gray-400" />
                 <span className="text-gray-400">優先度:</span>
@@ -300,6 +326,32 @@ const MyReportDetailPage: React.FC = () => {
                 </span>
               </div>
             </div>
+
+            {/* 受付確認情報 */}
+            {report.acknowledgementReceived && report.estimatedResponseTime && (
+              <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
+                  <div className="flex-1">
+                    <h4 className="text-green-300 font-semibold mb-2">医療システムで受付確認済み</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-green-400" />
+                        <span className="text-green-300">対応予定: {report.estimatedResponseTime}</span>
+                      </div>
+                      {report.acknowledgementDate && (
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-green-400" />
+                          <span className="text-gray-400">
+                            受付日時: {new Date(report.acknowledgementDate).toLocaleString('ja-JP')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* 通報内容 */}
             <div className="mb-6">

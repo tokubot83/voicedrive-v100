@@ -8,14 +8,16 @@ import {
   Eye,
   Filter,
   Calendar,
-  Shield
+  Shield,
+  CheckSquare
 } from 'lucide-react';
 import { MobileFooter } from '../components/layout/MobileFooter';
-import { WhistleblowingReport, ReportStatus, ReportCategory } from '../types/whistleblowing';
+import { WhistleblowingReport, ReportStatus, ReportCategory, AcknowledgementNotification } from '../types/whistleblowing';
 
 const MyReportsPage: React.FC = () => {
   const navigate = useNavigate();
   const [reports, setReports] = useState<WhistleblowingReport[]>([]);
+  const [acknowledgements, setAcknowledgements] = useState<AcknowledgementNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<ReportStatus | 'all'>('all');
   const [selectedCategory, setSelectedCategory] = useState<ReportCategory | 'all'>('all');
@@ -23,6 +25,7 @@ const MyReportsPage: React.FC = () => {
 
   useEffect(() => {
     loadReports();
+    loadAcknowledgements();
   }, []);
 
   const loadReports = async () => {
@@ -43,7 +46,12 @@ const MyReportsPage: React.FC = () => {
         assignedInvestigators: ['hr_specialist', 'management'],
         followUpRequired: true,
         isAnonymous: true,
-        priority: 8
+        priority: 8,
+        // 受付確認済み
+        medicalSystemCaseNumber: 'MED-2025-0001',
+        acknowledgementReceived: true,
+        acknowledgementDate: new Date('2025-10-01T11:00:00'),
+        estimatedResponseTime: '当日中'
       },
       {
         id: 'RPT-2025-002',
@@ -59,7 +67,11 @@ const MyReportsPage: React.FC = () => {
         resolutionSummary: '安全対策を強化しました。ご報告ありがとうございました。',
         followUpRequired: false,
         isAnonymous: false,
-        priority: 5
+        priority: 5,
+        medicalSystemCaseNumber: 'MED-2025-0002',
+        acknowledgementReceived: true,
+        acknowledgementDate: new Date('2025-09-28T17:00:00'),
+        estimatedResponseTime: '3営業日以内'
       },
       {
         id: 'RPT-2025-003',
@@ -74,7 +86,11 @@ const MyReportsPage: React.FC = () => {
         assignedInvestigators: ['legal_counsel', 'management'],
         followUpRequired: true,
         isAnonymous: true,
-        priority: 10
+        priority: 10,
+        medicalSystemCaseNumber: 'MED-2025-0003',
+        acknowledgementReceived: true,
+        acknowledgementDate: new Date('2025-10-03T08:30:00'),
+        estimatedResponseTime: '1時間以内'
       }
     ];
 
@@ -82,6 +98,26 @@ const MyReportsPage: React.FC = () => {
       setReports(demoReports);
       setLoading(false);
     }, 500);
+  };
+
+  const loadAcknowledgements = async () => {
+    // デモの受付確認通知（実際にはAPIから取得）
+    const demoAcknowledgements: AcknowledgementNotification[] = [
+      {
+        reportId: 'RPT-2025-003',
+        anonymousId: 'ANON-2A7F4C',
+        medicalSystemCaseNumber: 'MED-2025-0003',
+        severity: 'critical',
+        category: 'コンプライアンス',
+        receivedAt: new Date('2025-10-03T08:30:00'),
+        estimatedResponseTime: '1時間以内',
+        requiresImmediateAction: true,
+        currentStatus: '緊急対応チームによる初動調査を開始',
+        nextSteps: '担当者による聞き取り調査を実施予定です。'
+      }
+    ];
+
+    setAcknowledgements(demoAcknowledgements);
   };
 
   const getStatusLabel = (status: ReportStatus): { label: string; color: string; icon: React.ReactNode } => {
@@ -146,6 +182,46 @@ const MyReportsPage: React.FC = () => {
     }
   };
 
+  const getAcknowledgementStyle = (severity: string) => {
+    switch (severity) {
+      case 'critical':
+        return {
+          bg: 'bg-red-900/30',
+          border: 'border-red-500',
+          text: 'text-red-300',
+          icon: '🔴'
+        };
+      case 'high':
+        return {
+          bg: 'bg-orange-900/30',
+          border: 'border-orange-500',
+          text: 'text-orange-300',
+          icon: '🟠'
+        };
+      case 'medium':
+        return {
+          bg: 'bg-yellow-900/30',
+          border: 'border-yellow-500',
+          text: 'text-yellow-300',
+          icon: '🟡'
+        };
+      case 'low':
+        return {
+          bg: 'bg-green-900/30',
+          border: 'border-green-500',
+          text: 'text-green-300',
+          icon: '🟢'
+        };
+      default:
+        return {
+          bg: 'bg-gray-900/30',
+          border: 'border-gray-500',
+          text: 'text-gray-300',
+          icon: '⚪'
+        };
+    }
+  };
+
   const filteredReports = reports.filter(report => {
     if (selectedStatus !== 'all' && report.status !== selectedStatus) return false;
     if (selectedCategory !== 'all' && report.category !== selectedCategory) return false;
@@ -203,6 +279,68 @@ const MyReportsPage: React.FC = () => {
         <div className="px-6 py-8">
           {activeTab === 'list' && (
             <>
+              {/* 受付確認通知エリア */}
+              {acknowledgements.length > 0 && (
+                <div className="mb-6 space-y-4">
+                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                    <CheckSquare className="w-6 h-6 text-green-400" />
+                    受付確認通知
+                  </h2>
+                  {acknowledgements.map((ack) => {
+                    const style = getAcknowledgementStyle(ack.severity);
+                    return (
+                      <div
+                        key={ack.reportId}
+                        className={`${style.bg} border ${style.border} rounded-xl p-6 backdrop-blur-xl`}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="text-4xl">{style.icon}</div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <h3 className={`text-xl font-bold ${style.text}`}>
+                                {ack.requiresImmediateAction ? '【緊急】' : ''}通報を受け付けました
+                              </h3>
+                              <span className="px-3 py-1 bg-white/10 rounded-full text-sm font-mono">
+                                {ack.medicalSystemCaseNumber}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                              <div className="flex items-center gap-2 text-sm">
+                                <Clock className="w-4 h-4" />
+                                <span className="text-gray-400">対応予定:</span>
+                                <span className="text-white font-semibold">{ack.estimatedResponseTime}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm">
+                                <Calendar className="w-4 h-4" />
+                                <span className="text-gray-400">受付日時:</span>
+                                <span className="text-white">{new Date(ack.receivedAt).toLocaleString('ja-JP')}</span>
+                              </div>
+                            </div>
+
+                            <div className="bg-white/5 rounded-lg p-4 mb-3">
+                              <p className="text-sm text-gray-300 mb-2">
+                                <strong>現在の状況:</strong> {ack.currentStatus}
+                              </p>
+                              {ack.nextSteps && (
+                                <p className="text-sm text-gray-300">
+                                  <strong>次のステップ:</strong> {ack.nextSteps}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm text-gray-400">
+                              <Shield className="w-4 h-4" />
+                              <span>あなたの匿名性は厳重に保護されています</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
               {/* フィルター */}
               <div className="bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700/30 mb-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -274,18 +412,30 @@ const MyReportsPage: React.FC = () => {
                         {/* ヘッダー行 */}
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
+                            <div className="flex items-center gap-3 mb-2 flex-wrap">
                               <h3 className="text-lg font-semibold text-white">{report.title}</h3>
                               <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusInfo.color} flex items-center gap-1`}>
                                 {statusInfo.icon}
                                 {statusInfo.label}
                               </span>
+                              {report.acknowledgementReceived && (
+                                <span className="px-3 py-1 bg-green-900/30 border border-green-500/30 rounded-full text-xs text-green-300 flex items-center gap-1">
+                                  <CheckCircle className="w-3 h-3" />
+                                  受付確認済み
+                                </span>
+                              )}
                             </div>
-                            <div className="flex items-center gap-4 text-sm text-gray-400">
+                            <div className="flex items-center gap-4 text-sm text-gray-400 flex-wrap">
                               <span className="flex items-center gap-1">
                                 <FileText className="w-4 h-4" />
                                 {report.id}
                               </span>
+                              {report.medicalSystemCaseNumber && (
+                                <span className="flex items-center gap-1 text-green-400">
+                                  <CheckSquare className="w-4 h-4" />
+                                  医療: {report.medicalSystemCaseNumber}
+                                </span>
+                              )}
                               <span className="flex items-center gap-1">
                                 <Shield className="w-4 h-4" />
                                 匿名ID: {report.anonymousId}
@@ -303,8 +453,25 @@ const MyReportsPage: React.FC = () => {
                           </div>
                         </div>
 
+                        {/* 受付確認情報 */}
+                        {report.acknowledgementReceived && report.estimatedResponseTime && (
+                          <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-3 mb-3">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Clock className="w-4 h-4 text-green-400" />
+                              <span className="text-green-300">
+                                対応予定: {report.estimatedResponseTime}
+                              </span>
+                              {report.acknowledgementDate && (
+                                <span className="text-gray-400 ml-2">
+                                  （受付: {new Date(report.acknowledgementDate).toLocaleString('ja-JP')}）
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
                         {/* カテゴリー */}
-                        <div className="flex items-center gap-2 mb-3">
+                        <div className="flex items-center gap-2 mb-3 flex-wrap">
                           <span className="px-3 py-1 bg-gray-700/50 rounded-lg text-sm text-gray-300">
                             {getCategoryLabel(report.category)}
                           </span>
@@ -400,12 +567,12 @@ const MyReportsPage: React.FC = () => {
                 <div className="bg-orange-900/20 border border-orange-500/30 rounded-xl p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-400">緊急案件</p>
+                      <p className="text-sm text-gray-400">受付確認済</p>
                       <p className="text-3xl font-bold text-white">
-                        {reports.filter(r => r.severity === 'critical' || r.severity === 'high').length}
+                        {reports.filter(r => r.acknowledgementReceived).length}
                       </p>
                     </div>
-                    <AlertCircle className="w-10 h-10 text-orange-400" />
+                    <CheckSquare className="w-10 h-10 text-orange-400" />
                   </div>
                 </div>
               </div>

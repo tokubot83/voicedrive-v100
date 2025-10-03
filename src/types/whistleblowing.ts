@@ -47,6 +47,12 @@ export interface WhistleblowingReport {
   followUpRequired: boolean;
   isAnonymous: boolean;
   priority: number;           // 1-10の優先度
+
+  // 医療システム統合用フィールド
+  medicalSystemCaseNumber?: string;     // 医療システムのケース番号（例: MED-2025-0001）
+  acknowledgementReceived?: boolean;     // 受付確認済みフラグ
+  acknowledgementDate?: Date;            // 受付確認日時
+  estimatedResponseTime?: string;        // 対応予定時間（例: "1時間以内", "当日中"）
 }
 
 export interface InvestigationNote {
@@ -123,4 +129,18 @@ export interface WhistleblowingPermissions {
   canAccessConfidentialNotes: boolean;
   canAssignInvestigators: boolean;
   maxSeverityLevel: ReportSeverity;
+}
+
+// 医療システムからの受付確認通知
+export interface AcknowledgementNotification {
+  reportId: string;                    // VoiceDrive通報ID
+  anonymousId: string;                 // 匿名ID
+  medicalSystemCaseNumber: string;     // 医療システムケース番号
+  severity: ReportSeverity;            // 緊急度
+  category: string;                    // カテゴリ
+  receivedAt: Date;                    // 受信日時
+  estimatedResponseTime: string;       // 対応予定時間
+  requiresImmediateAction: boolean;    // 即時対応が必要か
+  currentStatus: string;               // 現在のステータス
+  nextSteps?: string;                  // 次のステップ
 }
