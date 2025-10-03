@@ -19,14 +19,14 @@ interface Notification {
 const categoryConfigs = [
   { key: 'all', label: 'すべて', icon: '📋', color: '#6b7280' },
   { key: 'interview', label: '面談・予約', icon: '📅', color: '#3b82f6' },
-  { key: 'evaluation', label: '評価', icon: '📊', color: '#8b5cf6' },
-  { key: 'proposal', label: '議題・提案', icon: '💡', color: '#f59e0b' },
-  { key: 'project', label: 'プロジェクト', icon: '🚀', color: '#ec4899' },
   { key: 'feedback', label: 'フィードバック', icon: '💬', color: '#10b981' },
-  { key: 'shift', label: 'シフト・勤務', icon: '⏰', color: '#f59e0b' },
-  { key: 'training', label: '研修・教育', icon: '🎓', color: '#6366f1' },
   { key: 'hr_announcement', label: '人事お知らせ', icon: '📢', color: '#ef4444' },
+  { key: 'proposal', label: '議題・提案', icon: '💡', color: '#f59e0b' },
   { key: 'system', label: 'システム', icon: '⚙️', color: '#6b7280' },
+  { key: 'training', label: '研修・教育', icon: '🎓', color: '#6366f1' },
+  { key: 'shift', label: 'シフト・勤務', icon: '⏰', color: '#f59e0b' },
+  { key: 'project', label: 'プロジェクト', icon: '🚀', color: '#ec4899' },
+  { key: 'evaluation', label: '評価', icon: '📊', color: '#8b5cf6' },
 ];
 
 const NotificationsPage = () => {
