@@ -30,6 +30,11 @@ export interface V3AppealRequest extends AppealRequest {
   requestedScore: number;   // 0-100
   originalGrade?: string;   // S, A+, A, B+, B, C, D
   requestedGrade?: string;  // S, A+, A, B+, B, C, D
+  // 3軸評価対応
+  facilityGrade?: string;      // 施設内評価 (S, A, B, C, D)
+  corporateGrade?: string;     // 法人内評価 (S, A, B, C, D)
+  overallGrade?: string;       // 総合評価 (S, A+, A, B+, B, C, D)
+  overallScore?: number;       // 総合評価点数 (0-100)
 }
 
 // V3異議申し立てレスポンス

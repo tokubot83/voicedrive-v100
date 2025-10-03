@@ -6,6 +6,11 @@ export interface EvaluationNotification {
   evaluationPeriod: string;
   evaluationScore: number;
   evaluationGrade: string;
+  // 3軸評価対応
+  facilityGrade?: string;      // 施設内評価 (S, A, B, C, D の5段階)
+  corporateGrade?: string;     // 法人内評価 (S, A, B, C, D の5段階)
+  overallGrade?: string;       // 総合評価 (S, A+, A, B+, B, C, D の7段階)
+  overallScore?: number;       // 総合評価点数 (0-100点)
   disclosureDate: string;
   appealDeadline: string;
   hasUnreadNotification: boolean;
@@ -22,6 +27,11 @@ export interface EvaluationNotificationRequest {
   evaluationPeriod: string;
   evaluationScore: number;
   evaluationGrade: string;
+  // 3軸評価対応
+  facilityGrade?: string;      // 施設内評価 (S, A, B, C, D の5段階)
+  corporateGrade?: string;     // 法人内評価 (S, A, B, C, D の5段階)
+  overallGrade?: string;       // 総合評価 (S, A+, A, B+, B, C, D の7段階)
+  overallScore?: number;       // 総合評価点数 (0-100点)
   disclosureDate: string;
   appealDeadline: string;
   medicalSystemUrl?: string;
@@ -85,6 +95,11 @@ export interface EvaluationNotificationListItem {
   evaluationPeriod: string;
   score: number;
   grade: string;
+  // 3軸評価対応
+  facilityGrade?: string;      // 施設内評価 (S, A, B, C, D の5段階)
+  corporateGrade?: string;     // 法人内評価 (S, A, B, C, D の5段階)
+  overallGrade?: string;       // 総合評価 (S, A+, A, B+, B, C, D の7段階)
+  overallScore?: number;       // 総合評価点数 (0-100点)
   disclosureDate: string;
   appealDeadline: string;
   notificationStatus: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';

@@ -20,6 +20,10 @@ interface AppealFormV3Props {
   evaluationData?: {
     period: string;
     score: number;
+    facilityGrade?: string;
+    corporateGrade?: string;
+    overallGrade?: string;
+    overallScore?: number;
   };
   initialPeriod?: string;
   initialEmployeeId?: string;

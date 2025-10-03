@@ -38,6 +38,11 @@ class EvaluationNotificationService {
         evaluationPeriod: request.evaluationPeriod,
         evaluationScore: request.evaluationScore,
         evaluationGrade: request.evaluationGrade || V3GradeUtils.getGradeFromScore(request.evaluationScore),
+        // 3軸評価対応
+        facilityGrade: request.facilityGrade,
+        corporateGrade: request.corporateGrade,
+        overallGrade: request.overallGrade,
+        overallScore: request.overallScore,
         disclosureDate: request.disclosureDate,
         appealDeadline: request.appealDeadline,
         hasUnreadNotification: true,
@@ -326,6 +331,11 @@ class EvaluationNotificationService {
         evaluationPeriod: notification.evaluationPeriod,
         score: notification.evaluationScore,
         grade: notification.evaluationGrade,
+        // 3軸評価対応
+        facilityGrade: notification.facilityGrade,
+        corporateGrade: notification.corporateGrade,
+        overallGrade: notification.overallGrade,
+        overallScore: notification.overallScore,
         disclosureDate: notification.disclosureDate,
         appealDeadline: notification.appealDeadline,
         notificationStatus: notification.notificationReadAt ? 'read' : 'delivered',

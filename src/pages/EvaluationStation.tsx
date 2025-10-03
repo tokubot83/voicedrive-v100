@@ -26,7 +26,7 @@ import { MobileFooter } from '../components/layout/MobileFooter';
 // デモ用評価データ
 const generateDemoEvaluationData = (user: any) => {
   const currentYear = new Date().getFullYear();
-  
+
   return {
     currentNotifications: [
       {
@@ -34,6 +34,10 @@ const generateDemoEvaluationData = (user: any) => {
         period: '2025年冬期評価',
         score: 87,
         grade: 'A+',
+        facilityGrade: 'A',      // 施設内評価
+        corporateGrade: 'B',     // 法人内評価
+        overallGrade: 'A+',      // 総合評価
+        overallScore: 87,
         disclosureDate: '2025-03-15',
         appealDeadline: '2025-03-29',
         isRead: false,
@@ -46,15 +50,23 @@ const generateDemoEvaluationData = (user: any) => {
         period: '2024年秋期評価',
         score: 82,
         grade: 'A',
+        facilityGrade: 'A',
+        corporateGrade: 'B',
+        overallGrade: 'A',
+        overallScore: 82,
         disclosureDate: '2024-12-15',
         finalScore: 82,
         appealSubmitted: false
       },
       {
         id: 'eval_2024_summer',
-        period: '2024年夏期評価', 
+        period: '2024年夏期評価',
         score: 79,
         grade: 'B+',
+        facilityGrade: 'B',
+        corporateGrade: 'B',
+        overallGrade: 'B+',
+        overallScore: 79,
         disclosureDate: '2024-09-15',
         finalScore: 81,
         appealSubmitted: true,
@@ -65,6 +77,10 @@ const generateDemoEvaluationData = (user: any) => {
         period: '2024年春期評価',
         score: 85,
         grade: 'A',
+        facilityGrade: 'A',
+        corporateGrade: 'A',
+        overallGrade: 'A',
+        overallScore: 85,
         disclosureDate: '2024-06-15',
         finalScore: 85,
         appealSubmitted: false
@@ -90,7 +106,7 @@ const generateDemoEvaluationData = (user: any) => {
   };
 };
 
-const GradeDisplay: React.FC<{ grade: string; score: number }> = ({ grade, score }) => {
+const GradeDisplay: React.FC<{ grade: string; score?: number }> = ({ grade, score }) => {
   const getGradeColor = (grade: string) => {
     switch (grade) {
       case 'S': return 'text-purple-400 bg-purple-500/20 border-purple-500';
@@ -109,7 +125,45 @@ const GradeDisplay: React.FC<{ grade: string; score: number }> = ({ grade, score
       <div className={`px-3 py-1 rounded-full text-sm font-bold border ${getGradeColor(grade)}`}>
         {grade}
       </div>
-      <span className="text-lg font-semibold text-white">{score}点</span>
+      {score !== undefined && (
+        <span className="text-lg font-semibold text-white">{score}点</span>
+      )}
+    </div>
+  );
+};
+
+// 3軸評価表示コンポーネント
+const TripleGradeDisplay: React.FC<{
+  facilityGrade?: string;
+  corporateGrade?: string;
+  overallGrade?: string;
+  overallScore?: number;
+}> = ({ facilityGrade, corporateGrade, overallGrade, overallScore }) => {
+  return (
+    <div className="space-y-3">
+      {/* 施設内評価 */}
+      {facilityGrade && (
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-400">施設内評価</span>
+          <GradeDisplay grade={facilityGrade} />
+        </div>
+      )}
+
+      {/* 法人内評価 */}
+      {corporateGrade && (
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-400">法人内評価</span>
+          <GradeDisplay grade={corporateGrade} />
+        </div>
+      )}
+
+      {/* 総合評価 */}
+      {overallGrade && (
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-400 font-semibold">総合評価</span>
+          <GradeDisplay grade={overallGrade} score={overallScore} />
+        </div>
+      )}
     </div>
   );
 };
@@ -230,7 +284,12 @@ const EvaluationStation: React.FC = () => {
                       )}
                     </div>
                     <div className="mb-4">
-                      <GradeDisplay grade={notification.grade} score={notification.score} />
+                      <TripleGradeDisplay
+                        facilityGrade={notification.facilityGrade}
+                        corporateGrade={notification.corporateGrade}
+                        overallGrade={notification.overallGrade}
+                        overallScore={notification.overallScore}
+                      />
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm text-gray-400">
                       <div>
@@ -487,12 +546,17 @@ const EvaluationStation: React.FC = () => {
               <h2 className="text-xl font-semibold text-white mb-4">評価履歴</h2>
               {evaluationData.recentEvaluations.map((evaluation: any) => (
                 <div key={evaluation.id} className="bg-gray-800/50 backdrop-blur rounded-xl border border-gray-700 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">{evaluation.period}</h3>
-                      <p className="text-sm text-gray-400">{evaluation.disclosureDate}</p>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-white mb-1">{evaluation.period}</h3>
+                      <p className="text-sm text-gray-400 mb-4">{evaluation.disclosureDate}</p>
+                      <TripleGradeDisplay
+                        facilityGrade={evaluation.facilityGrade}
+                        corporateGrade={evaluation.corporateGrade}
+                        overallGrade={evaluation.overallGrade}
+                        overallScore={evaluation.overallScore}
+                      />
                     </div>
-                    <GradeDisplay grade={evaluation.grade} score={evaluation.score} />
                   </div>
                 </div>
               ))}
