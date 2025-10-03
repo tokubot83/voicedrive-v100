@@ -577,14 +577,27 @@ const EvaluationStation: React.FC = () => {
               {/* アクション選択 */}
               {!showInterviewForm && !showAppealForm && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <button
-                    onClick={() => {
-                      setActionType('interview');
-                      setShowInterviewForm(true);
-                      setShowAppealForm(false);
-                      setSelectedEvaluation(evaluationData.currentNotifications[0] || evaluationData.recentEvaluations[0]);
+                  <Link
+                    to={() => {
+                      const latestEval = evaluationData.currentNotifications[0] || evaluationData.recentEvaluations[0];
+                      return `/interview-station?type=feedback&evaluationId=${latestEval.id}`;
                     }}
-                    className="bg-purple-600/20 border border-purple-500 rounded-xl p-6 hover:bg-purple-600/30 transition-all text-left"
+                    state={{
+                      evaluationDetails: (() => {
+                        const latestEval = evaluationData.currentNotifications[0] || evaluationData.recentEvaluations[0];
+                        return {
+                          evaluationId: latestEval.id,
+                          evaluationType: latestEval.period.includes('夏季') ? 'summer_provisional' :
+                                         latestEval.period.includes('冬季') ? 'winter_provisional' : 'annual_final',
+                          facilityGrade: latestEval.facilityGrade,
+                          corporateGrade: latestEval.corporateGrade,
+                          totalPoints: latestEval.overallScore ? latestEval.overallScore / 4.0 : 0,
+                          appealDeadline: latestEval.appealDeadline,
+                          appealable: latestEval.canAppeal
+                        };
+                      })()
+                    }}
+                    className="bg-purple-600/20 border border-purple-500 rounded-xl p-6 hover:bg-purple-600/30 transition-all text-left block"
                   >
                     <div className="flex items-center gap-3 mb-3">
                       <Calendar className="w-8 h-8 text-purple-400" />
@@ -593,7 +606,7 @@ const EvaluationStation: React.FC = () => {
                     <p className="text-sm text-gray-400">
                       評価結果について詳しい説明を受けたり、今後の改善点について相談できます
                     </p>
-                  </button>
+                  </Link>
 
                   <button
                     onClick={() => {
