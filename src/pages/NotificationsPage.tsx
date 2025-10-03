@@ -19,7 +19,6 @@ interface Notification {
 const categoryConfigs = [
   { key: 'all', label: 'すべて', icon: '📋', color: '#6b7280' },
   { key: 'interview', label: '面談・予約', icon: '📅', color: '#3b82f6' },
-  { key: 'feedback', label: 'フィードバック', icon: '💬', color: '#10b981' },
   { key: 'hr_announcement', label: '人事お知らせ', icon: '📢', color: '#ef4444' },
   { key: 'proposal', label: '議題・提案', icon: '💡', color: '#f59e0b' },
   { key: 'system', label: 'システム', icon: '⚙️', color: '#6b7280' },
@@ -66,13 +65,13 @@ const NotificationsPage = () => {
     },
     {
       id: '4',
-      category: 'feedback',
-      title: '新しいフィードバックが届いています',
-      content: '山田太郎さんからフィードバックが届きました',
+      category: 'evaluation',
+      title: '上司からのフィードバックが届いています',
+      content: '山田太郎さんから評価フィードバックが届きました。内容を確認してください',
       timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000),
       isRead: false,
-      icon: '💬',
-      priority: 'low'
+      icon: '📊',
+      priority: 'medium'
     },
     {
       id: '5',

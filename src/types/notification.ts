@@ -4,12 +4,11 @@ export type NotificationPriority = 'critical' | 'high' | 'medium' | 'low';
 // 通知カテゴリ
 export type NotificationCategory =
   | 'hr_announcement'      // 人事お知らせ
-  | 'interview'            // 面談予約
-  | 'evaluation'           // 評価
+  | 'interview'            // 面談予約（面談サマリ受信含む）
+  | 'evaluation'           // 評価（評価フィードバック含む）
   | 'proposal'             // 議題・提案
   | 'project'              // プロジェクト
   | 'survey'               // アンケート
-  | 'feedback'             // フィードバック
   | 'shift'                // シフト・勤務
   | 'training'             // 研修・教育
   | 'system';              // システム
@@ -105,12 +104,6 @@ export const NOTIFICATION_PRESETS = {
         sound: false,
         vibration: false
       },
-      feedback: {
-        enabled: true,
-        priority: 'low',
-        sound: false,
-        vibration: false
-      },
       shift: {
         enabled: true,
         priority: 'high',
@@ -172,22 +165,24 @@ export const NOTIFICATION_CATEGORIES_INFO = {
   interview: {
     name: '面談・予約',
     icon: '📅',
-    description: '面談の予約確認やリマインダー',
+    description: '面談の予約確認やリマインダー、面談サマリ受信',
     subTypes: [
       { id: 'confirmation', name: '予約確定通知' },
       { id: 'reminder_day', name: '前日リマインダー' },
       { id: 'reminder_hour', name: '1時間前リマインダー' },
-      { id: 'change', name: '変更・キャンセル通知' }
+      { id: 'change', name: '変更・キャンセル通知' },
+      { id: 'summary_received', name: '面談サマリ受信' }
     ]
   },
   evaluation: {
     name: '評価',
     icon: '📊',
-    description: '評価期間の通知や結果のお知らせ',
+    description: '評価期間の通知や結果、評価フィードバック',
     subTypes: [
       { id: 'period_start', name: '評価期間開始' },
       { id: 'deadline', name: '締切リマインダー' },
       { id: 'complete', name: '評価完了通知' },
+      { id: 'feedback', name: '評価フィードバック受信' },
       { id: 'appeal', name: '異議申立関連' }
     ]
   },
@@ -221,16 +216,6 @@ export const NOTIFICATION_CATEGORIES_INFO = {
       { id: 'new', name: '新規アンケート' },
       { id: 'reminder', name: '回答リマインダー' },
       { id: 'mandatory', name: '必須アンケート' }
-    ]
-  },
-  feedback: {
-    name: 'フィードバック',
-    icon: '💬',
-    description: 'フィードバックや承認依頼',
-    subTypes: [
-      { id: 'received', name: 'フィードバック受信' },
-      { id: 'approval', name: '承認依頼' },
-      { id: 'approved', name: '承認完了' }
     ]
   },
   shift: {
