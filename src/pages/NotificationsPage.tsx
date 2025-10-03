@@ -19,7 +19,7 @@ interface Notification {
 const categoryConfigs = [
   { key: 'all', label: 'すべて', icon: '📋', color: '#6b7280' },
   { key: 'interview', label: '面談・予約', icon: '📅', color: '#3b82f6' },
-  { key: 'evaluation', label: 'V3評価', icon: '📊', color: '#8b5cf6' },
+  { key: 'evaluation', label: '評価', icon: '📊', color: '#8b5cf6' },
   { key: 'project', label: 'プロジェクト', icon: '🚀', color: '#ec4899' },
   { key: 'feedback', label: 'フィードバック', icon: '💬', color: '#10b981' },
   { key: 'shift', label: 'シフト・勤務', icon: '⏰', color: '#f59e0b' },
@@ -46,8 +46,8 @@ const NotificationsPage = () => {
     {
       id: '2',
       category: 'evaluation',
-      title: 'V3評価期間開始のお知らせ',
-      content: '2025年第1四半期のV3評価が開始されました。期限は2月15日までです',
+      title: '評価期間開始のお知らせ',
+      content: '2025年第1四半期の評価が開始されました。期限は2月15日までです',
       timestamp: new Date(Date.now() - 30 * 60 * 1000),
       isRead: false,
       icon: '📊',
