@@ -5,11 +5,11 @@ import { useDemoMode } from '../components/demo/DemoModeController';
 import FeedbackInterviewForm from '../components/evaluation/FeedbackInterviewForm';
 import AppealForm from '../components/evaluation/AppealForm';
 import { useEvaluationAPI } from '../hooks/useEvaluationAPI';
-import { 
-  Bell, 
-  Calendar, 
-  TrendingUp, 
-  FileText, 
+import {
+  Bell,
+  Calendar,
+  TrendingUp,
+  FileText,
   AlertCircle,
   CheckCircle,
   Clock,
@@ -17,6 +17,10 @@ import {
   Award,
   BarChart3
 } from 'lucide-react';
+
+// Phase 7: モバイルスワイプナビゲーション
+import { useSwipeableTabs } from '../hooks/useSwipeableTabs';
+import { SwipeIndicator } from '../components/common/SwipeableTabContainer';
 
 // デモ用評価データ
 const generateDemoEvaluationData = (user: any) => {
@@ -119,6 +123,20 @@ const EvaluationStation: React.FC = () => {
   const [actionType, setActionType] = useState<'interview' | 'appeal' | null>(null);
   const [selectedEvaluation, setSelectedEvaluation] = useState<any>(null);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // Phase 7: タブ配列定義
+  const evaluationTabs = [
+    { id: 'dashboard', label: 'ダッシュボード', icon: BarChart3 },
+    { id: 'history', label: '履歴', icon: FileText },
+    { id: 'actions', label: '対応・申立', icon: Calendar }
+  ];
+
+  // Phase 7: スワイプナビゲーション
+  const { handlers: swipeHandlers } = useSwipeableTabs({
+    activeTab,
+    tabs: ['dashboard', 'history', 'actions'] as const,
+    onTabChange: (tab) => setActiveTab(tab as typeof activeTab),
+  });
 
   // APIフックを使用
   const {
@@ -424,8 +442,16 @@ const EvaluationStation: React.FC = () => {
         </div>
       </div>
 
-      {/* コンテンツエリア */}
-      <div className="p-6">
+      {/* Phase 7: スワイプインジケーター（モバイルのみ表示） */}
+      <div className="lg:hidden">
+        <SwipeIndicator
+          tabs={evaluationTabs.map(tab => ({ ...tab, content: null }))}
+          activeTab={activeTab}
+        />
+      </div>
+
+      {/* コンテンツエリア - Phase 7: スワイプ対応 */}
+      <div className="p-6" {...swipeHandlers}>
         <div className="max-w-7xl mx-auto">
           {/* サブミットメッセージ */}
           {submitMessage && (

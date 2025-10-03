@@ -17,6 +17,10 @@ import { useDemoMode } from '../../components/demo/DemoModeController';
 import { WebhookTestPanel } from '../../components/career-course/WebhookTestPanel';
 import { MobileFooter } from '../../components/layout/MobileFooter';
 
+// Phase 7: モバイルスワイプナビゲーション
+import { useSwipeableTabs } from '../../hooks/useSwipeableTabs';
+import { SwipeIndicator } from '../../components/common/SwipeableTabContainer';
+
 interface StaffInfo {
   id: string;
   name: string;
@@ -34,6 +38,20 @@ export const CareerSelectionStationPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'requests' | 'info'>('dashboard');
+
+  // Phase 7: タブ配列定義
+  const careerTabs = [
+    { id: 'dashboard', label: 'マイキャリア', icon: User },
+    { id: 'requests', label: '申請管理', icon: FileText },
+    { id: 'info', label: '制度について', icon: AlertCircle }
+  ];
+
+  // Phase 7: スワイプナビゲーション
+  const { handlers: swipeHandlers } = useSwipeableTabs({
+    activeTab,
+    tabs: ['dashboard', 'requests', 'info'] as const,
+    onTabChange: (tab) => setActiveTab(tab as typeof activeTab),
+  });
 
   useEffect(() => {
     fetchStaffInfo();
@@ -181,8 +199,16 @@ export const CareerSelectionStationPage: React.FC = () => {
           </div>
         </div>
 
-        {/* コンテンツエリア */}
-        <div className="p-6">
+        {/* Phase 7: スワイプインジケーター（モバイルのみ表示） */}
+        <div className="lg:hidden">
+          <SwipeIndicator
+            tabs={careerTabs.map(tab => ({ ...tab, content: null }))}
+            activeTab={activeTab}
+          />
+        </div>
+
+        {/* コンテンツエリア - Phase 7: スワイプ対応 */}
+        <div className="p-6" {...swipeHandlers}>
           <div className="max-w-6xl mx-auto space-y-6">
 
         {/* マイキャリアタブ */}
