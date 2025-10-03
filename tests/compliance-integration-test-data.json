@@ -1,0 +1,359 @@
+{
+  "testCases": [
+    {
+      "id": "TC-001",
+      "name": "重大案件（Critical）の受付確認通知",
+      "description": "最高緊急度の通報に対する受付確認通知の動作確認",
+      "severity": "critical",
+      "requestData": {
+        "version": "1.0",
+        "source": "voicedrive",
+        "metadata": {
+          "reportId": "VD-TEST-CRITICAL-001",
+          "anonymousId": "ANON-TEST-001",
+          "severity": "critical",
+          "requiresImmediateAction": true,
+          "category": "ハラスメント"
+        },
+        "payload": {
+          "encrypted": "test_encrypted_data_critical",
+          "iv": "test_iv_critical",
+          "authTag": "test_auth_tag_critical"
+        },
+        "checksum": "test_checksum_critical"
+      },
+      "expectedAcknowledgement": {
+        "reportId": "VD-TEST-CRITICAL-001",
+        "caseNumber": "MED-2025-XXXX",
+        "anonymousId": "ANON-TEST-001",
+        "severity": "critical",
+        "category": "ハラスメント",
+        "message": "【緊急】通報を受け付けました。重大案件として直ちに対応を開始します。",
+        "estimatedResponseTime": "1時間以内",
+        "requiresImmediateAction": true
+      },
+      "expectedUI": {
+        "backgroundColor": "bg-red-900/30",
+        "borderColor": "border-red-500",
+        "badgeText": "受付確認済み",
+        "pushNotification": true
+      }
+    },
+    {
+      "id": "TC-002",
+      "name": "高優先度（High）の受付確認通知",
+      "description": "高優先度通報の受付確認通知動作確認",
+      "severity": "high",
+      "requestData": {
+        "version": "1.0",
+        "source": "voicedrive",
+        "metadata": {
+          "reportId": "VD-TEST-HIGH-002",
+          "anonymousId": "ANON-TEST-002",
+          "severity": "high",
+          "requiresImmediateAction": false,
+          "category": "診療報酬不正"
+        },
+        "payload": {
+          "encrypted": "test_encrypted_data_high",
+          "iv": "test_iv_high",
+          "authTag": "test_auth_tag_high"
+        },
+        "checksum": "test_checksum_high"
+      },
+      "expectedAcknowledgement": {
+        "reportId": "VD-TEST-HIGH-002",
+        "caseNumber": "MED-2025-XXXX",
+        "anonymousId": "ANON-TEST-002",
+        "severity": "high",
+        "category": "診療報酬不正",
+        "message": "通報を受け付けました。優先案件として速やかに対応いたします。",
+        "estimatedResponseTime": "当日中",
+        "requiresImmediateAction": false
+      },
+      "expectedUI": {
+        "backgroundColor": "bg-orange-900/30",
+        "borderColor": "border-orange-500",
+        "badgeText": "受付確認済み",
+        "pushNotification": true
+      }
+    },
+    {
+      "id": "TC-003",
+      "name": "中優先度（Medium）の受付確認通知",
+      "description": "中優先度通報の受付確認通知動作確認",
+      "severity": "medium",
+      "requestData": {
+        "version": "1.0",
+        "source": "voicedrive",
+        "metadata": {
+          "reportId": "VD-TEST-MEDIUM-003",
+          "anonymousId": "ANON-TEST-003",
+          "severity": "medium",
+          "requiresImmediateAction": false,
+          "category": "労働条件違反"
+        },
+        "payload": {
+          "encrypted": "test_encrypted_data_medium",
+          "iv": "test_iv_medium",
+          "authTag": "test_auth_tag_medium"
+        },
+        "checksum": "test_checksum_medium"
+      },
+      "expectedAcknowledgement": {
+        "reportId": "VD-TEST-MEDIUM-003",
+        "caseNumber": "MED-2025-XXXX",
+        "anonymousId": "ANON-TEST-003",
+        "severity": "medium",
+        "category": "労働条件違反",
+        "message": "通報を受け付けました。担当者を割り当て、調査を開始いたします。",
+        "estimatedResponseTime": "3営業日以内",
+        "requiresImmediateAction": false
+      },
+      "expectedUI": {
+        "backgroundColor": "bg-yellow-900/30",
+        "borderColor": "border-yellow-500",
+        "badgeText": "受付確認済み",
+        "pushNotification": false
+      }
+    },
+    {
+      "id": "TC-004",
+      "name": "低優先度（Low）の受付確認通知",
+      "description": "低優先度通報の受付確認通知動作確認",
+      "severity": "low",
+      "requestData": {
+        "version": "1.0",
+        "source": "voicedrive",
+        "metadata": {
+          "reportId": "VD-TEST-LOW-004",
+          "anonymousId": "ANON-TEST-004",
+          "severity": "low",
+          "requiresImmediateAction": false,
+          "category": "その他"
+        },
+        "payload": {
+          "encrypted": "test_encrypted_data_low",
+          "iv": "test_iv_low",
+          "authTag": "test_auth_tag_low"
+        },
+        "checksum": "test_checksum_low"
+      },
+      "expectedAcknowledgement": {
+        "reportId": "VD-TEST-LOW-004",
+        "caseNumber": "MED-2025-XXXX",
+        "anonymousId": "ANON-TEST-004",
+        "severity": "low",
+        "category": "その他",
+        "message": "通報を受け付けました。内容を確認し、適切に対応いたします。",
+        "estimatedResponseTime": "1週間以内",
+        "requiresImmediateAction": false
+      },
+      "expectedUI": {
+        "backgroundColor": "bg-green-900/30",
+        "borderColor": "border-green-500",
+        "badgeText": "受付確認済み",
+        "pushNotification": false
+      }
+    },
+    {
+      "id": "TC-005",
+      "name": "Webhook署名検証エラー",
+      "description": "不正な署名を含むWebhookリクエストの拒否確認",
+      "severity": "high",
+      "requestData": {
+        "version": "1.0",
+        "source": "voicedrive",
+        "metadata": {
+          "reportId": "VD-TEST-INVALID-005",
+          "anonymousId": "ANON-TEST-005",
+          "severity": "high",
+          "requiresImmediateAction": false,
+          "category": "テスト"
+        },
+        "payload": {
+          "encrypted": "test_encrypted_data_invalid",
+          "iv": "test_iv_invalid",
+          "authTag": "test_auth_tag_invalid"
+        },
+        "checksum": "test_checksum_invalid"
+      },
+      "invalidSignature": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedError": {
+        "code": "INVALID_SIGNATURE",
+        "httpStatus": 401,
+        "message": "Webhook signature verification failed"
+      }
+    },
+    {
+      "id": "TC-006",
+      "name": "VoiceDriveエンドポイント到達不可",
+      "description": "ネットワークエラー時のリトライ処理確認",
+      "severity": "high",
+      "simulateNetworkError": true,
+      "requestData": {
+        "version": "1.0",
+        "source": "voicedrive",
+        "metadata": {
+          "reportId": "VD-TEST-NETWORK-006",
+          "anonymousId": "ANON-TEST-006",
+          "severity": "high",
+          "requiresImmediateAction": false,
+          "category": "テスト"
+        },
+        "payload": {
+          "encrypted": "test_encrypted_data_network",
+          "iv": "test_iv_network",
+          "authTag": "test_auth_tag_network"
+        },
+        "checksum": "test_checksum_network"
+      },
+      "expectedBehavior": {
+        "initialResult": "FAILURE",
+        "retryAttempts": 3,
+        "retryIntervals": [5, 15, 45],
+        "finalResult": "SUCCESS"
+      }
+    },
+    {
+      "id": "TC-007",
+      "name": "データ形式エラー",
+      "description": "必須フィールド欠落時のバリデーションエラー確認",
+      "severity": "medium",
+      "requestData": {
+        "version": "1.0",
+        "source": "voicedrive",
+        "metadata": {
+          "reportId": "VD-TEST-VALIDATION-007",
+          "anonymousId": "ANON-TEST-007",
+          "severity": "medium",
+          "category": "テスト"
+        },
+        "payload": {
+          "encrypted": "test_encrypted_data_validation",
+          "iv": "test_iv_validation",
+          "authTag": "test_auth_tag_validation"
+        },
+        "checksum": "test_checksum_validation"
+      },
+      "expectedError": {
+        "code": "VALIDATION_ERROR",
+        "httpStatus": 400,
+        "message": "Missing required fields",
+        "missingField": "caseNumber"
+      }
+    },
+    {
+      "id": "TC-008",
+      "name": "タイムアウト処理",
+      "description": "応答遅延時のタイムアウト処理確認",
+      "severity": "high",
+      "simulateTimeout": true,
+      "timeoutDuration": 31000,
+      "requestData": {
+        "version": "1.0",
+        "source": "voicedrive",
+        "metadata": {
+          "reportId": "VD-TEST-TIMEOUT-008",
+          "anonymousId": "ANON-TEST-008",
+          "severity": "high",
+          "requiresImmediateAction": false,
+          "category": "テスト"
+        },
+        "payload": {
+          "encrypted": "test_encrypted_data_timeout",
+          "iv": "test_iv_timeout",
+          "authTag": "test_auth_tag_timeout"
+        },
+        "checksum": "test_checksum_timeout"
+      },
+      "expectedBehavior": {
+        "initialResult": "TIMEOUT",
+        "retryAttempts": 3,
+        "finalResult": "SUCCESS"
+      }
+    },
+    {
+      "id": "TC-009",
+      "name": "連続通報の処理",
+      "description": "5件の通報を短時間に処理する性能確認",
+      "severity": "mixed",
+      "requests": [
+        {
+          "reportId": "VD-TEST-BATCH-009-1",
+          "anonymousId": "ANON-TEST-009-1",
+          "severity": "critical",
+          "category": "ハラスメント"
+        },
+        {
+          "reportId": "VD-TEST-BATCH-009-2",
+          "anonymousId": "ANON-TEST-009-2",
+          "severity": "high",
+          "category": "診療報酬不正"
+        },
+        {
+          "reportId": "VD-TEST-BATCH-009-3",
+          "anonymousId": "ANON-TEST-009-3",
+          "severity": "medium",
+          "category": "労働条件違反"
+        },
+        {
+          "reportId": "VD-TEST-BATCH-009-4",
+          "anonymousId": "ANON-TEST-009-4",
+          "severity": "low",
+          "category": "その他"
+        },
+        {
+          "reportId": "VD-TEST-BATCH-009-5",
+          "anonymousId": "ANON-TEST-009-5",
+          "severity": "high",
+          "category": "個人情報漏洩"
+        }
+      ],
+      "expectedBehavior": {
+        "successCount": 5,
+        "maxProcessingTime": 10000,
+        "caseNumbersUnique": true
+      }
+    },
+    {
+      "id": "TC-010",
+      "name": "匿名IDでのステータス確認",
+      "description": "通報者が進捗確認できることの検証",
+      "severity": "high",
+      "dependsOn": "TC-001",
+      "statusCheckRequest": {
+        "anonymousId": "ANON-TEST-001",
+        "endpoint": "/api/v3/compliance/receive?anonymousId=ANON-TEST-001"
+      },
+      "expectedResponse": {
+        "success": true,
+        "anonymousId": "ANON-TEST-001",
+        "caseNumber": "MED-2025-XXXX",
+        "currentStatus": {
+          "code": "investigating",
+          "label": "調査中",
+          "since": "ISO8601 timestamp"
+        },
+        "history": [
+          {
+            "status": "received",
+            "timestamp": "ISO8601 timestamp",
+            "note": "通報を受信しました"
+          },
+          {
+            "status": "investigating",
+            "timestamp": "ISO8601 timestamp",
+            "note": "調査を開始しました"
+          }
+        ]
+      }
+    }
+  ],
+  "webhookSecret": "test-secret-key-for-integration-testing-32chars",
+  "testEnvironment": {
+    "medicalSystemUrl": "http://localhost:3002",
+    "voiceDriveUrl": "http://localhost:3100",
+    "mockWebhookUrl": "http://localhost:3100/api/webhook/compliance/acknowledgement"
+  }
+}
