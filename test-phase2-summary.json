@@ -1,0 +1,32 @@
+{
+  "requestId": "test-req-phase2-001",
+  "interviewId": "test-int-phase2-001",
+  "completedAt": "2025-10-02T14:30:00.000Z",
+  "duration": 40,
+  "summary": "Phase 2通知機能テスト用の面談サマリ。従業員との定期面談を実施し、業務状況と今後のキャリアプランについて話し合いました。",
+  "keyPoints": [
+    "現在の業務に対する満足度は高い",
+    "新しいプロジェクトへの参加意欲あり",
+    "チームワークを重視している"
+  ],
+  "actionItems": [
+    {
+      "description": "新規プロジェクトへの参加検討",
+      "dueDate": "2025-10-15T00:00:00.000Z"
+    },
+    {
+      "description": "スキルアップ研修の受講",
+      "dueDate": "2025-10-30T00:00:00.000Z"
+    }
+  ],
+  "followUpRequired": true,
+  "followUpDate": "2025-11-02T09:00:00.000Z",
+  "feedbackToEmployee": "前向きな姿勢で業務に取り組んでおり、成長が見られます。今後も継続的なサポートを行います。",
+  "nextRecommendations": {
+    "suggestedNextInterview": "2026-01-15T00:00:00.000Z",
+    "suggestedTopics": [
+      "プロジェクト進捗確認",
+      "キャリア開発"
+    ]
+  }
+}

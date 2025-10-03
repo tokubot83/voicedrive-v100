@@ -1,0 +1,182 @@
+/* 面談履歴アイテム */
+
+.interview-history-item {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s;
+}
+
+.interview-history-item:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* メイン情報 */
+.interview-main-info {
+  margin-bottom: 16px;
+}
+
+.interview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.interview-topic {
+  margin: 0;
+  font-size: 18px;
+  color: #1f2937;
+  flex: 1;
+}
+
+.interview-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ステータスバッジ */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-scheduled {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-completed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-cancelled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* 緊急度バッジ */
+.urgency-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.urgency-urgent {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.urgency-this_week {
+  background-color: #fed7aa;
+  color: #9a3412;
+}
+
+.urgency-next_week,
+.urgency-this_month {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* 詳細情報 */
+.interview-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.detail-label {
+  color: #6b7280;
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.detail-value {
+  color: #1f2937;
+}
+
+/* アクションボタン */
+.interview-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-action {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-details {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.btn-details:hover {
+  background-color: #e5e7eb;
+}
+
+.btn-summary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-summary:hover {
+  background-color: #2563eb;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .interview-history-item {
+    padding: 16px;
+  }
+
+  .interview-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .interview-badges {
+    align-self: flex-start;
+  }
+
+  .detail-label {
+    min-width: 60px;
+  }
+
+  .interview-actions {
+    flex-direction: column;
+  }
+
+  .btn-action {
+    width: 100%;
+  }
+}

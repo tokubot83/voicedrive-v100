@@ -90,6 +90,13 @@ async function runTestCase(testCase) {
 async function testNormalCase(testCase) {
   console.log('ステップ1: 医療システムへ通報を送信');
 
+  // チェックサムを動的に計算
+  const requestData = { ...testCase.requestData };
+  requestData.checksum = crypto
+    .createHash('sha256')
+    .update(JSON.stringify(requestData.payload))
+    .digest('hex');
+
   // 医療システムの受付APIに送信
   const receiveResponse = await fetch(`${testEnvironment.medicalSystemUrl}/api/v3/compliance/receive`, {
     method: 'POST',
@@ -97,7 +104,7 @@ async function testNormalCase(testCase) {
       'Content-Type': 'application/json',
       'X-Request-Id': crypto.randomUUID()
     },
-    body: JSON.stringify(testCase.requestData)
+    body: JSON.stringify(requestData)
   });
 
   if (!receiveResponse.ok) {
@@ -126,16 +133,30 @@ async function testNormalCase(testCase) {
 async function testInvalidSignature(testCase) {
   console.log('ステップ1: 不正な署名でWebhookリクエストを送信');
 
+  // 完全なペイロードを作成（すべての必須フィールドを含む）
+  const completePayload = {
+    reportId: testCase.requestData.metadata.reportId,
+    anonymousId: testCase.requestData.metadata.anonymousId,
+    caseNumber: 'MED-2025-TEST-INVALID',
+    severity: testCase.requestData.metadata.severity,
+    category: testCase.requestData.metadata.category,
+    receivedAt: new Date().toISOString(),
+    estimatedResponseTime: '1時間以内',
+    requiresImmediateAction: false,
+    currentStatus: 'received',
+    nextSteps: 'テスト用データ'
+  };
+
   const response = await fetch(testEnvironment.mockWebhookUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-Webhook-Signature': testCase.invalidSignature,
       'X-Webhook-Timestamp': new Date().toISOString(),
-      'X-Case-Number': 'MED-2025-TEST',
+      'X-Case-Number': 'MED-2025-TEST-INVALID',
       'X-Anonymous-Id': 'ANON-TEST-INVALID'
     },
-    body: JSON.stringify(testCase.requestData.metadata)
+    body: JSON.stringify(completePayload)
   });
 
   console.log(`レスポンスステータス: ${response.status}`);
@@ -243,6 +264,12 @@ async function testBatchProcessing(testCase) {
     const request = testCase.requests[i];
     console.log(`\n${i + 1}/5: ${request.reportId} (${request.severity})`);
 
+    const payload = {
+      encrypted: `test_encrypted_${i}`,
+      iv: `test_iv_${i}`,
+      authTag: `test_auth_tag_${i}`
+    };
+
     const requestData = {
       version: '1.0',
       source: 'voicedrive',
@@ -253,12 +280,11 @@ async function testBatchProcessing(testCase) {
         requiresImmediateAction: request.severity === 'critical',
         category: request.category
       },
-      payload: {
-        encrypted: `test_encrypted_${i}`,
-        iv: `test_iv_${i}`,
-        authTag: `test_auth_tag_${i}`
-      },
-      checksum: `test_checksum_${i}`
+      payload: payload,
+      checksum: crypto
+        .createHash('sha256')
+        .update(JSON.stringify(payload))
+        .digest('hex')
     };
 
     const response = await fetch(`${testEnvironment.medicalSystemUrl}/api/v3/compliance/receive`, {

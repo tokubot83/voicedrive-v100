@@ -353,3 +353,46 @@ model InterviewResult {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
+
+// コンプライアンス通報 受付確認通知テーブル（医療システムからのWebhook）
+model ComplianceAcknowledgement {
+  id                      String   @id @default(cuid())
+
+  // VoiceDrive側の通報ID
+  reportId                String   @unique // VD-2025-XXXX
+
+  // 医療システム側のケース番号
+  medicalSystemCaseNumber String   @unique // MED-2025-XXXX
+
+  // 匿名ID（通報者識別用）
+  anonymousId             String   // ANON-XXXX
+
+  // 緊急度・カテゴリ
+  severity                String   // critical, high, medium, low
+  category                String   // ハラスメント、診療報酬不正等
+
+  // 受付確認情報
+  receivedAt              DateTime // 医療システムが受信した日時
+  estimatedResponseTime   String   // 対応予定時間（1時間以内、当日中等）
+
+  // 緊急対応フラグ
+  requiresImmediateAction Boolean  @default(false)
+
+  // 現在の状態
+  currentStatus           String   @default("received") // received, investigating, resolved等
+
+  // 次のステップ
+  nextSteps               String?  // 次のアクション説明
+
+  // Webhook受信管理
+  webhookReceivedAt       DateTime @default(now())
+  processed               Boolean  @default(false)
+  processedAt             DateTime?
+
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@index([reportId])
+  @@index([anonymousId])
+  @@index([medicalSystemCaseNumber])
+}

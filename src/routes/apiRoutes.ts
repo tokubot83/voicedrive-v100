@@ -9,6 +9,13 @@ import interviewRoutes from './interviewRoutes';
 import syncRoutes from './syncRoutes';
 import myInterviewRoutes from './myInterviewRoutes';
 import { handleSummaryReceived } from '../api/medicalSystemReceiver';
+import {
+  verifyWebhookSignature,
+  verifyTimestamp,
+  validateWebhookPayload
+} from '../services/webhookVerifier';
+import type { AcknowledgementNotification } from '../types/whistleblowing';
+import { ComplianceAcknowledgementService } from '../api/db/complianceAcknowledgementService';
 
 const router = Router();
 
@@ -30,6 +37,178 @@ router.use('/my', authenticateToken, myInterviewRoutes);
 
 // 面談サマリ受信API
 router.post('/summaries/receive', standardRateLimit, handleSummaryReceived);
+
+// ====================
+// Webhook API（医療システムからの通知）
+// ====================
+
+// コンプライアンス通報 受付確認通知
+router.post('/webhook/compliance/acknowledgement', async (req, res) => {
+  const startTime = Date.now();
+
+  try {
+    const signature = req.headers['x-webhook-signature'] as string;
+    const timestamp = req.headers['x-webhook-timestamp'] as string;
+
+    if (!signature || !timestamp) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'MISSING_HEADERS', message: '必須ヘッダーが不足しています' }
+      });
+    }
+
+    // ペイロードバリデーションを先に実行（TC-007対応）
+    const missingFields = validateWebhookPayload(req.body);
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: '必須フィールドが不足しています', missingFields }
+      });
+    }
+
+    const secret = process.env.MEDICAL_SYSTEM_WEBHOOK_SECRET;
+    if (!secret) {
+      return res.status(500).json({
+        success: false,
+        error: { code: 'SERVER_CONFIGURATION_ERROR', message: 'サーバー設定エラー' }
+      });
+    }
+
+    if (!verifyTimestamp(timestamp, 5)) {
+      return res.status(401).json({
+        success: false,
+        error: { code: 'TIMESTAMP_EXPIRED', message: 'タイムスタンプが無効です' }
+      });
+    }
+
+    if (!verifyWebhookSignature(signature, req.body, secret)) {
+      return res.status(401).json({
+        success: false,
+        error: { code: 'INVALID_SIGNATURE', message: '署名検証に失敗しました' }
+      });
+    }
+
+    const notification: AcknowledgementNotification = {
+      reportId: req.body.reportId,
+      anonymousId: req.body.anonymousId,
+      medicalSystemCaseNumber: req.body.caseNumber,
+      severity: req.body.severity,
+      category: req.body.category,
+      receivedAt: new Date(req.body.receivedAt),
+      estimatedResponseTime: req.body.estimatedResponseTime,
+      requiresImmediateAction: req.body.requiresImmediateAction || false,
+      currentStatus: req.body.currentStatus || 'received',
+      nextSteps: req.body.nextSteps
+    };
+
+    console.log('[Webhook] Acknowledgement received:', {
+      reportId: notification.reportId,
+      caseNumber: notification.medicalSystemCaseNumber,
+      severity: notification.severity
+    });
+
+    // データベースに保存
+    const saveResult = await ComplianceAcknowledgementService.create({
+      reportId: notification.reportId,
+      anonymousId: notification.anonymousId,
+      medicalSystemCaseNumber: notification.medicalSystemCaseNumber,
+      severity: notification.severity,
+      category: notification.category,
+      receivedAt: notification.receivedAt,
+      estimatedResponseTime: notification.estimatedResponseTime,
+      requiresImmediateAction: notification.requiresImmediateAction,
+      currentStatus: notification.currentStatus,
+      nextSteps: notification.nextSteps
+    });
+
+    if (!saveResult.success) {
+      console.error('[Webhook] Database save failed:', saveResult.error);
+      // エラーでもWebhookは成功として返す（医療システムのリトライを避けるため）
+    } else {
+      console.log('[Webhook] Saved to database:', saveResult.data.id);
+    }
+
+    return res.status(200).json({
+      success: true,
+      notificationId: saveResult.success ? saveResult.data.id : `ACK-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      receivedAt: new Date().toISOString(),
+      processingTime: `${Date.now() - startTime}ms`
+    });
+  } catch (error) {
+    console.error('[Webhook] Error:', error);
+    return res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_SERVER_ERROR', message: 'サーバー内部エラー' }
+    });
+  }
+});
+
+// ====================
+// コンプライアンス受付確認通知API
+// ====================
+
+// 受付確認通知一覧取得
+router.get('/compliance/acknowledgements',
+  authenticateToken,
+  async (req, res) => {
+    const { severity, status, limit, offset } = req.query;
+
+    const result = await ComplianceAcknowledgementService.list({
+      severity: severity as string,
+      status: status as string,
+      limit: limit ? parseInt(limit as string) : undefined,
+      offset: offset ? parseInt(offset as string) : undefined
+    });
+
+    res.json({
+      success: result.success,
+      data: result.data,
+    });
+  }
+);
+
+// 匿名IDで受付確認通知を取得
+router.get('/compliance/acknowledgements/by-anonymous/:anonymousId',
+  async (req, res) => {
+    const { anonymousId } = req.params;
+
+    const result = await ComplianceAcknowledgementService.getByAnonymousId(anonymousId);
+
+    if (!result.success) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: result.error,
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result.data,
+    });
+  }
+);
+
+// reportIdで受付確認通知を取得
+router.get('/compliance/acknowledgements/:reportId',
+  authenticateToken,
+  async (req, res) => {
+    const { reportId } = req.params;
+
+    const result = await ComplianceAcknowledgementService.getByReportId(reportId);
+
+    if (!result.success) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: result.error,
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result.data,
+    });
+  }
+);
 
 // ====================
 // 認証API

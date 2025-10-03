@@ -353,7 +353,7 @@
   "webhookSecret": "test-secret-key-for-integration-testing-32chars",
   "testEnvironment": {
     "medicalSystemUrl": "http://localhost:3002",
-    "voiceDriveUrl": "http://localhost:3100",
-    "mockWebhookUrl": "http://localhost:3100/api/webhook/compliance/acknowledgement"
+    "voiceDriveUrl": "http://localhost:3003",
+    "mockWebhookUrl": "http://localhost:3003/api/webhook/compliance/acknowledgement"
   }
 }

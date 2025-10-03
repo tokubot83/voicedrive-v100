@@ -1,0 +1,28 @@
+{
+  "requestId": "test-req-phase2-001",
+  "interviewId": "test-int-phase2-NEW-001",
+  "completedAt": "2025-10-02T16:00:00.000Z",
+  "duration": 45,
+  "summary": "Phase 2通知生成テスト：通知センター統合機能の動作確認を実施しました。",
+  "keyPoints": [
+    "通知自動生成機能が正常に動作",
+    "interviewID埋め込み方式が機能",
+    "モーダル表示が正常"
+  ],
+  "actionItems": [
+    {
+      "description": "通知センターからのサマリ閲覧テスト",
+      "dueDate": "2025-10-03T00:00:00.000Z"
+    }
+  ],
+  "followUpRequired": true,
+  "followUpDate": "2025-10-05T09:00:00.000Z",
+  "feedbackToEmployee": "Phase 2実装が完了し、通知センターからの閲覧が可能になりました。",
+  "nextRecommendations": {
+    "suggestedNextInterview": "2025-12-01T00:00:00.000Z",
+    "suggestedTopics": [
+      "Phase 3機能の検討",
+      "UI/UX改善"
+    ]
+  }
+}
