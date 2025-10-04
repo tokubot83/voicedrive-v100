@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { MobileFooter } from '../components/layout/MobileFooter';
 import { DesktopFooter } from '../components/layout/DesktopFooter';
+import { systemModeManager, SystemMode } from '../config/systemMode';
 
 const IdeaVoiceGuide: React.FC = () => {
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'overview' | 'system' | 'flow' | 'proposal-examples' | 'examples' | 'faq' | 'support'>('overview');
   const [progressWidth, setProgressWidth] = useState(0);
+
+  // 現在のシステムモードを取得
+  const currentMode = systemModeManager.getCurrentMode();
+  const isAgendaMode = currentMode === SystemMode.AGENDA;
 
   useEffect(() => {
     // プログレスバーアニメーション
@@ -62,7 +67,8 @@ const IdeaVoiceGuide: React.FC = () => {
     { value: 2, label: '強く賛成', color: 'from-emerald-500 to-emerald-600', icon: '👍' }
   ];
 
-  const projectLevels = [
+  // 議題モード用レベル定義
+  const agendaLevels = [
     { level: 'PENDING', range: '0-29点', icon: '💭', color: 'from-gray-400 to-gray-500', description: '検討中' },
     { level: 'DEPT_REVIEW', range: '30-49点', icon: '📋', color: 'from-yellow-400 to-yellow-500', description: '部署検討' },
     { level: 'DEPT_AGENDA', range: '50-99点', icon: '👥', color: 'from-blue-400 to-blue-500', description: '部署議題' },
@@ -70,6 +76,18 @@ const IdeaVoiceGuide: React.FC = () => {
     { level: 'CORP_REVIEW', range: '300-599点', icon: '🏢', color: 'from-purple-400 to-purple-500', description: '法人検討' },
     { level: 'CORP_AGENDA', range: '600点以上', icon: '🏛️', color: 'from-pink-400 to-pink-500', description: '法人議題（理事会提出）' }
   ];
+
+  // プロジェクトモード用レベル定義
+  const projectLevels = [
+    { level: 'PENDING', range: '0-99点', icon: '💡', color: 'from-gray-400 to-gray-500', description: 'アイデア検討中' },
+    { level: 'TEAM', range: '100-199点', icon: '👥', color: 'from-blue-400 to-blue-500', description: 'チームプロジェクト' },
+    { level: 'DEPARTMENT', range: '200-399点', icon: '🏢', color: 'from-indigo-400 to-indigo-500', description: '部署プロジェクト' },
+    { level: 'FACILITY', range: '400-799点', icon: '🏥', color: 'from-green-400 to-green-500', description: '施設プロジェクト' },
+    { level: 'ORGANIZATION', range: '800点以上', icon: '🌐', color: 'from-purple-400 to-purple-500', description: '法人プロジェクト' }
+  ];
+
+  // モードに応じてレベル定義を選択
+  const displayLevels = isAgendaMode ? agendaLevels : projectLevels;
 
   const anonymityLevels = [
     { level: 'real_name', label: '実名表示', icon: '👤', description: '氏名が表示されます', security: '低' },
@@ -91,8 +109,17 @@ const IdeaVoiceGuide: React.FC = () => {
             VoiceDrive アイデアボイス完全ガイド
           </h1>
           <p className="text-xl text-gray-300">
-            あなたのアイデアが組織を変える革新的意思決定システム
+            {isAgendaMode
+              ? 'あなたのアイデアを委員会・理事会へ届ける議題化システム'
+              : 'あなたのアイデアをプロジェクト化してチームで実現するシステム'}
           </p>
+          <div className="mt-4 inline-block px-4 py-2 rounded-full bg-gray-700/50 border border-gray-600/30">
+            <span className="text-sm text-gray-300">
+              現在のモード: <span className={`font-bold ${isAgendaMode ? 'text-blue-400' : 'text-purple-400'}`}>
+                {isAgendaMode ? '議題モード 🏥' : 'プロジェクトモード 🚀'}
+              </span>
+            </span>
+          </div>
         </div>
 
         {/* タブナビゲーション */}
@@ -210,9 +237,13 @@ const IdeaVoiceGuide: React.FC = () => {
                   <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30">
                     <h4 className="text-xl font-semibold text-white mb-3 flex items-center gap-3">
                       <span className="text-3xl">📊</span>
-                      段階的議題化システム
+                      {isAgendaMode ? '段階的議題化システム' : '段階的プロジェクト化システム'}
                     </h4>
-                    <p className="text-gray-300">30→50→100→300→600点の5段階で、部署検討から理事会議題まで段階的にエスカレーション</p>
+                    <p className="text-gray-300">
+                      {isAgendaMode
+                        ? '30→50→100→300→600点の5段階で、部署検討から理事会議題まで段階的にエスカレーション'
+                        : '100→200→400→800点の4段階で、チームプロジェクトから法人プロジェクトまで段階的に発展'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -405,16 +436,25 @@ const IdeaVoiceGuide: React.FC = () => {
               }`} data-section="levels">
                 <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                   <span className="text-blue-400">📊</span>
-                  議題提出レベル（18段階権限対応）
+                  {isAgendaMode ? '議題提出レベル（18段階権限対応）' : 'プロジェクト化レベル（18段階権限対応）'}
                 </h3>
-                <div className="mb-4 bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
-                  <p className="text-gray-300">
-                    <span className="text-blue-400 font-semibold">部署規模調整：</span>
-                    小規模部署（5人以下）は0.4倍、中規模（6-15人）は0.6倍、大規模（16-30人）は0.8倍、超大規模（31人以上）は1.0倍
-                  </p>
-                </div>
+                {isAgendaMode ? (
+                  <div className="mb-4 bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+                    <p className="text-gray-300">
+                      <span className="text-blue-400 font-semibold">部署規模調整：</span>
+                      小規模部署（5人以下）は0.4倍、中規模（6-15人）は0.6倍、大規模（16-30人）は0.8倍、超大規模（31人以上）は1.0倍
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mb-4 bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+                    <p className="text-gray-300">
+                      <span className="text-purple-400 font-semibold">プロジェクト化：</span>
+                      スコアに応じて、アイデアがチームプロジェクト→部署プロジェクト→施設プロジェクト→法人プロジェクトへ段階的に発展します
+                    </p>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {projectLevels.map(level => (
+                  {displayLevels.map(level => (
                     <div key={level.level} className={`bg-gradient-to-r ${level.color} rounded-xl p-6 text-white`}>
                       <div className="text-3xl mb-2">{level.icon}</div>
                       <h4 className="text-lg font-bold mb-2">{level.description}</h4>
@@ -428,21 +468,40 @@ const IdeaVoiceGuide: React.FC = () => {
               <div className={`bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-2xl p-8 border border-blue-500/30 animate-section transition-all duration-1000 ${
                 visibleSections.has('approval') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
               }`} data-section="approval">
-                <h3 className="text-2xl font-bold text-white mb-4">✅ 議題化・実行システム</h3>
-                <div className="space-y-4">
-                  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
-                    <p className="text-white font-semibold mb-2">🎯 段階的議題化</p>
-                    <p className="text-gray-300 text-sm">30点で部署検討、50点で部署議題、100点で委員会提出、600点で理事会議題に</p>
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  ✅ {isAgendaMode ? '議題化・実行システム' : 'プロジェクト化・実行システム'}
+                </h3>
+                {isAgendaMode ? (
+                  <div className="space-y-4">
+                    <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
+                      <p className="text-white font-semibold mb-2">🎯 段階的議題化</p>
+                      <p className="text-gray-300 text-sm">30点で部署検討、50点で部署議題、100点で委員会提出、600点で理事会議題に</p>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
+                      <p className="text-white font-semibold mb-2">📋 委員会自動連携</p>
+                      <p className="text-gray-300 text-sm">100点以上で関連する委員会（医療安全、感染対策等）へ自動で議題提出</p>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
+                      <p className="text-white font-semibold mb-2">🗳️ 投票範囲拡大</p>
+                      <p className="text-gray-300 text-sm">スコアに応じて投票範囲が部署→施設→法人へ段階的に拡大</p>
+                    </div>
                   </div>
-                  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
-                    <p className="text-white font-semibold mb-2">📋 委員会自動連携</p>
-                    <p className="text-gray-300 text-sm">100点以上で関連する委員会（医療安全、感染対策等）へ自動で議題提出</p>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
+                      <p className="text-white font-semibold mb-2">🎯 段階的プロジェクト化</p>
+                      <p className="text-gray-300 text-sm">100点でチームプロジェクト、200点で部署プロジェクト、400点で施設プロジェクト、800点で法人プロジェクトに</p>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
+                      <p className="text-white font-semibold mb-2">👥 自動チーム編成</p>
+                      <p className="text-gray-300 text-sm">プロジェクト化されると自動的にチームが編成され、タスク割り当てとマイルストーン管理が可能に</p>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
+                      <p className="text-white font-semibold mb-2">🔄 進捗管理</p>
+                      <p className="text-gray-300 text-sm">プロジェクトの進捗状況をリアルタイムで可視化、部署横断の協働を促進</p>
+                    </div>
                   </div>
-                  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
-                    <p className="text-white font-semibold mb-2">🗳️ 投票範囲拡大</p>
-                    <p className="text-gray-300 text-sm">スコアに応じて投票範囲が部署→施設→法人へ段階的に拡大</p>
-                  </div>
-                </div>
+                )}
               </div>
             </>
           )}
