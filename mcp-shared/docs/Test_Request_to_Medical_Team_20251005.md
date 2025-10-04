@@ -281,6 +281,174 @@ VoiceDriveチームより、以下のテストデータセットを提供いた�
 - **緊急時**: 平日18:00-21:00（Slackのみ）
 - **週次ミーティング**: 毎週金曜15:00-16:00
 
+### 5.4 医療チーム側の技術スタック確認
+
+VoiceDriveチームで確認させていただきたい技術的な詳細事項です。キックオフミーティング（10/7）またはそれ以前に情報共有をお願いいたします。
+
+#### 必須確認事項
+
+| 項目 | 確認内容 | 備考 |
+|------|---------|------|
+| **LLMエンジン** | Ollama + Llama 3.2 8B | ✅ 確認済み（`llm_engine.py`） |
+| **Webフレームワーク** | FastAPI / Flask / その他？ | APIサーバー実装に使用 |
+| **エンドポイントURL** | `http://localhost:8000/api/moderate` | VoiceDrive側の期待値 |
+| **ポート番号** | 8000（デフォルト） | 変更の場合は事前通知をお願いします |
+| **認証方式** | APIキー / なし | VoiceDrive側で設定が必要な場合 |
+
+#### インフラ環境の確認
+
+**開発環境**:
+| 項目 | 確認内容 |
+|------|---------|
+| OS | Linux / macOS / Windows |
+| Python バージョン | 3.10以上推奨 |
+| Ollama インストール済み | `ollama --version` |
+| モデルダウンロード済み | `ollama list` で llama3.2:8b 確認 |
+
+**本番環境（AWS Lightsail）**:
+| 項目 | 確認内容 | 備考 |
+|------|---------|------|
+| インスタンスタイプ | CPU: ?コア、RAM: ?GB | パフォーマンス目標達成に影響 |
+| GPU | あり / なし | Llama 3.2 8BはCPUでも動作可能 |
+| ストレージ | ?GB（モデルサイズ: 約5GB） | キャッシュ領域も考慮 |
+| ネットワーク | VoiceDriveからアクセス可能か | VPC/セキュリティグループ設定 |
+
+#### 必須パッケージ・依存関係
+
+**Python パッケージ**:
+```bash
+# 必須
+pip install ollama          # Ollamaクライアント
+pip install pydantic        # 型定義
+pip install fastapi         # APIフレームワーク（推奨）
+pip install uvicorn         # ASGIサーバー
+
+# 推奨
+pip install redis           # キャッシュ用
+pip install prometheus-client  # メトリクス収集
+pip install python-dotenv   # 環境変数管理
+```
+
+**Ollama セットアップ**:
+```bash
+# 1. Ollamaインストール（公式サイトから）
+# https://ollama.com/
+
+# 2. サーバー起動
+ollama serve  # デフォルト: localhost:11434
+
+# 3. モデルダウンロード
+ollama pull llama3.2:8b  # 約5GB
+
+# 4. 動作確認
+ollama run llama3.2:8b "こんにちは"
+```
+
+#### パフォーマンス事前検証のお願い
+
+目標値達成の見込みを事前に確認したいため、以下のベンチマークテストをお願いします：
+
+**シンプルなベンチマーク**:
+```python
+import time
+import ollama
+
+client = ollama.Client()
+
+# 10回の推論時間を計測
+times = []
+for i in range(10):
+    start = time.time()
+    client.generate(
+        model='llama3.2:8b',
+        prompt='この投稿は適切ですか？「電子カルテの操作性を改善してほしいです」',
+        options={'temperature': 0.3, 'num_predict': 500}
+    )
+    elapsed = time.time() - start
+    times.append(elapsed * 1000)  # ミリ秒
+    print(f"Test {i+1}: {elapsed*1000:.0f}ms")
+
+print(f"\n平均: {sum(times)/len(times):.0f}ms")
+print(f"最大: {max(times):.0f}ms")
+print(f"最小: {min(times):.0f}ms")
+```
+
+**目標値との比較**:
+- ✅ 平均が2000ms以下: 目標達成見込み高い
+- ⚠️ 平均が2000-3000ms: キャッシュ・最適化で達成可能
+- ❌ 平均が3000ms超: インフラ強化が必要
+
+#### API仕様の最終確認
+
+**リクエストフォーマット**:
+```typescript
+POST /api/moderate
+Content-Type: application/json
+
+{
+  "content": "チェック対象テキスト",
+  "context": {
+    "postType": "improvement",
+    "authorLevel": 3,
+    "department": "看護部"
+  },
+  "options": {
+    "checkSensitivity": "medium",
+    "language": "ja",
+    "includeExplanation": true
+  }
+}
+```
+
+**レスポンスフォーマット**:
+```typescript
+{
+  "allowed": true,
+  "severity": "none",
+  "confidence": 95,
+  "violations": [],
+  "explanation": "建設的な改善提案です。問題ありません。",
+  "suggestedEdits": null,
+  "metadata": {
+    "modelVersion": "llama-3.2-8b-v1",
+    "processingTime": 1450,
+    "timestamp": "2025-10-12T10:30:45.123Z"
+  }
+}
+```
+
+**型定義の完全一致確認**:
+- ✅ `src/types/llmModeration.ts` との完全一致
+- ✅ Pydantic型定義（`types.py`）との整合性
+- ⚠️ 差異がある場合は事前に協議
+
+#### 追加API（医療チーム提案分）
+
+以下のAPIも実装予定でしょうか？Week 5での実装優先度をお知らせください：
+
+| API | エンドポイント | 優先度 |
+|-----|--------------|--------|
+| **バッチモデレーション** | `POST /api/moderate/batch` | Week 6-7実装でも可 |
+| **ヘルスチェック** | `GET /api/health` | Week 5必須（監視用） |
+| **メトリクス** | `GET /api/metrics` | Week 6-7実装でも可 |
+
+#### キックオフMTGで確認したい事項
+
+**10/7（月）10:00のミーティングで以下を確認させてください**:
+
+1. ✅ 上記の技術スタック詳細
+2. ✅ インフラ環境のスペック
+3. ✅ 事前ベンチマーク結果（可能であれば）
+4. ✅ Week 5でのAPI実装範囲（基本API + ヘルスチェック）
+5. ✅ 開発環境のセットアップ状況
+6. ✅ 懸念事項・質問事項
+
+**情報共有の方法**:
+- Slack `#llm-integration` に環境情報を投稿
+- または、キックオフMTGで口頭説明
+
+お手数をおかけしますが、スムーズな統合のためご協力をお願いいたします。
+
 ## 6. スケジュール
 
 ### 6.1 詳細スケジュール
