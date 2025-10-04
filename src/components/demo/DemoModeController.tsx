@@ -27,7 +27,7 @@ interface DemoModeProviderProps {
 
 export const DemoModeProvider: React.FC<DemoModeProviderProps> = ({ children }) => {
   const [isDemoMode, setIsDemoMode] = useState(true); // Default to demo mode
-  const [currentUser, setCurrentUser] = useState<DemoUser>(demoUsers[7]); // user-8: Level 5 HR_DEPARTMENT_HEAD
+  const [currentUser, setCurrentUser] = useState<DemoUser>(demoUsers[9]); // Level 6: 主任
 
   const toggleDemoMode = () => {
     setIsDemoMode(!isDemoMode);
@@ -189,9 +189,8 @@ export const DemoModeController: React.FC = () => {
                 <div>
                   <h3 className="font-semibold text-lg mb-2">Welcome to VoiceDrive Demo!</h3>
                   <p className="text-sm">
-                    This is a demonstration environment showcasing VoiceDrive's employee voice platform.
-                    You can explore different user perspectives and see how the system works across
-                    various permission levels.
+                    This is a demonstration environment showcasing VoiceDrive's employee voice platform
+                    with the new 25-level permission system integrated with the medical personnel management system.
                   </p>
                 </div>
 
@@ -200,57 +199,64 @@ export const DemoModeController: React.FC = () => {
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start gap-2">
                       <span className="text-blue-600">•</span>
-                      <span><strong>User Switching:</strong> Switch between 15 different demo users across 8 permission levels</span>
+                      <span><strong>User Switching:</strong> Switch between 25 different demo users across all permission levels (1-18, 0.5刻み含む)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-blue-600">•</span>
-                      <span><strong>20 Demo Posts:</strong> Explore various post types with seasonal content distribution</span>
+                      <span><strong>25-Level System:</strong> Experience経験年数別レベル（1-4）、役職層（5-13）、法人人事部（14-17）、最高経営層（18）</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-blue-600">•</span>
-                      <span><strong>5 Active Projects:</strong> See project workflows and ROI tracking in action</span>
+                      <span><strong>0.5刻みレベル:</strong> 看護職のリーダー業務対応レベル（1.5, 2.5, 3.5, 4.5）</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-blue-600">•</span>
-                      <span><strong>ROI Measurement:</strong> View detailed cost-benefit analysis and metrics</span>
+                      <span><strong>特別権限:</strong> 健診担当(97)、産業医(98)、システム管理者(99)</span>
                     </li>
                   </ul>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Account Types & Permission Levels</h3>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="bg-gray-50 p-3 rounded">
-                      <div className="font-medium text-gray-700">Level 1: STAFF</div>
-                      <div className="text-xs text-gray-500">一般職員 • 承認権限なし</div>
+                  <h3 className="font-semibold text-lg mb-2">25段階権限レベル概要</h3>
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <div className="font-medium text-gray-800 mb-1">一般職員層（経験年数別）</div>
+                      <div className="grid grid-cols-2 gap-1 text-xs">
+                        <div className="bg-blue-50 p-2 rounded">Level 1: 新人（1年目）</div>
+                        <div className="bg-blue-50 p-2 rounded">Level 1.5: 新人リーダー可</div>
+                        <div className="bg-blue-50 p-2 rounded">Level 2: 若手（2-3年）</div>
+                        <div className="bg-blue-50 p-2 rounded">Level 2.5: 若手リーダー可</div>
+                        <div className="bg-blue-50 p-2 rounded">Level 3: 中堅（4-10年）</div>
+                        <div className="bg-blue-50 p-2 rounded">Level 3.5: 中堅リーダー可</div>
+                        <div className="bg-blue-50 p-2 rounded">Level 4: ベテラン（11年以上）</div>
+                        <div className="bg-blue-50 p-2 rounded">Level 4.5: ベテランリーダー可</div>
+                      </div>
                     </div>
-                    <div className="bg-gray-50 p-3 rounded">
-                      <div className="font-medium text-gray-700">Level 2: SUPERVISOR</div>
-                      <div className="text-xs text-gray-500">スーパーバイザー • ¥100,000まで</div>
+
+                    <div>
+                      <div className="font-medium text-gray-800 mb-1">役職層</div>
+                      <div className="grid grid-cols-3 gap-1 text-xs">
+                        <div className="bg-green-50 p-2 rounded">Lv5: 副主任（¥50k）</div>
+                        <div className="bg-green-50 p-2 rounded">Lv6: 主任（¥100k）</div>
+                        <div className="bg-green-50 p-2 rounded">Lv7: 副師長（¥300k）</div>
+                        <div className="bg-green-50 p-2 rounded">Lv8: 師長（¥500k）</div>
+                        <div className="bg-green-50 p-2 rounded">Lv9: 副部長（¥1M）</div>
+                        <div className="bg-green-50 p-2 rounded">Lv10: 部長（¥2M）</div>
+                        <div className="bg-green-50 p-2 rounded">Lv11: 事務長（¥3M）</div>
+                        <div className="bg-green-50 p-2 rounded">Lv12: 副院長（¥5M）</div>
+                        <div className="bg-green-50 p-2 rounded">Lv13: 院長（¥10M）</div>
+                      </div>
                     </div>
-                    <div className="bg-gray-50 p-3 rounded">
-                      <div className="font-medium text-gray-700">Level 3: DEPARTMENT_HEAD</div>
-                      <div className="text-xs text-gray-500">部門長 • ¥500,000まで</div>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded">
-                      <div className="font-medium text-gray-700">Level 4: FACILITY_HEAD</div>
-                      <div className="text-xs text-gray-500">施設長 • ¥1,000,000まで</div>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded">
-                      <div className="font-medium text-gray-700">Level 5: HR_DEPARTMENT_HEAD</div>
-                      <div className="text-xs text-gray-500">人事部門長 • ¥2,000,000まで</div>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded">
-                      <div className="font-medium text-gray-700">Level 6: HR_DIRECTOR</div>
-                      <div className="text-xs text-gray-500">人事部長 • ¥5,000,000まで</div>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded">
-                      <div className="font-medium text-gray-700">Level 7: EXECUTIVE_SECRETARY</div>
-                      <div className="text-xs text-gray-500">役員秘書 • ¥10,000,000まで</div>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded">
-                      <div className="font-medium text-gray-700">Level 8: CHAIRMAN</div>
-                      <div className="text-xs text-gray-500">理事長 • 無制限</div>
+
+                    <div>
+                      <div className="font-medium text-gray-800 mb-1">法人人事部・最高経営層</div>
+                      <div className="grid grid-cols-3 gap-1 text-xs">
+                        <div className="bg-purple-50 p-2 rounded">Lv14: 人事部門員</div>
+                        <div className="bg-purple-50 p-2 rounded">Lv15: 人事部門長（¥3M）</div>
+                        <div className="bg-purple-50 p-2 rounded">Lv16: 戦略企画員（¥5M）</div>
+                        <div className="bg-purple-50 p-2 rounded">Lv17: 戦略企画長（¥10M）</div>
+                        <div className="bg-purple-50 p-2 rounded">Lv18: 理事長（無制限）</div>
+                      </div>
                     </div>
                   </div>
                 </div>
