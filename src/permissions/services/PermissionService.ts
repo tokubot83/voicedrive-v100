@@ -1,4 +1,4 @@
-// 権限管理サービス - 8段階権限システム
+// 権限管理サービス - 18段階権限システム + モード対応
 import {
   PermissionLevel,
   PermissionMetadata,
@@ -7,14 +7,18 @@ import {
   FEATURE_PERMISSIONS,
   canAccessLevel,
   canAccessProjectScope,
-  ProjectScope
+  ProjectScope,
+  SpecialPermissionLevel
 } from '../types/PermissionTypes';
+import { systemModeManager, SystemMode } from '../../config/systemMode';
+import { getAgendaModePermission, AgendaModePermission } from '../config/agendaModePermissions';
+import { getProjectModePermission, ProjectModePermission } from '../config/projectModePermissions';
 
 export class PermissionService {
   private static instance: PermissionService;
-  
+
   private constructor() {}
-  
+
   static getInstance(): PermissionService {
     if (!PermissionService.instance) {
       PermissionService.instance = new PermissionService();
@@ -150,5 +154,72 @@ export class PermissionService {
     const userLevel = this.getUserPermissionLevel(userId);
     // レベル9以上が戦略的決定権を持つ（部長・本部長級以上）
     return userLevel >= PermissionLevel.LEVEL_9;
+  }
+
+  // ==================== モード別権限管理 ====================
+
+  /**
+   * モードを考慮した権限を取得
+   */
+  getModeAwarePermissions(
+    userLevel: PermissionLevel | SpecialPermissionLevel
+  ): AgendaModePermission | ProjectModePermission | undefined {
+    const currentMode = systemModeManager.getCurrentMode();
+
+    if (currentMode === SystemMode.AGENDA) {
+      return getAgendaModePermission(userLevel);
+    } else {
+      return getProjectModePermission(userLevel);
+    }
+  }
+
+  /**
+   * 議題モード権限を取得
+   */
+  getAgendaModePermissions(
+    userLevel: PermissionLevel | SpecialPermissionLevel
+  ): AgendaModePermission | undefined {
+    return getAgendaModePermission(userLevel);
+  }
+
+  /**
+   * プロジェクトモード権限を取得
+   */
+  getProjectModePermissions(
+    userLevel: PermissionLevel | SpecialPermissionLevel
+  ): ProjectModePermission | undefined {
+    return getProjectModePermission(userLevel);
+  }
+
+  /**
+   * 現在のモードでアクセス可能なメニュー項目を取得
+   */
+  getModeAwareMenuItems(
+    userLevel: PermissionLevel | SpecialPermissionLevel
+  ): string[] {
+    const permissions = this.getModeAwarePermissions(userLevel);
+    return permissions?.menuItems || [];
+  }
+
+  /**
+   * 現在のモードで特定の権限をチェック
+   */
+  hasModeAwarePermission(
+    userLevel: PermissionLevel | SpecialPermissionLevel,
+    permissionKey: string
+  ): boolean {
+    const permissions = this.getModeAwarePermissions(userLevel);
+    if (!permissions) return false;
+
+    // permissionsオブジェクトから該当するキーの値を取得
+    return (permissions as any)[permissionKey] === true;
+  }
+
+  /**
+   * モード切替時の権限変更を通知
+   */
+  onModeChange(newMode: SystemMode): void {
+    console.log(`[PermissionService] モード変更: ${newMode}`);
+    // UIの再レンダリングをトリガー（将来的にイベントエミッターで実装）
   }
 }

@@ -1,7 +1,8 @@
 import React from 'react';
+import { ProjectLevel } from '../../types/visibility';
 
 interface ProjectLevelBadgeProps {
-  level: 'PENDING' | 'DEPT_REVIEW' | 'DEPT_AGENDA' | 'FACILITY_AGENDA' | 'CORP_REVIEW' | 'CORP_AGENDA';
+  level: ProjectLevel;
   score: number;
   isAnimated?: boolean;
   showNextLevel?: boolean;
@@ -12,9 +13,9 @@ interface ProjectLevelBadgeProps {
   compact?: boolean; // モバイル向けコンパクト表示
 }
 
-const ProjectLevelBadge: React.FC<ProjectLevelBadgeProps> = ({ 
-  level, 
-  score, 
+const ProjectLevelBadge: React.FC<ProjectLevelBadgeProps> = ({
+  level,
+  score,
   isAnimated = false,
   showNextLevel = false,
   nextLevelInfo,
@@ -24,75 +25,78 @@ const ProjectLevelBadge: React.FC<ProjectLevelBadgeProps> = ({
     switch(level) {
       case 'PENDING':
         return {
-          label: '検討中',
+          label: 'アイデア検討中',
           color: 'gray',
-          icon: '💭',
+          icon: '💡',
           bgGradient: 'from-gray-400 to-gray-600',
           borderColor: 'border-gray-300',
           textColor: 'text-gray-700',
-          range: '0-29点'
+          range: '0-99点'
         };
-      case 'DEPT_REVIEW':
+      case 'TEAM':
         return {
-          label: '部署検討',
-          color: 'yellow',
-          icon: '📋',
-          bgGradient: 'from-yellow-400 to-yellow-600',
-          borderColor: 'border-yellow-300',
-          textColor: 'text-yellow-700',
-          range: '30-49点'
-        };
-      case 'DEPT_AGENDA':
-        return {
-          label: '部署議題',
+          label: 'チームプロジェクト',
           color: 'blue',
           icon: '👥',
           bgGradient: 'from-blue-400 to-blue-600',
           borderColor: 'border-blue-300',
           textColor: 'text-blue-700',
-          range: '50-99点'
+          range: '100-199点',
+          subtitle: '小規模チーム'
         };
-      case 'FACILITY_AGENDA':
+      case 'DEPARTMENT':
         return {
-          label: '施設議題',
+          label: '部署プロジェクト',
+          color: 'indigo',
+          icon: '🏢',
+          bgGradient: 'from-indigo-400 to-indigo-600',
+          borderColor: 'border-indigo-300',
+          textColor: 'text-indigo-700',
+          range: '200-399点',
+          subtitle: '部署全体で実施'
+        };
+      case 'FACILITY':
+        return {
+          label: '施設プロジェクト',
           color: 'green',
           icon: '🏥',
           bgGradient: 'from-green-400 to-green-600',
           borderColor: 'border-green-300',
           textColor: 'text-green-700',
-          range: '100-299点',
-          subtitle: '委員会提出'
+          range: '400-799点',
+          subtitle: '施設横断'
         };
-      case 'CORP_REVIEW':
+      case 'ORGANIZATION':
         return {
-          label: '法人検討',
+          label: '法人プロジェクト',
           color: 'purple',
-          icon: '🏢',
+          icon: '🌐',
           bgGradient: 'from-purple-400 to-purple-600',
           borderColor: 'border-purple-300',
           textColor: 'text-purple-700',
-          range: '300-599点'
+          range: '800点以上',
+          subtitle: '法人全体で実施'
         };
-      case 'CORP_AGENDA':
+      case 'STRATEGIC':
         return {
-          label: '法人議題',
+          label: '戦略プロジェクト',
           color: 'pink',
-          icon: '🏛️',
+          icon: '🎯',
           bgGradient: 'from-pink-400 to-pink-600',
           borderColor: 'border-pink-300',
           textColor: 'text-pink-700',
-          range: '600点以上',
-          subtitle: '理事会提出'
+          range: '1000点以上',
+          subtitle: '最重要戦略案件'
         };
       default:
         return {
-          label: '検討中',
+          label: 'アイデア検討中',
           color: 'gray',
-          icon: '💭',
+          icon: '💡',
           bgGradient: 'from-gray-400 to-gray-600',
           borderColor: 'border-gray-300',
           textColor: 'text-gray-700',
-          range: '0-29点'
+          range: '0-99点'
         };
     }
   };

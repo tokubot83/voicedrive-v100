@@ -327,7 +327,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
             <span>キャリア選択ステーション</span>
           </button>
 
-          {/* アイデアボイスハブ（新規追加） */}
+          {/* アイデアボイスハブ（議題システムモード） */}
           <div>
             <button
               onClick={() => setIdeaVoiceExpanded(!ideaVoiceExpanded)}
@@ -349,18 +349,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
 
             {ideaVoiceExpanded && (
               <div className="ml-8 mt-1 space-y-1">
-                <button
-                  onClick={() => onNavigate('/idea-voice/new')}
-                  className="w-full text-left px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-700/50 rounded flex items-center gap-2"
-                >
-                  <span>📝</span> 新規投稿
-                </button>
-                <button
-                  onClick={() => onNavigate('/idea-voice/vote')}
-                  className="w-full text-left px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-700/50 rounded flex items-center gap-2"
-                >
-                  <span>🗳️</span> 投票
-                </button>
+                {/* 議題進捗 - 全体の進捗を俯瞰 */}
                 <button
                   onClick={() => onNavigate('/idea-voice/progress')}
                   className="w-full text-left px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-700/50 rounded flex items-center gap-2"

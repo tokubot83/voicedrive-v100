@@ -104,12 +104,26 @@ export interface Post {
   comments: Comment[];
   projectId?: string;
   approver?: User;
+
+  // 議題モード用のステータス（委員会活性化）
+  agendaStatus?: {
+    level: 'PENDING' | 'DEPT_REVIEW' | 'DEPT_AGENDA' | 'FACILITY_AGENDA' | 'CORP_REVIEW' | 'CORP_AGENDA';
+    score: number;
+    isSubmittedToCommittee?: boolean;
+    committeeSubmissionDate?: string;
+    committeeApprovalStatus?: 'pending' | 'approved' | 'rejected';
+    proposalDocumentId?: string;
+  };
+
+  // プロジェクトモード用のステータス（チーム編成・協働）
   projectStatus?: string | {
     stage: 'approaching' | 'ready' | 'active' | 'completed';
     score: number;
     threshold: number;
     progress: number;
+    level?: 'PENDING' | 'TEAM' | 'DEPARTMENT' | 'FACILITY' | 'ORGANIZATION' | 'STRATEGIC';
   };
+
   projectDetails?: {
     manager?: string;
     team?: string[];

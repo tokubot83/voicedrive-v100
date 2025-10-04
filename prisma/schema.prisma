@@ -1,6 +1,3 @@
-// VoiceDrive データベーススキーマ
-// 医療職員管理システムとの統合データベース設計
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,387 +7,244 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ========================================
-// コアエンティティ
-// ========================================
-
-// ユーザーテーブル（医療職員）
 model User {
-  id                String   @id @default(cuid())
-  employeeId        String   @unique // 職員ID（医療システム連携キー）
-  email             String   @unique
-  name              String
-  department        String?
-  facilityId        String?
-  role              String?
-  avatar            String?
-
-  // 13段階権限システム
-  accountType       String   // CHAIRMAN, GENERAL_ADMINISTRATIVE_DIRECTOR, etc.
-  permissionLevel   Int      // 1-13
-
-  // 階層構造
-  parentId          String?  // 直属上司ID
-  parent            User?    @relation("UserHierarchy", fields: [parentId], references: [id])
-  children          User[]   @relation("UserHierarchy")
-  budgetApprovalLimit Float? // 予算承認限度額
-
-  // 医療専門データ
-  stakeholderCategory String? // frontline, management, veteran, zGen
-  position          String?
-  expertise         Int?
-  hierarchyLevel    Int?
-
-  // 退職処理
-  isRetired         Boolean  @default(false)
-  retirementDate    DateTime?
-  anonymizedId      String?
-
-  // メタデータ
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  lastLoginAt       DateTime?
-  loginCount        Int      @default(0)
-
-  // リレーション
-  notifications     Notification[]
-  evaluations       Evaluation[]
-  interviews        Interview[]
-  surveys           Survey[]
-  projects          Project[]
-  feedbackSent      Feedback[]      @relation("FeedbackSender")
-  feedbackReceived  Feedback[]      @relation("FeedbackReceiver")
-  auditLogs         AuditLog[]
+  id                  String         @id @default(cuid())
+  employeeId          String         @unique
+  email               String         @unique
+  name                String
+  department          String?
+  facilityId          String?
+  role                String?
+  avatar              String?
+  accountType         String
+  permissionLevel     Int
+  parentId            String?
+  budgetApprovalLimit Float?
+  stakeholderCategory String?
+  position            String?
+  expertise           Int?
+  hierarchyLevel      Int?
+  isRetired           Boolean        @default(false)
+  retirementDate      DateTime?
+  anonymizedId        String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  lastLoginAt         DateTime?
+  loginCount          Int            @default(0)
+  auditLogs           AuditLog[]
+  evaluations         Evaluation[]
+  feedbackReceived    Feedback[]     @relation("FeedbackReceiver")
+  feedbackSent        Feedback[]     @relation("FeedbackSender")
+  interviews          Interview[]
+  notifications       Notification[]
+  projects            Project[]
+  surveys             Survey[]
+  parent              User?          @relation("UserHierarchy", fields: [parentId], references: [id])
+  children            User[]         @relation("UserHierarchy")
 }
 
-// 通知テーブル
 model Notification {
-  id                String   @id @default(cuid())
-  category          String   // announcement, interview, training, survey, other
-  subcategory       String?  // satisfaction, workenv, education等
-  priority          String   // urgent, high, normal, low
-  title             String
-  content           String
-  target            String   // all, doctors, nurses, technicians等
-
-  // 送信者情報
-  senderId          String
-  sender            User     @relation(fields: [senderId], references: [id])
-
-  // 配信管理
-  status            String   @default("pending") // pending, sent, failed
-  sentAt            DateTime?
-  recipientCount    Int      @default(0)
-
-  // 開封・既読管理
-  readCount         Int      @default(0)
-  clickCount        Int      @default(0)
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id             String    @id @default(cuid())
+  category       String
+  subcategory    String?
+  priority       String
+  title          String
+  content        String
+  target         String
+  senderId       String
+  status         String    @default("pending")
+  sentAt         DateTime?
+  recipientCount Int       @default(0)
+  readCount      Int       @default(0)
+  clickCount     Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  sender         User      @relation(fields: [senderId], references: [id])
 }
 
-// 面談テーブル
 model Interview {
-  id                String   @id @default(cuid())
-  employeeId        String
-  employee          User     @relation(fields: [employeeId], references: [id])
-
-  // 面談種別（統合3カテゴリ・25タイプ）
-  category          String   // BASIC, SUPPORT, SPECIAL
-  type              String   // 詳細タイプ
-  topic             String
-
-  // スケジュール
-  preferredDate     DateTime
-  scheduledDate     DateTime?
-  actualDate        DateTime?
-  duration          Int?     // 分単位
-
-  // 面談者情報
-  interviewerId     String?
-  interviewerName   String?
-
-  // 状態管理
-  status            String   @default("pending") // pending, scheduled, completed, cancelled
-  urgencyLevel      String   // urgent, this_week, next_week, this_month
-
-  // 結果・フィードバック
-  result            String?
-  notes             String?
-  followUpRequired  Boolean  @default(false)
-  followUpDate      DateTime?
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id               String    @id @default(cuid())
+  employeeId       String
+  category         String
+  type             String
+  topic            String
+  preferredDate    DateTime
+  scheduledDate    DateTime?
+  actualDate       DateTime?
+  duration         Int?
+  interviewerId    String?
+  interviewerName  String?
+  status           String    @default("pending")
+  urgencyLevel     String
+  result           String?
+  notes            String?
+  followUpRequired Boolean   @default(false)
+  followUpDate     DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  employee         User      @relation(fields: [employeeId], references: [id])
 }
 
-// 評価テーブル（V3評価システム）
 model Evaluation {
-  id                String   @id @default(cuid())
+  id                String    @id @default(cuid())
   employeeId        String
-  employee          User     @relation(fields: [employeeId], references: [id])
-
-  // 評価期間
-  period            String   // 2025-H1, 2025-H2等
-  evaluationType    String   // self, manager, peer, subordinate
-
-  // 評価スコア
+  period            String
+  evaluationType    String
   overallScore      Float?
-  categoryScores    Json     // カテゴリ別スコア
-
-  // 自己評価
+  categoryScores    Json
   selfAssessment    String?
-  achievements      Json?    // 成果リスト
-  challenges        Json?    // 課題リスト
-
-  // 上司評価
+  achievements      Json?
+  challenges        Json?
   managerScore      Float?
   managerComments   String?
-
-  // 360度評価
   peerScores        Json?
   subordinateScores Json?
-
-  // 異議申立
-  hasObjection      Boolean  @default(false)
+  hasObjection      Boolean   @default(false)
   objectionReason   String?
-  objectionStatus   String?  // pending, reviewing, resolved, rejected
+  objectionStatus   String?
   objectionResult   String?
-
-  // ステータス
-  status            String   @default("draft") // draft, submitted, reviewing, completed
+  status            String    @default("draft")
   submittedAt       DateTime?
   completedAt       DateTime?
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  employee          User      @relation(fields: [employeeId], references: [id])
 }
 
-// アンケートテーブル
 model Survey {
-  id                String   @id @default(cuid())
-  title             String
-  description       String?
-  category          String   // satisfaction, workenv, education等
-
-  // 作成者
-  createdById       String
-  createdBy         User     @relation(fields: [createdById], references: [id])
-
-  // 配信設定
-  targetAudience    String   // all, specific_department等
-  deadline          DateTime
-  isAnonymous       Boolean  @default(true)
-
-  // 質問と回答
-  questions         Json     // 質問リスト
-  responses         SurveyResponse[]
-
-  // 集計
-  responseCount     Int      @default(0)
-  completionRate    Float?
-  averageScore      Float?
-
-  // ステータス
-  status            String   @default("draft") // draft, active, closed, analyzing
-  publishedAt       DateTime?
-  closedAt          DateTime?
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id             String           @id @default(cuid())
+  title          String
+  description    String?
+  category       String
+  createdById    String
+  targetAudience String
+  deadline       DateTime
+  isAnonymous    Boolean          @default(true)
+  questions      Json
+  responseCount  Int              @default(0)
+  completionRate Float?
+  averageScore   Float?
+  status         String           @default("draft")
+  publishedAt    DateTime?
+  closedAt       DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  createdBy      User             @relation(fields: [createdById], references: [id])
+  responses      SurveyResponse[]
 }
 
-// アンケート回答テーブル
 model SurveyResponse {
-  id                String   @id @default(cuid())
-  surveyId          String
-  survey            Survey   @relation(fields: [surveyId], references: [id])
-
-  // 回答者（匿名の場合はnull）
-  respondentId      String?
-
-  // 回答内容
-  answers           Json
-  score             Float?
-  comments          String?
-
-  // メタデータ
-  submittedAt       DateTime @default(now())
-  ipAddress         String?
-  userAgent         String?
+  id           String   @id @default(cuid())
+  surveyId     String
+  respondentId String?
+  answers      Json
+  score        Float?
+  comments     String?
+  submittedAt  DateTime @default(now())
+  ipAddress    String?
+  userAgent    String?
+  survey       Survey   @relation(fields: [surveyId], references: [id])
 }
 
-// プロジェクトテーブル
 model Project {
-  id                String   @id @default(cuid())
-  title             String
-  description       String
-  category          String   // improvement, innovation, event等
-
-  // 提案者
-  proposerId        String
-  proposer          User     @relation(fields: [proposerId], references: [id])
-
-  // プロジェクト詳細
-  objectives        Json     // 目標リスト
-  expectedOutcomes  Json     // 期待される成果
-  budget            Float?
-  timeline          Json?    // マイルストーン
-
-  // ステータス管理
-  status            String   @default("proposed") // proposed, reviewing, approved, in_progress, completed, cancelled
-  priority          String?  // high, medium, low
-
-  // 承認プロセス
-  approvalLevel     Int      @default(0)
-  approvedBy        Json?    // 承認者リスト
-  rejectionReason   String?
-
-  // 進捗管理
-  progressRate      Float    @default(0)
-  milestones        Json?
-  deliverables      Json?
-
-  // 結果・評価
-  actualOutcomes    Json?
-  lessonsLearned    String?
-  roi               Float?   // 投資対効果
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  startedAt         DateTime?
-  completedAt       DateTime?
+  id               String    @id @default(cuid())
+  title            String
+  description      String
+  category         String
+  proposerId       String
+  objectives       Json
+  expectedOutcomes Json
+  budget           Float?
+  timeline         Json?
+  status           String    @default("proposed")
+  priority         String?
+  approvalLevel    Int       @default(0)
+  approvedBy       Json?
+  rejectionReason  String?
+  progressRate     Float     @default(0)
+  milestones       Json?
+  deliverables     Json?
+  actualOutcomes   Json?
+  lessonsLearned   String?
+  roi              Float?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  startedAt        DateTime?
+  completedAt      DateTime?
+  proposer         User      @relation(fields: [proposerId], references: [id])
 }
 
-// フィードバックテーブル
 model Feedback {
-  id                String   @id @default(cuid())
-
-  // 送信者・受信者
-  senderId          String
-  sender            User     @relation("FeedbackSender", fields: [senderId], references: [id])
-  receiverId        String
-  receiver          User     @relation("FeedbackReceiver", fields: [receiverId], references: [id])
-
-  // フィードバック内容
-  type              String   // praise, improvement, question, concern
-  category          String   // performance, behavior, skill等
-  content           String
-
-  // 重要度・緊急度
-  importance        String   // high, medium, low
-  isAnonymous       Boolean  @default(false)
-
-  // レスポンス
-  response          String?
-  respondedAt       DateTime?
-
-  // ステータス
-  status            String   @default("sent") // sent, read, responded, closed
-  readAt            DateTime?
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id          String    @id @default(cuid())
+  senderId    String
+  receiverId  String
+  type        String
+  category    String
+  content     String
+  importance  String
+  isAnonymous Boolean   @default(false)
+  response    String?
+  respondedAt DateTime?
+  status      String    @default("sent")
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  receiver    User      @relation("FeedbackReceiver", fields: [receiverId], references: [id])
+  sender      User      @relation("FeedbackSender", fields: [senderId], references: [id])
 }
 
-// 監査ログテーブル
 model AuditLog {
-  id                String   @id @default(cuid())
-  userId            String
-  user              User     @relation(fields: [userId], references: [id])
-
-  action            String   // CREATE, UPDATE, DELETE, VIEW等
-  entityType        String   // User, Evaluation, Interview等
-  entityId          String
-
-  oldValues         Json?
-  newValues         Json?
-
-  ipAddress         String?
-  userAgent         String?
-
-  createdAt         DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String
+  action     String
+  entityType String
+  entityId   String
+  oldValues  Json?
+  newValues  Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
 }
 
-// ========================================
-// 医療システム連携
-// ========================================
-
-// 面談結果受信テーブル（医療システムからの送信データ）
 model InterviewResult {
-  id                String   @id @default(cuid())
-
-  // 連携ID
-  requestId         String   @unique // VoiceDrive側の申込ID
-  interviewId       String   @unique // 医療システム側の面談ID
-
-  // 実施情報
-  completedAt       DateTime // 面談実施日時
-  duration          Int      // 実施時間（分）
-
-  // 面談内容
-  summary           String   // 面談サマリ
-  keyPoints         Json     // 重要ポイント（配列）
-  actionItems       Json     // アクションアイテム
-
-  // フォローアップ情報
-  followUpRequired  Boolean  @default(false)
-  followUpDate      DateTime?
-
-  // 職員フィードバック
-  feedbackToEmployee String  // 職員向けフィードバック文
-
-  // 次回推奨事項
-  nextRecommendations Json   // 次回推奨情報（日付・トピック）
-
-  // 受信管理
-  receivedAt        DateTime @default(now())
-  processedAt       DateTime?
-  status            String   @default("received") // received, processed, error
-  errorMessage      String?
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                  String    @id @default(cuid())
+  requestId           String    @unique
+  interviewId         String    @unique
+  completedAt         DateTime
+  duration            Int
+  summary             String
+  keyPoints           Json
+  actionItems         Json
+  followUpRequired    Boolean   @default(false)
+  followUpDate        DateTime?
+  feedbackToEmployee  String
+  nextRecommendations Json
+  receivedAt          DateTime  @default(now())
+  processedAt         DateTime?
+  status              String    @default("received")
+  errorMessage        String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 }
 
-// コンプライアンス通報 受付確認通知テーブル（医療システムからのWebhook）
 model ComplianceAcknowledgement {
-  id                      String   @id @default(cuid())
-
-  // VoiceDrive側の通報ID
-  reportId                String   @unique // VD-2025-XXXX
-
-  // 医療システム側のケース番号
-  medicalSystemCaseNumber String   @unique // MED-2025-XXXX
-
-  // 匿名ID（通報者識別用）
-  anonymousId             String   // ANON-XXXX
-
-  // 緊急度・カテゴリ
-  severity                String   // critical, high, medium, low
-  category                String   // ハラスメント、診療報酬不正等
-
-  // 受付確認情報
-  receivedAt              DateTime // 医療システムが受信した日時
-  estimatedResponseTime   String   // 対応予定時間（1時間以内、当日中等）
-
-  // 緊急対応フラグ
-  requiresImmediateAction Boolean  @default(false)
-
-  // 現在の状態
-  currentStatus           String   @default("received") // received, investigating, resolved等
-
-  // 次のステップ
-  nextSteps               String?  // 次のアクション説明
-
-  // Webhook受信管理
-  webhookReceivedAt       DateTime @default(now())
-  processed               Boolean  @default(false)
+  id                      String    @id @default(cuid())
+  reportId                String    @unique
+  medicalSystemCaseNumber String    @unique
+  anonymousId             String
+  severity                String
+  category                String
+  receivedAt              DateTime
+  estimatedResponseTime   String
+  requiresImmediateAction Boolean   @default(false)
+  currentStatus           String    @default("received")
+  nextSteps               String?
+  webhookReceivedAt       DateTime  @default(now())
+  processed               Boolean   @default(false)
   processedAt             DateTime?
-
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
 
   @@index([reportId])
   @@index([anonymousId])
