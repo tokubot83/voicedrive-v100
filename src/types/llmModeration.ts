@@ -125,3 +125,71 @@ export interface HybridModerationResult {
   combinedSeverity: 'none' | 'low' | 'medium' | 'high' | 'critical';  // 統合重大度
   recommendedAction: 'allow' | 'warn' | 'block';  // 推奨アクション
 }
+
+/**
+ * バッチモデレーションリクエスト（医療チーム提案）
+ */
+export interface LLMBatchModerationRequest {
+  posts: Array<{
+    postId: string;
+    content: string;
+    context?: {
+      postType?: 'improvement' | 'community' | 'report';
+      authorLevel?: number;
+      department?: string;
+    };
+  }>;
+  options?: {
+    checkSensitivity?: 'low' | 'medium' | 'high';
+    language?: 'ja' | 'en';
+    includeExplanation?: boolean;
+  };
+}
+
+/**
+ * バッチモデレーション結果（医療チーム提案）
+ */
+export interface LLMBatchModerationResult {
+  results: Array<{
+    postId: string;
+  } & LLMModerationResult>;
+  totalProcessingTime: number;  // ミリ秒
+  metadata: {
+    batchSize: number;
+    successCount: number;
+    failureCount: number;
+  };
+}
+
+/**
+ * ヘルスチェック結果（医療チーム提案）
+ */
+export interface LLMHealthCheck {
+  status: 'healthy' | 'degraded' | 'unhealthy';
+  checks: {
+    llm: 'ok' | 'error';
+    cache: 'ok' | 'error';
+    database?: 'ok' | 'error';
+  };
+  version: string;
+  uptime: number;  // 秒
+  timestamp: string;  // ISO 8601
+}
+
+/**
+ * メトリクス結果（医療チーム提案）
+ */
+export interface LLMMetrics {
+  requests: {
+    total: number;
+    successful: number;
+    failed: number;
+  };
+  performance: {
+    avgResponseTime: number;  // ミリ秒
+    p95ResponseTime: number;
+    p99ResponseTime: number;
+  };
+  detections: Record<LLMViolationType, number>;
+  period: 'last_1h' | 'last_24h' | 'last_7d' | 'last_30d';
+}
