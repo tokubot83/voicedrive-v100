@@ -40,6 +40,7 @@ import IdeaVoiceGuide from '../pages/IdeaVoiceGuide';
 import FreeVoiceGuide from '../pages/FreeVoiceGuide';
 import ComplianceGuide from '../pages/ComplianceGuide';
 import InterviewGuide from '../pages/InterviewGuide';
+import UserGuide from '../pages/UserGuide';
 import { ProposalGeneratorPage } from '../pages/ProposalGeneratorPage';
 
 // Test pages
@@ -493,6 +494,7 @@ const AppRouter: React.FC = () => {
       <Route path="free-voice-guide" element={<FreeVoiceGuide />} />
       <Route path="compliance-guide" element={<ComplianceGuide />} />
       <Route path="interview-guide" element={<InterviewGuide />} />
+      <Route path="user-guide" element={<UserGuide />} />
       <Route path="leader-station" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_2}>
           <LeaderStationPage />
