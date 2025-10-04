@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { HierarchicalUser } from '../../types';
 import { ContentModerationService, ModerationResult } from '../../services/ContentModerationService';
-import { PermissionLevel } from '../../permissions/types/PermissionTypes';
+import { formatPermissionLevel } from '../../types/accountLevel';
 
 interface EmergencyDeletionPanelProps {
   postId: string;
@@ -74,7 +74,8 @@ const EmergencyDeletionPanel: React.FC<EmergencyDeletionPanelProps> = ({
     }
   };
 
-  const canDelete = currentUser.permissionLevel >= PermissionLevel.LEVEL_2;
+  // レベル6（主任）以上が緊急削除権限を持つ
+  const canDelete = currentUser.permissionLevel >= 6;
 
   if (!canDelete) {
     return (
@@ -114,7 +115,7 @@ const EmergencyDeletionPanel: React.FC<EmergencyDeletionPanelProps> = ({
         <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-4 mb-6">
           <h4 className="text-yellow-300 font-bold mb-2">⚖️ 削除権限</h4>
           <p className="text-yellow-200 text-sm">
-            あなたの権限レベル: LEVEL {currentUser.permissionLevel}<br/>
+            あなたの権限レベル: {formatPermissionLevel(currentUser.permissionLevel)}<br/>
             削除可能範囲: {getDeletionScopeText(postScope)}の投稿
           </p>
         </div>
@@ -195,8 +196,8 @@ const EmergencyDeletionPanel: React.FC<EmergencyDeletionPanelProps> = ({
             <li>• 重大な違反の場合、コンプライアンス窓口に自動通報されます</li>
             <li>• 48時間以内の詳細報告が必要です</li>
             <li>• 削除権限の行使状況が上級管理者に通知されます</li>
-            {currentUser.permissionLevel >= PermissionLevel.LEVEL_7 && (
-              <li>• 緊急権限行使として EmergencyAuthorityService に記録されます</li>
+            {currentUser.permissionLevel >= 13 && (
+              <li>• 緊急権限行使として EmergencyAuthorityService に記録されます（レベル13以上）</li>
             )}
           </ul>
         </div>

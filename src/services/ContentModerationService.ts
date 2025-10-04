@@ -1,6 +1,6 @@
 // Content Moderation Service for post filtering and emergency deletion
 import { HierarchicalUser } from '../types';
-import { PermissionLevel } from '../permissions/types/PermissionTypes';
+import { AccountLevel } from '../types/accountLevel';
 import { EmergencyAuthorityService } from './EmergencyAuthorityService';
 import { ReportCategory } from '../types/whistleblowing';
 import { v4 as uuidv4 } from 'uuid';
@@ -64,7 +64,7 @@ export interface ModerationResult {
 
 // Emergency deletion authority
 interface DeletionAuthority {
-  level: PermissionLevel;
+  level: number; // AccountLevel (1-18, 0.5刻み, 97-99)
   scope: 'team' | 'department' | 'facility' | 'organization';
   description: string;
 }
@@ -75,13 +75,29 @@ export class ContentModerationService {
   private emergencyDeletions: Map<string, EmergencyDeletion> = new Map();
   private emergencyService: EmergencyAuthorityService;
 
-  // Deletion authority mapping
+  // Deletion authority mapping - 25段階権限システム対応
   private readonly DELETION_AUTHORITIES: DeletionAuthority[] = [
-    { level: PermissionLevel.LEVEL_2, scope: 'team', description: 'チーム内投稿の緊急削除' },
-    { level: PermissionLevel.LEVEL_3, scope: 'department', description: '部門内投稿の緊急削除' },
-    { level: PermissionLevel.LEVEL_4, scope: 'facility', description: '施設内投稿の緊急削除' },
-    { level: PermissionLevel.LEVEL_6, scope: 'facility', description: '施設内投稿の緊急削除' },
-    { level: PermissionLevel.LEVEL_7, scope: 'organization', description: '全投稿の緊急削除' }
+    // 管理職レベル（自部署のみ）
+    { level: 6, scope: 'team', description: '主任：チーム内投稿の緊急削除' },
+    { level: 7, scope: 'department', description: '副師長・副科長：部門内投稿の緊急削除' },
+    { level: 8, scope: 'department', description: '師長・科長：部門内投稿の緊急削除' },
+
+    // 上級管理職（施設レベル）
+    { level: 11, scope: 'facility', description: '事務長：施設内投稿の緊急削除' },
+    { level: 12, scope: 'facility', description: '副院長：施設内投稿の緊急削除' },
+    { level: 13, scope: 'facility', description: '院長・施設長：施設内投稿の緊急削除' },
+
+    // 人事部（コンプライアンス対応）
+    { level: 14, scope: 'organization', description: '人事部門員：全投稿の緊急削除' },
+    { level: 15, scope: 'organization', description: '人事部門長：全投稿の緊急削除' },
+    { level: 16, scope: 'organization', description: '戦略企画部門員：全投稿の緊急削除' },
+    { level: 17, scope: 'organization', description: '戦略企画部門長：全投稿の緊急削除' },
+
+    // 経営層（組織全体）
+    { level: 18, scope: 'organization', description: '理事：全投稿の緊急削除' },
+
+    // システム管理者（最高権限）
+    { level: 99, scope: 'organization', description: 'システム管理者：全投稿の緊急削除' }
   ];
 
   private constructor() {
@@ -356,7 +372,8 @@ export class ContentModerationService {
     }
 
     // Log with Emergency Authority Service for high-level deletions
-    if (actor.permissionLevel >= PermissionLevel.LEVEL_7) {
+    // レベル13以上（院長・施設長以上）の削除は緊急権限として記録
+    if (actor.permissionLevel >= 13) {
       await this.emergencyService.declareEmergency(
         actor,
         'FACILITY',

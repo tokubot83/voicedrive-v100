@@ -10,6 +10,7 @@ import { CreatePollData } from '../types/poll';
 import { CreateEventData } from '../types/event';
 import { FreespaceExpirationService } from '../services/FreespaceExpirationService';
 import { ContentModerationService, ModerationResult } from '../services/ContentModerationService';
+import { ClientModerationService } from '../services/ClientModerationService';
 import PostingGuidelinesModal from './common/PostingGuidelinesModal';
 import { useUser } from '../contexts/UserContext';
 import { medicalSystemWebhook } from '../services/MedicalSystemWebhook';
@@ -55,8 +56,12 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   
   // Content moderation states
   const [moderationResult, setModerationResult] = useState<ModerationResult | null>(null);
+  const [realtimeModerationResult, setRealtimeModerationResult] = useState<ModerationResult | null>(null);
   const [showGuidelinesModal, setShowGuidelinesModal] = useState(false);
   const [isModeratingContent, setIsModeratingContent] = useState(false);
+
+  // Client-side realtime moderation service
+  const clientModerationService = ClientModerationService.getInstance();
 
   useEffect(() => {
     setSeasonalAdvice(getSeasonalAdvice(selectedType));
@@ -378,7 +383,15 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
             <div className="flex-1 relative">
               <textarea
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => {
+                  const newContent = e.target.value;
+                  setContent(newContent);
+
+                  // リアルタイムモデレーションチェック（300ms debounce）
+                  clientModerationService.checkContentRealtime(newContent, (result) => {
+                    setRealtimeModerationResult(result);
+                  });
+                }}
                 placeholder={config.placeholder}
                 className="w-full h-32 bg-white/5 border-2 border-gray-800/50 rounded-2xl p-5 text-gray-100 text-base md:text-lg resize-none outline-none transition-all duration-300 focus:border-blue-500 focus:shadow-[0_0_20px_rgba(29,155,240,0.3)] focus:bg-white/8"
               />
@@ -387,7 +400,114 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
               </span>
             </div>
           </div>
-          
+
+          {/* リアルタイムモデレーション警告表示 */}
+          {realtimeModerationResult && !realtimeModerationResult.allowed && (
+            <div className="mt-4 bg-yellow-900/30 border border-yellow-500/50 rounded-xl p-4 animate-fadeIn">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">⚠️</span>
+                <div className="flex-1">
+                  <h4 className="text-yellow-300 font-bold mb-2">投稿内容に問題が検出されました</h4>
+                  <p className="text-yellow-200 text-sm mb-3">
+                    {realtimeModerationResult.moderationNotes}
+                  </p>
+
+                  {/* 違反項目の表示 */}
+                  {realtimeModerationResult.violations.map((violation, idx) => (
+                    <div key={idx} className="mb-3 bg-yellow-800/30 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-red-400 font-medium">
+                          {violation.violationType === 'harassment' && '🔴 ハラスメント'}
+                          {violation.violationType === 'personal_attack' && '💥 個人攻撃'}
+                          {violation.violationType === 'privacy_violation' && '🔒 個人情報'}
+                          {violation.violationType === 'legal_risk' && '⚖️ 法的リスク'}
+                          {violation.violationType === 'organizational_risk' && '🏢 組織リスク'}
+                        </span>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          violation.severity === 'critical' ? 'bg-red-600 text-white' :
+                          violation.severity === 'high' ? 'bg-orange-600 text-white' :
+                          violation.severity === 'medium' ? 'bg-yellow-600 text-black' :
+                          'bg-blue-600 text-white'
+                        }`}>
+                          {violation.severity.toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="text-yellow-100 text-sm mb-2">{violation.description}</p>
+
+                      {/* 代替表現の提案 */}
+                      {violation.matchedPhrases.length > 0 && (
+                        <div>
+                          <p className="text-yellow-200 text-xs mb-1">
+                            「{violation.matchedPhrases.join(', ')}」の代わりに：
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {clientModerationService.suggestAlternatives(violation.matchedPhrases[0]).map((alt, i) => (
+                              <button
+                                key={i}
+                                onClick={() => {
+                                  const newContent = clientModerationService.replaceWithAlternative(
+                                    content,
+                                    violation.matchedPhrases[0],
+                                    alt
+                                  );
+                                  setContent(newContent);
+                                  setRealtimeModerationResult(null);
+                                }}
+                                className="px-3 py-1 bg-green-600 hover:bg-green-500 text-white text-xs rounded transition-colors"
+                              >
+                                {alt}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* 改善提案 */}
+                  {clientModerationService.generateImprovementSuggestions(content, realtimeModerationResult.violations).length > 0 && (
+                    <div className="mt-3 bg-blue-900/30 border border-blue-500/50 rounded-lg p-3">
+                      <p className="text-blue-300 text-xs font-bold mb-2">💡 改善のヒント：</p>
+                      <ul className="list-disc list-inside text-blue-200 text-xs space-y-1">
+                        {clientModerationService.generateImprovementSuggestions(content, realtimeModerationResult.violations).map((suggestion, i) => (
+                          <li key={i}>{suggestion}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 建設性スコア表示（オプション） */}
+          {content.length > 20 && (
+            <div className="mt-4 bg-white/5 border border-gray-700 rounded-xl p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400 text-sm">建設性スコア:</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-500 ${
+                        clientModerationService.assessConstructiveness(content) >= 70 ? 'bg-green-500' :
+                        clientModerationService.assessConstructiveness(content) >= 40 ? 'bg-yellow-500' :
+                        'bg-red-500'
+                      }`}
+                      style={{ width: `${clientModerationService.assessConstructiveness(content)}%` }}
+                    />
+                  </div>
+                  <span className={`text-sm font-bold ${
+                    clientModerationService.assessConstructiveness(content) >= 70 ? 'text-green-400' :
+                    clientModerationService.assessConstructiveness(content) >= 40 ? 'text-yellow-400' :
+                    'text-red-400'
+                  }`}>
+                    {clientModerationService.assessConstructiveness(content)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-between gap-4 mt-8">
             <button
               onClick={onCancel}
