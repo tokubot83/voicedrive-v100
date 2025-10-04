@@ -26,9 +26,23 @@ model User {
   role              String?  @db.VarChar(50)
   avatar            String?  @db.Text
 
-  // 13段階権限システム
-  accountType       String   @map("account_type") @db.VarChar(50) // CHAIRMAN, GENERAL_ADMINISTRATIVE_DIRECTOR, etc.
-  permissionLevel   Int      @map("permission_level") @db.TinyInt // 1-13
+  // 25種類権限システム（18基本 + 4看護職 + 3特別権限）
+  // 基本18レベル: NEW_STAFF(1), JUNIOR_STAFF(2), MIDLEVEL_STAFF(3), VETERAN_STAFF(4),
+  //               DEPUTY_CHIEF(5), CHIEF(6), DEPUTY_MANAGER(7), MANAGER(8),
+  //               DEPUTY_DIRECTOR(9), DIRECTOR(10), ADMINISTRATIVE_DIRECTOR(11),
+  //               VICE_PRESIDENT(12), PRESIDENT(13), HR_STAFF(14), HR_MANAGER(15),
+  //               STRATEGIC_PLANNING_STAFF(16), STRATEGIC_PLANNING_MANAGER(17), BOARD_MEMBER(18)
+  // 看護職専用4レベル: NEW_STAFF_LEADER(1.5), JUNIOR_STAFF_LEADER(2.5),
+  //                    MIDLEVEL_STAFF_LEADER(3.5), VETERAN_STAFF_LEADER(4.5)
+  // 特別権限3レベル: HEALTH_CHECKUP_STAFF(97), OCCUPATIONAL_PHYSICIAN(98), SYSTEM_ADMIN(99)
+  accountType       String   @map("account_type") @db.VarChar(50)
+  permissionLevel   Decimal  @map("permission_level") @db.Decimal(4, 1) // 1-18, 1.5-4.5, 97-99
+
+  // 看護職リーダー業務可否（0.5レベル加算条件）
+  canPerformLeaderDuty Boolean @default(false) @map("can_perform_leader_duty")
+
+  // 職種カテゴリ（リーダー業務判定用）
+  professionCategory String?  @map("profession_category") @db.VarChar(50) // nursing, medical, administrative, etc.
 
   // 階層構造
   parentId          String?  @map("parent_id") @db.VarChar(50) // 直属上司ID

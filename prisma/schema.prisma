@@ -16,8 +16,17 @@ model User {
   facilityId          String?
   role                String?
   avatar              String?
+
+  // 25種類権限システム（18基本 + 4看護職 + 3特別権限）
   accountType         String
-  permissionLevel     Int
+  permissionLevel     Decimal  // 1-18, 1.5-4.5, 97-99
+
+  // 看護職リーダー業務可否（0.5レベル加算条件）
+  canPerformLeaderDuty Boolean @default(false)
+
+  // 職種カテゴリ（リーダー業務判定用）
+  professionCategory  String?  // nursing, medical, administrative, etc.
+
   parentId            String?
   budgetApprovalLimit Float?
   stakeholderCategory String?
