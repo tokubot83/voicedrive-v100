@@ -13,6 +13,7 @@ import { usePostVisibility } from '../hooks/visibility/usePostVisibility';
 import { AgendaLevelIndicator } from './post/AgendaLevelIndicator';
 import { agendaVisibilityEngine } from '../services/AgendaVisibilityEngine';
 import { AgendaLevel } from '../types/committee';
+import PostReportButton from './common/PostReportButton';
 
 interface EnhancedPostProps {
   post: PostType;
@@ -267,7 +268,7 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
       {/* アクションボタン */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
         <div className="flex space-x-6">
-          <button 
+          <button
             onClick={handleCommentClick}
             className="relative inline-flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200 group"
             style={{
@@ -288,7 +289,7 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
             <span className="text-lg transition-transform group-hover:scale-110">💬</span>
             <span style={{ color: '#374151', fontWeight: '500' }}>コメント</span>
             {post.comments && post.comments.length > 0 && (
-              <span 
+              <span
                 className="absolute flex items-center justify-center text-xs text-white rounded-full animate-pulse"
                 style={{
                   top: '-8px',
@@ -303,6 +304,15 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
               </span>
             )}
           </button>
+
+          {/* 通報ボタン */}
+          <div className="inline-flex items-center">
+            <PostReportButton
+              postId={post.id}
+              currentUserId={currentUser.id}
+              compact={false}
+            />
+          </div>
         </div>
       </div>
 

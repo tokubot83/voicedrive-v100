@@ -6,6 +6,7 @@ import ThreadedCommentSystem from './comments/ThreadedCommentSystem';
 import Avatar from './common/Avatar';
 import { generateAvatarByAnonymity, getDisplayName } from '../utils/avatarGenerator';
 import { useDemoMode } from './demo/DemoModeController';
+import PostReportButton from './common/PostReportButton';
 
 interface FreespacePostProps {
   post: Post;
@@ -210,7 +211,7 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
       {/* アクションボタン */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
         <div className="flex space-x-6">
-          <button 
+          <button
             onClick={() => setShowComments(!showComments)}
             className="relative inline-flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200 group"
             style={{
@@ -231,7 +232,7 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
             <span className="text-lg transition-transform group-hover:scale-110">💬</span>
             <span style={{ color: '#374151', fontWeight: '500' }}>コメント</span>
             {post.comments && post.comments.length > 0 && (
-              <span 
+              <span
                 className="absolute flex items-center justify-center text-xs text-white rounded-full animate-pulse"
                 style={{
                   top: '-8px',
@@ -246,6 +247,15 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
               </span>
             )}
           </button>
+
+          {/* 通報ボタン */}
+          <div className="inline-flex items-center">
+            <PostReportButton
+              postId={post.id}
+              currentUserId={currentUser.id}
+              compact={false}
+            />
+          </div>
         </div>
         {poll && (
           <button 
