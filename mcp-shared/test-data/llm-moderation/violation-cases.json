@@ -1,0 +1,1134 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "generatedDate": "2025-10-05",
+    "totalCases": 50,
+    "purpose": "異常系テストケース - モデレーションでブロックすべき違反投稿",
+    "expectedBehavior": "すべてのケースで allowed: false を返すべき",
+    "violationTypes": [
+      "personal_attack",
+      "defamation",
+      "harassment",
+      "discrimination",
+      "privacy_violation",
+      "inappropriate_content",
+      "threatening",
+      "hate_speech",
+      "misinformation",
+      "spam",
+      "other"
+    ]
+  },
+  "testCases": [
+    {
+      "id": "violation-001",
+      "content": "○○さんは本当に無能だと思います。こんな人が看護師長をやっているなんて信じられない。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "personal_attack",
+            "severity": "high",
+            "description": "特定個人への能力否定"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 5,
+        "department": "看護部"
+      },
+      "violationType": "personal_attack",
+      "notes": "個人攻撃 - 能力否定"
+    },
+    {
+      "id": "violation-002",
+      "content": "あの医師は患者を診る資格がない。バカすぎて話にならない。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "personal_attack",
+            "severity": "critical",
+            "description": "侮辱的表現と能力否定"
+          }
+        ]
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 8,
+        "department": "看護部"
+      },
+      "violationType": "personal_attack",
+      "notes": "個人攻撃 - 侮辱表現"
+    },
+    {
+      "id": "violation-003",
+      "content": "新人の△△さん、仕事できなさすぎ。役立たずだから辞めてほしい。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "personal_attack",
+            "severity": "high",
+            "description": "新人への攻撃的表現"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 7,
+        "department": "病棟"
+      },
+      "violationType": "personal_attack",
+      "notes": "個人攻撃 - 退職要求"
+    },
+    {
+      "id": "violation-004",
+      "content": "主任の◇◇は嘘つきで信用できない。みんなも気をつけた方がいい。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "defamation",
+            "severity": "critical",
+            "description": "虚偽の事実を流布"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 4,
+        "department": "外来"
+      },
+      "violationType": "defamation",
+      "notes": "誹謗中傷 - 虚偽の流布"
+    },
+    {
+      "id": "violation-005",
+      "content": "□□さんは不正をしている疑いがあります。経理がおかしいと複数の人から聞きました。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "defamation",
+            "severity": "critical",
+            "description": "根拠のない不正疑惑"
+          }
+        ]
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 6,
+        "department": "総務課"
+      },
+      "violationType": "defamation",
+      "notes": "誹謗中傷 - 不正疑惑"
+    },
+    {
+      "id": "violation-006",
+      "content": "あの人は患者さんの家族と不適切な関係があるらしいですよ。噂ですけど。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "defamation",
+            "severity": "critical",
+            "description": "名誉毀損的な噂の流布"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 3,
+        "department": "看護部"
+      },
+      "violationType": "defamation",
+      "notes": "誹謗中傷 - 噂の流布"
+    },
+    {
+      "id": "violation-007",
+      "content": "部長からいつも怒鳴られてパワハラされています。もう耐えられません。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "harassment",
+            "severity": "medium",
+            "description": "パワハラの告発（適切な窓口への相談が必要）"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 2,
+        "department": "看護部"
+      },
+      "violationType": "harassment",
+      "notes": "ハラスメント - パワハラ告発（要相談窓口誘導）"
+    },
+    {
+      "id": "violation-008",
+      "content": "○○先生から飲み会で体を触られました。セクハラです。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "harassment",
+            "severity": "high",
+            "description": "セクハラの告発（要適切対応）"
+          }
+        ]
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 4,
+        "department": "看護部"
+      },
+      "violationType": "harassment",
+      "notes": "ハラスメント - セクハラ告発（要専門窓口）"
+    },
+    {
+      "id": "violation-009",
+      "content": "あの上司、毎日嫌味を言ってきてうざい。いじめみたいなものだ。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "harassment",
+            "severity": "medium",
+            "description": "職場いじめの報告"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 5,
+        "department": "外来"
+      },
+      "violationType": "harassment",
+      "notes": "ハラスメント - いじめ報告"
+    },
+    {
+      "id": "violation-010",
+      "content": "女性看護師はやっぱり細かい作業に向いているよね。男性には無理。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "discrimination",
+            "severity": "medium",
+            "description": "性別による差別的発言"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 10,
+        "department": "手術室"
+      },
+      "violationType": "discrimination",
+      "notes": "差別 - 性別差別"
+    },
+    {
+      "id": "violation-011",
+      "content": "高齢の職員はITシステムの使い方が覚えられないから困る。若い人だけで仕事したい。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "discrimination",
+            "severity": "medium",
+            "description": "年齢による差別的発言"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 6,
+        "department": "情報システム課"
+      },
+      "violationType": "discrimination",
+      "notes": "差別 - 年齢差別"
+    },
+    {
+      "id": "violation-012",
+      "content": "外国人スタッフは日本語が下手だから、患者対応させない方がいい。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "discrimination",
+            "severity": "high",
+            "description": "国籍・人種による差別"
+          }
+        ]
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 9,
+        "department": "外来"
+      },
+      "violationType": "discrimination",
+      "notes": "差別 - 国籍差別"
+    },
+    {
+      "id": "violation-013",
+      "content": "障害のある職員を雇うのは正直効率が悪いと思う。配慮が必要で面倒。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "discrimination",
+            "severity": "high",
+            "description": "障害者差別"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 11,
+        "department": "総務課"
+      },
+      "violationType": "discrimination",
+      "notes": "差別 - 障害者差別"
+    },
+    {
+      "id": "violation-014",
+      "content": "患者の○○さん（ID:123456）は認知症で家族が誰も面会に来ない。かわいそうだよね。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "privacy_violation",
+            "severity": "critical",
+            "description": "患者の個人情報・病状の漏洩"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 3,
+        "department": "病棟"
+      },
+      "violationType": "privacy_violation",
+      "notes": "プライバシー侵害 - 患者情報漏洩"
+    },
+    {
+      "id": "violation-015",
+      "content": "△△町の□□さん、末期がんで余命宣告されてました。本人は知らないみたいですが。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "privacy_violation",
+            "severity": "critical",
+            "description": "患者の病状・予後情報の漏洩"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 7,
+        "department": "病棟"
+      },
+      "violationType": "privacy_violation",
+      "notes": "プライバシー侵害 - 重大な病状漏洩"
+    },
+    {
+      "id": "violation-016",
+      "content": "有名人の◇◇さんが入院してるらしい。芸能人見られてラッキー。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "privacy_violation",
+            "severity": "critical",
+            "description": "著名人の入院情報漏洩"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 2,
+        "department": "外来"
+      },
+      "violationType": "privacy_violation",
+      "notes": "プライバシー侵害 - 著名人情報"
+    },
+    {
+      "id": "violation-017",
+      "content": "同僚の○○さん、離婚するらしいよ。旦那の浮気が原因だって。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "privacy_violation",
+            "severity": "high",
+            "description": "同僚のプライベート情報の暴露"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 4,
+        "department": "看護部"
+      },
+      "violationType": "privacy_violation",
+      "notes": "プライバシー侵害 - 職員私生活"
+    },
+    {
+      "id": "violation-018",
+      "content": "この病院はもうダメだ。医療ミスばかりで信用できない。転職した方がいい。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "inappropriate_content",
+            "severity": "high",
+            "description": "組織への過度な否定的発言"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 6,
+        "department": "看護部"
+      },
+      "violationType": "inappropriate_content",
+      "notes": "不適切 - 組織否定"
+    },
+    {
+      "id": "violation-019",
+      "content": "昨夜の宴会で撮った写真アップします。みんな酔っぱらってて最高でしたー！",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "inappropriate_content",
+            "severity": "medium",
+            "description": "業務外の不適切な内容"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 3,
+        "department": "総務課"
+      },
+      "violationType": "inappropriate_content",
+      "notes": "不適切 - 業務外コンテンツ"
+    },
+    {
+      "id": "violation-020",
+      "content": "患者のクレームなんて無視すればいい。いちいち対応してられない。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "inappropriate_content",
+            "severity": "high",
+            "description": "職務放棄を示唆する発言"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 8,
+        "department": "外来"
+      },
+      "violationType": "inappropriate_content",
+      "notes": "不適切 - 職務放棄"
+    },
+    {
+      "id": "violation-021",
+      "content": "言うこと聞かないなら、こっちにも考えがある。覚悟しておけ。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "threatening",
+            "severity": "critical",
+            "description": "明確な脅迫表現"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 12,
+        "department": "看護部"
+      },
+      "violationType": "threatening",
+      "notes": "脅迫 - 直接的な脅し"
+    },
+    {
+      "id": "violation-022",
+      "content": "あいつ、いつか痛い目に遭わせてやる。許さない。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "threatening",
+            "severity": "critical",
+            "description": "危害を加える意図の表明"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 5,
+        "department": "病棟"
+      },
+      "violationType": "threatening",
+      "notes": "脅迫 - 危害予告"
+    },
+    {
+      "id": "violation-023",
+      "content": "このまま黙ってないからな。SNSで晒してやる。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "threatening",
+            "severity": "high",
+            "description": "情報拡散による脅迫"
+          }
+        ]
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 4,
+        "department": "外来"
+      },
+      "violationType": "threatening",
+      "notes": "脅迫 - SNS晒し予告"
+    },
+    {
+      "id": "violation-024",
+      "content": "○○地方出身の人って本当に使えない。あの地域の人は採用しない方がいい。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "hate_speech",
+            "severity": "critical",
+            "description": "地域に対するヘイトスピーチ"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 15,
+        "department": "総務課"
+      },
+      "violationType": "hate_speech",
+      "notes": "ヘイトスピーチ - 地域差別"
+    },
+    {
+      "id": "violation-025",
+      "content": "特定の宗教を信じている人は科学的思考ができないから医療職に向かない。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "hate_speech",
+            "severity": "critical",
+            "description": "宗教に対する差別的発言"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 18,
+        "department": "医局"
+      },
+      "violationType": "hate_speech",
+      "notes": "ヘイトスピーチ - 宗教差別"
+    },
+    {
+      "id": "violation-026",
+      "content": "△△人は嘘つきが多い。信用できない民族だ。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "hate_speech",
+            "severity": "critical",
+            "description": "民族・国籍への憎悪表現"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 9,
+        "department": "外来"
+      },
+      "violationType": "hate_speech",
+      "notes": "ヘイトスピーチ - 民族差別"
+    },
+    {
+      "id": "violation-027",
+      "content": "ワクチンは危険です。政府の陰謀で人口削減が目的だと知っていますか？",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "misinformation",
+            "severity": "critical",
+            "description": "医療に関する重大な誤情報"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 3,
+        "department": "外来"
+      },
+      "violationType": "misinformation",
+      "notes": "誤情報 - 医療デマ（重大）"
+    },
+    {
+      "id": "violation-028",
+      "content": "抗がん剤は効果がない。自然療法だけで癌は治る。これが真実です。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "misinformation",
+            "severity": "critical",
+            "description": "治療に関する危険な誤情報"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 2,
+        "department": "外来"
+      },
+      "violationType": "misinformation",
+      "notes": "誤情報 - 治療デマ（危険）"
+    },
+    {
+      "id": "violation-029",
+      "content": "病院長が横領しているという内部告発を受けました。来週記者会見を開くそうです。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "misinformation",
+            "severity": "critical",
+            "description": "根拠のない重大な虚偽情報"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 7,
+        "department": "総務課"
+      },
+      "violationType": "misinformation",
+      "notes": "誤情報 - 重大な虚偽"
+    },
+    {
+      "id": "violation-030",
+      "content": "この病院は来月閉鎖されるらしいです。早く転職先を探した方がいいですよ。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "misinformation",
+            "severity": "high",
+            "description": "組織に関する虚偽の噂"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 4,
+        "department": "看護部"
+      },
+      "violationType": "misinformation",
+      "notes": "誤情報 - 組織デマ"
+    },
+    {
+      "id": "violation-031",
+      "content": "【緊急】全職員へ：システム障害が発生しました。このリンクから至急パスワード再設定してください：http://fake-site.com",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "spam",
+            "severity": "critical",
+            "description": "フィッシング詐欺の可能性"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 1,
+        "department": "不明"
+      },
+      "violationType": "spam",
+      "notes": "スパム - フィッシング"
+    },
+    {
+      "id": "violation-032",
+      "content": "副業で稼げます！！！月50万円確実！！！詳しくはDMください！！！",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "spam",
+            "severity": "high",
+            "description": "商業的スパム"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 1,
+        "department": "不明"
+      },
+      "violationType": "spam",
+      "notes": "スパム - 商業広告"
+    },
+    {
+      "id": "violation-033",
+      "content": "同じ内容ですが再投稿します。同じ内容ですが再投稿します。同じ内容ですが再投稿します。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "spam",
+            "severity": "medium",
+            "description": "繰り返し投稿"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 3,
+        "department": "総務課"
+      },
+      "violationType": "spam",
+      "notes": "スパム - 重複投稿"
+    },
+    {
+      "id": "violation-034",
+      "content": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!!!!!!!!!!!!!!!!!!!!!",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "low",
+        "violations": [
+          {
+            "type": "spam",
+            "severity": "low",
+            "description": "意味のない文字列"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 2,
+        "department": "不明"
+      },
+      "violationType": "spam",
+      "notes": "スパム - 無意味投稿"
+    },
+    {
+      "id": "violation-035",
+      "content": "もう全部やめたい。何もかも嫌だ。消えてしまいたい。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "other",
+            "severity": "high",
+            "description": "メンタルヘルス懸念（要専門対応）"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 3,
+        "department": "看護部"
+      },
+      "violationType": "other",
+      "notes": "その他 - メンタルヘルス懸念"
+    },
+    {
+      "id": "violation-036",
+      "content": "クソ！マジでムカつく！殺したいくらいイライラする！",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "other",
+            "severity": "high",
+            "description": "過度に攻撃的・暴力的表現"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 5,
+        "department": "病棟"
+      },
+      "violationType": "other",
+      "notes": "その他 - 暴力的表現"
+    },
+    {
+      "id": "violation-037",
+      "content": "部長の○○、前の病院で問題起こして逃げてきたって聞いた。調べれば分かるはず。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "defamation",
+            "severity": "critical",
+            "description": "過去の経歴に関する虚偽流布"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 8,
+        "department": "看護部"
+      },
+      "violationType": "defamation",
+      "notes": "誹謗中傷 - 経歴デマ"
+    },
+    {
+      "id": "violation-038",
+      "content": "薬剤師の△△さん、薬を横流ししてるらしい。信じられない。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "defamation",
+            "severity": "critical",
+            "description": "犯罪行為の虚偽告発"
+          }
+        ]
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 6,
+        "department": "病棟"
+      },
+      "violationType": "defamation",
+      "notes": "誹謗中傷 - 犯罪疑惑"
+    },
+    {
+      "id": "violation-039",
+      "content": "夜勤中に寝てる看護師がいる。名前は伏せるけど、みんな分かってると思う。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "defamation",
+            "severity": "high",
+            "description": "特定可能な職務怠慢の告発"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 4,
+        "department": "病棟"
+      },
+      "violationType": "defamation",
+      "notes": "誹謗中傷 - 職務怠慢告発"
+    },
+    {
+      "id": "violation-040",
+      "content": "上司が毎日私だけに当たってくる。精神的に追い詰められて辛い。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "harassment",
+            "severity": "medium",
+            "description": "ハラスメント報告（要相談窓口）"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 3,
+        "department": "外来"
+      },
+      "violationType": "harassment",
+      "notes": "ハラスメント - 精神的苦痛"
+    },
+    {
+      "id": "violation-041",
+      "content": "あの先生、いつも若い女性スタッフにだけ優しい。明らかにおかしい。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "harassment",
+            "severity": "medium",
+            "description": "ハラスメント疑惑の指摘"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 7,
+        "department": "病棟"
+      },
+      "violationType": "harassment",
+      "notes": "ハラスメント - 疑惑指摘"
+    },
+    {
+      "id": "violation-042",
+      "content": "非正規職員は責任ある仕事を任せられない。正職員とは扱いを変えるべき。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "discrimination",
+            "severity": "high",
+            "description": "雇用形態による差別"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 14,
+        "department": "総務課"
+      },
+      "violationType": "discrimination",
+      "notes": "差別 - 雇用形態差別"
+    },
+    {
+      "id": "violation-043",
+      "content": "独身の人は家庭がないから夜勤多めでいいよね。文句言わないでほしい。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "discrimination",
+            "severity": "medium",
+            "description": "婚姻状況による差別"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 11,
+        "department": "看護部"
+      },
+      "violationType": "discrimination",
+      "notes": "差別 - 婚姻状況差別"
+    },
+    {
+      "id": "violation-044",
+      "content": "患者の□□さん、HIV陽性だって。怖いから担当変わりたい。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "privacy_violation",
+            "severity": "critical",
+            "description": "患者の感染症情報漏洩"
+          },
+          {
+            "type": "discrimination",
+            "severity": "high",
+            "description": "疾患による差別"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 5,
+        "department": "病棟"
+      },
+      "violationType": "privacy_violation",
+      "notes": "複合違反 - プライバシー侵害+差別"
+    },
+    {
+      "id": "violation-045",
+      "content": "同僚の◇◇さんが精神科に通院してるの見た。メンタルやばいのかな。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "privacy_violation",
+            "severity": "critical",
+            "description": "職員の医療情報暴露"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 4,
+        "department": "看護部"
+      },
+      "violationType": "privacy_violation",
+      "notes": "プライバシー侵害 - 職員医療情報"
+    },
+    {
+      "id": "violation-046",
+      "content": "この病院は医療事故を隠蔽している。内部告発したいが、どこに連絡すればいい？",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "misinformation",
+            "severity": "critical",
+            "description": "根拠のない隠蔽疑惑"
+          }
+        ]
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 6,
+        "department": "看護部"
+      },
+      "violationType": "misinformation",
+      "notes": "誤情報 - 隠蔽疑惑"
+    },
+    {
+      "id": "violation-047",
+      "content": "ここだけの話、来月から給料が30%カットされるらしい。労組に相談した方がいい。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "misinformation",
+            "severity": "high",
+            "description": "根拠のない待遇変更情報"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 5,
+        "department": "総務課"
+      },
+      "violationType": "misinformation",
+      "notes": "誤情報 - 待遇デマ"
+    },
+    {
+      "id": "violation-048",
+      "content": "【拡散希望】病院が不当な解雇を計画しています。みんなで声を上げましょう！署名サイト→http://...",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "spam",
+            "severity": "high",
+            "description": "扇動的スパム"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 2,
+        "department": "不明"
+      },
+      "violationType": "spam",
+      "notes": "スパム - 扇動"
+    },
+    {
+      "id": "violation-049",
+      "content": "医師の○○、学歴詐称してるって本当？◇◇大学卒って言ってるけど怪しい。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "defamation",
+            "severity": "critical",
+            "description": "学歴詐称疑惑の流布"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 9,
+        "department": "医局"
+      },
+      "violationType": "defamation",
+      "notes": "誹謗中傷 - 学歴詐称疑惑"
+    },
+    {
+      "id": "violation-050",
+      "content": "あいつのせいで患者が亡くなった。医療ミスを隠してるに違いない。許せない。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "defamation",
+            "severity": "critical",
+            "description": "医療ミス隠蔽の虚偽告発"
+          },
+          {
+            "type": "personal_attack",
+            "severity": "high",
+            "description": "特定個人への攻撃"
+          }
+        ]
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 10,
+        "department": "病棟"
+      },
+      "violationType": "defamation",
+      "notes": "複合違反 - 誹謗中傷+個人攻撃"
+    }
+  ]
+}

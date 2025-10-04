@@ -1,0 +1,1611 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "generatedDate": "2025-10-05",
+    "totalCases": 100,
+    "purpose": "正常系テストケース - モデレーションをパスすべき正常な投稿",
+    "expectedBehavior": "すべてのケースで allowed: true を返すべき"
+  },
+  "testCases": [
+    {
+      "id": "normal-001",
+      "content": "電子カルテの入力画面で、患者情報の検索機能が使いにくいです。患者IDだけでなく、カタカナ名でも検索できるようになると便利だと思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 3,
+        "department": "看護部"
+      },
+      "category": "constructive_feedback",
+      "notes": "建設的な改善提案"
+    },
+    {
+      "id": "normal-002",
+      "content": "夜勤の休憩時間が取りづらい状況があります。スタッフ配置を見直して、確実に休憩が取れるようにしてほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 5,
+        "department": "看護部"
+      },
+      "category": "work_condition_improvement",
+      "notes": "労働環境改善の提案"
+    },
+    {
+      "id": "normal-003",
+      "content": "新人教育マニュアルをデジタル化してタブレットで見られるようにしたら、いつでも確認できて便利だと思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 7,
+        "department": "教育研修部"
+      },
+      "category": "process_improvement",
+      "notes": "業務プロセス改善提案"
+    },
+    {
+      "id": "normal-004",
+      "content": "感染対策の手順が部署によって異なっているようです。統一したガイドラインを作成して、全部署で共有できるといいと思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 10,
+        "department": "感染管理室"
+      },
+      "category": "safety_improvement",
+      "notes": "安全性向上の提案"
+    },
+    {
+      "id": "normal-005",
+      "content": "カンファレンス室の予約システムが分かりにくいです。Googleカレンダーと連携できると使いやすくなると思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 4,
+        "department": "総務課"
+      },
+      "category": "system_improvement",
+      "notes": "システム改善提案"
+    },
+    {
+      "id": "normal-006",
+      "content": "先日の勉強会、とても参考になりました。次回もぜひ参加したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 2,
+        "department": "看護部"
+      },
+      "category": "positive_feedback",
+      "notes": "ポジティブなフィードバック"
+    },
+    {
+      "id": "normal-007",
+      "content": "医薬品の在庫管理について、発注のタイミングをもう少し早めにできないでしょうか。欠品が発生すると業務に支障が出ます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 8,
+        "department": "薬剤部"
+      },
+      "category": "supply_management",
+      "notes": "在庫管理改善提案"
+    },
+    {
+      "id": "normal-008",
+      "content": "患者さんからの質問で答えられないことがありました。FAQを充実させて、スタッフが参照できるようにしてほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 3,
+        "department": "外来"
+      },
+      "category": "knowledge_sharing",
+      "notes": "ナレッジ共有の提案"
+    },
+    {
+      "id": "normal-009",
+      "content": "多職種カンファレンスの時間がいつも押してしまいます。アジェンダを事前共有して、時間管理を徹底したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 12,
+        "department": "地域連携室"
+      },
+      "category": "meeting_efficiency",
+      "notes": "会議効率化提案"
+    },
+    {
+      "id": "normal-010",
+      "content": "駐車場の利用ルールを明確にしてほしいです。どこに停めていいか迷うことがあります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 1,
+        "department": "総務課"
+      },
+      "category": "facility_improvement",
+      "notes": "施設改善提案"
+    },
+    {
+      "id": "normal-011",
+      "content": "リハビリ室の機器が老朽化しています。計画的に更新していただけると、より質の高いリハビリが提供できます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 9,
+        "department": "リハビリテーション科"
+      },
+      "category": "equipment_improvement",
+      "notes": "設備更新提案"
+    },
+    {
+      "id": "normal-012",
+      "content": "新しい検査機器の操作研修、分かりやすくてよかったです。実際に使ってみて、不明点があればまた質問させてください。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 6,
+        "department": "臨床検査科"
+      },
+      "category": "training_feedback",
+      "notes": "研修のフィードバック"
+    },
+    {
+      "id": "normal-013",
+      "content": "患者搬送の依頼から到着までの時間が長いことがあります。搬送チームの人員を増やすか、優先順位の基準を明確にしてほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 5,
+        "department": "病棟"
+      },
+      "category": "workflow_improvement",
+      "notes": "業務フロー改善提案"
+    },
+    {
+      "id": "normal-014",
+      "content": "院内の Wi-Fi が繋がりにくいエリアがあります。電子カルテ端末以外でも業務に支障が出るので、改善をお願いします。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 4,
+        "department": "情報システム課"
+      },
+      "category": "infrastructure_improvement",
+      "notes": "インフラ改善提案"
+    },
+    {
+      "id": "normal-015",
+      "content": "昨日の緊急対応、みんなで協力してスムーズに対処できました。チームワークの大切さを実感しました。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 7,
+        "department": "救急部"
+      },
+      "category": "team_appreciation",
+      "notes": "チーム感謝の表明"
+    },
+    {
+      "id": "normal-016",
+      "content": "栄養指導の資料を最新のガイドラインに合わせて更新したいです。栄養士会で作成した資料を共有できるといいと思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 10,
+        "department": "栄養科"
+      },
+      "category": "content_update",
+      "notes": "資料更新提案"
+    },
+    {
+      "id": "normal-017",
+      "content": "インシデントレポートの入力項目が多くて時間がかかります。必須項目を絞り込んで、報告しやすくしてほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 8,
+        "department": "医療安全管理室"
+      },
+      "category": "reporting_improvement",
+      "notes": "報告業務改善提案"
+    },
+    {
+      "id": "normal-018",
+      "content": "休憩室のコーヒーメーカーが壊れています。修理または交換をお願いできますでしょうか。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 2,
+        "department": "総務課"
+      },
+      "category": "facility_maintenance",
+      "notes": "施設メンテナンス依頼"
+    },
+    {
+      "id": "normal-019",
+      "content": "外来の待ち時間表示システム、患者さんに好評です。他の診療科でも導入を検討してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 6,
+        "department": "外来"
+      },
+      "category": "system_expansion",
+      "notes": "良いシステムの展開提案"
+    },
+    {
+      "id": "normal-020",
+      "content": "医療安全研修の e-learning 化を進めてほしいです。夜勤や日勤が不規則でも、自分のペースで受講できると助かります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 5,
+        "department": "教育研修部"
+      },
+      "category": "training_format",
+      "notes": "研修方法改善提案"
+    },
+    {
+      "id": "normal-021",
+      "content": "手術室の空調温度設定を部屋ごとに調整できるようにしてほしいです。手術の種類によって最適温度が異なります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 11,
+        "department": "手術室"
+      },
+      "category": "environment_control",
+      "notes": "環境制御改善提案"
+    },
+    {
+      "id": "normal-022",
+      "content": "新しい勤怠管理システム、以前より使いやすくなりました。開発チームの皆さん、ありがとうございます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 3,
+        "department": "総務課"
+      },
+      "category": "appreciation",
+      "notes": "感謝のメッセージ"
+    },
+    {
+      "id": "normal-023",
+      "content": "透析室の患者データ管理を電子化したいです。紙のカルテだと過去データの参照に時間がかかります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 9,
+        "department": "透析室"
+      },
+      "category": "digitalization",
+      "notes": "デジタル化提案"
+    },
+    {
+      "id": "normal-024",
+      "content": "部署間の情報共有が不足していると感じます。定期的な連絡会を開催して、連携を強化したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 13,
+        "department": "看護部"
+      },
+      "category": "communication_improvement",
+      "notes": "コミュニケーション改善提案"
+    },
+    {
+      "id": "normal-025",
+      "content": "医療機器の点検スケジュールを一覧で確認できるシステムがあると便利です。点検漏れを防げると思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 7,
+        "department": "臨床工学科"
+      },
+      "category": "maintenance_system",
+      "notes": "メンテナンス管理提案"
+    },
+    {
+      "id": "normal-026",
+      "content": "患者さんへの説明用パンフレットを多言語化してほしいです。外国人患者が増えているので必要性を感じます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 8,
+        "department": "国際医療支援室"
+      },
+      "category": "internationalization",
+      "notes": "多言語化提案"
+    },
+    {
+      "id": "normal-027",
+      "content": "救急外来の動線を見直したいです。患者さんの導線とスタッフの動線が交差して混雑しています。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 12,
+        "department": "救急部"
+      },
+      "category": "layout_improvement",
+      "notes": "レイアウト改善提案"
+    },
+    {
+      "id": "normal-028",
+      "content": "薬剤の配送時間を午前と午後の2回にできないでしょうか。緊急時の対応がスムーズになると思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 6,
+        "department": "薬剤部"
+      },
+      "category": "delivery_optimization",
+      "notes": "配送最適化提案"
+    },
+    {
+      "id": "normal-029",
+      "content": "新人看護師のメンター制度、とても良い取り組みだと思います。他の職種でも導入を検討してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 10,
+        "department": "教育研修部"
+      },
+      "category": "program_expansion",
+      "notes": "良い制度の展開提案"
+    },
+    {
+      "id": "normal-030",
+      "content": "画像診断レポートの確認漏れを防ぐため、未読レポートを通知するシステムがほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 14,
+        "department": "放射線科"
+      },
+      "category": "notification_system",
+      "notes": "通知システム提案"
+    },
+    {
+      "id": "normal-031",
+      "content": "職員食堂のメニューにヘルシーな選択肢を増やしてほしいです。健康管理に気を使っているスタッフも多いと思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 4,
+        "department": "栄養科"
+      },
+      "category": "cafeteria_improvement",
+      "notes": "食堂改善提案"
+    },
+    {
+      "id": "normal-032",
+      "content": "ICUの面会時間を少し延長できないでしょうか。遠方からのご家族もいらっしゃるので、柔軟な対応ができると良いと思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 11,
+        "department": "ICU"
+      },
+      "category": "policy_flexibility",
+      "notes": "運用柔軟化提案"
+    },
+    {
+      "id": "normal-033",
+      "content": "先月導入された新しい点滴ポンプ、操作しやすくて良いですね。アラーム音も以前より聞き取りやすいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 5,
+        "department": "病棟"
+      },
+      "category": "equipment_feedback",
+      "notes": "機器への好評価"
+    },
+    {
+      "id": "normal-034",
+      "content": "退院支援カンファレンスに薬剤師も参加できるようにしてほしいです。服薬指導の情報共有ができると、より良い退院支援ができます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 9,
+        "department": "薬剤部"
+      },
+      "category": "multidisciplinary_collaboration",
+      "notes": "多職種連携提案"
+    },
+    {
+      "id": "normal-035",
+      "content": "ロッカー室が手狭です。増築または別の場所への移転を検討してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 2,
+        "department": "総務課"
+      },
+      "category": "space_improvement",
+      "notes": "スペース改善提案"
+    },
+    {
+      "id": "normal-036",
+      "content": "診療記録の記載方法について、統一したテンプレートがあると記載しやすいです。SOAP形式のテンプレートを作成してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 15,
+        "department": "医局"
+      },
+      "category": "documentation_standardization",
+      "notes": "記録標準化提案"
+    },
+    {
+      "id": "normal-037",
+      "content": "オンラインでの症例検討会、移動時間がなくて参加しやすかったです。今後も継続してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 8,
+        "department": "医局"
+      },
+      "category": "online_meeting_feedback",
+      "notes": "オンライン会議への好評価"
+    },
+    {
+      "id": "normal-038",
+      "content": "医療材料の発注から納品までの進捗が分かるシステムがあると便利です。在庫管理がしやすくなります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 7,
+        "department": "物品管理課"
+      },
+      "category": "tracking_system",
+      "notes": "追跡システム提案"
+    },
+    {
+      "id": "normal-039",
+      "content": "院内保育所の利用時間を延長してほしいです。夜勤のときに預けられると助かります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 3,
+        "department": "総務課"
+      },
+      "category": "childcare_support",
+      "notes": "育児支援提案"
+    },
+    {
+      "id": "normal-040",
+      "content": "感染対策マニュアルが更新されたとのことですが、変更点を分かりやすくまとめた資料があると助かります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 6,
+        "department": "感染管理室"
+      },
+      "category": "change_management",
+      "notes": "変更管理改善提案"
+    },
+    {
+      "id": "normal-041",
+      "content": "リハビリテーション計画の進捗を多職種で共有できるボードがあると良いです。チーム医療の質が向上すると思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 10,
+        "department": "リハビリテーション科"
+      },
+      "category": "information_sharing",
+      "notes": "情報共有改善提案"
+    },
+    {
+      "id": "normal-042",
+      "content": "夏季の節電対策、無理のない範囲で協力したいと思います。具体的な目標値を共有してください。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 4,
+        "department": "総務課"
+      },
+      "category": "cooperative_attitude",
+      "notes": "協力的な姿勢"
+    },
+    {
+      "id": "normal-043",
+      "content": "検査結果の報告が遅れる場合、その旨を事前に連絡してもらえると患者さんへの説明がしやすいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 8,
+        "department": "臨床検査科"
+      },
+      "category": "communication_protocol",
+      "notes": "連絡体制改善提案"
+    },
+    {
+      "id": "normal-044",
+      "content": "医療安全に関する good catch の事例共有会、とても勉強になります。定期開催をお願いします。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 5,
+        "department": "医療安全管理室"
+      },
+      "category": "learning_feedback",
+      "notes": "学習機会への好評価"
+    },
+    {
+      "id": "normal-045",
+      "content": "外来診察室の防音性を改善してほしいです。隣の診察室の声が聞こえることがあり、プライバシーが心配です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 12,
+        "department": "外来"
+      },
+      "category": "privacy_improvement",
+      "notes": "プライバシー保護提案"
+    },
+    {
+      "id": "normal-046",
+      "content": "新しい電子カルテシステムの操作研修、段階的に実施してくださりありがとうございます。おかげでスムーズに移行できそうです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 7,
+        "department": "情報システム課"
+      },
+      "category": "transition_appreciation",
+      "notes": "移行支援への感謝"
+    },
+    {
+      "id": "normal-047",
+      "content": "病棟薬剤師の病棟常駐、患者さんの服薬管理がしやすくなりました。今後も継続してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 9,
+        "department": "病棟"
+      },
+      "category": "service_continuation",
+      "notes": "良いサービスの継続希望"
+    },
+    {
+      "id": "normal-048",
+      "content": "医療機器の使用方法について、動画マニュアルがあると復習しやすいです。テキストだけだと分かりにくい操作もあります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 4,
+        "department": "臨床工学科"
+      },
+      "category": "training_material_improvement",
+      "notes": "研修資料改善提案"
+    },
+    {
+      "id": "normal-049",
+      "content": "院内 LAN の速度が遅いときがあります。ネットワークインフラの増強を検討してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 11,
+        "department": "情報システム課"
+      },
+      "category": "network_improvement",
+      "notes": "ネットワーク改善提案"
+    },
+    {
+      "id": "normal-050",
+      "content": "患者さんからの苦情対応について、対応フローを明確にしてほしいです。初期対応で迷うことがあります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 6,
+        "department": "医療相談室"
+      },
+      "category": "response_protocol",
+      "notes": "対応フロー整備提案"
+    },
+    {
+      "id": "normal-051",
+      "content": "手術室の清掃スケジュールを見直してほしいです。手術の合間に清掃が入ると、次の手術の準備時間が足りなくなることがあります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 13,
+        "department": "手術室"
+      },
+      "category": "scheduling_optimization",
+      "notes": "スケジュール最適化提案"
+    },
+    {
+      "id": "normal-052",
+      "content": "先日の防災訓練、実践的で良い訓練でした。年に2回くらい実施してもらえると、もっと対応力が上がると思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 5,
+        "department": "総務課"
+      },
+      "category": "training_frequency_feedback",
+      "notes": "訓練頻度への提案"
+    },
+    {
+      "id": "normal-053",
+      "content": "栄養指導の予約枠を増やしてほしいです。患者さんから希望が多く、待ち時間が長くなっています。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 8,
+        "department": "栄養科"
+      },
+      "category": "capacity_increase",
+      "notes": "キャパシティ増強提案"
+    },
+    {
+      "id": "normal-054",
+      "content": "夜間の救急搬送受け入れ時、放射線技師の呼び出し時間を短縮できないでしょうか。オンコール体制の見直しを提案します。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 14,
+        "department": "放射線科"
+      },
+      "category": "oncall_system_improvement",
+      "notes": "オンコール体制改善提案"
+    },
+    {
+      "id": "normal-055",
+      "content": "医療廃棄物の分別ルールが複雑です。ポスターや色分けなどで、もっと分かりやすくできないでしょうか。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 3,
+        "department": "環境管理課"
+      },
+      "category": "visual_improvement",
+      "notes": "視覚的改善提案"
+    },
+    {
+      "id": "normal-056",
+      "content": "他部署との合同勉強会、普段交流のない職種の方と話せて良い機会でした。今後も企画してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 6,
+        "department": "教育研修部"
+      },
+      "category": "cross_department_feedback",
+      "notes": "部署間交流への好評価"
+    },
+    {
+      "id": "normal-057",
+      "content": "患者移送用のストレッチャーのタイヤがスムーズに動かないものがあります。定期点検の頻度を増やしてほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 4,
+        "department": "総務課"
+      },
+      "category": "equipment_maintenance",
+      "notes": "機器保守改善提案"
+    },
+    {
+      "id": "normal-058",
+      "content": "電子カルテの閲覧権限設定を見直してほしいです。必要な情報にアクセスできないことがあります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 10,
+        "department": "情報システム課"
+      },
+      "category": "access_control_review",
+      "notes": "アクセス権限見直し提案"
+    },
+    {
+      "id": "normal-059",
+      "content": "ICUからの転棟時の申し送りシートがあると、情報の引き継ぎがスムーズになります。フォーマットを作成してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 11,
+        "department": "ICU"
+      },
+      "category": "handover_improvement",
+      "notes": "引継ぎ改善提案"
+    },
+    {
+      "id": "normal-060",
+      "content": "新型コロナ対策の取り組み、スタッフの安全を考慮してくださりありがとうございます。引き続きよろしくお願いします。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 7,
+        "department": "感染管理室"
+      },
+      "category": "safety_appreciation",
+      "notes": "安全対策への感謝"
+    },
+    {
+      "id": "normal-061",
+      "content": "診療報酬改定の説明会、分かりやすかったです。資料を共有フォルダに置いていただけると復習できて助かります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 9,
+        "department": "医事課"
+      },
+      "category": "material_sharing",
+      "notes": "資料共有提案"
+    },
+    {
+      "id": "normal-062",
+      "content": "リハビリ室の照明が暗いです。明るさを調整できるようにしてほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 5,
+        "department": "リハビリテーション科"
+      },
+      "category": "lighting_improvement",
+      "notes": "照明改善提案"
+    },
+    {
+      "id": "normal-063",
+      "content": "薬剤部からの情報提供メール、タイムリーで助かっています。今後も継続してください。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 8,
+        "department": "病棟"
+      },
+      "category": "information_service_feedback",
+      "notes": "情報提供サービスへの好評価"
+    },
+    {
+      "id": "normal-064",
+      "content": "時間外勤務の申請手続きを簡素化してほしいです。紙とシステム両方の入力が二度手間になっています。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 4,
+        "department": "総務課"
+      },
+      "category": "administrative_simplification",
+      "notes": "事務手続き簡素化提案"
+    },
+    {
+      "id": "normal-065",
+      "content": "患者さんの転倒リスク評価ツールを見直したいです。最新のエビデンスに基づいたツールを導入してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 12,
+        "department": "医療安全管理室"
+      },
+      "category": "assessment_tool_update",
+      "notes": "評価ツール更新提案"
+    },
+    {
+      "id": "normal-066",
+      "content": "職員向けのメンタルヘルス相談窓口、利用しやすくて良いと思います。もっと周知してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 6,
+        "department": "総務課"
+      },
+      "category": "awareness_improvement",
+      "notes": "周知改善提案"
+    },
+    {
+      "id": "normal-067",
+      "content": "外来化学療法室の予約システムを改善してほしいです。患者さんの希望時間と実際の予約時間にズレが生じています。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 13,
+        "department": "外来化学療法室"
+      },
+      "category": "appointment_system_improvement",
+      "notes": "予約システム改善提案"
+    },
+    {
+      "id": "normal-068",
+      "content": "先日のBLS研修、実技中心で分かりやすかったです。インストラクターの皆さん、ありがとうございました。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 3,
+        "department": "教育研修部"
+      },
+      "category": "instructor_appreciation",
+      "notes": "講師への感謝"
+    },
+    {
+      "id": "normal-069",
+      "content": "検査機器の故障時の代替手段を明確にしてほしいです。マニュアルに記載があると対応しやすいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 9,
+        "department": "臨床検査科"
+      },
+      "category": "contingency_planning",
+      "notes": "代替手段整備提案"
+    },
+    {
+      "id": "normal-070",
+      "content": "病棟の配薬カートを新しいものに更新してほしいです。引き出しの開閉がしにくく、業務効率が下がっています。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 7,
+        "department": "病棟"
+      },
+      "category": "cart_replacement",
+      "notes": "カート更新提案"
+    },
+    {
+      "id": "normal-071",
+      "content": "院内研修のアーカイブ動画、後から視聴できて便利です。今後も録画配信をお願いします。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 5,
+        "department": "教育研修部"
+      },
+      "category": "archive_appreciation",
+      "notes": "アーカイブサービスへの好評価"
+    },
+    {
+      "id": "normal-072",
+      "content": "患者さんへの退院後フォローアップ体制を強化したいです。退院後の電話相談窓口を設置してはどうでしょうか。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 14,
+        "department": "地域連携室"
+      },
+      "category": "followup_system",
+      "notes": "フォローアップ体制提案"
+    },
+    {
+      "id": "normal-073",
+      "content": "医療材料の使用期限管理を徹底したいです。バーコード管理システムを導入してはどうでしょうか。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 10,
+        "department": "物品管理課"
+      },
+      "category": "expiry_management",
+      "notes": "期限管理システム提案"
+    },
+    {
+      "id": "normal-074",
+      "content": "部署の目標設定ワークショップ、チームの一体感が高まりました。定期的に開催してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 11,
+        "department": "看護部"
+      },
+      "category": "team_building_feedback",
+      "notes": "チームビルディングへの好評価"
+    },
+    {
+      "id": "normal-075",
+      "content": "手術器具の洗浄・滅菌工程を見直したいです。最新のガイドラインに準拠した手順書を作成してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 8,
+        "department": "中央材料室"
+      },
+      "category": "procedure_update",
+      "notes": "手順書更新提案"
+    },
+    {
+      "id": "normal-076",
+      "content": "看護記録の音声入力システム、導入できないでしょうか。記録時間の短縮になると思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 12,
+        "department": "看護部"
+      },
+      "category": "voice_input_proposal",
+      "notes": "音声入力システム提案"
+    },
+    {
+      "id": "normal-077",
+      "content": "新しい院内情報システム、スマホからもアクセスできて便利になりました。開発チームに感謝します。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 4,
+        "department": "情報システム課"
+      },
+      "category": "mobile_access_appreciation",
+      "notes": "モバイル対応への感謝"
+    },
+    {
+      "id": "normal-078",
+      "content": "外来患者さんの待合スペースに充電コンセントを増設してほしいです。患者さんからの要望が多いです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 6,
+        "department": "外来"
+      },
+      "category": "amenity_improvement",
+      "notes": "アメニティ改善提案"
+    },
+    {
+      "id": "normal-079",
+      "content": "夜勤時の仮眠室の環境を改善してほしいです。遮光カーテンと防音対策をお願いします。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 5,
+        "department": "総務課"
+      },
+      "category": "rest_area_improvement",
+      "notes": "休憩環境改善提案"
+    },
+    {
+      "id": "normal-080",
+      "content": "診療ガイドラインの最新版を院内LANで閲覧できるようにしてほしいです。いつでも参照できると便利です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 15,
+        "department": "医局"
+      },
+      "category": "reference_access",
+      "notes": "参考資料アクセス提案"
+    },
+    {
+      "id": "normal-081",
+      "content": "多職種カンファレンスの議事録を共有してほしいです。参加できなかったときに内容を確認できます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 9,
+        "department": "地域連携室"
+      },
+      "category": "minutes_sharing",
+      "notes": "議事録共有提案"
+    },
+    {
+      "id": "normal-082",
+      "content": "職員証の更新手続きが簡単になりました。総務課の皆さん、業務改善ありがとうございます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 3,
+        "department": "総務課"
+      },
+      "category": "process_improvement_appreciation",
+      "notes": "業務改善への感謝"
+    },
+    {
+      "id": "normal-083",
+      "content": "救急カートの点検チェックリストをデジタル化してほしいです。点検履歴の管理がしやすくなります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 7,
+        "department": "救急部"
+      },
+      "category": "checklist_digitalization",
+      "notes": "チェックリストデジタル化提案"
+    },
+    {
+      "id": "normal-084",
+      "content": "患者さんからの問い合わせ対応マニュアルを作成してほしいです。新人でも適切に対応できるようになります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 10,
+        "department": "医療相談室"
+      },
+      "category": "manual_creation",
+      "notes": "マニュアル作成提案"
+    },
+    {
+      "id": "normal-085",
+      "content": "医療機器の操作トレーニング、定期的に実施していただきありがとうございます。スキル維持に役立っています。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 6,
+        "department": "臨床工学科"
+      },
+      "category": "regular_training_appreciation",
+      "notes": "定期研修への感謝"
+    },
+    {
+      "id": "normal-086",
+      "content": "職員駐車場の区画線が薄くなっています。引き直しをお願いできますでしょうか。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 2,
+        "department": "総務課"
+      },
+      "category": "parking_maintenance",
+      "notes": "駐車場メンテナンス依頼"
+    },
+    {
+      "id": "normal-087",
+      "content": "薬剤の適正使用に関する情報を定期的に配信してほしいです。安全な薬物療法の提供に役立ちます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 11,
+        "department": "薬剤部"
+      },
+      "category": "information_distribution",
+      "notes": "情報配信提案"
+    },
+    {
+      "id": "normal-088",
+      "content": "インシデントレポートの分析結果を共有してくださりありがとうございます。再発防止に活用させていただきます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 8,
+        "department": "医療安全管理室"
+      },
+      "category": "analysis_sharing_appreciation",
+      "notes": "分析共有への感謝"
+    },
+    {
+      "id": "normal-089",
+      "content": "病棟のナースコールシステムを最新のものに更新してほしいです。現在のシステムは反応が遅いことがあります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 13,
+        "department": "病棟"
+      },
+      "category": "call_system_update",
+      "notes": "コールシステム更新提案"
+    },
+    {
+      "id": "normal-090",
+      "content": "地域の医療機関との連携会議、顔の見える関係作りに役立っています。今後も継続してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 14,
+        "department": "地域連携室"
+      },
+      "category": "networking_appreciation",
+      "notes": "連携会議への好評価"
+    },
+    {
+      "id": "normal-091",
+      "content": "放射線被曝管理システムを導入してほしいです。スタッフの安全管理を強化できます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 12,
+        "department": "放射線科"
+      },
+      "category": "radiation_safety",
+      "notes": "被曝管理システム提案"
+    },
+    {
+      "id": "normal-092",
+      "content": "職員満足度調査の結果を共有していただきありがとうございます。改善活動の参考にさせていただきます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 15,
+        "department": "総務課"
+      },
+      "category": "survey_results_appreciation",
+      "notes": "調査結果共有への感謝"
+    },
+    {
+      "id": "normal-093",
+      "content": "手術部位感染サーベイランスのフィードバック、とても参考になります。今後も定期的にお願いします。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 16,
+        "department": "感染管理室"
+      },
+      "category": "surveillance_feedback_appreciation",
+      "notes": "サーベイランスへの好評価"
+    },
+    {
+      "id": "normal-094",
+      "content": "病院のホームページに診療科の紹介動画を掲載してはどうでしょうか。患者さんに分かりやすく情報提供できます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 17,
+        "department": "広報課"
+      },
+      "category": "video_content_proposal",
+      "notes": "動画コンテンツ提案"
+    },
+    {
+      "id": "normal-095",
+      "content": "リスクマネジメント研修で学んだ内容を部署で共有しました。スタッフの意識が高まったと思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 11,
+        "department": "医療安全管理室"
+      },
+      "category": "knowledge_sharing_feedback",
+      "notes": "知識共有の報告"
+    },
+    {
+      "id": "normal-096",
+      "content": "電子カルテのテンプレート機能を充実させてほしいです。記載の標準化と効率化につながります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 14,
+        "department": "医局"
+      },
+      "category": "template_enhancement",
+      "notes": "テンプレート拡充提案"
+    },
+    {
+      "id": "normal-097",
+      "content": "部署間の応援体制がスムーズに機能するようになりました。マニュアル作成してくださった方々に感謝します。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 13,
+        "department": "看護部"
+      },
+      "category": "support_system_appreciation",
+      "notes": "応援体制への感謝"
+    },
+    {
+      "id": "normal-098",
+      "content": "患者さんの転院先を探す際のデータベースがあると便利です。地域の医療機関情報を一元管理してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 10,
+        "department": "地域連携室"
+      },
+      "category": "database_creation",
+      "notes": "データベース作成提案"
+    },
+    {
+      "id": "normal-099",
+      "content": "医療機器の更新計画を事前に共有してほしいです。新機器の導入準備ができます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 9,
+        "department": "臨床工学科"
+      },
+      "category": "planning_disclosure",
+      "notes": "計画開示提案"
+    },
+    {
+      "id": "normal-100",
+      "content": "職員のワークライフバランス推進の取り組み、素晴らしいと思います。継続して推進してください。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 12,
+        "department": "総務課"
+      },
+      "category": "initiative_support",
+      "notes": "施策への支持表明"
+    }
+  ]
+}

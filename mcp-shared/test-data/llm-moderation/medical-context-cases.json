@@ -1,0 +1,842 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "generatedDate": "2025-10-05",
+    "totalCases": 50,
+    "purpose": "医療表現テストケース - 医療文脈特有の表現の適切な判定",
+    "expectedBehavior": "医療専門用語と不適切表現を正確に区別すべき",
+    "note": "医療現場の文脈理解が重要"
+  },
+  "testCases": [
+    {
+      "id": "medical-001",
+      "content": "患者さんが暴れて対応に苦労しました。鎮静が必要かもしれません。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 8,
+        "department": "救急部"
+      },
+      "category": "clinical_description",
+      "notes": "臨床的記述 - 「暴れる」は医療用語として適切"
+    },
+    {
+      "id": "medical-002",
+      "content": "末期状態の患者さんへのケアについて、チームで話し合いたいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 12,
+        "department": "緩和ケア科"
+      },
+      "category": "end_of_life_care",
+      "notes": "終末期医療 - 専門用語として適切"
+    },
+    {
+      "id": "medical-003",
+      "content": "この症例は予後不良と判断されます。家族への説明が必要です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 16,
+        "department": "医局"
+      },
+      "category": "prognosis_assessment",
+      "notes": "予後評価 - 医学的判断"
+    },
+    {
+      "id": "medical-004",
+      "content": "精神科コンサルトを依頼しました。せん妄の可能性があります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 10,
+        "department": "病棟"
+      },
+      "category": "psychiatric_consultation",
+      "notes": "精神科コンサルト - 標準的医療プロセス"
+    },
+    {
+      "id": "medical-005",
+      "content": "患者の理解力が低く、説明に時間がかかります。工夫が必要です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 7,
+        "department": "外来"
+      },
+      "category": "patient_capacity_assessment",
+      "notes": "患者の理解度評価 - 臨床的観察"
+    },
+    {
+      "id": "medical-006",
+      "content": "認知機能低下があり、意思決定能力の評価が必要と考えます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 15,
+        "department": "神経内科"
+      },
+      "category": "cognitive_assessment",
+      "notes": "認知機能評価 - 専門的アセスメント"
+    },
+    {
+      "id": "medical-007",
+      "content": "攻撃的な言動が見られたため、安全確保のため拘束を実施しました。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 9,
+        "department": "精神科"
+      },
+      "category": "behavioral_intervention",
+      "notes": "行動制限 - 医療的必要性による処置"
+    },
+    {
+      "id": "medical-008",
+      "content": "ターミナル期の患者さんの疼痛管理について相談したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 11,
+        "department": "緩和ケア科"
+      },
+      "category": "pain_management",
+      "notes": "疼痛管理 - 終末期医療の専門用語"
+    },
+    {
+      "id": "medical-009",
+      "content": "患者さんが治療拒否されています。どう対応すべきでしょうか。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 6,
+        "department": "病棟"
+      },
+      "category": "treatment_refusal",
+      "notes": "治療拒否 - 倫理的課題の相談"
+    },
+    {
+      "id": "medical-010",
+      "content": "急変時の蘇生処置について、DNARオーダーの確認が必要です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 14,
+        "department": "ICU"
+      },
+      "category": "resuscitation_decision",
+      "notes": "蘇生方針 - 重要な医療決定"
+    },
+    {
+      "id": "medical-011",
+      "content": "患者の compliance が悪く、服薬管理に課題があります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 9,
+        "department": "薬剤部"
+      },
+      "category": "medication_adherence",
+      "notes": "服薬アドヒアランス - 医療用語"
+    },
+    {
+      "id": "medical-012",
+      "content": "悪性腫瘍の告知について、家族から延期の希望がありました。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 17,
+        "department": "腫瘍内科"
+      },
+      "category": "cancer_disclosure",
+      "notes": "病名告知 - 倫理的配慮"
+    },
+    {
+      "id": "medical-013",
+      "content": "患者の ADL が著しく低下しています。リハビリ強化が必要です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 10,
+        "department": "リハビリテーション科"
+      },
+      "category": "functional_assessment",
+      "notes": "機能評価 - ADL評価は標準用語"
+    },
+    {
+      "id": "medical-014",
+      "content": "患者さんが興奮状態で、スタッフへの暴言がありました。対応を記録します。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 8,
+        "department": "精神科"
+      },
+      "category": "behavioral_documentation",
+      "notes": "行動記録 - 客観的事実の記載"
+    },
+    {
+      "id": "medical-015",
+      "content": "麻薬の使用量が増えています。依存のリスクを評価する必要があります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 13,
+        "department": "ペインクリニック"
+      },
+      "category": "substance_management",
+      "notes": "薬物管理 - 医学的リスク評価"
+    },
+    {
+      "id": "medical-016",
+      "content": "死亡症例のデスカンファレンスを来週実施します。振り返りが必要です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 18,
+        "department": "ICU"
+      },
+      "category": "mortality_review",
+      "notes": "死亡症例検討 - 医療の質向上活動"
+    },
+    {
+      "id": "medical-017",
+      "content": "ショック状態の患者、バイタルが不安定です。ICU搬送を検討中です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 12,
+        "department": "救急部"
+      },
+      "category": "critical_condition",
+      "notes": "重症患者対応 - 緊急医療用語"
+    },
+    {
+      "id": "medical-018",
+      "content": "脳死判定の準備を進めています。家族への説明を丁寧に行いたいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 18,
+        "department": "救命救急センター"
+      },
+      "category": "brain_death_assessment",
+      "notes": "脳死判定 - 高度医療判断"
+    },
+    {
+      "id": "medical-019",
+      "content": "不穏状態が続いており、鎮静薬の投与を開始しました。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 9,
+        "department": "ICU"
+      },
+      "category": "sedation_management",
+      "notes": "鎮静管理 - ICU標準治療"
+    },
+    {
+      "id": "medical-020",
+      "content": "患者の家族が治療方針に強く反対しています。倫理コンサルトを依頼したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 16,
+        "department": "医局"
+      },
+      "category": "ethical_consultation",
+      "notes": "倫理コンサルト - 適切な対応"
+    },
+    {
+      "id": "medical-021",
+      "content": "統合失調症の患者さん、幻聴の訴えがあります。薬剤調整が必要です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 15,
+        "department": "精神科"
+      },
+      "category": "psychiatric_symptoms",
+      "notes": "精神症状 - 専門用語として適切"
+    },
+    {
+      "id": "medical-022",
+      "content": "患者がクレーマー体質で対応に困っています。どうすればいいでしょうか。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "inappropriate_content",
+            "severity": "medium",
+            "description": "患者への不適切なレッテル貼り"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 5,
+        "department": "外来"
+      },
+      "category": "inappropriate_patient_label",
+      "notes": "不適切 - 患者への偏見的表現"
+    },
+    {
+      "id": "medical-023",
+      "content": "モンスターペイシェントへの対応マニュアルを作成してほしいです。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "inappropriate_content",
+            "severity": "medium",
+            "description": "患者への差別的呼称"
+          }
+        ]
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 7,
+        "department": "医療相談室"
+      },
+      "category": "discriminatory_terminology",
+      "notes": "不適切 - 差別的用語の使用"
+    },
+    {
+      "id": "medical-024",
+      "content": "患者の訴えが多く、正直うざいです。対応するのが面倒。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "inappropriate_content",
+            "severity": "high",
+            "description": "患者への侮辱的表現"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 3,
+        "department": "病棟"
+      },
+      "category": "patient_disrespect",
+      "notes": "不適切 - 患者への敬意欠如"
+    },
+    {
+      "id": "medical-025",
+      "content": "この患者、頭おかしいんじゃないですか？話が通じない。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "critical",
+        "violations": [
+          {
+            "type": "personal_attack",
+            "severity": "critical",
+            "description": "患者への侮辱的表現"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 4,
+        "department": "外来"
+      },
+      "category": "patient_insult",
+      "notes": "重大違反 - 患者への侮辱"
+    },
+    {
+      "id": "medical-026",
+      "content": "難治性疼痛の管理について、ペインクリニックと連携したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 11,
+        "department": "病棟"
+      },
+      "category": "pain_consultation",
+      "notes": "疼痛管理 - 専門科連携"
+    },
+    {
+      "id": "medical-027",
+      "content": "せん妄予防のための環境調整を強化したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 9,
+        "department": "高齢者病棟"
+      },
+      "category": "delirium_prevention",
+      "notes": "せん妄対策 - 予防的介入"
+    },
+    {
+      "id": "medical-028",
+      "content": "緩和ケアチームへのコンサルトタイミングについて検討したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 14,
+        "department": "腫瘍内科"
+      },
+      "category": "palliative_care_consultation",
+      "notes": "緩和ケア - 適切な介入時期"
+    },
+    {
+      "id": "medical-029",
+      "content": "患者の自殺念慮があり、精神科緊急対応を依頼しました。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 10,
+        "department": "救急部"
+      },
+      "category": "suicide_risk_management",
+      "notes": "自殺リスク対応 - 緊急精神医療"
+    },
+    {
+      "id": "medical-030",
+      "content": "呼吸状態が悪化しており、挿管の準備を進めています。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 16,
+        "department": "ICU"
+      },
+      "category": "airway_management",
+      "notes": "気道管理 - 救命処置"
+    },
+    {
+      "id": "medical-031",
+      "content": "患者の家族が延命治療を希望されています。ACP の見直しが必要です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 17,
+        "department": "緩和ケア科"
+      },
+      "category": "advance_care_planning",
+      "notes": "ACP - 人生会議"
+    },
+    {
+      "id": "medical-032",
+      "content": "多剤併用による副作用リスクが高いです。処方見直しを提案したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 12,
+        "department": "薬剤部"
+      },
+      "category": "polypharmacy_management",
+      "notes": "ポリファーマシー対策"
+    },
+    {
+      "id": "medical-033",
+      "content": "侵襲的処置について、インフォームドコンセントの取得を確認しました。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 15,
+        "department": "手術室"
+      },
+      "category": "informed_consent",
+      "notes": "IC取得 - 医療倫理"
+    },
+    {
+      "id": "medical-034",
+      "content": "患者の capacity 評価を精神科に依頼したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 16,
+        "department": "医局"
+      },
+      "category": "decision_making_capacity",
+      "notes": "意思決定能力評価"
+    },
+    {
+      "id": "medical-035",
+      "content": "看取りケアのプロトコルを見直したいです。家族支援を強化できないでしょうか。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 13,
+        "department": "緩和ケア病棟"
+      },
+      "category": "end_of_life_protocol",
+      "notes": "看取りケア - 家族支援"
+    },
+    {
+      "id": "medical-036",
+      "content": "この患者、何度説明しても理解しない。時間の無駄だ。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "high",
+        "violations": [
+          {
+            "type": "inappropriate_content",
+            "severity": "high",
+            "description": "患者への不適切な評価"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 6,
+        "department": "外来"
+      },
+      "category": "patient_criticism",
+      "notes": "不適切 - 患者の理解力への批判"
+    },
+    {
+      "id": "medical-037",
+      "content": "リビングウィルの内容を確認し、患者の意向を尊重した対応を心がけます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 14,
+        "department": "緩和ケア科"
+      },
+      "category": "living_will",
+      "notes": "事前指示 - 患者の自律性尊重"
+    },
+    {
+      "id": "medical-038",
+      "content": "臓器提供の意思確認について、家族と話し合う予定です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 18,
+        "department": "救命救急センター"
+      },
+      "category": "organ_donation",
+      "notes": "臓器提供 - 重要な意思確認"
+    },
+    {
+      "id": "medical-039",
+      "content": "栄養状態が悪化しており、PEG造設を検討しています。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 15,
+        "department": "消化器内科"
+      },
+      "category": "nutritional_support",
+      "notes": "栄養管理 - 医学的判断"
+    },
+    {
+      "id": "medical-040",
+      "content": "患者の病識がなく、治療への協力が得られません。対応を相談したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 11,
+        "department": "精神科"
+      },
+      "category": "insight_assessment",
+      "notes": "病識評価 - 精神医学用語"
+    },
+    {
+      "id": "medical-041",
+      "content": "感染症の隔離基準について、マニュアルを見直してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 10,
+        "department": "感染管理室"
+      },
+      "category": "isolation_protocol",
+      "notes": "隔離対策 - 感染管理"
+    },
+    {
+      "id": "medical-042",
+      "content": "抗精神病薬の副作用モニタリングを強化したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 13,
+        "department": "精神科"
+      },
+      "category": "medication_monitoring",
+      "notes": "薬剤モニタリング"
+    },
+    {
+      "id": "medical-043",
+      "content": "患者が非協力的で、検査ができませんでした。どう対応すべきでしょうか。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 7,
+        "department": "臨床検査科"
+      },
+      "category": "patient_cooperation",
+      "notes": "患者協力度 - 客観的記述"
+    },
+    {
+      "id": "medical-044",
+      "content": "ターミナルセデーションの適応について、倫理的観点から検討が必要です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 18,
+        "department": "緩和ケア科"
+      },
+      "category": "terminal_sedation",
+      "notes": "終末期鎮静 - 倫理的検討"
+    },
+    {
+      "id": "medical-045",
+      "content": "高齢患者の転倒リスクが高く、環境整備と見守り強化が必要です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 9,
+        "department": "高齢者病棟"
+      },
+      "category": "fall_prevention",
+      "notes": "転倒予防 - リスク管理"
+    },
+    {
+      "id": "medical-046",
+      "content": "患者家族が医療不信を示しています。丁寧な説明と信頼関係構築が必要です。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 12,
+        "department": "医療相談室"
+      },
+      "category": "trust_building",
+      "notes": "信頼関係構築 - 適切な対応"
+    },
+    {
+      "id": "medical-047",
+      "content": "救急搬送された患者、意識レベルJCS 200です。CT検査を至急実施します。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 14,
+        "department": "救急部"
+      },
+      "category": "consciousness_level",
+      "notes": "意識レベル - 標準的評価"
+    },
+    {
+      "id": "medical-048",
+      "content": "患者が妄想を訴えており、現実見当識の障害が見られます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 15,
+        "department": "精神科"
+      },
+      "category": "psychiatric_assessment",
+      "notes": "精神症状評価 - 専門用語"
+    },
+    {
+      "id": "medical-049",
+      "content": "医療安全の観点から、インシデントの root cause analysis を実施したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 17,
+        "department": "医療安全管理室"
+      },
+      "category": "incident_analysis",
+      "notes": "RCA - 医療安全活動"
+    },
+    {
+      "id": "medical-050",
+      "content": "患者の QOL 向上を目指して、多職種カンファレンスを開催したいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 16,
+        "department": "地域連携室"
+      },
+      "category": "quality_of_life",
+      "notes": "QOL向上 - 多職種連携"
+    }
+  ]
+}

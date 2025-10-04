@@ -1,0 +1,516 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "generatedDate": "2025-10-05",
+    "totalCases": 30,
+    "purpose": "境界値テストケース - 判定が難しい微妙なケース",
+    "expectedBehavior": "文脈や建設性を考慮した適切な判定が必要",
+    "note": "LLMの判定能力を試す重要なテストケース"
+  },
+  "testCases": [
+    {
+      "id": "edge-001",
+      "content": "正直、○○さんの判断には疑問を感じます。もっと慎重に考えるべきだったと思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 10,
+        "department": "看護部"
+      },
+      "category": "critical_feedback",
+      "notes": "批判的だが建設的なフィードバック - 許可すべき"
+    },
+    {
+      "id": "edge-002",
+      "content": "この対応は問題があると思います。担当者は反省すべきです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 12,
+        "department": "医療安全管理室"
+      },
+      "category": "problem_pointing",
+      "notes": "問題指摘 - 改善目的なら許可"
+    },
+    {
+      "id": "edge-003",
+      "content": "あの人の仕事のやり方、正直理解できない。なぜそういう方法を選ぶのか説明してほしい。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 8,
+        "department": "病棟"
+      },
+      "category": "method_questioning",
+      "notes": "疑問の表明 - 説明を求める姿勢あり"
+    },
+    {
+      "id": "edge-004",
+      "content": "この提案には賛成できません。効果がないと思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 15,
+        "department": "医局"
+      },
+      "category": "disagreement",
+      "notes": "反対意見 - 正当な異議"
+    },
+    {
+      "id": "edge-005",
+      "content": "マジで疲れた。もう限界かも。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 3,
+        "department": "病棟"
+      },
+      "category": "emotional_expression",
+      "notes": "感情表現 - 危険な兆候はなし"
+    },
+    {
+      "id": "edge-006",
+      "content": "今日の対応、ちょっとひどくないですか？もう少し考えてほしかった。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 5,
+        "department": "外来"
+      },
+      "category": "mild_complaint",
+      "notes": "軽い苦情 - 改善要望の範囲"
+    },
+    {
+      "id": "edge-007",
+      "content": "その方法、効率悪すぎませんか？時間の無駄だと思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 7,
+        "department": "総務課"
+      },
+      "category": "efficiency_criticism",
+      "notes": "効率性への批判 - 改善提案の一環"
+    },
+    {
+      "id": "edge-008",
+      "content": "このルール、意味不明です。誰が決めたんですか？",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 6,
+        "department": "看護部"
+      },
+      "category": "rule_questioning",
+      "notes": "ルールへの疑問 - 説明を求める"
+    },
+    {
+      "id": "edge-009",
+      "content": "年配のスタッフは新しいシステムに不慣れな方が多いようです。サポート体制を強化してほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 11,
+        "department": "情報システム課"
+      },
+      "category": "demographic_observation",
+      "notes": "年齢への言及 - 差別的意図なし"
+    },
+    {
+      "id": "edge-010",
+      "content": "女性スタッフが多い部署なので、生理休暇の取得しやすい環境を整えてほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 9,
+        "department": "看護部"
+      },
+      "category": "gender_specific_needs",
+      "notes": "性別への言及 - 配慮要請"
+    },
+    {
+      "id": "edge-011",
+      "content": "外国人スタッフ向けに日本語研修を充実させてほしい。コミュニケーションがスムーズになると思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 13,
+        "department": "教育研修部"
+      },
+      "category": "language_support",
+      "notes": "国籍への言及 - 支援要請"
+    },
+    {
+      "id": "edge-012",
+      "content": "このミス、かなりまずいと思います。どう責任取るんですか？",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "personal_attack",
+            "severity": "medium",
+            "description": "責任追及の表現が攻撃的"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 8,
+        "department": "病棟"
+      },
+      "category": "accountability_demand",
+      "notes": "責任追及 - やや攻撃的"
+    },
+    {
+      "id": "edge-013",
+      "content": "あの人、いつも遅刻してる。注意しても直さない。ルーズすぎる。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "personal_attack",
+            "severity": "low",
+            "description": "個人の行動への否定的評価"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 5,
+        "department": "外来"
+      },
+      "category": "behavior_criticism",
+      "notes": "行動批判 - 個人攻撃の可能性"
+    },
+    {
+      "id": "edge-014",
+      "content": "正直、あの判断は間違ってたと思う。もっと考えてから決めるべきだった。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 14,
+        "department": "医局"
+      },
+      "category": "decision_criticism",
+      "notes": "判断への批判 - 建設的範囲"
+    },
+    {
+      "id": "edge-015",
+      "content": "この状況、どう考えてもおかしい。誰も何も言わないの？",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 7,
+        "department": "看護部"
+      },
+      "category": "situation_criticism",
+      "notes": "状況への疑問 - 問題提起"
+    },
+    {
+      "id": "edge-016",
+      "content": "患者さんが「先生は信用できない」と言っていました。何かあったのでしょうか。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 4,
+        "department": "医療相談室"
+      },
+      "category": "patient_feedback_reporting",
+      "notes": "患者意見の報告 - 情報共有目的"
+    },
+    {
+      "id": "edge-017",
+      "content": "この病院の体制、本当に大丈夫ですか？不安になります。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 6,
+        "department": "看護部"
+      },
+      "category": "system_concern",
+      "notes": "体制への不安 - 正当な懸念"
+    },
+    {
+      "id": "edge-018",
+      "content": "管理職の人たち、現場のこと分かってないと思う。もっと現場を見てほしい。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 5,
+        "department": "病棟"
+      },
+      "category": "management_criticism",
+      "notes": "管理層への批判 - 改善要望"
+    },
+    {
+      "id": "edge-019",
+      "content": "なんでこんな決定したの？現場の意見全然聞いてないじゃん。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 4,
+        "department": "看護部"
+      },
+      "category": "decision_process_criticism",
+      "notes": "決定プロセスへの批判"
+    },
+    {
+      "id": "edge-020",
+      "content": "患者のAさん、かなり状態が悪化しています。至急対応が必要だと思います。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 9,
+        "department": "病棟"
+      },
+      "category": "clinical_update",
+      "notes": "臨床情報 - イニシャル使用で許容範囲"
+    },
+    {
+      "id": "edge-021",
+      "content": "同僚が体調不良で欠勤が続いています。サポート体制を考えてほしいです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 10,
+        "department": "看護部"
+      },
+      "category": "colleague_concern",
+      "notes": "同僚の状況 - 支援要請"
+    },
+    {
+      "id": "edge-022",
+      "content": "あの人の態度、本当にイライラする。プロ意識が足りない。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "personal_attack",
+            "severity": "medium",
+            "description": "個人への感情的な批判"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 7,
+        "department": "外来"
+      },
+      "category": "attitude_complaint",
+      "notes": "態度への不満 - 感情的過ぎる"
+    },
+    {
+      "id": "edge-023",
+      "content": "この件、絶対に許さない。しかるべき対応を求めます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "report",
+        "authorLevel": 12,
+        "department": "医療安全管理室"
+      },
+      "category": "formal_complaint",
+      "notes": "正式な苦情 - 強い表現だが適切な範囲"
+    },
+    {
+      "id": "edge-024",
+      "content": "うちの部署、人が足りなすぎてヤバい。誰か助けて。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 3,
+        "department": "病棟"
+      },
+      "category": "urgent_help_request",
+      "notes": "緊急の支援要請 - カジュアルだが許容"
+    },
+    {
+      "id": "edge-025",
+      "content": "このやり方、時代遅れだと思います。もっと効率的な方法があるはずです。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 11,
+        "department": "総務課"
+      },
+      "category": "method_criticism",
+      "notes": "方法論への批判 - 建設的"
+    },
+    {
+      "id": "edge-026",
+      "content": "ベテランスタッフの経験は貴重ですが、新しい知識の更新も必要だと感じます。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 13,
+        "department": "教育研修部"
+      },
+      "category": "balanced_observation",
+      "notes": "バランスの取れた観察 - 配慮あり"
+    },
+    {
+      "id": "edge-027",
+      "content": "最近入職した方々、まだ慣れていないようです。研修期間を延長してはどうでしょうか。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "none",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 15,
+        "department": "教育研修部"
+      },
+      "category": "training_suggestion",
+      "notes": "研修提案 - 配慮的表現"
+    },
+    {
+      "id": "edge-028",
+      "content": "この決定、現場を知らない人が勝手に決めたとしか思えない。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 8,
+        "department": "病棟"
+      },
+      "category": "disconnect_criticism",
+      "notes": "現場との乖離指摘 - 強い表現だが改善目的"
+    },
+    {
+      "id": "edge-029",
+      "content": "いい加減にしてほしい。何度も同じこと言わせないで。",
+      "expectedResult": {
+        "allowed": false,
+        "severity": "medium",
+        "violations": [
+          {
+            "type": "inappropriate_content",
+            "severity": "medium",
+            "description": "過度に攻撃的な表現"
+          }
+        ]
+      },
+      "context": {
+        "postType": "community",
+        "authorLevel": 6,
+        "department": "外来"
+      },
+      "category": "frustration_expression",
+      "notes": "フラストレーション - 攻撃的過ぎる"
+    },
+    {
+      "id": "edge-030",
+      "content": "この状況、本当にストレスです。精神的に参ってきました。",
+      "expectedResult": {
+        "allowed": true,
+        "severity": "low",
+        "violations": []
+      },
+      "context": {
+        "postType": "improvement",
+        "authorLevel": 5,
+        "department": "病棟"
+      },
+      "category": "stress_expression",
+      "notes": "ストレス表明 - 深刻な兆候なし"
+    }
+  ]
+}
