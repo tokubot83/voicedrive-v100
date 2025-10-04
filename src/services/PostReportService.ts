@@ -351,11 +351,11 @@ export class PostReportService {
       .slice(0, 5)
       .map(([postId, reportCount]) => {
         const reports = this.reports.get(postId)!;
-        const hasP ending = reports.some((r) => r.status === 'pending');
+        const hasPending = reports.some((r) => r.status === 'pending');
         return {
           postId,
           reportCount,
-          status: (hasP ending ? 'pending' : 'actioned') as ReportStatus
+          status: (hasPending ? 'pending' : 'actioned') as ReportStatus
         };
       });
 
