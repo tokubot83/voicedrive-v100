@@ -22,6 +22,15 @@ export const PROJECT_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'project',
     children: [
       {
+        id: 'project_tracking',
+        title: 'プロジェクトの追跡',
+        label: 'プロジェクトの追跡',
+        icon: '📍',
+        path: '/project-tracking',
+        requiredLevel: 1,
+        category: 'project'
+      },
+      {
         id: 'project_list',
         title: 'プロジェクト一覧',
         label: 'プロジェクト一覧',
@@ -40,6 +49,17 @@ export const PROJECT_MODE_MENU_ITEMS: Record<string, MenuItem> = {
         category: 'project'
       }
     ]
+  },
+
+  // プロジェクト承認（レベル3.5+：中堅リーダー以上）
+  project_approval: {
+    id: 'project_approval',
+    title: 'プロジェクト承認',
+    label: 'プロジェクト承認',
+    icon: '✅',
+    path: '/project-approval',
+    requiredLevel: 3.5,
+    category: 'project'
   },
 
   // チーム管理（レベル5+：副主任以上）
@@ -239,54 +259,54 @@ export const PROJECT_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
   3: ['project_hub'],
 
   // レベル3.5：中堅看護師（リーダー可）
-  3.5: ['project_hub'],
+  3.5: ['project_hub', 'project_approval'],
 
   // レベル4：ベテラン（11年以上）
-  4: ['project_hub'],
+  4: ['project_hub', 'project_approval'],
 
   // レベル4.5：ベテラン看護師（リーダー可）
-  4.5: ['project_hub'],
+  4.5: ['project_hub', 'project_approval'],
 
   // レベル5：副主任
-  5: ['project_hub', 'team_management', 'progress_dashboard'],
+  5: ['project_hub', 'project_approval', 'team_management', 'progress_dashboard'],
 
   // レベル6：主任
-  6: ['project_hub', 'team_management', 'progress_dashboard'],
+  6: ['project_hub', 'project_approval', 'team_management', 'progress_dashboard'],
 
   // レベル7：副師長・副科長・副課長
-  7: ['project_hub', 'team_management', 'progress_dashboard', 'milestone_management'],
+  7: ['project_hub', 'project_approval', 'team_management', 'progress_dashboard', 'milestone_management'],
 
   // レベル8：師長・科長・課長・室長
-  8: ['project_hub', 'team_management', 'progress_dashboard', 'milestone_management'],
+  8: ['project_hub', 'project_approval', 'team_management', 'progress_dashboard', 'milestone_management'],
 
   // レベル9：副部長
   9: [
-    'project_hub', 'team_management', 'progress_dashboard',
+    'project_hub', 'project_approval', 'team_management', 'progress_dashboard',
     'milestone_management', 'cross_department_project'
   ],
 
   // レベル10：部長・医局長
   10: [
-    'project_hub', 'team_management', 'progress_dashboard',
+    'project_hub', 'project_approval', 'team_management', 'progress_dashboard',
     'milestone_management', 'cross_department_project', 'facility_project_management'
   ],
 
   // レベル11：事務長
   11: [
-    'project_hub', 'team_management', 'progress_dashboard',
+    'project_hub', 'project_approval', 'team_management', 'progress_dashboard',
     'milestone_management', 'cross_department_project', 'facility_project_management', 'budget_management'
   ],
 
   // レベル12：副院長
   12: [
-    'project_hub', 'team_management', 'progress_dashboard', 'milestone_management',
+    'project_hub', 'project_approval', 'team_management', 'progress_dashboard', 'milestone_management',
     'cross_department_project', 'facility_project_management', 'budget_management',
     'executive_dashboard', 'project_governance'
   ],
 
   // レベル13：院長・施設長
   13: [
-    'project_hub', 'team_management', 'progress_dashboard', 'milestone_management',
+    'project_hub', 'project_approval', 'team_management', 'progress_dashboard', 'milestone_management',
     'cross_department_project', 'facility_project_management', 'budget_management',
     'executive_dashboard', 'project_governance', 'strategic_initiatives'
   ],

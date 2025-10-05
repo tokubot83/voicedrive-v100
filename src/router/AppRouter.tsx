@@ -507,6 +507,20 @@ const AppRouter: React.FC = () => {
           {React.createElement(React.lazy(() => import('../pages/ProposalManagementPage')))}
         </ProtectedRoute>
       } />
+
+      {/* Project Mode Routes */}
+      <Route path="project-tracking" element={
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_1}>
+          {React.createElement(React.lazy(() => import('../pages/ProjectTracking')))}
+        </ProtectedRoute>
+      } />
+
+      <Route path="project-approval" element={
+        <ProtectedRoute requiredLevel={3.5}>
+          {React.createElement(React.lazy(() => import('../pages/ProjectApprovalPage')))}
+        </ProtectedRoute>
+      } />
+
       <Route path="free-voice-guide" element={<FreeVoiceGuide />} />
       <Route path="compliance-guide" element={<ComplianceGuide />} />
       <Route path="interview-guide" element={<InterviewGuide />} />
