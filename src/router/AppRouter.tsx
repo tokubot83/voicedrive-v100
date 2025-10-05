@@ -488,6 +488,11 @@ const AppRouter: React.FC = () => {
 
       {/* Idea Voice Hub Routes */}
       <Route path="idea-voice">
+        <Route path="progress" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_1}>
+            {React.createElement(React.lazy(() => import('../pages/IdeaVoiceTracking')))}
+          </ProtectedRoute>
+        } />
         <Route path="proposal" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
             <ProposalGeneratorPage />
