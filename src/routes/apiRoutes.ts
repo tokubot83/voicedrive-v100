@@ -8,6 +8,7 @@ import { UserService } from '../api/db/userService';
 import interviewRoutes from './interviewRoutes';
 import syncRoutes from './syncRoutes';
 import myInterviewRoutes from './myInterviewRoutes';
+import consentRoutes from '../api/routes/consent.routes';
 import { handleSummaryReceived } from '../api/medicalSystemReceiver';
 import {
   verifyWebhookSignature,
@@ -35,6 +36,9 @@ router.use('/sync', syncRoutes);
 
 // マイページAPI（認証必須）
 router.use('/my', authenticateToken, myInterviewRoutes);
+
+// データ同意API
+router.use('/consent', consentRoutes);
 
 // 面談サマリ受信API
 router.post('/summaries/receive', standardRateLimit, handleSummaryReceived);
