@@ -12,9 +12,10 @@ import {
   ReportThreshold,
   ReportStatistics
 } from '../types/report';
+import { environment } from '../config/environment';
 
-// 開発環境のAPIベースURL
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+// APIベースURL（Vercel環境では無効）
+const API_BASE_URL = environment.apiBaseUrl ? `${environment.apiBaseUrl}/api` : null;
 
 export class PostReportService {
   private static instance: PostReportService;
@@ -48,6 +49,13 @@ export class PostReportService {
    * API可用性チェック（開発環境用）
    */
   private async checkApiAvailability(): Promise<void> {
+    // Vercel環境では常にフォールバックモード
+    if (environment.isVercel || !API_BASE_URL) {
+      this.useApiFallback = true;
+      console.info('通報サービス: デモモードで動作します');
+      return;
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/health`, {
         method: 'GET',

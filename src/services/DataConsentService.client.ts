@@ -5,6 +5,8 @@
  * 実際の処理はAPIを通じて行います。
  */
 
+import { environment } from '../config/environment';
+
 export interface ConsentStatus {
   userId: string;
   analyticsConsent: boolean;
@@ -59,6 +61,22 @@ class DataConsentService {
    * ユーザーの同意状態を取得（クライアント版はAPIコール）
    */
   async getConsentStatus(userId: string): Promise<ConsentStatus | null> {
+    // Vercel環境ではデフォルト値を返す
+    if (environment.isDemoMode) {
+      return {
+        userId,
+        analyticsConsent: false,
+        analyticsConsentDate: null,
+        personalFeedbackConsent: false,
+        personalFeedbackConsentDate: null,
+        isRevoked: false,
+        revokeDate: null,
+        dataDeletionRequested: false,
+        dataDeletionRequestedAt: null,
+        dataDeletionCompletedAt: null
+      };
+    }
+
     try {
       const response = await fetch(`/api/consent/${userId}`, {
         headers: {
@@ -80,6 +98,15 @@ class DataConsentService {
     userId: string,
     consentData: ConsentUpdateData
   ): Promise<ConsentServiceResult> {
+    // Vercel環境では成功を返す
+    if (environment.isDemoMode) {
+      return {
+        success: true,
+        message: 'デモモード: 同意状態を更新しました',
+        data: await this.getConsentStatus(userId)
+      };
+    }
+
     try {
       const response = await fetch(`/api/consent/${userId}`, {
         method: 'PUT',
@@ -212,6 +239,11 @@ class DataConsentService {
    * 同意モーダルを表示すべきかチェック
    */
   async shouldShowConsentModal(userId: string): Promise<boolean> {
+    // Vercel環境ではモーダルを表示しない
+    if (environment.isDemoMode) {
+      return false;
+    }
+
     try {
       const response = await fetch(`/api/consent/${userId}/should-show-modal`, {
         headers: {
