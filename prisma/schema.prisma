@@ -8,51 +8,44 @@ datasource db {
 }
 
 model User {
-  id                  String         @id @default(cuid())
-  employeeId          String         @unique
-  email               String         @unique
-  name                String
-  department          String?
-  facilityId          String?
-  role                String?
-  avatar              String?
-
-  // 25種類権限システム（18基本 + 4看護職 + 3特別権限）
-  accountType         String
-  permissionLevel     Decimal  // 1-18, 1.5-4.5, 97-99
-
-  // 看護職リーダー業務可否（0.5レベル加算条件）
-  canPerformLeaderDuty Boolean @default(false)
-
-  // 職種カテゴリ（リーダー業務判定用）
-  professionCategory  String?  // nursing, medical, administrative, etc.
-
-  parentId            String?
-  budgetApprovalLimit Float?
-  stakeholderCategory String?
-  position            String?
-  expertise           Int?
-  hierarchyLevel      Int?
-  isRetired           Boolean        @default(false)
-  retirementDate      DateTime?
-  anonymizedId        String?
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
-  lastLoginAt         DateTime?
-  loginCount          Int            @default(0)
-  auditLogs           AuditLog[]
-  evaluations         Evaluation[]
-  feedbackReceived    Feedback[]     @relation("FeedbackReceiver")
-  feedbackSent        Feedback[]     @relation("FeedbackSender")
-  interviews          Interview[]
-  notifications       Notification[]
-  projects            Project[]
-  surveys             Survey[]
-  reportsSent         PostReport[]   @relation("ReportSender")
-  reportsReviewed     PostReport[]   @relation("ReportReviewer")
-  alertsAcknowledged  PostReportAlert[] @relation("AlertAcknowledger")
-  parent              User?          @relation("UserHierarchy", fields: [parentId], references: [id])
-  children            User[]         @relation("UserHierarchy")
+  id                   String         @id @default(cuid())
+  employeeId           String         @unique
+  email                String         @unique
+  name                 String
+  department           String?
+  facilityId           String?
+  role                 String?
+  avatar               String?
+  accountType          String
+  permissionLevel      Decimal
+  canPerformLeaderDuty Boolean        @default(false)
+  professionCategory   String?
+  parentId             String?
+  budgetApprovalLimit  Float?
+  stakeholderCategory  String?
+  position             String?
+  expertise            Int?
+  hierarchyLevel       Int?
+  isRetired            Boolean        @default(false)
+  retirementDate       DateTime?
+  anonymizedId         String?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  lastLoginAt          DateTime?
+  loginCount           Int            @default(0)
+  auditLogs            AuditLog[]
+  evaluations          Evaluation[]
+  feedbackReceived     Feedback[]     @relation("FeedbackReceiver")
+  feedbackSent         Feedback[]     @relation("FeedbackSender")
+  interviews           Interview[]
+  notifications        Notification[]
+  projects             Project[]
+  surveys              Survey[]
+  reportsSent          PostReport[]   @relation("ReportSender")
+  reportsReviewed      PostReport[]   @relation("ReportReviewer")
+  alertsAcknowledged   PostReportAlert[] @relation("AlertAcknowledger")
+  parent               User?          @relation("UserHierarchy", fields: [parentId], references: [id])
+  children             User[]         @relation("UserHierarchy")
 }
 
 model Notification {
@@ -263,30 +256,19 @@ model ComplianceAcknowledgement {
   @@index([medicalSystemCaseNumber])
 }
 
-// VoiceDriveデータ分析同意管理
 model DataConsent {
-  id                           String    @id @default(cuid())
-  userId                       String    @unique
-
-  // VoiceDrive全体への分析同意（モード区別なし）
-  analyticsConsent             Boolean   @default(false)
-  analyticsConsentDate         DateTime?
-
-  // 個人フィードバックへの同意（Phase 2）
-  personalFeedbackConsent      Boolean   @default(false)
-  personalFeedbackConsentDate  DateTime?
-
-  // 同意取り消し日時
-  revokeDate                   DateTime?
-
-  // データ削除リクエスト
-  dataDeletionRequested        Boolean   @default(false)
-  dataDeletionRequestedAt      DateTime?
-  dataDeletionCompletedAt      DateTime?
-
-  // タイムスタンプ
-  createdAt                    DateTime  @default(now())
-  updatedAt                    DateTime  @updatedAt
+  id                          String    @id @default(cuid())
+  userId                      String    @unique
+  analyticsConsent            Boolean   @default(false)
+  analyticsConsentDate        DateTime?
+  personalFeedbackConsent     Boolean   @default(false)
+  personalFeedbackConsentDate DateTime?
+  revokeDate                  DateTime?
+  dataDeletionRequested       Boolean   @default(false)
+  dataDeletionRequestedAt     DateTime?
+  dataDeletionCompletedAt     DateTime?
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
 
   @@index([userId])
   @@index([analyticsConsent])

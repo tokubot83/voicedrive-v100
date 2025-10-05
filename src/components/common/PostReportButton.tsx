@@ -20,11 +20,18 @@ const PostReportButton: React.FC<PostReportButtonProps> = ({
   const [reportType, setReportType] = useState<ReportType | ''>('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [alreadyReported, setAlreadyReported] = useState(false);
 
   const reportService = PostReportService.getInstance();
 
-  // 既に通報済みかチェック
-  const alreadyReported = reportService.hasUserReported(postId, currentUserId);
+  // 既に通報済みかチェック（非同期）
+  React.useEffect(() => {
+    const checkReportStatus = async () => {
+      const reported = await reportService.hasUserReported(postId, currentUserId);
+      setAlreadyReported(reported);
+    };
+    checkReportStatus();
+  }, [postId, currentUserId]);
 
   const reportTypeOptions = [
     { value: 'personal_attack', label: '個人攻撃', icon: '💥', description: '特定の個人への攻撃的な表現' },

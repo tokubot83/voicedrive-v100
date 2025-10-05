@@ -1,5 +1,6 @@
 // Post Report Service
-// 投稿通報の管理サービス
+// 投稿通報の管理サービス（API連携版）
+// 注意: 開発環境向け暫定実装。共通DB構築後は直接DB接続に切り替え予定
 
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -12,10 +13,16 @@ import {
   ReportStatistics
 } from '../types/report';
 
+// 開発環境のAPIベースURL
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+
 export class PostReportService {
   private static instance: PostReportService;
-  private reports: Map<string, PostReport[]> = new Map(); // postId -> reports[]
-  private alerts: Map<string, ReportAlert> = new Map();   // postId -> alert
+
+  // フォールバック用（APIが利用できない場合）
+  private fallbackReports: Map<string, PostReport[]> = new Map();
+  private fallbackAlerts: Map<string, ReportAlert> = new Map();
+  private useApiFallback: boolean = false;
 
   // 通報閾値設定
   private readonly THRESHOLDS: ReportThreshold = {
@@ -26,7 +33,8 @@ export class PostReportService {
   };
 
   private constructor() {
-    // Initialize
+    // 開発環境用: APIの可用性をチェック
+    this.checkApiAvailability();
   }
 
   static getInstance(): PostReportService {
@@ -34,6 +42,22 @@ export class PostReportService {
       PostReportService.instance = new PostReportService();
     }
     return PostReportService.instance;
+  }
+
+  /**
+   * API可用性チェック（開発環境用）
+   */
+  private async checkApiAvailability(): Promise<void> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/health`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      this.useApiFallback = !response.ok;
+    } catch {
+      this.useApiFallback = true;
+      console.warn('通報API利用不可: フォールバックモードで動作します');
+    }
   }
 
   /**
@@ -48,10 +72,34 @@ export class PostReportService {
     postId: string,
     reporterId: string,
     reportType: ReportType,
-    description?: string
+    description?: string,
+    reporterName?: string
   ): Promise<{ success: boolean; message: string; reportId?: string }> {
-    // 重複チェック（同一ユーザーからの重複通報を防ぐ）
-    const existingReports = this.reports.get(postId) || [];
+    // API利用可能な場合
+    if (!this.useApiFallback) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/posts/${postId}/report`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            reporterId,
+            reporterName,
+            reportType,
+            description
+          })
+        });
+
+        const result = await response.json();
+        return result;
+      } catch (error) {
+        console.error('API通信エラー:', error);
+        // フォールバックモードに切り替え
+        this.useApiFallback = true;
+      }
+    }
+
+    // フォールバック処理（メモリ上で管理）
+    const existingReports = this.fallbackReports.get(postId) || [];
     const alreadyReported = existingReports.some(
       (r) => r.reporterId === reporterId && r.status === 'pending'
     );
@@ -63,7 +111,6 @@ export class PostReportService {
       };
     }
 
-    // 通報を作成
     const report: PostReport = {
       id: uuidv4(),
       postId,
@@ -75,12 +122,12 @@ export class PostReportService {
     };
 
     existingReports.push(report);
-    this.reports.set(postId, existingReports);
+    this.fallbackReports.set(postId, existingReports);
 
-    // 閾値チェックとアラート生成
-    await this.checkThresholdsAndNotify(postId, existingReports);
+    // 閾値チェックとアラート生成（フォールバック）
+    await this.checkThresholdsAndNotifyFallback(postId, existingReports);
 
-    console.log(`通報を受け付けました: ${report.id}`);
+    console.log(`[Fallback] 通報を受け付けました: ${report.id}`);
 
     return {
       success: true,
@@ -90,11 +137,11 @@ export class PostReportService {
   }
 
   /**
-   * 閾値チェックと管理者への通知
+   * 閾値チェックと管理者への通知（フォールバック用）
    * @param postId 投稿ID
    * @param reports 通報リスト
    */
-  private async checkThresholdsAndNotify(
+  private async checkThresholdsAndNotifyFallback(
     postId: string,
     reports: PostReport[]
   ): Promise<void> {
@@ -114,7 +161,7 @@ export class PostReportService {
         acknowledged: false
       };
 
-      this.alerts.set(postId, alert);
+      this.fallbackAlerts.set(postId, alert);
 
       // 管理者への通知（実際の実装ではNotificationServiceを使用）
       await this.notifyAdministrators(alert);
@@ -186,18 +233,16 @@ export class PostReportService {
    * @param alert アラート情報
    */
   private async notifyAdministrators(alert: ReportAlert): Promise<void> {
-    console.log('🔔 管理者への通知:', {
+    // 通知サービスを使用して管理者に通知
+    const { reportNotificationService } = await import('./ReportNotificationService');
+    await reportNotificationService.notifyManagers(alert);
+
+    console.log('🔔 管理者への通知完了:', {
       postId: alert.postId,
       severity: alert.severity,
       reportCount: alert.reportCount,
       message: alert.message
     });
-
-    // 実際の実装では以下を行う：
-    // 1. Level 14以上（人事部）への通知送信
-    // 2. システム管理者（Level 99）への通知
-    // 3. 緊急度に応じてメール・SMS送信
-    // 4. ダッシュボードに警告表示
   }
 
   /**
@@ -206,7 +251,8 @@ export class PostReportService {
    * @returns 通報サマリー（通報がない場合はnull）
    */
   public getReportSummary(postId: string): ReportSummary | null {
-    const reports = this.reports.get(postId);
+    // 現時点ではフォールバックのデータのみ返す（開発環境用）
+    const reports = this.fallbackReports.get(postId);
     if (!reports || reports.length === 0) return null;
 
     const pendingReports = reports.filter((r) => r.status === 'pending');
@@ -241,8 +287,30 @@ export class PostReportService {
    * @param userId ユーザーID
    * @returns 通報済みかどうか
    */
-  public hasUserReported(postId: string, userId: string): boolean {
-    const reports = this.reports.get(postId);
+  public async hasUserReported(postId: string, userId: string): Promise<boolean> {
+    // API利用可能な場合
+    if (!this.useApiFallback) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/posts/${postId}/reports`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const reports = data.data?.reports || [];
+          return reports.some(
+            (r: any) => r.reporterId === userId && r.status === 'pending'
+          );
+        }
+      } catch (error) {
+        console.error('API通信エラー:', error);
+        this.useApiFallback = true;
+      }
+    }
+
+    // フォールバック処理
+    const reports = this.fallbackReports.get(postId);
     if (!reports) return false;
 
     return reports.some(
@@ -266,8 +334,8 @@ export class PostReportService {
     let foundReport: PostReport | null = null;
     let postId: string | null = null;
 
-    // 通報を検索
-    for (const [pid, reports] of this.reports.entries()) {
+    // 通報を検索（フォールバック）
+    for (const [pid, reports] of this.fallbackReports.entries()) {
       const report = reports.find((r) => r.id === reportId);
       if (report) {
         foundReport = report;
@@ -290,8 +358,8 @@ export class PostReportService {
     foundReport.actionTaken = actionTaken;
     foundReport.reviewNotes = reviewNotes;
 
-    // アラートを確認済みにする
-    const alert = this.alerts.get(postId);
+    // アラートを確認済みにする（フォールバック）
+    const alert = this.fallbackAlerts.get(postId);
     if (alert) {
       alert.acknowledged = true;
       alert.acknowledgedBy = reviewerId;
@@ -311,7 +379,7 @@ export class PostReportService {
    * @returns 未確認アラートのリスト
    */
   public getUnacknowledgedAlerts(): ReportAlert[] {
-    return Array.from(this.alerts.values())
+    return Array.from(this.fallbackAlerts.values())
       .filter((alert) => !alert.acknowledged)
       .sort((a, b) => {
         // 重大度でソート
@@ -326,7 +394,7 @@ export class PostReportService {
    */
   public getStatistics(): ReportStatistics {
     const allReports: PostReport[] = [];
-    Array.from(this.reports.values()).forEach((reports) => {
+    Array.from(this.fallbackReports.values()).forEach((reports) => {
       allReports.push(...reports);
     });
 
@@ -342,7 +410,7 @@ export class PostReportService {
 
     // 最も通報が多い投稿TOP5
     const postReportCounts = new Map<string, number>();
-    for (const [postId, reports] of this.reports.entries()) {
+    for (const [postId, reports] of this.fallbackReports.entries()) {
       postReportCounts.set(postId, reports.length);
     }
 
@@ -350,7 +418,7 @@ export class PostReportService {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([postId, reportCount]) => {
-        const reports = this.reports.get(postId)!;
+        const reports = this.fallbackReports.get(postId)!;
         const hasPending = reports.some((r) => r.status === 'pending');
         return {
           postId,
@@ -384,7 +452,7 @@ export class PostReportService {
    * テスト用: 全データをクリア
    */
   public clearAllData(): void {
-    this.reports.clear();
-    this.alerts.clear();
+    this.fallbackReports.clear();
+    this.fallbackAlerts.clear();
   }
 }

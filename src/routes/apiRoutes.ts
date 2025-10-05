@@ -16,6 +16,7 @@ import {
 } from '../services/webhookVerifier';
 import type { AcknowledgementNotification } from '../types/whistleblowing';
 import { ComplianceAcknowledgementService } from '../api/db/complianceAcknowledgementService';
+import * as postReportsAPI from '../api/postReports';
 
 const router = Router();
 
@@ -242,6 +243,58 @@ router.post('/auth/login',
       token, // 実際にはリフレッシュトークンを返す
     });
   }
+);
+
+// ====================
+// 投稿通報API（開発環境向け暫定実装）
+// 注意: 共通DB構築後に本番環境への移行が必要
+// ====================
+
+// 投稿を通報する
+router.post('/posts/:postId/report',
+  standardRateLimit,
+  postReportsAPI.reportPost
+);
+
+// 投稿の通報状況を取得
+router.get('/posts/:postId/reports',
+  authenticateToken,
+  postReportsAPI.getPostReports
+);
+
+// 管理者用: 全通報一覧
+router.get('/admin/reports',
+  authenticateToken,
+  // TODO: 管理者権限チェック (Level 14以上)
+  postReportsAPI.getAllReports
+);
+
+// 管理者用: 通報を確認・対応
+router.put('/admin/reports/:reportId',
+  authenticateToken,
+  // TODO: 管理者権限チェック (Level 14以上)
+  postReportsAPI.reviewReport
+);
+
+// 管理者用: 未確認アラート取得
+router.get('/admin/alerts/unacknowledged',
+  authenticateToken,
+  // TODO: 管理者権限チェック (Level 14以上)
+  postReportsAPI.getUnacknowledgedAlerts
+);
+
+// 管理者用: アラート確認済みにする
+router.put('/admin/alerts/:alertId/acknowledge',
+  authenticateToken,
+  // TODO: 管理者権限チェック (Level 14以上)
+  postReportsAPI.acknowledgeAlert
+);
+
+// 管理者用: 通報統計取得
+router.get('/admin/reports/statistics',
+  authenticateToken,
+  // TODO: 管理者権限チェック (Level 14以上)
+  postReportsAPI.getReportStatistics
 );
 
 // ====================
