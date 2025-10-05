@@ -851,8 +851,8 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
         </div>
       )}
 
-      {/* Data Consent Modal - TODO: Phase 2で再実装 */}
-      {/* <DataConsentModal
+      {/* Data Consent Modal */}
+      <DataConsentModal
         isOpen={showConsentModal}
         onConsent={handleConsent}
         onViewPolicy={handleViewPolicy}
@@ -860,7 +860,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
           setShowConsentModal(false);
           setPendingSubmission(false);
         }}
-      /> */}
+      />
 
       {/* Guidelines Modal */}
       <PostingGuidelinesModal

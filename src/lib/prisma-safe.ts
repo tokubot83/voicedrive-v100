@@ -1,7 +1,8 @@
 // Safe Prisma Client Wrapper for Vercel
 // Vercelのような静的ホスティング環境でのエラーを防ぐラッパー
 
-import type { PrismaClient } from '@prisma/client';
+// 型定義のみ（ブラウザセーフ）
+type PrismaClient = any;
 
 let prismaInstance: PrismaClient | null = null;
 

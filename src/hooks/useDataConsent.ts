@@ -11,7 +11,7 @@ import {
   ConsentStatus,
   ConsentUpdateData,
   ConsentServiceResult
-} from '../services/DataConsentService';
+} from '../services/DataConsentService.client';
 
 export interface UseDataConsentReturn {
   // 状態

@@ -3,11 +3,13 @@
  *
  * VoiceDrive活動データの職員カルテシステム連携における
  * 同意取得・管理機能を提供
+ *
+ * 注意: このサービスはサーバーサイドでのみ動作します。
+ * クライアントサイドではAPIを通じてアクセスしてください。
  */
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+// クライアントサイドでのインポートを防ぐ
+let prisma: any = null;
 
 export interface ConsentStatus {
   userId: string;

@@ -3,7 +3,7 @@ import { User, Bell, Shield, Palette, Smartphone } from 'lucide-react';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { NotificationSettings } from '../components/settings/NotificationSettings';
 import { PWAInstallSettings } from '../components/settings/PWAInstallSettings';
-// import { ConsentSettings } from '../components/settings/ConsentSettings';
+import { ConsentSettings } from '../components/settings/ConsentSettings';
 
 const SettingsPage = () => {
   const { currentUser } = useDemoMode();
@@ -115,8 +115,8 @@ const SettingsPage = () => {
             {/* Privacy Settings */}
             {activeTab === 'privacy' && (
               <div className="space-y-6">
-                {/* VoiceDriveデータ分析同意設定 - TODO: Phase 2で再実装 */}
-                {/* <ConsentSettings userId={currentUser.id || 'demo-user'} /> */}
+                {/* VoiceDriveデータ分析同意設定 */}
+                <ConsentSettings userId={currentUser.id || 'demo-user'} />
 
                 {/* その他のプライバシー設定 */}
                 <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
