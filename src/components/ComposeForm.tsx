@@ -14,6 +14,9 @@ import { ClientModerationService } from '../services/ClientModerationService';
 import PostingGuidelinesModal from './common/PostingGuidelinesModal';
 import { useUser } from '../contexts/UserContext';
 import { medicalSystemWebhook } from '../services/MedicalSystemWebhook';
+import { DataConsentModal } from './consent/DataConsentModal';
+import { useDataConsent } from '../hooks/useDataConsent';
+import { useNavigate } from 'react-router-dom';
 
 interface ComposeFormProps {
   selectedType: PostType;
@@ -62,6 +65,16 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
 
   // Client-side realtime moderation service
   const clientModerationService = ClientModerationService.getInstance();
+
+  // Data consent management
+  const navigate = useNavigate();
+  const {
+    shouldShowModal: shouldShowConsentModal,
+    updateConsent,
+    refreshStatus: refreshConsentStatus
+  } = useDataConsent(user?.id);
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  const [pendingSubmission, setPendingSubmission] = useState(false);
 
   useEffect(() => {
     setSeasonalAdvice(getSeasonalAdvice(selectedType));
@@ -135,6 +148,54 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   };
 
   const handleSubmit = async () => {
+    // 同意モーダルチェック（初回投稿時）
+    if (shouldShowConsentModal) {
+      setShowConsentModal(true);
+      setPendingSubmission(true);
+      return;
+    }
+
+    // 実際の投稿処理を実行
+    await executeSubmission();
+  };
+
+  /**
+   * 同意モーダルでの同意/拒否処理
+   */
+  const handleConsent = async (consented: boolean) => {
+    try {
+      // 同意状態を保存
+      await updateConsent({ analyticsConsent: consented });
+
+      // モーダルを閉じる
+      setShowConsentModal(false);
+
+      // 同意状態をリフレッシュ
+      await refreshConsentStatus();
+
+      // 保留中の投稿を実行
+      if (pendingSubmission) {
+        setPendingSubmission(false);
+        await executeSubmission();
+      }
+    } catch (error) {
+      console.error('[同意処理エラー]', error);
+      alert('同意処理中にエラーが発生しました。');
+    }
+  };
+
+  /**
+   * プライバシーポリシー表示
+   */
+  const handleViewPolicy = () => {
+    // 新しいタブでプライバシーポリシーを開く
+    window.open('/privacy-policy', '_blank');
+  };
+
+  /**
+   * 実際の投稿処理
+   */
+  const executeSubmission = async () => {
     if (!checkCanSubmit(currentProposalCount + 1)) {
       alert(`${capacityInfo.label}期の提案受付上限に達しています。次の季節をお待ちください。`);
       return;
@@ -142,12 +203,12 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
 
     // Content moderation check
     const modResult = await handleContentModeration(content);
-    
+
     if (!modResult.allowed) {
       alert('投稿内容にガイドライン違反の可能性があります。内容を見直してください。');
       return;
     }
-    
+
     if (modResult.recommendedAction === 'warn' && modResult.violations.length > 0) {
       const violationDescriptions = modResult.violations.map(v => v.description).join('\n');
       const confirmed = confirm(
@@ -789,6 +850,17 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
           </div>
         </div>
       )}
+
+      {/* Data Consent Modal */}
+      <DataConsentModal
+        isOpen={showConsentModal}
+        onConsent={handleConsent}
+        onViewPolicy={handleViewPolicy}
+        onClose={() => {
+          setShowConsentModal(false);
+          setPendingSubmission(false);
+        }}
+      />
 
       {/* Guidelines Modal */}
       <PostingGuidelinesModal

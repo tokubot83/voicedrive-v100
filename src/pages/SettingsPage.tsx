@@ -3,6 +3,7 @@ import { User, Bell, Shield, Palette, Smartphone } from 'lucide-react';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { NotificationSettings } from '../components/settings/NotificationSettings';
 import { PWAInstallSettings } from '../components/settings/PWAInstallSettings';
+import { ConsentSettings } from '../components/settings/ConsentSettings';
 
 const SettingsPage = () => {
   const { currentUser } = useDemoMode();
@@ -113,35 +114,29 @@ const SettingsPage = () => {
 
             {/* Privacy Settings */}
             {activeTab === 'privacy' && (
-              <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
-                <h2 className="text-xl font-semibold mb-4">プライバシー設定</h2>
-                <div className="space-y-4">
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-medium text-gray-400">プロフィール公開設定</h3>
-                    <label className="flex items-center justify-between">
-                      <span className="text-gray-300">プロフィールを公開</span>
-                      <input type="checkbox" defaultChecked className="toggle" />
-                    </label>
-                    <label className="flex items-center justify-between">
-                      <span className="text-gray-300">投稿履歴を公開</span>
-                      <input type="checkbox" defaultChecked className="toggle" />
-                    </label>
-                    <label className="flex items-center justify-between">
-                      <span className="text-gray-300">評価スコアを公開</span>
-                      <input type="checkbox" className="toggle" />
-                    </label>
-                  </div>
+              <div className="space-y-6">
+                {/* VoiceDriveデータ分析同意設定 */}
+                <ConsentSettings userId={currentUser.id || 'demo-user'} />
 
-                  <div className="pt-4 border-t border-slate-700">
-                    <h3 className="text-sm font-medium text-gray-400 mb-3">データ共有設定</h3>
-                    <label className="flex items-center justify-between">
-                      <span className="text-gray-300">匿名データの分析利用を許可</span>
-                      <input type="checkbox" defaultChecked className="toggle" />
-                    </label>
-                    <label className="flex items-center justify-between">
-                      <span className="text-gray-300">改善提案の共有を許可</span>
-                      <input type="checkbox" defaultChecked className="toggle" />
-                    </label>
+                {/* その他のプライバシー設定 */}
+                <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                  <h2 className="text-xl font-semibold mb-4">その他のプライバシー設定</h2>
+                  <div className="space-y-4">
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-medium text-gray-400">プロフィール公開設定</h3>
+                      <label className="flex items-center justify-between">
+                        <span className="text-gray-300">プロフィールを公開</span>
+                        <input type="checkbox" defaultChecked className="toggle" />
+                      </label>
+                      <label className="flex items-center justify-between">
+                        <span className="text-gray-300">投稿履歴を公開</span>
+                        <input type="checkbox" defaultChecked className="toggle" />
+                      </label>
+                      <label className="flex items-center justify-between">
+                        <span className="text-gray-300">評価スコアを公開</span>
+                        <input type="checkbox" className="toggle" />
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>

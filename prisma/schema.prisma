@@ -48,6 +48,9 @@ model User {
   notifications       Notification[]
   projects            Project[]
   surveys             Survey[]
+  reportsSent         PostReport[]   @relation("ReportSender")
+  reportsReviewed     PostReport[]   @relation("ReportReviewer")
+  alertsAcknowledged  PostReportAlert[] @relation("AlertAcknowledger")
   parent              User?          @relation("UserHierarchy", fields: [parentId], references: [id])
   children            User[]         @relation("UserHierarchy")
 }
@@ -258,4 +261,85 @@ model ComplianceAcknowledgement {
   @@index([reportId])
   @@index([anonymousId])
   @@index([medicalSystemCaseNumber])
+}
+
+// VoiceDriveデータ分析同意管理
+model DataConsent {
+  id                           String    @id @default(cuid())
+  userId                       String    @unique
+
+  // VoiceDrive全体への分析同意（モード区別なし）
+  analyticsConsent             Boolean   @default(false)
+  analyticsConsentDate         DateTime?
+
+  // 個人フィードバックへの同意（Phase 2）
+  personalFeedbackConsent      Boolean   @default(false)
+  personalFeedbackConsentDate  DateTime?
+
+  // 同意取り消し日時
+  revokeDate                   DateTime?
+
+  // データ削除リクエスト
+  dataDeletionRequested        Boolean   @default(false)
+  dataDeletionRequestedAt      DateTime?
+  dataDeletionCompletedAt      DateTime?
+
+  // タイムスタンプ
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([analyticsConsent])
+}
+
+// 投稿通報システム
+model PostReport {
+  id              String           @id @default(cuid())
+  postId          String
+  alertId         String?
+  reporterId      String
+  reporterName    String?
+  reportType      String           // personal_attack, defamation, harassment, etc.
+  description     String?
+  status          String           @default("pending") // pending, reviewing, actioned, dismissed
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  actionTaken     String?
+  reviewNotes     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  reporter        User             @relation("ReportSender", fields: [reporterId], references: [id])
+  reviewer        User?            @relation("ReportReviewer", fields: [reviewedBy], references: [id])
+  alert           PostReportAlert? @relation(fields: [alertId], references: [id])
+
+  @@index([postId])
+  @@index([reporterId])
+  @@index([status])
+  @@index([reportType])
+  @@index([alertId])
+}
+
+// 通報アラート（閾値超過時の管理者通知）
+model PostReportAlert {
+  id                   String    @id @default(cuid())
+  postId               String    @unique
+  severity             String    // low, medium, high, critical
+  reportCount          Int
+  dominantReportType   String
+  message              String
+  acknowledged         Boolean   @default(false)
+  acknowledgedBy       String?
+  acknowledgedAt       DateTime?
+  autoModerated        Boolean   @default(false)
+  autoModeratedAt      DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  acknowledger         User?     @relation("AlertAcknowledger", fields: [acknowledgedBy], references: [id])
+  reports              PostReport[]
+
+  @@index([postId])
+  @@index([severity])
+  @@index([acknowledged])
 }

@@ -70,6 +70,7 @@ import ErrorBoundary from '../components/common/ErrorBoundary';
 import AuthorityDashboard from '../components/authority/AuthorityDashboard';
 import NotificationsPage from '../pages/NotificationsPage';
 import SettingsPage from '../pages/SettingsPage';
+import PrivacyPolicy from '../pages/PrivacyPolicy';
 
 // Demo pages
 import TimeAxisDemo from '../components/TimeAxisDemo';
@@ -449,7 +450,8 @@ const AppRouter: React.FC = () => {
         {/* Common pages */}
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="settings" element={<SettingsPage />} />
-        
+        <Route path="privacy-policy" element={<PrivacyPolicy />} />
+
         {/* Demo pages */}
         <Route path="demo">
           <Route path="time-axis" element={<TimeAxisDemo />} />
