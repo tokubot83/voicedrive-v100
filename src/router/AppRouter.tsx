@@ -499,6 +499,13 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
       </Route>
+
+      {/* Proposal Management Routes */}
+      <Route path="proposal-management" element={
+        <ProtectedRoute requiredLevel={3.5}>
+          {React.createElement(React.lazy(() => import('../pages/ProposalManagementPage')))}
+        </ProtectedRoute>
+      } />
       <Route path="free-voice-guide" element={<FreeVoiceGuide />} />
       <Route path="compliance-guide" element={<ComplianceGuide />} />
       <Route path="interview-guide" element={<InterviewGuide />} />
