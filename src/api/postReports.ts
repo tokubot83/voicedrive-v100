@@ -2,13 +2,23 @@
 // 投稿通報システムのAPIエンドポイント
 
 import { Request, Response } from 'express';
-import { prisma } from '../lib/prisma';
+import { getPrismaClient } from '../lib/prisma-safe';
 
 /**
  * 投稿を通報する
  * POST /api/posts/:postId/report
  */
 export const reportPost = async (req: Request, res: Response) => {
+  const prisma = await getPrismaClient();
+
+  // Vercel環境の場合はエラーを返す
+  if (!prisma) {
+    return res.status(503).json({
+      success: false,
+      message: 'データベース接続が利用できません（Vercel環境）'
+    });
+  }
+
   try {
     const { postId } = req.params;
     const { reporterId, reporterName, reportType, description } = req.body;

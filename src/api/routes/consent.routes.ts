@@ -130,7 +130,7 @@ router.post('/deletion-completed', async (req: Request, res: Response) => {
         title: 'データ削除が完了しました',
         content: `VoiceDrive分析用データの削除が完了しました。削除件数: ${deletedItemCount}件`,
         target: 'specific',
-        senderId: 'system',
+        senderId: userId, // ユーザー自身を送信者として記録
         status: 'sent',
         sentAt: new Date(),
         recipientCount: 1

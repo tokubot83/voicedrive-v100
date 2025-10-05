@@ -9,9 +9,10 @@
   "scripts": {
     "dev": "vite",
     "dev:api": "tsx src/server.ts",
-    "build": "vite build",
-    "build:vercel": "vite build",
+    "build": "prisma generate && vite build",
+    "build:vercel": "prisma generate && vite build",
     "build:strict": "tsc --noEmit --skipLibCheck && vite build",
+    "postinstall": "prisma generate",
     "preview": "vite preview",
     "preview:pwa": "vite preview --port 4173",
     "type-check": "tsc --noEmit --skipLibCheck",

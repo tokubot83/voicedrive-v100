@@ -46,8 +46,8 @@ async function setupTestData() {
   await prisma.user.create({
     data: {
       id: testUserId,
-      employeeId: 'EMP001',
-      email: 'test001@example.com',
+      employeeId: `TEST-EMP-${timestamp}-001`,
+      email: `test-${timestamp}-001@example.com`,
       name: 'テストユーザー1',
       accountType: 'staff',
       permissionLevel: 1
@@ -57,8 +57,8 @@ async function setupTestData() {
   await prisma.user.create({
     data: {
       id: testUserId2,
-      employeeId: 'EMP002',
-      email: 'test002@example.com',
+      employeeId: `TEST-EMP-${timestamp}-002`,
+      email: `test-${timestamp}-002@example.com`,
       name: 'テストユーザー2',
       accountType: 'staff',
       permissionLevel: 1
@@ -68,8 +68,8 @@ async function setupTestData() {
   await prisma.user.create({
     data: {
       id: testUserId3,
-      employeeId: 'EMP003',
-      email: 'test003@example.com',
+      employeeId: `TEST-EMP-${timestamp}-003`,
+      email: `test-${timestamp}-003@example.com`,
       name: 'テストユーザー3',
       accountType: 'staff',
       permissionLevel: 1
@@ -420,16 +420,22 @@ describe('E2E: データ削除完了フロー', () => {
 describe('パフォーマンステスト', () => {
   it('複数の削除完了通知を並行処理できる', async () => {
     // 複数のテストユーザーを作成
-    const userIds = ['perf-user-1', 'perf-user-2', 'perf-user-3'];
+    const perfTimestamp = Date.now();
+    const userIds = [
+      `perf-user-${perfTimestamp}-1`,
+      `perf-user-${perfTimestamp}-2`,
+      `perf-user-${perfTimestamp}-3`
+    ];
 
     // ユーザーとDataConsentレコードを作成
-    for (const userId of userIds) {
+    for (let i = 0; i < userIds.length; i++) {
+      const userId = userIds[i];
       await prisma.user.create({
         data: {
           id: userId,
-          employeeId: `EMP-${userId}`,
-          email: `${userId}@example.com`,
-          name: `Performance Test User ${userId}`,
+          employeeId: `PERF-EMP-${perfTimestamp}-${i + 1}`,
+          email: `perf-${perfTimestamp}-${i + 1}@example.com`,
+          name: `Performance Test User ${i + 1}`,
           accountType: 'staff',
           permissionLevel: 1
         }
@@ -465,9 +471,13 @@ describe('パフォーマンステスト', () => {
       expect(response.body.success).toBe(true);
     });
 
-    // クリーンアップ
+    // クリーンアップ（外部キー制約を考慮して順序に注意）
     await prisma.auditLog.deleteMany({
       where: { userId: { in: userIds } }
+    });
+
+    await prisma.notification.deleteMany({
+      where: { senderId: { in: userIds } }
     });
 
     await prisma.dataConsent.deleteMany({
