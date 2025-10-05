@@ -16,6 +16,7 @@ export const AuditLogPage: React.FC = () => {
   const [selectedSeverity, setSelectedSeverity] = useState<string>('all');
   const [selectedAction, setSelectedAction] = useState<string>('all');
   const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'all'>('week');
+  const [showLevel99Only, setShowLevel99Only] = useState(false);
 
   // 監査ログの取得
   useEffect(() => {
@@ -33,9 +34,20 @@ export const AuditLogPage: React.FC = () => {
   useEffect(() => {
     let filtered = [...logs];
 
+    // レベル99操作フィルター（最優先）
+    if (showLevel99Only) {
+      filtered = filtered.filter(log =>
+        log.action.includes('SYSTEM_MODE') ||
+        log.action.includes('PERMISSION_LEVEL') ||
+        log.action.includes('EMERGENCY') ||
+        log.action.includes('OVERRIDE') ||
+        (log.severity && (log.severity === 'high' || log.severity === 'critical'))
+      );
+    }
+
     // 検索フィルター
     if (searchTerm) {
-      filtered = filtered.filter(log => 
+      filtered = filtered.filter(log =>
         log.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (log.details && JSON.stringify(log.details).toLowerCase().includes(searchTerm.toLowerCase()))
@@ -72,7 +84,7 @@ export const AuditLogPage: React.FC = () => {
     }
 
     setFilteredLogs(filtered);
-  }, [logs, searchTerm, selectedSeverity, selectedAction, dateRange]);
+  }, [logs, searchTerm, selectedSeverity, selectedAction, dateRange, showLevel99Only]);
 
   // アクションタイプの取得
   const actionTypes = Array.from(new Set(logs.map(log => log.action.split('_')[0]))).sort();
@@ -240,7 +252,20 @@ export const AuditLogPage: React.FC = () => {
                 <option value="month">過去30日間</option>
                 <option value="all">すべて</option>
               </select>
-              
+
+              <button
+                onClick={() => setShowLevel99Only(!showLevel99Only)}
+                className={`px-4 py-3 rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
+                  showLevel99Only
+                    ? 'bg-purple-600 text-white hover:bg-purple-700'
+                    : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
+                }`}
+                title="レベル99（システム管理者）の重要操作のみ表示"
+              >
+                <Shield className="w-4 h-4" />
+                Level 99
+              </button>
+
               <button
                 onClick={handleExport}
                 className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"

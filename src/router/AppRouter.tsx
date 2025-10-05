@@ -125,6 +125,7 @@ import ProfessionalAnalysisPage from '../pages/ProfessionalAnalysisPage';
 import { UserManagementPage } from '../pages/UserManagementPage';
 import { SystemSettingsPage } from '../pages/SystemSettingsPage';
 import { AuditLogPage } from '../pages/AuditLogPage';
+import { ModeSwitcherPage } from '../pages/admin/ModeSwitcherPage';
 
 // Appeal pages
 import AppealV3Page from '../pages/AppealV3Page';
@@ -565,6 +566,11 @@ const AppRouter: React.FC = () => {
       <Route path="admin/system-settings" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
           <SystemSettingsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="admin/mode-switcher" element={
+        <ProtectedRoute requiredLevel={99}>
+          <ModeSwitcherPage />
         </ProtectedRoute>
       } />
       <Route path="admin/audit-logs" element={

@@ -649,4 +649,116 @@ export class AuditService {
       integrityIssues
     };
   }
+
+  /**
+   * 簡易ログ記録メソッド（静的アクセス用）
+   * レベル99の重要操作を含む全ての操作を記録
+   */
+  static log(params: {
+    userId: string;
+    action: string;
+    details?: any;
+    severity?: 'low' | 'medium' | 'high' | 'critical';
+    targetId?: string;
+  }): void {
+    const instance = AuditService.getInstance();
+
+    // デモ環境用: コンソールログ
+    const timestamp = new Date().toISOString();
+    const logEntry = {
+      timestamp,
+      userId: params.userId,
+      action: params.action,
+      details: params.details,
+      severity: params.severity || 'medium',
+      targetId: params.targetId
+    };
+
+    // レベル99の操作は必ず high 以上
+    if (params.action.includes('SYSTEM_MODE') ||
+        params.action.includes('PERMISSION_LEVEL') ||
+        params.action.includes('EMERGENCY')) {
+      logEntry.severity = 'high';
+    }
+
+    console.log(`[AuditLog][${logEntry.severity.toUpperCase()}]`, logEntry);
+
+    // TODO: 本番環境では Prisma でDBに保存
+    /*
+    await prisma.auditLog.create({
+      data: {
+        userId: params.userId,
+        action: params.action,
+        entityType: 'system',
+        entityId: params.targetId || 'system',
+        oldValues: {},
+        newValues: params.details,
+        ipAddress: null,
+        userAgent: null
+      }
+    });
+    */
+  }
+
+  /**
+   * レベル99の操作を取得
+   */
+  getLevel99Actions(): AuditLogEntry[] {
+    return Array.from(this.auditLogs.values()).filter(log =>
+      log.actionType.includes('SYSTEM') ||
+      log.actionType.includes('EMERGENCY') ||
+      log.actionType.includes('OVERRIDE')
+    );
+  }
+
+  /**
+   * 最近のログを取得（時系列順）
+   */
+  getRecentLogs(limit: number = 100): AuditLog[] {
+    const logs = Array.from(this.auditLogs.values())
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, limit);
+
+    return logs.map(log => ({
+      id: log.id,
+      userId: log.actorId,
+      action: log.actionType,
+      details: {
+        previousState: log.previousState,
+        newState: log.newState,
+        reason: log.reason
+      },
+      timestamp: log.timestamp,
+      severity: this.calculateSeverity(log)
+    }));
+  }
+
+  /**
+   * ログの重要度を計算
+   */
+  private calculateSeverity(log: AuditLogEntry): 'low' | 'medium' | 'high' | 'critical' {
+    if (log.actionType.includes('EMERGENCY') || log.actionType.includes('SYSTEM_MODE')) {
+      return 'critical';
+    }
+    if (log.actionType.includes('OVERRIDE') || log.actionType.includes('PERMISSION')) {
+      return 'high';
+    }
+    if (log.actionType.includes('DELETION') || log.actionType.includes('SUSPENSION')) {
+      return 'medium';
+    }
+    return 'low';
+  }
+}
+
+// Export singleton instance
+export default AuditService.getInstance();
+
+// Export types
+export interface AuditLog {
+  id: string;
+  userId: string;
+  action: string;
+  details: any;
+  timestamp: Date;
+  severity?: 'low' | 'medium' | 'high' | 'critical';
 }
