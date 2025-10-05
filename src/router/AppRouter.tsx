@@ -122,10 +122,11 @@ import UserAnalysisPage from '../pages/UserAnalysisPage';
 import ProfessionalAnalysisPage from '../pages/ProfessionalAnalysisPage';
 
 // Admin pages
-import { UserManagementPage } from '../pages/UserManagementPage';
 import { SystemSettingsPage } from '../pages/SystemSettingsPage';
 import { AuditLogPage } from '../pages/AuditLogPage';
 import { ModeSwitcherPage } from '../pages/admin/ModeSwitcherPage';
+import { UserManagementPage } from '../pages/admin/UserManagementPage';
+import { SystemMonitorPage } from '../pages/admin/SystemMonitorPage';
 
 // Appeal pages
 import AppealV3Page from '../pages/AppealV3Page';
@@ -583,6 +584,16 @@ const AppRouter: React.FC = () => {
       <Route path="admin/mode-switcher" element={
         <ProtectedRoute requiredLevel={99}>
           <ModeSwitcherPage />
+        </ProtectedRoute>
+      } />
+      <Route path="admin/user-management" element={
+        <ProtectedRoute requiredLevel={99}>
+          <UserManagementPage />
+        </ProtectedRoute>
+      } />
+      <Route path="admin/system-monitor" element={
+        <ProtectedRoute requiredLevel={99}>
+          <SystemMonitorPage />
         </ProtectedRoute>
       } />
       <Route path="admin/audit-logs" element={

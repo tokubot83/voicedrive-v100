@@ -85,6 +85,28 @@ export const COMMON_MENU_ITEMS: Record<string, MenuItem> = {
     path: '/admin/mode-switcher',
     requiredLevel: 99, // レベルXのみ
     category: 'common'
+  },
+
+  // ユーザー管理（レベルX専用）
+  user_management: {
+    id: 'user_management',
+    title: 'ユーザー管理',
+    label: 'ユーザー管理',
+    icon: '👥',
+    path: '/admin/user-management',
+    requiredLevel: 99, // レベルXのみ
+    category: 'common'
+  },
+
+  // システム監視（レベルX専用）
+  system_monitor: {
+    id: 'system_monitor',
+    title: 'システム監視',
+    label: 'システム監視',
+    icon: '📊',
+    path: '/admin/system-monitor',
+    requiredLevel: 99, // レベルXのみ
+    category: 'common'
   }
 };
 
@@ -105,6 +127,8 @@ export function getCommonMenuItems(permissionLevel: number | string): MenuItem[]
   // レベルXの場合、システム設定とモード切り替えを追加
   if (permissionLevel === 'X' || permissionLevel === 99) {
     items.push(COMMON_MENU_ITEMS.system_settings);
+    items.push(COMMON_MENU_ITEMS.user_management);
+    items.push(COMMON_MENU_ITEMS.system_monitor);
     items.push(COMMON_MENU_ITEMS.mode_switcher);
   }
 

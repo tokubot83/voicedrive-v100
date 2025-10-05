@@ -99,8 +99,108 @@ export const SystemSettingsPage: React.FC = () => {
     }
   });
 
+  const [databaseSettings, setDatabaseSettings] = useState<Record<string, SystemSetting>>({
+    autoBackup: {
+      key: 'autoBackup',
+      value: true,
+      type: 'boolean',
+      description: '自動バックアップを有効化'
+    },
+    backupInterval: {
+      key: 'backupInterval',
+      value: 24,
+      type: 'number',
+      description: 'バックアップ間隔（時間）'
+    },
+    dataRetention: {
+      key: 'dataRetention',
+      value: 365,
+      type: 'number',
+      description: 'データ保持期間（日）'
+    },
+    compressionEnabled: {
+      key: 'compressionEnabled',
+      value: true,
+      type: 'boolean',
+      description: 'データ圧縮を有効化'
+    },
+    queryTimeout: {
+      key: 'queryTimeout',
+      value: 30,
+      type: 'number',
+      description: 'クエリタイムアウト（秒）'
+    }
+  });
+
+  const [apiSettings, setApiSettings] = useState<Record<string, SystemSetting>>({
+    apiEnabled: {
+      key: 'apiEnabled',
+      value: true,
+      type: 'boolean',
+      description: 'API機能を有効化'
+    },
+    rateLimit: {
+      key: 'rateLimit',
+      value: 1000,
+      type: 'number',
+      description: 'レート制限（リクエスト/時）'
+    },
+    corsEnabled: {
+      key: 'corsEnabled',
+      value: true,
+      type: 'boolean',
+      description: 'CORSを有効化'
+    },
+    apiKeyRotation: {
+      key: 'apiKeyRotation',
+      value: 90,
+      type: 'number',
+      description: 'APIキーローテーション（日）'
+    },
+    webhookEnabled: {
+      key: 'webhookEnabled',
+      value: false,
+      type: 'boolean',
+      description: 'Webhookを有効化'
+    }
+  });
+
+  const [advancedSettings, setAdvancedSettings] = useState<Record<string, SystemSetting>>({
+    logLevel: {
+      key: 'logLevel',
+      value: 'info',
+      type: 'select',
+      options: ['debug', 'info', 'warn', 'error'],
+      description: 'ログレベル'
+    },
+    cacheEnabled: {
+      key: 'cacheEnabled',
+      value: true,
+      type: 'boolean',
+      description: 'キャッシュを有効化'
+    },
+    cacheDuration: {
+      key: 'cacheDuration',
+      value: 3600,
+      type: 'number',
+      description: 'キャッシュ保持時間（秒）'
+    },
+    performanceMonitoring: {
+      key: 'performanceMonitoring',
+      value: true,
+      type: 'boolean',
+      description: 'パフォーマンス監視を有効化'
+    },
+    debugMode: {
+      key: 'debugMode',
+      value: false,
+      type: 'boolean',
+      description: 'デバッグモード'
+    }
+  });
+
   const handleSettingChange = (
-    category: 'general' | 'security' | 'notification',
+    category: 'general' | 'security' | 'notification' | 'database' | 'api' | 'advanced',
     key: string,
     value: any
   ) => {
@@ -122,6 +222,24 @@ export const SystemSettingsPage: React.FC = () => {
         break;
       case 'notification':
         setNotificationSettings(prev => ({
+          ...prev,
+          [key]: { ...prev[key], value }
+        }));
+        break;
+      case 'database':
+        setDatabaseSettings(prev => ({
+          ...prev,
+          [key]: { ...prev[key], value }
+        }));
+        break;
+      case 'api':
+        setApiSettings(prev => ({
+          ...prev,
+          [key]: { ...prev[key], value }
+        }));
+        break;
+      case 'advanced':
+        setAdvancedSettings(prev => ({
           ...prev,
           [key]: { ...prev[key], value }
         }));
@@ -150,6 +268,15 @@ export const SystemSettingsPage: React.FC = () => {
           ),
           notificationSettings: Object.fromEntries(
             Object.entries(notificationSettings).map(([k, v]) => [k, v.value])
+          ),
+          databaseSettings: Object.fromEntries(
+            Object.entries(databaseSettings).map(([k, v]) => [k, v.value])
+          ),
+          apiSettings: Object.fromEntries(
+            Object.entries(apiSettings).map(([k, v]) => [k, v.value])
+          ),
+          advancedSettings: Object.fromEntries(
+            Object.entries(advancedSettings).map(([k, v]) => [k, v.value])
           )
         },
         severity: 'high'
@@ -167,7 +294,7 @@ export const SystemSettingsPage: React.FC = () => {
     }
   };
 
-  const renderSettingInput = (setting: SystemSetting, category: 'general' | 'security' | 'notification') => {
+  const renderSettingInput = (setting: SystemSetting, category: 'general' | 'security' | 'notification' | 'database' | 'api' | 'advanced') => {
     switch (setting.type) {
       case 'boolean':
         return (
@@ -219,7 +346,7 @@ export const SystemSettingsPage: React.FC = () => {
     }
   };
 
-  const renderSettings = (settings: Record<string, SystemSetting>, category: 'general' | 'security' | 'notification') => (
+  const renderSettings = (settings: Record<string, SystemSetting>, category: 'general' | 'security' | 'notification' | 'database' | 'api' | 'advanced') => (
     <div className="space-y-6">
       {Object.entries(settings).map(([key, setting]) => (
         <div key={key} className="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg">
@@ -322,26 +449,109 @@ export const SystemSettingsPage: React.FC = () => {
           )}
 
           {activeTab === 'database' && (
-            <div className="text-center py-12">
-              <Database className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-white mb-2">データベース設定</h3>
-              <p className="text-gray-400">この機能は現在開発中です</p>
+            <div>
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <Database className="w-5 h-5" />
+                データベース設定
+              </h2>
+              {renderSettings(databaseSettings, 'database')}
+
+              {/* データベース操作ボタン */}
+              <div className="mt-6 p-4 bg-gray-700/30 rounded-lg border border-gray-600/50">
+                <h3 className="text-sm font-semibold text-white mb-3">データベース操作</h3>
+                <div className="flex flex-wrap gap-3">
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                    手動バックアップ実行
+                  </button>
+                  <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                    最適化実行
+                  </button>
+                  <button className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm">
+                    整合性チェック
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
           {activeTab === 'api' && (
-            <div className="text-center py-12">
-              <Globe className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-white mb-2">API設定</h3>
-              <p className="text-gray-400">この機能は現在開発中です</p>
+            <div>
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <Globe className="w-5 h-5" />
+                API設定
+              </h2>
+              {renderSettings(apiSettings, 'api')}
+
+              {/* API情報 */}
+              <div className="mt-6 p-4 bg-gray-700/30 rounded-lg border border-gray-600/50">
+                <h3 className="text-sm font-semibold text-white mb-3">API情報</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">APIエンドポイント:</span>
+                    <span className="text-white font-mono">https://api.voicedrive.local/v1</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">現在のAPIバージョン:</span>
+                    <span className="text-white">v1.0.0</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">APIキー有効期限:</span>
+                    <span className="text-white">2025-12-31</span>
+                  </div>
+                </div>
+                <button className="mt-4 w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                  APIキーを再生成
+                </button>
+              </div>
             </div>
           )}
 
           {activeTab === 'advanced' && (
-            <div className="text-center py-12">
-              <Sliders className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-white mb-2">詳細設定</h3>
-              <p className="text-gray-400">この機能は現在開発中です</p>
+            <div>
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <Sliders className="w-5 h-5" />
+                詳細設定
+              </h2>
+              {renderSettings(advancedSettings, 'advanced')}
+
+              {/* システム情報 */}
+              <div className="mt-6 p-4 bg-gray-700/30 rounded-lg border border-gray-600/50">
+                <h3 className="text-sm font-semibold text-white mb-3">システム情報</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">VoiceDriveバージョン:</span>
+                    <span className="text-white">v1.0.0</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Node.jsバージョン:</span>
+                    <span className="text-white">{typeof process !== 'undefined' ? process.version : 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">稼働時間:</span>
+                    <span className="text-white">72時間 15分</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">最終起動:</span>
+                    <span className="text-white">2025-10-02 09:30:00</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 危険な操作 */}
+              <div className="mt-6 p-4 bg-red-500/10 rounded-lg border border-red-500/50">
+                <h3 className="text-sm font-semibold text-red-400 mb-3 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  危険な操作
+                </h3>
+                <div className="space-y-2">
+                  <button className="w-full px-4 py-2 bg-red-600/20 text-red-400 border border-red-600/50 rounded-lg hover:bg-red-600/30 transition-colors text-sm">
+                    全キャッシュクリア
+                  </button>
+                  <button className="w-full px-4 py-2 bg-red-600/20 text-red-400 border border-red-600/50 rounded-lg hover:bg-red-600/30 transition-colors text-sm">
+                    システム再起動
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
