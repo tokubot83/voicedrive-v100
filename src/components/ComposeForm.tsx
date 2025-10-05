@@ -14,8 +14,8 @@ import { ClientModerationService } from '../services/ClientModerationService';
 import PostingGuidelinesModal from './common/PostingGuidelinesModal';
 import { useUser } from '../contexts/UserContext';
 import { medicalSystemWebhook } from '../services/MedicalSystemWebhook';
-import { DataConsentModal } from './consent/DataConsentModal';
-import { useDataConsent } from '../hooks/useDataConsent';
+// import { DataConsentModal } from './consent/DataConsentModal';
+// import { useDataConsent } from '../hooks/useDataConsent';
 import { useNavigate } from 'react-router-dom';
 
 interface ComposeFormProps {
@@ -68,11 +68,10 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
 
   // Data consent management
   const navigate = useNavigate();
-  const {
-    shouldShowModal: shouldShowConsentModal,
-    updateConsent,
-    refreshStatus: refreshConsentStatus
-  } = useDataConsent(user?.id);
+  // TODO: データ同意機能は一旦無効化（Phase 2で再実装）
+  const shouldShowConsentModal = false;
+  const updateConsent = async () => ({ success: true, message: '' });
+  const refreshConsentStatus = async () => {};
   const [showConsentModal, setShowConsentModal] = useState(false);
   const [pendingSubmission, setPendingSubmission] = useState(false);
 
@@ -851,8 +850,8 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
         </div>
       )}
 
-      {/* Data Consent Modal */}
-      <DataConsentModal
+      {/* Data Consent Modal - TODO: Phase 2で再実装 */}
+      {/* <DataConsentModal
         isOpen={showConsentModal}
         onConsent={handleConsent}
         onViewPolicy={handleViewPolicy}
@@ -860,7 +859,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
           setShowConsentModal(false);
           setPendingSubmission(false);
         }}
-      />
+      /> */}
 
       {/* Guidelines Modal */}
       <PostingGuidelinesModal
