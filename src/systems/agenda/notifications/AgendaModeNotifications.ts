@@ -154,7 +154,7 @@ export class AgendaModeNotifications {
       icon: '📄',
       type: 'success',
       actionText: '提案書を確認',
-      actionUrl: `/idea-voice/proposal/${documentId}`
+      actionUrl: `/proposal-management/document/${documentId}`
     };
   }
 

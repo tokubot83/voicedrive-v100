@@ -11,44 +11,26 @@ import { PermissionLevel, SpecialPermissionLevel } from '../permissions/types/Pe
  * 議題モード専用メニュー項目
  */
 export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
-  // アイデアボイスハブ
-  idea_voice_hub: {
-    id: 'idea_voice_hub',
-    title: 'アイデアボイスハブ',
-    label: 'アイデアボイスハブ',
+  // アイデアボイス
+  idea_voice: {
+    id: 'idea_voice',
+    title: 'アイデアボイス',
+    label: 'アイデアボイス',
     icon: '💡',
     path: '/idea-voice',
     requiredLevel: 1,
-    category: 'agenda',
-    children: [
-      {
-        id: 'post_tracking',
-        title: '投稿の追跡',
-        label: '投稿の追跡',
-        icon: '📍',
-        path: '/idea-voice/progress',
-        requiredLevel: 1,
-        category: 'agenda'
-      },
-      {
-        id: 'proposal_creation',
-        title: '議題提案書作成',
-        label: '議題提案書作成',
-        icon: '📄',
-        path: '/idea-voice/proposal',
-        requiredLevel: 5,
-        category: 'agenda'
-      },
-      {
-        id: 'voting_analytics',
-        title: '投票分析',
-        label: '投票分析',
-        icon: '📈',
-        path: '/idea-voice/analytics',
-        requiredLevel: 3.5,
-        category: 'agenda'
-      }
-    ]
+    category: 'agenda'
+  },
+
+  // 投稿の追跡（レベル1+）
+  post_tracking: {
+    id: 'post_tracking',
+    title: '投稿の追跡',
+    label: '投稿の追跡',
+    icon: '📍',
+    path: '/idea-voice/progress',
+    requiredLevel: 1,
+    category: 'agenda'
   },
 
   // 投稿管理（レベル3.5+）
@@ -387,64 +369,64 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
  */
 export const AGENDA_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
   // レベル1：新人（1年目）
-  1: ['idea_voice_hub'],
+  1: ['idea_voice', 'post_tracking'],
 
   // レベル1.5：新人看護師（リーダー可）
-  1.5: ['idea_voice_hub'],
+  1.5: ['idea_voice', 'post_tracking'],
 
   // レベル2：若手（2-3年目）
-  2: ['idea_voice_hub', 'department_board'],
+  2: ['idea_voice', 'post_tracking', 'department_board'],
 
   // レベル2.5：若手看護師（リーダー可）
-  2.5: ['idea_voice_hub', 'department_board'],
+  2.5: ['idea_voice', 'post_tracking', 'department_board'],
 
   // レベル3：中堅（4-10年目）
-  3: ['idea_voice_hub', 'department_board'],
+  3: ['idea_voice', 'post_tracking', 'department_board'],
 
   // レベル3.5：中堅看護師（リーダー可）
-  3.5: ['idea_voice_hub', 'proposal_management', 'department_board', 'team_dashboard'],
+  3.5: ['idea_voice', 'post_tracking', 'proposal_management', 'department_board', 'team_dashboard'],
 
   // レベル4：ベテラン（11年以上）
-  4: ['idea_voice_hub', 'department_board'],
+  4: ['idea_voice', 'post_tracking', 'department_board'],
 
   // レベル4.5：ベテラン看護師（リーダー可）
-  4.5: ['idea_voice_hub', 'proposal_management', 'department_board', 'team_dashboard'],
+  4.5: ['idea_voice', 'post_tracking', 'proposal_management', 'department_board', 'team_dashboard'],
 
   // レベル5：副主任
-  5: ['idea_voice_hub', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review'],
+  5: ['idea_voice', 'post_tracking', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review'],
 
   // レベル6：主任
-  6: ['idea_voice_hub', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review', 'rapid_implementation'],
+  6: ['idea_voice', 'post_tracking', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review', 'rapid_implementation'],
 
   // レベル7：副師長・副科長・副課長
   7: [
-    'idea_voice_hub', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review',
+    'idea_voice', 'post_tracking', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review',
     'rapid_implementation', 'department_station', 'committee_tools', 'agenda_generator'
   ],
 
   // レベル8：師長・科長・課長・室長
   8: [
-    'idea_voice_hub', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review',
+    'idea_voice', 'post_tracking', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review',
     'rapid_implementation', 'department_station', 'committee_tools', 'agenda_generator', 'committee_bridge'
   ],
 
   // レベル9：副部長
   9: [
-    'idea_voice_hub', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review',
+    'idea_voice', 'post_tracking', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review',
     'rapid_implementation', 'department_station', 'committee_tools', 'agenda_generator',
     'committee_bridge', 'project_governance', 'cross_department'
   ],
 
   // レベル10：部長・医局長
   10: [
-    'idea_voice_hub', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review',
+    'idea_voice', 'post_tracking', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review',
     'rapid_implementation', 'department_station', 'committee_tools', 'agenda_generator',
     'committee_bridge', 'project_governance', 'cross_department', 'management_committee', 'facility_governance'
   ],
 
   // レベル11：事務長
   11: [
-    'idea_voice_hub', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review',
+    'idea_voice', 'post_tracking', 'proposal_management', 'department_board', 'team_dashboard', 'proposal_review',
     'rapid_implementation', 'department_station', 'committee_tools', 'agenda_generator',
     'committee_bridge', 'project_governance', 'cross_department', 'management_committee',
     'facility_governance', 'facility_management', 'strategic_initiatives', 'budget_management'
@@ -452,39 +434,39 @@ export const AGENDA_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
 
   // レベル12：副院長
   12: [
-    'idea_voice_hub', 'strategic_decision', 'executive_dashboard', 'medical_governance'
+    'idea_voice', 'post_tracking', 'strategic_decision', 'executive_dashboard', 'medical_governance'
   ],
 
   // レベル13：院長・施設長
   13: [
-    'idea_voice_hub', 'strategic_decision', 'executive_dashboard', 'decision_meeting'
+    'idea_voice', 'post_tracking', 'strategic_decision', 'executive_dashboard', 'decision_meeting'
   ],
 
   // レベル14：人事部門員
   14: [
-    'idea_voice_hub', 'voice_analytics', 'culture_development', 'emergency_account_deactivation'
+    'idea_voice', 'post_tracking', 'voice_analytics', 'culture_development', 'emergency_account_deactivation'
   ],
 
   // レベル15：人事各部門長
   15: [
-    'idea_voice_hub', 'voice_analytics', 'culture_development', 'organization_insight', 'emergency_account_deactivation'
+    'idea_voice', 'post_tracking', 'voice_analytics', 'culture_development', 'organization_insight', 'emergency_account_deactivation'
   ],
 
   // レベル16：戦略企画・統括管理部門員
   16: [
-    'idea_voice_hub', 'voice_analytics', 'culture_development', 'organization_insight',
+    'idea_voice', 'post_tracking', 'voice_analytics', 'culture_development', 'organization_insight',
     'strategic_hr_plan', 'executive_report', 'emergency_account_deactivation'
   ],
 
   // レベル17：戦略企画・統括管理部門長
   17: [
-    'idea_voice_hub', 'voice_analytics', 'culture_development', 'organization_insight',
+    'idea_voice', 'post_tracking', 'voice_analytics', 'culture_development', 'organization_insight',
     'strategic_hr_plan', 'executive_report', 'board_preparation', 'emergency_account_deactivation'
   ],
 
   // レベル18：理事長・法人事務局長
   18: [
-    'idea_voice_hub', 'board_function', 'strategic_governance', 'final_approval'
+    'idea_voice', 'post_tracking', 'board_function', 'strategic_governance', 'final_approval'
   ],
 
   // レベルX：システム管理者（全アクセス）
