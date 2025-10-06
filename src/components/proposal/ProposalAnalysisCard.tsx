@@ -4,21 +4,29 @@
  */
 
 import React, { useState } from 'react';
-import { Post } from '../../types';
+import { Post, User } from '../../types';
 import { AgendaLevel } from '../../types/committee';
 import { VoteAnalysis, CommentAnalysis } from '../../types/proposalDocument';
-import { BarChart3, MessageSquare, TrendingUp, Users, Calendar, Star, Send } from 'lucide-react';
+import { BarChart3, MessageSquare, TrendingUp, Users, Calendar, Star, Send, Clock, ThumbsUp, ThumbsDown, Pause, FileText, AlertCircle } from 'lucide-react';
 import { analyzeVotes, analyzeComments } from '../../utils/proposalAnalyzer';
 import { proposalPermissionService } from '../../services/ProposalPermissionService';
+import AgendaDeadlineManager from '../../utils/agendaDeadlineManager';
+import { AgendaResponsibilityService, ResponsibilityAction } from '../../systems/agenda/services/AgendaResponsibilityService';
 
 interface ProposalAnalysisCardProps {
   post: Post;
   agendaLevel: AgendaLevel;
   currentScore: number;
   canEdit: boolean;  // 編集権限があるか
+  currentUser?: User;  // 現在のユーザー
   onCreateDocument?: () => void;
   onMarkAsCandidate?: () => void;
   isMarkedAsCandidate?: boolean;
+  // 責任者判断アクション
+  onApprovalLevelUp?: () => void;
+  onReject?: (feedback: string) => void;
+  onHold?: (feedback: string) => void;
+  onDepartmentMatter?: (feedback: string) => void;
 }
 
 export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
@@ -26,11 +34,18 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
   agendaLevel,
   currentScore,
   canEdit,
+  currentUser,
   onCreateDocument,
   onMarkAsCandidate,
-  isMarkedAsCandidate = false
+  isMarkedAsCandidate = false,
+  onApprovalLevelUp,
+  onReject,
+  onHold,
+  onDepartmentMatter
 }) => {
   const [showDetails, setShowDetails] = useState(false);
+  const [showActionModal, setShowActionModal] = useState<ResponsibilityAction | null>(null);
+  const [actionFeedback, setActionFeedback] = useState('');
 
   const voteAnalysis = analyzeVotes(post);
   const commentAnalysis = analyzeComments(post);
@@ -38,6 +53,28 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
   // 議題レベルの責任情報を取得
   const responsibility = proposalPermissionService.getResponsibility(agendaLevel);
   const targetCommittee = responsibility?.targetCommittee;
+
+  // 期限情報を取得
+  const deadlineInfo = post.agendaDeadline
+    ? AgendaDeadlineManager.getDeadlineInfo(
+        post.agendaDeadline,
+        post.agendaDeadlineExtensions || 0
+      )
+    : null;
+  const deadlineMessage = deadlineInfo
+    ? AgendaDeadlineManager.getDeadlineMessage(deadlineInfo)
+    : null;
+  const deadlineStatusMessage = AgendaResponsibilityService.getDeadlineStatusMessage(post);
+
+  // 責任者アクションの実行可否を確認
+  const responsibilityPermissions = currentUser
+    ? {
+        approveLevelUp: AgendaResponsibilityService.canPerformAction(post, 'approve_levelup', currentUser.permissionLevel),
+        reject: AgendaResponsibilityService.canPerformAction(post, 'reject', currentUser.permissionLevel),
+        hold: AgendaResponsibilityService.canPerformAction(post, 'hold', currentUser.permissionLevel),
+        departmentMatter: AgendaResponsibilityService.canPerformAction(post, 'department_matter', currentUser.permissionLevel)
+      }
+    : null;
 
   // 議題レベルのラベルと色
   const levelConfig = {
@@ -90,6 +127,66 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
           )}
         </div>
       </div>
+
+      {/* 期限表示セクション */}
+      {post.agendaDeadline && deadlineInfo && (
+        <div className={`p-4 border-b border-gray-700/50 ${
+          deadlineInfo.isExpired ? 'bg-red-900/10' :
+          deadlineInfo.isNearExpiration ? 'bg-orange-900/10' :
+          'bg-blue-900/10'
+        }`}>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Clock className={`w-4 h-4 ${
+                deadlineInfo.isExpired ? 'text-red-400' :
+                deadlineInfo.isNearExpiration ? 'text-orange-400' :
+                'text-blue-400'
+              }`} />
+              <span className={`text-sm font-medium ${
+                deadlineInfo.isExpired ? 'text-red-400' :
+                deadlineInfo.isNearExpiration ? 'text-orange-400' :
+                'text-blue-400'
+              }`}>
+                {deadlineInfo.isExpired ? '投票期限終了' : '投票期限'}
+              </span>
+            </div>
+            <span className={`text-sm font-bold ${
+              deadlineInfo.isExpired ? 'text-red-400' :
+              deadlineInfo.isNearExpiration ? 'text-orange-400' :
+              'text-blue-400'
+            }`}>
+              {deadlineInfo.isExpired
+                ? `終了（${AgendaDeadlineManager.formatDeadline(post.agendaDeadline)}）`
+                : AgendaDeadlineManager.formatDeadline(post.agendaDeadline)
+              }
+            </span>
+          </div>
+          {deadlineInfo.extensionCount && deadlineInfo.extensionCount > 0 && (
+            <div className="text-xs text-orange-400 mb-1">
+              延長{deadlineInfo.extensionCount}回
+            </div>
+          )}
+          {deadlineMessage && (
+            <div className={`text-xs ${
+              deadlineMessage.severity === 'error' ? 'text-red-400' :
+              deadlineMessage.severity === 'warning' ? 'text-orange-400' :
+              'text-blue-400'
+            }`}>
+              {deadlineMessage.message}
+            </div>
+          )}
+          {deadlineStatusMessage && (
+            <div className={`mt-2 p-2 rounded text-xs ${
+              deadlineStatusMessage.type === 'info' ? 'bg-blue-900/20 text-blue-300 border border-blue-500/30' :
+              deadlineStatusMessage.type === 'warning' ? 'bg-orange-900/20 text-orange-300 border border-orange-500/30' :
+              'bg-green-900/20 text-green-300 border border-green-500/30'
+            }`}>
+              <AlertCircle className="w-3 h-3 inline mr-1" />
+              {deadlineStatusMessage.message}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 統計サマリー */}
       <div className="p-4 grid grid-cols-3 gap-4">
@@ -209,30 +306,160 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
       )}
 
       {/* アクションボタン */}
-      <div className="p-4 border-t border-gray-700/50 flex gap-2">
-        {onMarkAsCandidate && (
-          <button
-            onClick={onMarkAsCandidate}
-            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
-              isMarkedAsCandidate
-                ? 'bg-yellow-900/30 text-yellow-400 hover:bg-yellow-900/50'
-                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
-            }`}
-          >
-            <Star className={`w-4 h-4 ${isMarkedAsCandidate ? 'fill-yellow-400' : ''}`} />
-            {isMarkedAsCandidate ? '候補マーク済み' : '議題候補としてマーク'}
-          </button>
-        )}
-        {onCreateDocument && canEdit && (
-          <button
-            onClick={onCreateDocument}
-            className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-          >
-            <TrendingUp className="w-4 h-4" />
-            議題提案書を作成
-          </button>
+      <div className="p-4 border-t border-gray-700/50 space-y-2">
+        {/* 通常アクション（常に表示） */}
+        <div className="flex gap-2">
+          {onMarkAsCandidate && (
+            <button
+              onClick={onMarkAsCandidate}
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                isMarkedAsCandidate
+                  ? 'bg-yellow-900/30 text-yellow-400 hover:bg-yellow-900/50'
+                  : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              <Star className={`w-4 h-4 ${isMarkedAsCandidate ? 'fill-yellow-400' : ''}`} />
+              {isMarkedAsCandidate ? '候補マーク済み' : '議題候補としてマーク'}
+            </button>
+          )}
+          {onCreateDocument && canEdit && (
+            <button
+              onClick={onCreateDocument}
+              className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              議題提案書を作成
+            </button>
+          )}
+        </div>
+
+        {/* 責任者判断アクション（権限と期限に応じて表示） */}
+        {responsibilityPermissions && canEdit && (
+          <div className="space-y-2">
+            <div className="text-xs text-gray-400 font-medium">責任者判断アクション</div>
+            <div className="grid grid-cols-2 gap-2">
+              {/* レベルアップ承認（期限内でも可） */}
+              {responsibilityPermissions.approveLevelUp.allowed && onApprovalLevelUp && (
+                <button
+                  onClick={onApprovalLevelUp}
+                  className="py-2 px-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm"
+                  title={AgendaResponsibilityService.getActionDescription('approve_levelup')}
+                >
+                  <ThumbsUp className="w-4 h-4" />
+                  レベルアップ承認
+                </button>
+              )}
+
+              {/* 却下（期限後のみ） */}
+              {responsibilityPermissions.reject.allowed && onReject ? (
+                <button
+                  onClick={() => setShowActionModal('reject')}
+                  className="py-2 px-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm"
+                  title={AgendaResponsibilityService.getActionDescription('reject')}
+                >
+                  <ThumbsDown className="w-4 h-4" />
+                  却下
+                </button>
+              ) : !responsibilityPermissions.reject.allowed && responsibilityPermissions.reject.reason && (
+                <div
+                  className="py-2 px-3 bg-gray-700/30 text-gray-500 rounded-lg font-medium flex items-center justify-center gap-2 text-sm cursor-not-allowed"
+                  title={responsibilityPermissions.reject.reason}
+                >
+                  <ThumbsDown className="w-4 h-4" />
+                  却下
+                </div>
+              )}
+
+              {/* 保留（期限後のみ） */}
+              {responsibilityPermissions.hold.allowed && onHold ? (
+                <button
+                  onClick={() => setShowActionModal('hold')}
+                  className="py-2 px-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm"
+                  title={AgendaResponsibilityService.getActionDescription('hold')}
+                >
+                  <Pause className="w-4 h-4" />
+                  保留
+                </button>
+              ) : !responsibilityPermissions.hold.allowed && responsibilityPermissions.hold.reason && (
+                <div
+                  className="py-2 px-3 bg-gray-700/30 text-gray-500 rounded-lg font-medium flex items-center justify-center gap-2 text-sm cursor-not-allowed"
+                  title={responsibilityPermissions.hold.reason}
+                >
+                  <Pause className="w-4 h-4" />
+                  保留
+                </div>
+              )}
+
+              {/* 部署案件化（期限後のみ） */}
+              {responsibilityPermissions.departmentMatter.allowed && onDepartmentMatter ? (
+                <button
+                  onClick={() => setShowActionModal('department_matter')}
+                  className="py-2 px-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm col-span-2"
+                  title={AgendaResponsibilityService.getActionDescription('department_matter')}
+                >
+                  <FileText className="w-4 h-4" />
+                  部署ミーティング案件化
+                </button>
+              ) : !responsibilityPermissions.departmentMatter.allowed && responsibilityPermissions.departmentMatter.reason && (
+                <div
+                  className="py-2 px-3 bg-gray-700/30 text-gray-500 rounded-lg font-medium flex items-center justify-center gap-2 text-sm cursor-not-allowed col-span-2"
+                  title={responsibilityPermissions.departmentMatter.reason}
+                >
+                  <FileText className="w-4 h-4" />
+                  部署ミーティング案件化
+                </div>
+              )}
+            </div>
+          </div>
         )}
       </div>
+
+      {/* アクション確認モーダル */}
+      {showActionModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full border border-gray-700">
+            <h3 className="text-lg font-bold text-white mb-4">
+              {showActionModal === 'reject' && '却下理由を入力'}
+              {showActionModal === 'hold' && '保留理由を入力'}
+              {showActionModal === 'department_matter' && '部署案件化理由を入力'}
+            </h3>
+            <textarea
+              value={actionFeedback}
+              onChange={(e) => setActionFeedback(e.target.value)}
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="理由を入力してください..."
+            />
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => {
+                  setShowActionModal(null);
+                  setActionFeedback('');
+                }}
+                className="flex-1 py-2 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={() => {
+                  if (showActionModal === 'reject' && onReject) {
+                    onReject(actionFeedback);
+                  } else if (showActionModal === 'hold' && onHold) {
+                    onHold(actionFeedback);
+                  } else if (showActionModal === 'department_matter' && onDepartmentMatter) {
+                    onDepartmentMatter(actionFeedback);
+                  }
+                  setShowActionModal(null);
+                  setActionFeedback('');
+                }}
+                disabled={!actionFeedback.trim()}
+                className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
+              >
+                実行
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

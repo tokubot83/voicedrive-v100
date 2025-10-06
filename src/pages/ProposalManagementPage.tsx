@@ -150,6 +150,59 @@ export const ProposalManagementPage: React.FC = () => {
     navigate(`/proposal-document/${document.id}`);
   };
 
+  // 責任者判断アクション
+  const handleApprovalLevelUp = (post: Post) => {
+    if (!activeUser) return;
+
+    console.log('🔼 [ProposalManagement] レベルアップ承認:', {
+      postId: post.id,
+      currentLevel: getPostData(post).agendaLevel,
+      userId: activeUser.id
+    });
+
+    // TODO: 実際のAPI実装
+    alert('レベルアップ承認機能は実装中です。実際の実装では次のレベルに昇格します。');
+  };
+
+  const handleReject = (post: Post, feedback: string) => {
+    if (!activeUser) return;
+
+    console.log('❌ [ProposalManagement] 却下:', {
+      postId: post.id,
+      feedback,
+      userId: activeUser.id
+    });
+
+    // TODO: 実際のAPI実装
+    alert(`却下しました。\n理由: ${feedback}`);
+  };
+
+  const handleHold = (post: Post, feedback: string) => {
+    if (!activeUser) return;
+
+    console.log('⏸️ [ProposalManagement] 保留:', {
+      postId: post.id,
+      feedback,
+      userId: activeUser.id
+    });
+
+    // TODO: 実際のAPI実装
+    alert(`保留しました。\n理由: ${feedback}`);
+  };
+
+  const handleDepartmentMatter = (post: Post, feedback: string) => {
+    if (!activeUser) return;
+
+    console.log('🏢 [ProposalManagement] 部署案件化:', {
+      postId: post.id,
+      feedback,
+      userId: activeUser.id
+    });
+
+    // TODO: 実際のAPI実装
+    alert(`部署ミーティング案件として処理します。\n理由: ${feedback}`);
+  };
+
   if (!activeUser) {
     return <div>Loading...</div>;
   }
@@ -317,9 +370,14 @@ export const ProposalManagementPage: React.FC = () => {
                 agendaLevel={postData.agendaLevel}
                 currentScore={postData.currentScore}
                 canEdit={permission.canEdit}
+                currentUser={activeUser}
                 onCreateDocument={() => handleCreateDocument(post)}
                 onMarkAsCandidate={() => handleMarkAsCandidate(post.id)}
                 isMarkedAsCandidate={markedCandidates.has(post.id)}
+                onApprovalLevelUp={() => handleApprovalLevelUp(post)}
+                onReject={(feedback) => handleReject(post, feedback)}
+                onHold={(feedback) => handleHold(post, feedback)}
+                onDepartmentMatter={(feedback) => handleDepartmentMatter(post, feedback)}
               />
             );
           })
