@@ -120,7 +120,7 @@ export const useUserPermission = (): UseUserPermissionReturn => {
   }, [permissionLevel]);
 
   const isSystemAdmin = useMemo(() => {
-    return permissionLevel === SpecialPermissionLevel.LEVEL_X;
+    return permissionLevel === PermissionLevel.LEVEL_99 || permissionLevel === SpecialPermissionLevel.LEVEL_X;
   }, [permissionLevel]);
 
   // 看護師リーダー判定

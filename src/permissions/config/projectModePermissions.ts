@@ -532,9 +532,53 @@ export const PROJECT_MODE_PERMISSIONS: Record<string, ProjectModePermission> = {
     menuItems: ['personal_station', 'my_tasks', 'project_progress', 'project_analytics', 'create_project', 'team_management', 'strategic_planning', 'board_functions', 'final_approval']
   },
 
-  // ========== 特別権限 ==========
-  [SpecialPermissionLevel.LEVEL_X]: {
-    level: SpecialPermissionLevel.LEVEL_X,
+  // ========== 特別権限レベル 97-99 ==========
+  [PermissionLevel.LEVEL_97]: {
+    level: PermissionLevel.LEVEL_97,
+    displayName: '健診担当者',
+    description: 'ストレスチェック実施者、プロジェクト参加は制限',
+    canCreateProject: false,
+    canJoinProject: true,  // 健康関連プロジェクトのみ参加可
+    canManageOwnTasks: true,
+    canViewTeamProjects: true,
+    canViewDepartmentProjects: false,
+    canViewFacilityProjects: false,
+    canViewCorporateProjects: false,
+    canFormProjectTeam: false,
+    canAssignTasks: false,
+    canManageMilestones: false,
+    canApproveProjectProgress: false,
+    canAccessProjectAnalytics: false,
+    canAccessProgressDashboard: false,
+    canEscalateProject: false,
+    projectVisibilityScope: 'team',
+    menuItems: ['personal_station', 'my_tasks', 'health_projects']
+  },
+
+  [PermissionLevel.LEVEL_98]: {
+    level: PermissionLevel.LEVEL_98,
+    displayName: '産業医',
+    description: '産業医、健康管理プロジェクト参加・閲覧可',
+    canCreateProject: true,  // 健康管理プロジェクト作成可
+    canJoinProject: true,
+    canManageOwnTasks: true,
+    canViewTeamProjects: true,
+    canViewDepartmentProjects: true,
+    canViewFacilityProjects: true,  // 施設全体の健康状況確認
+    canViewCorporateProjects: false,
+    canFormProjectTeam: false,
+    canAssignTasks: false,
+    canManageMilestones: false,
+    canApproveProjectProgress: false,
+    canAccessProjectAnalytics: true,  // 健康関連分析のみ
+    canAccessProgressDashboard: false,
+    canEscalateProject: false,
+    projectVisibilityScope: 'facility',
+    menuItems: ['personal_station', 'my_tasks', 'health_projects', 'health_analytics']
+  },
+
+  [PermissionLevel.LEVEL_99]: {
+    level: PermissionLevel.LEVEL_99,
     displayName: 'システム管理者',
     description: '全プロジェクト・全機能へのアクセス',
     canCreateProject: true,
@@ -553,6 +597,29 @@ export const PROJECT_MODE_PERMISSIONS: Record<string, ProjectModePermission> = {
     canEscalateProject: true,
     projectVisibilityScope: 'corporation',
     menuItems: ['all'] // 全メニューアクセス可能
+  },
+
+  // @deprecated 旧システム管理者レベル - LEVEL_99を使用してください
+  [SpecialPermissionLevel.LEVEL_X]: {
+    level: SpecialPermissionLevel.LEVEL_X,
+    displayName: 'システム管理者（旧）',
+    description: '全プロジェクト・全機能へのアクセス - LEVEL_99に移行してください',
+    canCreateProject: true,
+    canJoinProject: true,
+    canManageOwnTasks: true,
+    canViewTeamProjects: true,
+    canViewDepartmentProjects: true,
+    canViewFacilityProjects: true,
+    canViewCorporateProjects: true,
+    canFormProjectTeam: true,
+    canAssignTasks: true,
+    canManageMilestones: true,
+    canApproveProjectProgress: true,
+    canAccessProjectAnalytics: true,
+    canAccessProgressDashboard: true,
+    canEscalateProject: true,
+    projectVisibilityScope: 'corporation',
+    menuItems: ['all']
   }
 };
 

@@ -509,9 +509,51 @@ export const AGENDA_MODE_PERMISSIONS: Record<string, AgendaModePermission> = {
     menuItems: ['personal_station', 'agenda_progress', 'agenda_document_generator', 'voting_analytics', 'committee_bridge', 'board_functions', 'final_approval']
   },
 
-  // ========== 特別権限 ==========
-  [SpecialPermissionLevel.LEVEL_X]: {
-    level: SpecialPermissionLevel.LEVEL_X,
+  // ========== 特別権限レベル 97-99 ==========
+  [PermissionLevel.LEVEL_97]: {
+    level: PermissionLevel.LEVEL_97,
+    displayName: '健診担当者',
+    description: 'ストレスチェック実施者、健康関連議題のみ閲覧',
+    canCreateIdea: false,  // 健康関連議題への意見投稿は可（別途制御）
+    canVoteOnAgenda: false,
+    canCommentOnAgenda: true,  // コメントのみ可
+    canViewDepartmentAgendas: false,
+    canViewFacilityAgendas: false,
+    canViewCorporateAgendas: false,
+    canPrepareCommitteeAgenda: false,
+    canSubmitToCommittee: false,
+    canGenerateAgendaDocument: false,
+    canAccessCommitteeBridge: false,
+    canAccessVotingAnalytics: false,
+    canAccessAgendaProgress: false,
+    canApproveAgenda: false,
+    agendaVisibilityScope: 'department',
+    menuItems: ['personal_station', 'health_agenda_viewer']
+  },
+
+  [PermissionLevel.LEVEL_98]: {
+    level: PermissionLevel.LEVEL_98,
+    displayName: '産業医',
+    description: '産業医、健康関連議題への参画・提案可',
+    canCreateIdea: true,  // 健康関連議題の提案可
+    canVoteOnAgenda: false,  // 投票権なし（専門家アドバイザー）
+    canCommentOnAgenda: true,
+    canViewDepartmentAgendas: true,
+    canViewFacilityAgendas: true,  // 施設全体の健康関連議題閲覧
+    canViewCorporateAgendas: false,
+    canPrepareCommitteeAgenda: true,  // 健康委員会への議題準備可
+    canSubmitToCommittee: true,
+    canGenerateAgendaDocument: true,
+    canAccessCommitteeBridge: false,
+    canAccessVotingAnalytics: false,
+    canAccessAgendaProgress: true,
+    canApproveAgenda: false,  // 承認権限なし
+    agendaVisibilityScope: 'facility',
+    menuItems: ['personal_station', 'health_agenda_viewer', 'health_agenda_proposal', 'committee_submission']
+  },
+
+  [PermissionLevel.LEVEL_99]: {
+    level: PermissionLevel.LEVEL_99,
     displayName: 'システム管理者',
     description: '全議題・全機能へのアクセス',
     canCreateIdea: true,
@@ -529,6 +571,28 @@ export const AGENDA_MODE_PERMISSIONS: Record<string, AgendaModePermission> = {
     canApproveAgenda: true,
     agendaVisibilityScope: 'corporation',
     menuItems: ['all'] // 全メニューアクセス可能
+  },
+
+  // @deprecated 旧システム管理者レベル - LEVEL_99を使用してください
+  [SpecialPermissionLevel.LEVEL_X]: {
+    level: SpecialPermissionLevel.LEVEL_X,
+    displayName: 'システム管理者（旧）',
+    description: '全議題・全機能へのアクセス - LEVEL_99に移行してください',
+    canCreateIdea: true,
+    canVoteOnAgenda: true,
+    canCommentOnAgenda: true,
+    canViewDepartmentAgendas: true,
+    canViewFacilityAgendas: true,
+    canViewCorporateAgendas: true,
+    canPrepareCommitteeAgenda: true,
+    canSubmitToCommittee: true,
+    canGenerateAgendaDocument: true,
+    canAccessCommitteeBridge: true,
+    canAccessVotingAnalytics: true,
+    canAccessAgendaProgress: true,
+    canApproveAgenda: true,
+    agendaVisibilityScope: 'corporation',
+    menuItems: ['all']
   }
 };
 

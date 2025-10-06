@@ -119,7 +119,7 @@ export const requirePermissionLevel = (
     const userLevel = req.user.accountLevel;
 
     // システム管理者は全てにアクセス可能
-    if (userLevel === SpecialPermissionLevel.LEVEL_X) {
+    if (userLevel === PermissionLevel.LEVEL_99 || userLevel === SpecialPermissionLevel.LEVEL_X) {
       next();
       return;
     }

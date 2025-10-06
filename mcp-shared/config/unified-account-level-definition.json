@@ -1,8 +1,22 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
-  "version": "1.0.0",
-  "lastUpdated": "2025-10-06T10:00:00Z",
-  "updatedBy": "VoiceDriveチーム（医療チーム提案を基に作成）",
+  "version": "1.0.1",
+  "lastUpdated": "2025-10-06T16:30:00Z",
+  "updatedBy": "VoiceDriveチーム（医療チーム正式承認）",
+  "approvalStatus": {
+    "approved": true,
+    "approvedBy": "医療職員管理システムチーム",
+    "approvalDate": "2025-10-06",
+    "reviewItems": [
+      "25レベル完全一致確認 ✅",
+      "看護職リーダーロジック一致確認 ✅",
+      "特別権限レベル一致確認 ✅",
+      "施設別調整ロジック一致確認 ✅",
+      "変更管理ポリシー妥当性確認 ✅",
+      "バリデーションルール一致確認 ✅",
+      "フォールバック処理一致確認 ✅"
+    ]
+  },
   "systemMode": {
     "medical": {
       "name": "staff-medical-system",

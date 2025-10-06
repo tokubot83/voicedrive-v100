@@ -283,15 +283,52 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     workflowStages: ['all'] // 全ステージにアクセス可能
   },
 
-  // ========== 特別権限 ==========
-  [SpecialPermissionLevel.LEVEL_X]: {
-    level: SpecialPermissionLevel.LEVEL_X,
+  // ========== 特別権限レベル 97-99 ==========
+  [PermissionLevel.LEVEL_97]: {
+    level: PermissionLevel.LEVEL_97,
+    name: 'health_checkup_staff',
+    displayName: '健診担当者',
+    description: 'ストレスチェック実施者、健康管理専用',
+    accessibleFeatures: ['create_post', 'vote', 'health_checkup_management', 'stress_check'],
+    projectScopes: [ProjectScope.TEAM],
+    menuItems: ['personal_station', 'health_management'],
+    analyticsAccess: false,
+    workflowStages: ['proposal']
+  },
+
+  [PermissionLevel.LEVEL_98]: {
+    level: PermissionLevel.LEVEL_98,
+    name: 'occupational_physician',
+    displayName: '産業医',
+    description: '産業医、健康管理・医療相談',
+    accessibleFeatures: ['create_post', 'vote', 'occupational_health', 'medical_consultation', 'health_reports'],
+    projectScopes: [ProjectScope.TEAM, ProjectScope.FACILITY],
+    menuItems: ['personal_station', 'health_management', 'medical_consultation'],
+    analyticsAccess: true,
+    workflowStages: ['proposal', 'health_review']
+  },
+
+  [PermissionLevel.LEVEL_99]: {
+    level: PermissionLevel.LEVEL_99,
     name: 'system_admin',
     displayName: 'システム管理者',
     description: 'システム開発者・管理者（徳留）',
     accessibleFeatures: ['all'], // 全機能アクセス可能
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY, ProjectScope.ORGANIZATION, ProjectScope.STRATEGIC],
     menuItems: ['all'], // 全メニューアクセス可能
+    analyticsAccess: true,
+    workflowStages: ['all']
+  },
+
+  // @deprecated 旧システム管理者レベル - LEVEL_99を使用してください
+  [SpecialPermissionLevel.LEVEL_X]: {
+    level: SpecialPermissionLevel.LEVEL_X,
+    name: 'system_admin',
+    displayName: 'システム管理者（旧）',
+    description: 'システム開発者・管理者（徳留）- LEVEL_99に移行してください',
+    accessibleFeatures: ['all'],
+    projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY, ProjectScope.ORGANIZATION, ProjectScope.STRATEGIC],
+    menuItems: ['all'],
     analyticsAccess: true,
     workflowStages: ['all']
   }
@@ -306,8 +343,13 @@ export const getPermissionMetadata = (level: PermissionLevel | SpecialPermission
 
 // 権限レベル間の比較
 export const canAccessLevel = (userLevel: PermissionLevel | SpecialPermissionLevel, requiredLevel: PermissionLevel): boolean => {
-  // システム管理者は全アクセス可能
-  if (userLevel === SpecialPermissionLevel.LEVEL_X) return true;
+  // システム管理者（LEVEL_99 または 旧LEVEL_X）は全アクセス可能
+  if (userLevel === PermissionLevel.LEVEL_99 || userLevel === SpecialPermissionLevel.LEVEL_X) return true;
+
+  // 特別権限レベル（97, 98）は通常レベルとは独立
+  if (userLevel === PermissionLevel.LEVEL_97 || userLevel === PermissionLevel.LEVEL_98) {
+    return false; // 健診担当者・産業医は専用機能のみ
+  }
 
   // 数値比較
   if (typeof userLevel === 'number' && typeof requiredLevel === 'number') {

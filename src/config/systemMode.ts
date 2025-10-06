@@ -4,7 +4,7 @@
  * 議題システムモードとプロジェクト化モードを管理
  */
 
-import { SpecialPermissionLevel } from '../permissions/types/PermissionTypes';
+import { PermissionLevel, SpecialPermissionLevel } from '../permissions/types/PermissionTypes';
 import { User } from '../types';
 
 export enum SystemMode {
@@ -65,9 +65,9 @@ class SystemModeManager {
    * システムモードを変更（レベルX管理者のみ）
    */
   async setMode(mode: SystemMode, adminUser: User): Promise<void> {
-    // レベルX権限チェック
-    if (adminUser.permissionLevel !== SpecialPermissionLevel.LEVEL_X) {
-      throw new Error('システム管理者（レベルX）のみモード変更可能です');
+    // システム管理者権限チェック（LEVEL_99 = 99）
+    if (adminUser.permissionLevel !== 99 && adminUser.permissionLevel !== SpecialPermissionLevel.LEVEL_X as any) {
+      throw new Error('システム管理者（レベル99）のみモード変更可能です');
     }
 
     const previousMode = this.currentMode;
