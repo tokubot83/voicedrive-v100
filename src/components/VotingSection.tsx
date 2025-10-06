@@ -6,6 +6,9 @@ import { ConsensusInsightGenerator } from '../utils/consensusInsights';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 import ModeAwareLevelIndicator from './mode/ModeAwareLevelIndicator';
 import SimpleApprovalCard from './approval/SimpleApprovalCard';
+import CommitteeReviewStatus from './committee/CommitteeReviewStatus';
+import { systemModeManager, SystemMode } from '../config/systemMode';
+import { agendaLevelEngine } from '../systems/agenda/engines/AgendaLevelEngine';
 
 interface VotingSectionProps {
   post: Post;
@@ -141,51 +144,70 @@ const VotingSection: React.FC<VotingSectionProps> = ({
           description={`${consensusData.level} (${consensusData.percentage}%)`}
         />
         
-        {/* 承認プロセス（条件付き） */}
-        {(post.priority === 'high' || post.approvalFlow) && (() => {
-          // モックの承認リクエストデータを作成
-          const mockApprovalRequest = {
-            id: `approval-${post.id}`,
-            projectId: post.id,
-            requesterId: post.author.id,
-            budgetAmount: 1500000, // 150万円相当
-            reason: post.content,
-            status: post.approvalFlow?.status === 'approved' ? 'approved' as const : 'pending' as const,
-            approvalChain: [
-              {
-                approverId: 'manager-001',
-                level: 3 as any,
-                role: '師長',
-                department: '看護部',
-                status: post.approvalFlow?.status === 'approved' ? 'approved' as const : 'pending' as const
-              },
-              {
-                approverId: 'head-001',
-                level: 4 as any,
-                role: '部長',
-                department: '管理部',
-                status: 'pending' as const
-              }
-            ],
-            currentApproverId: 'manager-001',
-            createdAt: new Date(),
-            deadline: approvalData.deadline
-          };
+        {/* 承認プロセス/委員会審議状況（モード別表示） */}
+        {(() => {
+          const currentMode = systemModeManager.getCurrentMode();
+          const agendaLevel = currentMode === SystemMode.AGENDA && post.type === 'improvement'
+            ? agendaLevelEngine.getAgendaLevel(currentScore)
+            : null;
 
-          return (
-            <SimpleApprovalCard
-              request={mockApprovalRequest}
-              onApprove={(requestId, reason) => {
-                console.log('承認:', requestId, reason);
-                // ここで実際の承認処理を実装
-              }}
-              onReject={(requestId, reason) => {
-                console.log('差し戻し:', requestId, reason);
-                // ここで実際の差し戻し処理を実装
-              }}
-              isActionable={currentUser?.permissionLevel ? currentUser.permissionLevel >= 3 : false}
-            />
-          );
+          // 議題モード：施設議題レベル以上の場合、委員会審議状況を表示
+          if (currentMode === SystemMode.AGENDA && agendaLevel &&
+              (agendaLevel === 'FACILITY_AGENDA' || agendaLevel === 'CORP_REVIEW' || agendaLevel === 'CORP_AGENDA')) {
+            return (
+              <CommitteeReviewStatus
+                status={post.committeeStatus || 'pending'}
+                committeeInfo={post.committeeInfo}
+                committeeDecision={post.committeeDecision}
+              />
+            );
+          }
+
+          // プロジェクトモード：高優先度または承認フロー設定済みの場合、承認カードを表示
+          if (currentMode === SystemMode.PROJECT && (post.priority === 'high' || post.approvalFlow)) {
+            const mockApprovalRequest = {
+              id: `approval-${post.id}`,
+              projectId: post.id,
+              requesterId: post.author.id,
+              budgetAmount: 1500000,
+              reason: post.content,
+              status: post.approvalFlow?.status === 'approved' ? 'approved' as const : 'pending' as const,
+              approvalChain: [
+                {
+                  approverId: 'manager-001',
+                  level: 3 as any,
+                  role: '師長',
+                  department: '看護部',
+                  status: post.approvalFlow?.status === 'approved' ? 'approved' as const : 'pending' as const
+                },
+                {
+                  approverId: 'head-001',
+                  level: 4 as any,
+                  role: '部長',
+                  department: '管理部',
+                  status: 'pending' as const
+                }
+              ],
+              currentApproverId: 'manager-001',
+              createdAt: new Date(),
+              deadline: approvalData.deadline
+            };
+
+            return (
+              <SimpleApprovalCard
+                request={mockApprovalRequest}
+                onApprove={(requestId, reason) => {
+                  console.log('承認:', requestId, reason);
+                }}
+                onReject={(requestId, reason) => {
+                  console.log('差し戻し:', requestId, reason);
+                }}
+                isActionable={currentUser?.permissionLevel ? currentUser.permissionLevel >= 3 : false}
+              />
+            );
+          }
+
+          return null;
         })()}
         
         {/* プロジェクト進捗（改善提案以外で表示） */}

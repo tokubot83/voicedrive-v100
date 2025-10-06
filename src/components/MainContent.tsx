@@ -53,7 +53,24 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
       'strongly-support': 28
     },
     comments: [],
-    projectStatus: 'active'
+    projectStatus: 'active',
+    // 議題モード用：委員会審議状況のデモデータ
+    committeeStatus: 'committee_reviewing',
+    committeeInfo: {
+      committees: ['業務改善委員会', '医療安全委員会'],
+      submissionDate: new Date('2025-10-15'),
+      submittedBy: {
+        id: 'facility-director-001',
+        name: '施設長 佐藤次郎',
+        permissionLevel: 7
+      },
+      note: '複数部署から高い支持を得ており、施設全体の業務改善につながる提案です。'
+    },
+    committeeDecision: {
+      decision: 'pending',
+      reason: '現在、業務改善委員会で詳細な実施計画を検討中です。次回委員会（10/25）で最終決定予定。',
+      nextAction: '実施計画案の作成と予算見積もりの精査'
+    }
   };
 
   // Phase 3: 投票完了時のWebhook通知対応

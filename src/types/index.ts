@@ -115,6 +115,11 @@ export interface Post {
     proposalDocumentId?: string;
   };
 
+  // 委員会詳細情報（議題モード専用）
+  committeeStatus?: import('./committee').CommitteeStatus;
+  committeeInfo?: import('./committee').CommitteeInfo;
+  committeeDecision?: import('./committee').CommitteeDecision;
+
   // プロジェクトモード用のステータス（チーム編成・協働）
   projectStatus?: string | {
     stage: 'approaching' | 'ready' | 'active' | 'completed';
