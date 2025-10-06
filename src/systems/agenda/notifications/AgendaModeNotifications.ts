@@ -210,6 +210,176 @@ export class AgendaModeNotifications {
       actionUrl: '/idea-voice/share'
     };
   }
+
+  /**
+   * 委員会審議開始通知
+   */
+  getCommitteeReviewStartedNotification(
+    postTitle: string,
+    committeeType: string,
+    reviewDate: string
+  ): AgendaNotification {
+    return {
+      title: '委員会での審議が開始されました',
+      message: `「${postTitle}」が${committeeType}で審議されています（審議日: ${reviewDate}）`,
+      icon: '👁️',
+      type: 'info',
+      actionText: '審議状況を確認',
+      actionUrl: '/committee-submission-approval'
+    };
+  }
+
+  /**
+   * 委員会決定通知（承認）
+   */
+  getCommitteeApprovedNotification(
+    postTitle: string,
+    committeeType: string,
+    decision: string
+  ): AgendaNotification {
+    return {
+      title: '✅ 委員会で承認されました',
+      message: `「${postTitle}」が${committeeType}で承認されました！決定内容: ${decision}`,
+      icon: '✅',
+      type: 'celebration',
+      actionText: '決定内容を見る',
+      actionUrl: '/committee-submission-approval'
+    };
+  }
+
+  /**
+   * 委員会決定通知（保留）
+   */
+  getCommitteeOnHoldNotification(
+    postTitle: string,
+    committeeType: string,
+    reason: string
+  ): AgendaNotification {
+    return {
+      title: '委員会で保留となりました',
+      message: `「${postTitle}」が${committeeType}で保留されました。理由: ${reason}`,
+      icon: '⏸️',
+      type: 'warning',
+      actionText: '詳細を確認',
+      actionUrl: '/committee-submission-approval'
+    };
+  }
+
+  /**
+   * 委員会決定通知（差し戻し）
+   */
+  getCommitteeRejectedNotification(
+    postTitle: string,
+    committeeType: string,
+    feedback: string
+  ): AgendaNotification {
+    return {
+      title: '委員会から差し戻されました',
+      message: `「${postTitle}」が${committeeType}から差し戻されました。フィードバック: ${feedback}`,
+      icon: '↩️',
+      type: 'warning',
+      actionText: '修正して再提出',
+      actionUrl: '/proposal-management'
+    };
+  }
+
+  /**
+   * 投票期限延長通知
+   */
+  getDeadlineExtensionNotification(
+    postTitle: string,
+    newDeadline: string,
+    extensionCount: number
+  ): AgendaNotification {
+    return {
+      title: '投票期限が延長されました',
+      message: `「${postTitle}」の投票期限が${newDeadline}まで延長されました（${extensionCount}回目の延長）`,
+      icon: '🔔',
+      type: 'info',
+      actionText: '投票する',
+      actionUrl: '/idea-voice'
+    };
+  }
+
+  /**
+   * 責任者割り当て通知
+   */
+  getResponsibilityAssignedNotification(
+    postTitle: string,
+    agendaLevel: AgendaLevel,
+    responsibleRole: string
+  ): AgendaNotification {
+    const levelLabels: Record<AgendaLevel, string> = {
+      'PENDING': '検討中',
+      'DEPT_REVIEW': '部署検討',
+      'DEPT_AGENDA': '部署議題',
+      'FACILITY_AGENDA': '施設議題',
+      'CORP_REVIEW': '法人検討',
+      'CORP_AGENDA': '法人議題'
+    };
+
+    return {
+      title: '議題の責任者に任命されました',
+      message: `「${postTitle}」（${levelLabels[agendaLevel]}）の責任者として、${responsibleRole}が任命されました`,
+      icon: '👤',
+      type: 'info',
+      actionText: '議題を確認',
+      actionUrl: '/proposal-management'
+    };
+  }
+
+  /**
+   * 投票期限当日通知
+   */
+  getVotingDeadlineTodayNotification(
+    postTitle: string
+  ): AgendaNotification {
+    return {
+      title: '⚠️ 投票締切は本日です',
+      message: `「${postTitle}」の投票締切は本日中です。まだ投票していない方はお早めに！`,
+      icon: '⚠️',
+      type: 'warning',
+      actionText: '今すぐ投票',
+      actionUrl: '/idea-voice'
+    };
+  }
+
+  /**
+   * 委員会提出可能通知（施設議題以上）
+   */
+  getCommitteeSubmissionAvailableNotification(
+    postTitle: string,
+    agendaLevel: AgendaLevel
+  ): AgendaNotification {
+    const messages = {
+      'FACILITY_AGENDA': {
+        title: '委員会への提出が可能になりました',
+        message: `「${postTitle}」が施設議題レベルに到達しました。施設運営委員会への提出が可能です`,
+        targetCommittee: '施設運営委員会'
+      },
+      'CORP_REVIEW': {
+        title: '法人委員会への提出が可能になりました',
+        message: `「${postTitle}」が法人検討レベルに到達しました。法人運営委員会への提出が可能です`,
+        targetCommittee: '法人運営委員会'
+      },
+      'CORP_AGENDA': {
+        title: '理事会への提出が可能になりました',
+        message: `「${postTitle}」が法人議題レベルに到達しました。理事会への提出が可能です`,
+        targetCommittee: '理事会'
+      }
+    };
+
+    const config = messages[agendaLevel as keyof typeof messages] || messages['FACILITY_AGENDA'];
+
+    return {
+      title: config.title,
+      message: config.message,
+      icon: '📋',
+      type: 'success',
+      actionText: `${config.targetCommittee}に提出`,
+      actionUrl: '/committee-submission-approval'
+    };
+  }
 }
 
 // シングルトンインスタンス
