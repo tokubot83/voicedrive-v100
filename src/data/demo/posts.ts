@@ -1,5 +1,7 @@
 import { Post, PostType, AnonymityLevel, Priority, VoteOption, Comment } from '../../types';
 import { getDemoUserById } from './users';
+import { AgendaLevel } from '../../types/committee';
+import AgendaDeadlineManager from '../../utils/agendaDeadlineManager';
 
 // Helper function to generate comments that match the expected Comment interface
 const generateComments = (postId: string, comments: Array<{
@@ -112,6 +114,17 @@ export const demoPosts: Post[] = [
       }
     ]),
     // 法人議題レベル（スコア650点相当）
+    agendaStatus: {
+      level: 'CORP_AGENDA' as AgendaLevel,
+      score: 650,
+      isSubmittedToCommittee: true,
+      committeeSubmissionDate: '2025-01-10',
+      managementStatus: 'submitted'
+    },
+    createdAt: new Date('2025-01-15T10:00:00'),
+    agendaDeadline: AgendaDeadlineManager.calculateInitialDeadline('CORP_AGENDA' as AgendaLevel, new Date('2025-01-15T10:00:00')),
+    agendaDeadlineExtensions: 0,
+    lastActivityDate: new Date('2025-01-20T15:30:00'), // 最新コメント日
     committeeStatus: 'committee_submitted' as const,
     committeeInfo: {
       committees: ['病院運営委員会', '情報システム委員会'],
@@ -183,6 +196,15 @@ export const demoPosts: Post[] = [
       }
     ]),
     // 施設議題レベル（スコア150点相当）
+    agendaStatus: {
+      level: 'FACILITY_AGENDA' as AgendaLevel,
+      score: 150,
+      managementStatus: 'under_analysis'
+    },
+    createdAt: new Date('2025-01-10T14:30:00'),
+    agendaDeadline: AgendaDeadlineManager.calculateInitialDeadline('FACILITY_AGENDA' as AgendaLevel, new Date('2025-01-10T14:30:00')),
+    agendaDeadlineExtensions: 0,
+    lastActivityDate: new Date('2025-01-18T11:20:00'), // 最新コメント日
     committeeStatus: 'under_review' as const
   },
 
@@ -242,6 +264,15 @@ export const demoPosts: Post[] = [
       }
     ]),
     // 部署議題レベル（スコア65点相当）
+    agendaStatus: {
+      level: 'DEPT_AGENDA' as AgendaLevel,
+      score: 65,
+      managementStatus: 'unreviewed'
+    },
+    createdAt: new Date('2025-01-12T09:15:00'),
+    agendaDeadline: AgendaDeadlineManager.calculateInitialDeadline('DEPT_AGENDA' as AgendaLevel, new Date('2025-01-12T09:15:00')),
+    agendaDeadlineExtensions: 0,
+    lastActivityDate: new Date('2025-01-19T14:00:00'), // 最新コメント日
   },
 
   // 4. 部署検討レベル（30-49点）
@@ -299,6 +330,15 @@ export const demoPosts: Post[] = [
       }
     ]),
     // 部署検討レベル（スコア35点相当）
+    agendaStatus: {
+      level: 'DEPT_REVIEW' as AgendaLevel,
+      score: 35,
+      managementStatus: 'unreviewed'
+    },
+    createdAt: new Date('2025-01-08T16:45:00'),
+    agendaDeadline: AgendaDeadlineManager.calculateInitialDeadline('DEPT_REVIEW' as AgendaLevel, new Date('2025-01-08T16:45:00')),
+    agendaDeadlineExtensions: 0,
+    lastActivityDate: new Date('2025-01-17T10:30:00'), // 最新コメント日
   },
 
   // 5. 検討中レベル（0-29点）
@@ -353,6 +393,15 @@ export const demoPosts: Post[] = [
       }
     ]),
     // 検討中レベル（スコア18点相当）
+    agendaStatus: {
+      level: 'PENDING' as AgendaLevel,
+      score: 18,
+      managementStatus: 'unreviewed'
+    },
+    createdAt: new Date('2025-01-11T11:00:00'),
+    agendaDeadline: AgendaDeadlineManager.calculateInitialDeadline('PENDING' as AgendaLevel, new Date('2025-01-11T11:00:00')),
+    agendaDeadlineExtensions: 0,
+    lastActivityDate: new Date('2025-01-16T09:45:00'), // 最新コメント日
   },
 
   // 6. 法人検討レベル（300-599点）
@@ -413,6 +462,15 @@ export const demoPosts: Post[] = [
       }
     ]),
     // 法人検討レベル（スコア380点相当）
+    agendaStatus: {
+      level: 'CORP_REVIEW' as AgendaLevel,
+      score: 380,
+      managementStatus: 'under_analysis'
+    },
+    createdAt: new Date('2025-01-05T13:20:00'),
+    agendaDeadline: AgendaDeadlineManager.calculateInitialDeadline('CORP_REVIEW' as AgendaLevel, new Date('2025-01-05T13:20:00')),
+    agendaDeadlineExtensions: 0,
+    lastActivityDate: new Date('2025-01-21T16:10:00'), // 最新コメント日
   },
 
   // 7. フリーボイス（改善提案以外）
@@ -547,6 +605,15 @@ export const demoPosts: Post[] = [
         content: '夜勤専従の処遇改善も含まれており、現実的で包括的な提案だと感じます。ぜひ実現させたいです。'
       }
     ]),
+    agendaStatus: {
+      level: 'FACILITY_AGENDA' as AgendaLevel,
+      score: 100,
+      managementStatus: 'under_analysis'
+    },
+    createdAt: new Date('2025-06-10T09:00:00'),
+    agendaDeadline: AgendaDeadlineManager.calculateInitialDeadline('FACILITY_AGENDA' as AgendaLevel, new Date('2025-06-10T09:00:00')),
+    agendaDeadlineExtensions: 0,
+    lastActivityDate: new Date('2025-06-18T14:20:00'), // 最新コメント日
     projectStatus: {
       stage: 'ready' as const,
       score: 85,
@@ -622,6 +689,15 @@ export const demoPosts: Post[] = [
         content: '外来でも参考になる内容が多そうです。病棟見学をさせていただきたいです。'
       }
     ]),
+    agendaStatus: {
+      level: 'DEPT_AGENDA' as AgendaLevel,
+      score: 85,
+      managementStatus: 'unreviewed'
+    },
+    createdAt: new Date('2025-06-08T14:30:00'),
+    agendaDeadline: AgendaDeadlineManager.calculateInitialDeadline('DEPT_AGENDA' as AgendaLevel, new Date('2025-06-08T14:30:00')),
+    agendaDeadlineExtensions: 0,
+    lastActivityDate: new Date('2025-06-16T11:40:00'), // 最新コメント日
     projectStatus: {
       stage: 'planning' as const,
       score: 78,
@@ -698,6 +774,15 @@ export const demoPosts: Post[] = [
         content: '現場で患者様から「もっと分かりやすい説明がほしい」との声をよく聞きます。この提案に賛成です。'
       }
     ]),
+    agendaStatus: {
+      level: 'DEPT_AGENDA' as AgendaLevel,
+      score: 75,
+      managementStatus: 'under_analysis'
+    },
+    createdAt: new Date('2025-06-07T11:15:00'),
+    agendaDeadline: AgendaDeadlineManager.calculateInitialDeadline('DEPT_AGENDA' as AgendaLevel, new Date('2025-06-07T11:15:00')),
+    agendaDeadlineExtensions: 0,
+    lastActivityDate: new Date('2025-06-15T16:30:00'), // 最新コメント日
     projectStatus: {
       stage: 'ready' as const,
       score: 92,
@@ -777,6 +862,15 @@ export const demoPosts: Post[] = [
         content: '現場で患者様の待ち時間の長さを日々感じています。改善されることを切に願います。'
       }
     ]),
+    agendaStatus: {
+      level: 'DEPT_AGENDA' as AgendaLevel,
+      score: 75,
+      managementStatus: 'under_analysis'
+    },
+    createdAt: new Date('2025-06-06T16:45:00'),
+    agendaDeadline: AgendaDeadlineManager.calculateInitialDeadline('DEPT_AGENDA' as AgendaLevel, new Date('2025-06-06T16:45:00')),
+    agendaDeadlineExtensions: 0,
+    lastActivityDate: new Date('2025-06-14T13:50:00'), // 最新コメント日
     projectStatus: {
       stage: 'planning' as const,
       score: 73,
@@ -860,6 +954,15 @@ export const demoPosts: Post[] = [
         content: '手術室の安全性は病院全体の信頼に関わります。研修予算の確保に向けて調整いたします。'
       }
     ]),
+    agendaStatus: {
+      level: 'DEPT_AGENDA' as AgendaLevel,
+      score: 80,
+      managementStatus: 'under_analysis'
+    },
+    createdAt: new Date('2025-06-05T13:20:00'),
+    agendaDeadline: AgendaDeadlineManager.calculateInitialDeadline('DEPT_AGENDA' as AgendaLevel, new Date('2025-06-05T13:20:00')),
+    agendaDeadlineExtensions: 0,
+    lastActivityDate: new Date('2025-06-13T10:15:00'), // 最新コメント日
     projectStatus: {
       stage: 'ready' as const,
       score: 98,
@@ -949,6 +1052,15 @@ export const demoPosts: Post[] = [
         content: '3階病棟でも同様の課題があります。参考にさせていただきたいです。'
       }
     ]),
+    agendaStatus: {
+      level: 'DEPT_AGENDA' as AgendaLevel,
+      score: 55,
+      managementStatus: 'unreviewed'
+    },
+    createdAt: new Date('2025-06-04T10:30:00'),
+    agendaDeadline: AgendaDeadlineManager.calculateInitialDeadline('DEPT_AGENDA' as AgendaLevel, new Date('2025-06-04T10:30:00')),
+    agendaDeadlineExtensions: 0,
+    lastActivityDate: new Date('2025-06-12T15:45:00'), // 最新コメント日
     projectStatus: {
       stage: 'planning' as const,
       score: 65,

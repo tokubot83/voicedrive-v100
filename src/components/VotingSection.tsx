@@ -216,14 +216,22 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               const deadlineMessage = AgendaDeadlineManager.getDeadlineMessage(deadlineInfo);
               const committeeDescription = AgendaDeadlineManager.getCommitteeDeadlineDescription(post.committeeStatus);
 
-              if (deadlineInfo.isExpired) return null; // 期限切れは非表示
-
               return (
                 <div className="mt-3 pt-3 border-t border-gray-200">
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1 text-gray-600">
                       <Clock className="w-3 h-3" />
-                      <span>投票期限: {AgendaDeadlineManager.formatDeadline(post.agendaDeadline)}</span>
+                      <span>
+                        {deadlineInfo.isExpired
+                          ? '投票期限: 終了'
+                          : `投票期限: ${AgendaDeadlineManager.formatDeadline(post.agendaDeadline)}`
+                        }
+                      </span>
+                      {deadlineInfo.extensionCount && deadlineInfo.extensionCount > 0 && (
+                        <span className="text-orange-600 ml-1">
+                          (延長{deadlineInfo.extensionCount}回)
+                        </span>
+                      )}
                     </div>
                     {deadlineMessage && (
                       <span className={`font-medium ${
@@ -235,7 +243,12 @@ const VotingSection: React.FC<VotingSectionProps> = ({
                       </span>
                     )}
                   </div>
-                  {committeeDescription && (
+                  {deadlineInfo.isExpired && (
+                    <div className="mt-2 p-2 bg-red-50 rounded text-xs text-red-700 border border-red-200">
+                      ⏰ 投票期限が終了しました。責任者が判断を行います。
+                    </div>
+                  )}
+                  {committeeDescription && !deadlineInfo.isExpired && (
                     <div className="text-xs text-gray-500 mt-1">
                       💡 {committeeDescription}
                     </div>
