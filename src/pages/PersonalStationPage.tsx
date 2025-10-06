@@ -482,35 +482,77 @@ export const PersonalStationPage: React.FC = () => {
     </div>
   );
 
-  const renderMyPosts = () => (
-    <div className="space-y-4">
-      {(myPosts?.length || 0) === 0 ? (
+  const renderMyPosts = () => {
+    // 議題モードとプロジェクト化モードで投稿を分類
+    const agendaPosts = myPosts.filter(p => p.type === 'improvement');
+    const projectPosts = myPosts.filter(p => p.type !== 'improvement');
+
+    if ((myPosts?.length || 0) === 0) {
+      return (
         <div className="bg-gray-800/50 rounded-xl p-8 text-center backdrop-blur border border-gray-700/50">
           <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white mb-2">投稿がありません</h3>
           <p className="text-gray-400">最初の投稿を作成してみましょう。</p>
         </div>
-      ) : (
-        <>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        {/* 議題モードの投稿 */}
+        <div className="space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span className="text-2xl">📝</span>
-            投稿履歴
+            <span className="text-2xl">📍</span>
+            議題モードの投稿
+            <span className="text-sm text-gray-400 ml-2">({agendaPosts.length}件)</span>
           </h2>
-          <div className="space-y-4">
-            {myPosts?.map(post => (
-              <EnhancedPost
-                key={post.id}
-                post={post}
-                currentUser={currentUser || user}
-                onVote={handleVote}
-                onComment={handleComment}
-              />
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
+          {agendaPosts.length === 0 ? (
+            <div className="bg-gray-800/50 rounded-xl p-6 text-center backdrop-blur border border-gray-700/50">
+              <p className="text-gray-400 text-sm">議題モードの投稿はまだありません</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {agendaPosts.map(post => (
+                <EnhancedPost
+                  key={post.id}
+                  post={post}
+                  currentUser={currentUser || user}
+                  onVote={handleVote}
+                  onComment={handleComment}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* プロジェクト化モードの投稿 */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="text-2xl">🚀</span>
+            プロジェクト化モードの投稿
+            <span className="text-sm text-gray-400 ml-2">({projectPosts.length}件)</span>
+          </h2>
+          {projectPosts.length === 0 ? (
+            <div className="bg-gray-800/50 rounded-xl p-6 text-center backdrop-blur border border-gray-700/50">
+              <p className="text-gray-400 text-sm">プロジェクト化モードの投稿はまだありません</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {projectPosts.map(post => (
+                <EnhancedPost
+                  key={post.id}
+                  post={post}
+                  currentUser={currentUser || user}
+                  onVote={handleVote}
+                  onComment={handleComment}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   const renderMyProjects = () => (
     <div className="space-y-4">
@@ -555,84 +597,136 @@ export const PersonalStationPage: React.FC = () => {
     </div>
   );
 
-  const renderVotingHistory = () => (
-    <div className="space-y-4">
-      <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-blue-400" />
-          投票履歴
-        </h3>
-        <div className="space-y-3">
-          <div className="flex items-start gap-3 p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-colors">
-            <div className="text-xl">🗳️</div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-200">「職員休憩室の改善提案」に賛成票を投じました</p>
-              <p className="text-xs text-gray-500">3時間前</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">業務改善</span>
-                <span className="text-xs text-gray-400">影響力: +2ポイント</span>
+  const renderVotingHistory = () => {
+    // 投票済み投稿を取得
+    const votedPosts = posts.filter(p => p.hasUserVoted || p.userVote);
+
+    // 議題モードとプロジェクト化モードで分類
+    const agendaVotes = votedPosts.filter(p => p.type === 'improvement');
+    const projectVotes = votedPosts.filter(p => p.type !== 'improvement');
+
+    // 投票種類の表示情報
+    const getVoteLabel = (voteType: VoteOption) => {
+      const labels = {
+        'strongly-support': { emoji: '😍', label: '強く賛成', color: 'blue' },
+        'support': { emoji: '😊', label: '賛成', color: 'green' },
+        'neutral': { emoji: '😐', label: '中立', color: 'gray' },
+        'oppose': { emoji: '😕', label: '反対', color: 'orange' },
+        'strongly-oppose': { emoji: '😠', label: '強く反対', color: 'red' }
+      };
+      return labels[voteType] || labels['neutral'];
+    };
+
+    if (votedPosts.length === 0) {
+      return (
+        <div className="bg-gray-800/50 rounded-xl p-8 text-center backdrop-blur border border-gray-700/50">
+          <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-white mb-2">投票履歴がありません</h3>
+          <p className="text-gray-400">投稿に投票すると、ここに履歴が表示されます。</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        {/* 議題モードの投票履歴 */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="text-2xl">📍</span>
+            議題モードの投票
+            <span className="text-sm text-gray-400 ml-2">({agendaVotes.length}件)</span>
+          </h2>
+          {agendaVotes.length === 0 ? (
+            <div className="bg-gray-800/50 rounded-xl p-6 text-center backdrop-blur border border-gray-700/50">
+              <p className="text-gray-400 text-sm">議題モードの投票はまだありません</p>
+            </div>
+          ) : (
+            <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+              <div className="space-y-3">
+                {agendaVotes.map(post => {
+                  const voteInfo = getVoteLabel(post.userVote!);
+                  return (
+                    <div key={post.id} className="flex items-start gap-3 p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-colors">
+                      <div className="text-xl">{voteInfo.emoji}</div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-200">
+                          「{post.title}」に{voteInfo.label}票を投じました
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`text-xs bg-${voteInfo.color}-500/20 text-${voteInfo.color}-400 px-2 py-0.5 rounded`}>
+                            {post.category || '業務改善'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-colors">
-            <div className="text-xl">🗳️</div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-200">「新人教育プログラムの改善」に強く賛成票を投じました</p>
-              <p className="text-xs text-gray-500">1日前</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">教育・研修</span>
-                <span className="text-xs text-gray-400">影響力: +3ポイント</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-colors">
-            <div className="text-xl">🗳️</div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-200">「電子カルテシステムの更新」に賛成票を投じました</p>
-              <p className="text-xs text-gray-500">3日前</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded">システム改善</span>
-                <span className="text-xs text-gray-400">影響力: +2ポイント</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-colors">
-            <div className="text-xl">🗳️</div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-200">「夜勤シフトの見直し」に中立票を投じました</p>
-              <p className="text-xs text-gray-500">5日前</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">勤務体制</span>
-                <span className="text-xs text-gray-400">影響力: +1ポイント</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-colors">
-            <div className="text-xl">🗳️</div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-200">「院内コミュニケーションツールの導入」に強く賛成票を投じました</p>
-              <p className="text-xs text-gray-500">1週間前</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded">コミュニケーション</span>
-                <span className="text-xs text-gray-400">影響力: +3ポイント</span>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
-        <div className="mt-6 pt-4 border-t border-gray-700">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-400">今月の投票回数</span>
-            <span className="text-lg font-semibold text-white">12回</span>
-          </div>
-          <div className="flex justify-between items-center mt-2">
-            <span className="text-sm text-gray-400">獲得影響力ポイント</span>
-            <span className="text-lg font-semibold text-blue-400">+28</span>
+        {/* プロジェクト化モードの投票履歴 */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="text-2xl">🚀</span>
+            プロジェクト化モードの投票
+            <span className="text-sm text-gray-400 ml-2">({projectVotes.length}件)</span>
+          </h2>
+          {projectVotes.length === 0 ? (
+            <div className="bg-gray-800/50 rounded-xl p-6 text-center backdrop-blur border border-gray-700/50">
+              <p className="text-gray-400 text-sm">プロジェクト化モードの投票はまだありません</p>
+            </div>
+          ) : (
+            <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+              <div className="space-y-3">
+                {projectVotes.map(post => {
+                  const voteInfo = getVoteLabel(post.userVote!);
+                  return (
+                    <div key={post.id} className="flex items-start gap-3 p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-colors">
+                      <div className="text-xl">{voteInfo.emoji}</div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-200">
+                          「{post.title}」に{voteInfo.label}票を投じました
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`text-xs bg-${voteInfo.color}-500/20 text-${voteInfo.color}-400 px-2 py-0.5 rounded`}>
+                            {post.category || 'プロジェクト'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 統計サマリー */}
+        <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-blue-400" />
+            投票統計
+          </h3>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-400">総投票数</span>
+              <span className="text-lg font-semibold text-white">{votedPosts.length}回</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-400">議題モード</span>
+              <span className="text-lg font-semibold text-emerald-400">{agendaVotes.length}回</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-400">プロジェクト化モード</span>
+              <span className="text-lg font-semibold text-blue-400">{projectVotes.length}回</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
 
   return (
