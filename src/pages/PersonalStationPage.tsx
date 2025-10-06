@@ -23,10 +23,16 @@ import { DesktopFooter } from '../components/layout/DesktopFooter';
 import { useSwipeableTabs } from '../hooks/useSwipeableTabs';
 import { SwipeIndicator } from '../components/common/SwipeableTabContainer';
 
+// Phase 2: 追跡機能統合
+import { agendaLevelEngine } from '../systems/agenda/engines/AgendaLevelEngine';
+import { projectLevelEngine } from '../systems/project/engines/ProjectLevelEngine';
+import { useProjectScoring } from '../hooks/useProjectScoring';
+
 export const PersonalStationPage: React.FC = () => {
   const { user } = useAuth();
   const { currentUser } = useDemoMode();
   const { userPermissionLevel, hasPermission } = usePermissions();
+  const { calculateScore, convertVotesToEngagements } = useProjectScoring();
 
   // UserContextのフックを条件付きで使用
   let contextUser = null;
@@ -218,6 +224,152 @@ export const PersonalStationPage: React.FC = () => {
           <div className="text-sm text-blue-400 mt-1">承認率 66.7%</div>
         </div>
       </div>
+
+      {/* Phase 2: 議題モード投稿追跡 */}
+      {(() => {
+        const myAgendaPosts = myPosts.filter(p => p.type === 'improvement');
+        if (myAgendaPosts.length === 0) return null;
+
+        const postsByLevel = myAgendaPosts.reduce((acc, post) => {
+          const score = calculateScore(
+            convertVotesToEngagements(post.votes || {}),
+            post.proposalType
+          );
+          const level = agendaLevelEngine.getAgendaLevel(score);
+          if (!acc[level]) acc[level] = [];
+          acc[level].push({ post, score });
+          return acc;
+        }, {} as Record<string, { post: any; score: number }[]>);
+
+        const levelConfig = {
+          'PENDING': { emoji: '💭', label: '検討中', color: 'gray', gradient: 'from-gray-600 to-gray-700' },
+          'DEPT_REVIEW': { emoji: '📋', label: '部署検討', color: 'yellow', gradient: 'from-yellow-600 to-yellow-700' },
+          'DEPT_AGENDA': { emoji: '👥', label: '部署議題', color: 'blue', gradient: 'from-blue-600 to-blue-700' },
+          'FACILITY_AGENDA': { emoji: '🏥', label: '施設議題', color: 'green', gradient: 'from-green-600 to-green-700' },
+          'CORP_REVIEW': { emoji: '🏢', label: '法人検討', color: 'purple', gradient: 'from-purple-600 to-purple-700' },
+          'CORP_AGENDA': { emoji: '🏛️', label: '法人議題', color: 'pink', gradient: 'from-pink-600 to-pink-700' }
+        };
+
+        return (
+          <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <span className="text-2xl">📍</span>
+              議題モード投稿追跡
+              <span className="ml-auto text-sm font-normal text-gray-400">
+                {myAgendaPosts.length}件進行中
+              </span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Object.entries(levelConfig).map(([level, config]) => {
+                const levelPosts = postsByLevel[level] || [];
+                if (levelPosts.length === 0) return null;
+
+                return (
+                  <div
+                    key={level}
+                    className={`bg-gradient-to-br ${config.gradient} rounded-lg p-4 border border-${config.color}-500/30`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">{config.emoji}</span>
+                        <div>
+                          <div className="font-bold text-white">{config.label}</div>
+                          <div className="text-xs text-white/70">{levelPosts.length}件</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      {levelPosts.slice(0, 3).map(({ post, score }) => (
+                        <div key={post.id} className="bg-black/20 rounded p-2 text-sm">
+                          <div className="text-white/90 line-clamp-1">{post.content}</div>
+                          <div className="text-xs text-white/60 mt-1">{Math.round(score)}点</div>
+                        </div>
+                      ))}
+                      {levelPosts.length > 3 && (
+                        <div className="text-xs text-white/60 text-center pt-1">
+                          他{levelPosts.length - 3}件...
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Phase 2: プロジェクトモード追跡 */}
+      {(() => {
+        const myProjects = myPosts.filter(p => p.type !== 'improvement' || p.projectStatus);
+        if (myProjects.length === 0) return null;
+
+        const projectsByLevel = myProjects.reduce((acc, post) => {
+          const score = calculateScore(
+            convertVotesToEngagements(post.votes || {}),
+            post.proposalType
+          );
+          const level = projectLevelEngine.getProjectLevel(score);
+          if (!acc[level]) acc[level] = [];
+          acc[level].push({ post, score });
+          return acc;
+        }, {} as Record<string, { post: any; score: number }[]>);
+
+        const projectLevelConfig = {
+          'TEAM': { emoji: '👥', label: 'チーム', color: 'blue', gradient: 'from-blue-600 to-blue-700' },
+          'DEPARTMENT': { emoji: '🏢', label: '部署', color: 'purple', gradient: 'from-purple-600 to-purple-700' },
+          'FACILITY': { emoji: '🏥', label: '施設', color: 'green', gradient: 'from-green-600 to-green-700' },
+          'CORPORATION': { emoji: '🏛️', label: '法人', color: 'pink', gradient: 'from-pink-600 to-pink-700' }
+        };
+
+        return (
+          <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <span className="text-2xl">🚀</span>
+              プロジェクトモード追跡
+              <span className="ml-auto text-sm font-normal text-gray-400">
+                {myProjects.length}件進行中
+              </span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Object.entries(projectLevelConfig).map(([level, config]) => {
+                const levelProjects = projectsByLevel[level] || [];
+                if (levelProjects.length === 0) return null;
+
+                return (
+                  <div
+                    key={level}
+                    className={`bg-gradient-to-br ${config.gradient} rounded-lg p-4 border border-${config.color}-500/30`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">{config.emoji}</span>
+                        <div>
+                          <div className="font-bold text-white">{config.label}</div>
+                          <div className="text-xs text-white/70">{levelProjects.length}件</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      {levelProjects.slice(0, 3).map(({ post, score }) => (
+                        <div key={post.id} className="bg-black/20 rounded p-2 text-sm">
+                          <div className="text-white/90 line-clamp-1">{post.content}</div>
+                          <div className="text-xs text-white/60 mt-1">{Math.round(score)}点</div>
+                        </div>
+                      ))}
+                      {levelProjects.length > 3 && (
+                        <div className="text-xs text-white/60 text-center pt-1">
+                          他{levelProjects.length - 3}件...
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* アクセス可能機能一覧（新規追加） */}
       {permission.availableMenus && permission.availableMenus.length > 0 && (
