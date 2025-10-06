@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, Clock } from 'lucide-react';
 import { Post, VoteOption, User } from '../types';
 import UnifiedProgressBar from './UnifiedProgressBar';
 import { ConsensusInsightGenerator } from '../utils/consensusInsights';
@@ -8,6 +8,7 @@ import SimpleApprovalCard from './approval/SimpleApprovalCard';
 import CommitteeReviewStatus from './committee/CommitteeReviewStatus';
 import { systemModeManager, SystemMode } from '../config/systemMode';
 import { agendaLevelEngine } from '../systems/agenda/engines/AgendaLevelEngine';
+import AgendaDeadlineManager from '../utils/agendaDeadlineManager';
 
 interface VotingSectionProps {
   post: Post;
@@ -205,6 +206,43 @@ const VotingSection: React.FC<VotingSectionProps> = ({
                 </div>
               </div>
             )}
+
+            {/* 投票期限表示（議題モード専用） */}
+            {currentMode === SystemMode.AGENDA && post.agendaDeadline && (() => {
+              const deadlineInfo = AgendaDeadlineManager.getDeadlineInfo(
+                post.agendaDeadline,
+                post.agendaDeadlineExtensions || 0
+              );
+              const deadlineMessage = AgendaDeadlineManager.getDeadlineMessage(deadlineInfo);
+              const committeeDescription = AgendaDeadlineManager.getCommitteeDeadlineDescription(post.committeeStatus);
+
+              if (deadlineInfo.isExpired) return null; // 期限切れは非表示
+
+              return (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <Clock className="w-3 h-3" />
+                      <span>投票期限: {AgendaDeadlineManager.formatDeadline(post.agendaDeadline)}</span>
+                    </div>
+                    {deadlineMessage && (
+                      <span className={`font-medium ${
+                        deadlineMessage.severity === 'error' ? 'text-red-600' :
+                        deadlineMessage.severity === 'warning' ? 'text-orange-600' :
+                        'text-blue-600'
+                      }`}>
+                        {deadlineMessage.message}
+                      </span>
+                    )}
+                  </div>
+                  {committeeDescription && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      💡 {committeeDescription}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* プロジェクトモードの場合は従来のバッジ表示 */}
             {currentMode === SystemMode.PROJECT && (

@@ -113,12 +113,25 @@ export interface Post {
     committeeSubmissionDate?: string;
     committeeApprovalStatus?: 'pending' | 'approved' | 'rejected';
     proposalDocumentId?: string;
+    // 管理職による処理状況
+    managementStatus?: 'unreviewed' | 'under_analysis' | 'document_draft' | 'ready_for_submission' | 'submitted';
+    lastReviewedBy?: string;
+    lastReviewedDate?: Date;
+    // 議題候補マーク
+    markedAsAgendaCandidate?: boolean;
+    markedBy?: string;
+    markedDate?: Date;
   };
 
   // 委員会詳細情報（議題モード専用）
   committeeStatus?: import('./committee').CommitteeStatus;
   committeeInfo?: import('./committee').CommitteeInfo;
   committeeDecision?: import('./committee').CommitteeDecision;
+
+  // 議題モード専用の期限管理
+  agendaDeadline?: Date;           // 投票期限
+  agendaDeadlineExtensions?: number; // 延長回数
+  lastActivityDate?: Date;          // 最終活動日（投票・コメント）
 
   // プロジェクトモード用のステータス（チーム編成・協働）
   projectStatus?: string | {

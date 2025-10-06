@@ -70,7 +70,11 @@ const MainContent = ({ currentPage, selectedPostType, setSelectedPostType, toggl
       decision: 'pending',
       reason: '現在、業務改善委員会で詳細な実施計画を検討中です。次回委員会（10/25）で最終決定予定。',
       nextAction: '実施計画案の作成と予算見積もりの精査'
-    }
+    },
+    // 議題モード用：期限管理のデモデータ
+    agendaDeadline: new Date('2025-12-31'), // 委員会審議中のため延長済み
+    agendaDeadlineExtensions: 1,
+    lastActivityDate: new Date('2025-10-20')
   };
 
   // Phase 3: 投票完了時のWebhook通知対応
