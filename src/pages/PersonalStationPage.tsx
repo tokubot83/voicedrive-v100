@@ -26,7 +26,7 @@ import { SwipeIndicator } from '../components/common/SwipeableTabContainer';
 // Phase 2: 追跡機能統合
 import { agendaLevelEngine } from '../systems/agenda/engines/AgendaLevelEngine';
 import { projectLevelEngine } from '../systems/project/engines/ProjectLevelEngine';
-import { useProjectScoring } from '../hooks/useProjectScoring';
+import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 
 export const PersonalStationPage: React.FC = () => {
   const { user } = useAuth();
