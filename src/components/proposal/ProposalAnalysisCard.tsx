@@ -7,11 +7,24 @@ import React, { useState } from 'react';
 import { Post, User } from '../../types';
 import { AgendaLevel } from '../../types/committee';
 import { VoteAnalysis, CommentAnalysis } from '../../types/proposalDocument';
-import { BarChart3, MessageSquare, TrendingUp, Users, Calendar, Star, Send, Clock, ThumbsUp, ThumbsDown, Pause, FileText, AlertCircle } from 'lucide-react';
+import { BarChart3, MessageSquare, TrendingUp, Users, Calendar, Star, Send, Clock, ThumbsUp, ThumbsDown, Pause, FileText, AlertCircle, ArrowUp, CheckCircle, XCircle, Play } from 'lucide-react';
 import { analyzeVotes, analyzeComments } from '../../utils/proposalAnalyzer';
 import { proposalPermissionService } from '../../services/ProposalPermissionService';
 import AgendaDeadlineManager from '../../utils/agendaDeadlineManager';
 import { AgendaResponsibilityService, ResponsibilityAction } from '../../systems/agenda/services/AgendaResponsibilityService';
+
+// タイムラインイベント型
+interface TimelineEvent {
+  id: string;
+  type: 'created' | 'level_up' | 'vote_milestone' | 'comment' | 'deadline' | 'action';
+  timestamp: Date;
+  title: string;
+  description?: string;
+  icon: React.ReactNode;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+}
 
 interface ProposalAnalysisCardProps {
   post: Post;
@@ -87,6 +100,188 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
   };
 
   const config = levelConfig[agendaLevel] || levelConfig.PENDING;
+
+  // タイムラインイベントを生成
+  const generateTimeline = (): TimelineEvent[] => {
+    const events: TimelineEvent[] = [];
+
+    // 1. 投稿作成
+    events.push({
+      id: 'created',
+      type: 'created',
+      timestamp: post.createdAt || post.timestamp,
+      title: '投稿作成',
+      description: `${post.author.name}が提案を投稿`,
+      icon: <FileText className="w-4 h-4" />,
+      color: 'text-blue-400',
+      bgColor: 'bg-blue-500/20',
+      borderColor: 'border-blue-500'
+    });
+
+    // 2. レベル昇格イベント（スコアから推測）
+    const levelThresholds = [
+      { level: 'DEPT_REVIEW' as AgendaLevel, threshold: 30, label: '部署検討' },
+      { level: 'DEPT_AGENDA' as AgendaLevel, threshold: 50, label: '部署議題' },
+      { level: 'FACILITY_AGENDA' as AgendaLevel, threshold: 100, label: '施設議題' },
+      { level: 'CORP_REVIEW' as AgendaLevel, threshold: 300, label: '法人検討' },
+      { level: 'CORP_AGENDA' as AgendaLevel, threshold: 600, label: '法人議題' }
+    ];
+
+    levelThresholds.forEach((lvl, index) => {
+      if (currentScore >= lvl.threshold) {
+        // レベル到達の推定日時（投稿からの経過日数で推測）
+        const daysAfterCreation = index + 2; // 2日、3日、4日...と仮定
+        const estimatedDate = new Date(post.createdAt || post.timestamp);
+        estimatedDate.setDate(estimatedDate.getDate() + daysAfterCreation);
+
+        events.push({
+          id: `levelup-${lvl.level}`,
+          type: 'level_up',
+          timestamp: estimatedDate,
+          title: `${lvl.label}に到達`,
+          description: `スコア${lvl.threshold}点を達成`,
+          icon: <ArrowUp className="w-4 h-4" />,
+          color: 'text-yellow-400',
+          bgColor: 'bg-yellow-500/20',
+          borderColor: 'border-yellow-500'
+        });
+      }
+    });
+
+    // 3. 投票マイルストーン
+    const totalVotes = Object.values(post.votes || {}).reduce((sum, count) => sum + count, 0);
+    if (totalVotes >= 10) {
+      const voteDate = post.lastActivityDate || new Date();
+      events.push({
+        id: 'votes-10',
+        type: 'vote_milestone',
+        timestamp: voteDate,
+        title: `${totalVotes}票獲得`,
+        description: `支持率${voteAnalysis.supportRate}%`,
+        icon: <ThumbsUp className="w-4 h-4" />,
+        color: 'text-purple-400',
+        bgColor: 'bg-purple-500/20',
+        borderColor: 'border-purple-500'
+      });
+    }
+
+    // 4. コメント追加
+    if (commentAnalysis.totalComments > 0) {
+      events.push({
+        id: 'comments',
+        type: 'comment',
+        timestamp: post.lastActivityDate || new Date(),
+        title: `${commentAnalysis.totalComments}件のコメント`,
+        description: `賛成${commentAnalysis.supportComments}、懸念${commentAnalysis.concernComments}`,
+        icon: <MessageSquare className="w-4 h-4" />,
+        color: 'text-green-400',
+        bgColor: 'bg-green-500/20',
+        borderColor: 'border-green-500'
+      });
+    }
+
+    // 5. 期限イベント
+    if (post.agendaDeadline && deadlineInfo) {
+      if (deadlineInfo.isExpired) {
+        events.push({
+          id: 'deadline-expired',
+          type: 'deadline',
+          timestamp: post.agendaDeadline,
+          title: '投票期限終了',
+          description: '責任者の判断待ち',
+          icon: <Clock className="w-4 h-4" />,
+          color: 'text-red-400',
+          bgColor: 'bg-red-500/20',
+          borderColor: 'border-red-500'
+        });
+      }
+    }
+
+    // タイムスタンプでソート（古い順）
+    return events.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  };
+
+  const timelineEvents = generateTimeline();
+
+  // 次のアクションを決定
+  const getNextAction = (): { title: string; description: string; type: 'info' | 'warning' | 'success' } | null => {
+    if (!deadlineInfo) return null;
+
+    if (deadlineInfo.isExpired) {
+      // 期限切れ：責任者の判断待ち
+      if (responsibilityPermissions && canEdit) {
+        const availableActions = [
+          responsibilityPermissions.reject.allowed && '却下',
+          responsibilityPermissions.hold.allowed && '保留',
+          responsibilityPermissions.departmentMatter.allowed && '部署案件化',
+          responsibilityPermissions.approveLevelUp.allowed && 'レベルアップ承認'
+        ].filter(Boolean);
+
+        return {
+          title: '🎯 あなたの判断が必要です',
+          description: `実行可能なアクション: ${availableActions.join('、')}`,
+          type: 'warning'
+        };
+      } else {
+        return {
+          title: '⏰ 投票期限終了',
+          description: '責任者の判断を待っています',
+          type: 'info'
+        };
+      }
+    } else if (deadlineInfo.isNearExpiration) {
+      // 期限が近い：投票を呼びかけ
+      return {
+        title: '⚠️ 投票期限が近づいています',
+        description: `残り${deadlineInfo.remainingDays}日 - より多くの投票を集めましょう`,
+        type: 'warning'
+      };
+    } else {
+      // 通常：投票継続中
+      const nextThreshold = getNextLevelThreshold();
+      if (nextThreshold) {
+        return {
+          title: '✅ 投票継続中',
+          description: `次のレベル「${nextThreshold.label}」まであと${nextThreshold.remaining}点`,
+          type: 'success'
+        };
+      }
+    }
+
+    return null;
+  };
+
+  const getNextLevelThreshold = (): { label: string; remaining: number } | null => {
+    if (currentScore >= 600) return null;
+    if (currentScore >= 300) return { label: '法人議題', remaining: 600 - currentScore };
+    if (currentScore >= 100) return { label: '法人検討', remaining: 300 - currentScore };
+    if (currentScore >= 50) return { label: '施設議題', remaining: 100 - currentScore };
+    if (currentScore >= 30) return { label: '部署議題', remaining: 50 - currentScore };
+    return { label: '部署検討', remaining: 30 - currentScore };
+  };
+
+  const nextAction = getNextAction();
+
+  // タイムスタンプのフォーマット
+  const formatTimestamp = (timestamp: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - timestamp.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'たった今';
+    if (diffMins < 60) return `${diffMins}分前`;
+    if (diffHours < 24) return `${diffHours}時間前`;
+    if (diffDays < 7) return `${diffDays}日前`;
+
+    return timestamp.toLocaleDateString('ja-JP', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   return (
     <div className="bg-gray-800/50 rounded-xl border border-gray-700/50 overflow-hidden">
@@ -207,6 +402,75 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
           <div className="text-2xl font-bold text-blue-400">{commentAnalysis.totalComments}</div>
           <div className="text-xs text-gray-400">コメント数</div>
         </div>
+      </div>
+
+      {/* 投稿ストーリー（タイムライン） */}
+      <div className="p-4 bg-gray-900/30 border-y border-gray-700/50">
+        <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+          📖 投稿ストーリー
+        </h4>
+        <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+          {timelineEvents.map((event, index) => {
+            const isLast = index === timelineEvents.length - 1;
+            return (
+              <div key={event.id} className="relative">
+                {/* タイムライン線 */}
+                {!isLast && (
+                  <div className="absolute left-5 top-10 bottom-0 w-0.5 bg-gray-700" />
+                )}
+
+                {/* イベントカード */}
+                <div className="flex gap-3">
+                  {/* アイコン */}
+                  <div
+                    className={`flex-shrink-0 w-10 h-10 rounded-full ${event.bgColor} border-2 ${event.borderColor} flex items-center justify-center ${event.color} z-10`}
+                  >
+                    {event.icon}
+                  </div>
+
+                  {/* 内容 */}
+                  <div className="flex-1 bg-gray-700/30 rounded-lg p-3">
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <span className={`text-xs font-bold ${event.color}`}>
+                        {event.title}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {formatTimestamp(event.timestamp)}
+                      </span>
+                    </div>
+                    {event.description && (
+                      <p className="text-xs text-gray-300">{event.description}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 次のアクション */}
+        {nextAction && (
+          <div className={`mt-4 p-3 rounded-lg border ${
+            nextAction.type === 'warning' ? 'bg-orange-900/20 border-orange-500/30' :
+            nextAction.type === 'success' ? 'bg-green-900/20 border-green-500/30' :
+            'bg-blue-900/20 border-blue-500/30'
+          }`}>
+            <div className={`text-sm font-bold mb-1 ${
+              nextAction.type === 'warning' ? 'text-orange-400' :
+              nextAction.type === 'success' ? 'text-green-400' :
+              'text-blue-400'
+            }`}>
+              {nextAction.title}
+            </div>
+            <p className={`text-xs ${
+              nextAction.type === 'warning' ? 'text-orange-300' :
+              nextAction.type === 'success' ? 'text-green-300' :
+              'text-blue-300'
+            }`}>
+              {nextAction.description}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* 詳細表示トグル */}
