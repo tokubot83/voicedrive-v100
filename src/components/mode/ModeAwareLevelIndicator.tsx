@@ -2,7 +2,7 @@
 import React from 'react';
 import { systemModeManager, SystemMode } from '../../config/systemMode';
 import { AgendaLevelIndicator } from '../post/AgendaLevelIndicator';
-import { ProjectLevelBadge } from '../projects/ProjectLevelBadge';
+import ProjectLevelBadge from '../projects/ProjectLevelBadge';
 import { agendaLevelEngine } from '../../systems/agenda/engines/AgendaLevelEngine';
 import { projectLevelEngine } from '../../systems/project/engines/ProjectLevelEngine';
 import { Post, User } from '../../types';

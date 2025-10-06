@@ -4,7 +4,7 @@ import { Post, VoteOption, User } from '../types';
 import UnifiedProgressBar from './UnifiedProgressBar';
 import { ConsensusInsightGenerator } from '../utils/consensusInsights';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
-import ProjectLevelBadge from './projects/ProjectLevelBadge';
+import ModeAwareLevelIndicator from './mode/ModeAwareLevelIndicator';
 import SimpleApprovalCard from './approval/SimpleApprovalCard';
 
 interface VotingSectionProps {
@@ -96,10 +96,10 @@ const VotingSection: React.FC<VotingSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* みんなの投票スコア（改善提案用） - UnifiedProgressBarと完全同一スタイル */}
-      {post.type === 'improvement' && (
+      {/* みんなの投票スコア（改善提案用） - モード対応レベル表示 */}
+      {post.type === 'improvement' && currentUser && (
         <div className="w-full bg-white border border-emerald-300 rounded-xl p-4 hover:border-emerald-400 transition-all">
-          {/* Header Section - UnifiedProgressBarと同一 */}
+          {/* Header Section */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg border text-emerald-700 border-emerald-300">
@@ -114,28 +114,15 @@ const VotingSection: React.FC<VotingSectionProps> = ({
               </div>
             </div>
           </div>
-          {/* ProjectLevelBadgeの内容部分 */}
-          <ProjectLevelBadge
-            level={
-              currentScore >= 600 ? 'CORP_AGENDA' :      // 法人議題（理事会提出）
-              currentScore >= 300 ? 'CORP_REVIEW' :      // 法人検討
-              currentScore >= 100 ? 'FACILITY_AGENDA' :  // 施設議題（委員会提出）
-              currentScore >= 50 ? 'DEPT_AGENDA' :       // 部署議題
-              currentScore >= 30 ? 'DEPT_REVIEW' :       // 部署検討
-              'PENDING'                                   // 検討中
-            }
-            score={currentScore}
-            isAnimated={false}
-            showNextLevel={true}
-            nextLevelInfo={
-              currentScore >= 600 ? undefined :
-              currentScore >= 300 ? { label: '法人議題', remainingPoints: Math.round(600 - currentScore) } :
-              currentScore >= 100 ? { label: '法人検討', remainingPoints: Math.round(300 - currentScore) } :
-              currentScore >= 50 ? { label: '施設議題', remainingPoints: Math.round(100 - currentScore) } :
-              currentScore >= 30 ? { label: '部署議題', remainingPoints: Math.round(50 - currentScore) } :
-              { label: '部署検討', remainingPoints: Math.round(30 - currentScore) }
-            }
+          {/* モード対応のレベル表示 - システムモードに応じて議題モード/プロジェクトモードの表示を自動切り替え */}
+          <ModeAwareLevelIndicator
+            post={post}
+            currentUser={currentUser}
+            currentScore={currentScore}
             compact={true}
+            showNextLevel={true}
+            supportRate={consensusData.percentage}
+            totalVotes={Object.values(safeVotes).reduce((a, b) => a + b, 0)}
           />
         </div>
       )}
