@@ -117,9 +117,33 @@ const ProposalManagementGuide: React.FC = () => {
                     <h4 className="text-xl font-semibold text-blue-300 mb-3">【第3章】主任・佐藤さんの判断（Level 6）</h4>
                     <p className="text-lg leading-relaxed">
                       主任の佐藤さんは、議題モードの「投稿管理」で山田さんの提案を見つけました。<br />
+                      画面には「投票期限：あと3日」という表示と、「投稿ストーリー」のタイムラインが表示されています。<br />
                       投票データを確認すると、支持率85%、賛成意見が多数。<br />
                       「これは部署ミーティングで話し合うべき内容だ」と判断しました。
                     </p>
+                    <div className="mt-4 bg-yellow-900/20 rounded-lg p-4 border border-yellow-500/30">
+                      <p className="text-lg"><strong>⏰ 重要な仕組み：</strong><br />
+                      投票期限内は、佐藤さんも「却下」や「保留」を選択できません。これは公平性を確保するためです。<br />
+                      職員の投票機会を守り、期限終了後に投票結果を見て判断します。<br />
+                      ただし、「レベルアップの承認」は期限内でも可能です。</p>
+                    </div>
+                    <div className="mt-4 bg-purple-900/20 rounded-lg p-4 border border-purple-500/30">
+                      <p className="text-lg"><strong>📖 投稿ストーリーで確認：</strong><br />
+                      画面のタイムラインには、以下の経緯が時系列で表示されていました：<br />
+                      • 2週間前：山田さんが投稿<br />
+                      • 10日前：同僚20名が投票<br />
+                      • 8日前：30点到達で部署検討レベルに自動昇格<br />
+                      • 5日前：建設的なコメントが5件追加<br />
+                      • 現在：投票期限まであと3日</p>
+                    </div>
+                    <div className="mt-4 bg-green-900/20 rounded-lg p-4 border border-green-500/30">
+                      <p className="text-lg"><strong>🕐 期限終了後：</strong><br />
+                      3日後、投票期限が終了しました。画面に「次にすべきこと」として以下の選択肢が表示されます：<br />
+                      ✅ 承認してレベルアップ<br />
+                      ❌ 却下する<br />
+                      ⏸️ 保留する<br />
+                      🏥 部署事項に変更</p>
+                    </div>
                     <div className="mt-4 bg-purple-900/20 rounded-lg p-4 border border-purple-500/30">
                       <p className="text-lg"><strong>📝 佐藤さんの行動：</strong><br />
                       「議題提案書を作成」ボタンをクリック。<br />
@@ -180,6 +204,18 @@ const ProposalManagementGuide: React.FC = () => {
                         <span className="text-green-400 mt-1">✓</span>
                         <span><strong>スコアによる自動昇格</strong>：管理職が判断するのではなく、職員の投票で透明に決まる</span>
                       </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-400 mt-1">✓</span>
+                        <span><strong>投票期限と公平性</strong>：期限内は却下できない仕組みで、職員の投票機会を守る</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-400 mt-1">✓</span>
+                        <span><strong>投稿ストーリーで経緯が見える</strong>：タイムラインで提案の成長過程を確認できる</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-400 mt-1">✓</span>
+                        <span><strong>次のアクション表示</strong>：期限終了後、画面に「次にすべきこと」が表示される</span>
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -198,8 +234,32 @@ const ProposalManagementGuide: React.FC = () => {
               <div className="mb-6 bg-purple-900/20 rounded-xl p-6 border border-purple-500/30">
                 <p className="text-xl text-gray-300 leading-relaxed">
                   投票・コメントが集まると、提案は自動的にレベルアップします。<br />
-                  各レベルには担当者と提出先委員会が決まっています。
+                  各レベルには担当者、提出先委員会、そして投票期限が決まっています。
                 </p>
+              </div>
+
+              <div className="mb-6 bg-yellow-900/20 rounded-xl p-6 border border-yellow-500/30">
+                <h3 className="text-xl font-semibold text-yellow-300 mb-3 flex items-center gap-2">
+                  <span>⏰</span>
+                  投票期限について
+                </h3>
+                <p className="text-lg text-gray-300 leading-relaxed mb-3">
+                  各レベルには投票期限が設定されています。期限内は職員の投票を優先し、期限終了後に管理職が判断を行います。
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-gray-700/30 p-3 rounded-lg">
+                    <span className="text-white">✓ <strong>検討中・部署検討：</strong> 14日間</span>
+                  </div>
+                  <div className="bg-gray-700/30 p-3 rounded-lg">
+                    <span className="text-white">✓ <strong>部署議題：</strong> 30日間</span>
+                  </div>
+                  <div className="bg-gray-700/30 p-3 rounded-lg">
+                    <span className="text-white">✓ <strong>施設議題：</strong> 60日間</span>
+                  </div>
+                  <div className="bg-gray-700/30 p-3 rounded-lg">
+                    <span className="text-white">✓ <strong>法人検討・法人議題：</strong> 90日間</span>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-6">
@@ -365,6 +425,18 @@ const ProposalManagementGuide: React.FC = () => {
 
               <div className="space-y-6">
                 {[
+                  {
+                    question: 'なぜ投票期限内は却下できないのですか？',
+                    answer: 'これは公平性を確保するための重要な仕組みです。もし期限内に管理職が却下できると、職員の投票機会が奪われてしまいます。期限内は職員の投票を優先し、期限後に投票結果を見て管理職が判断します。レベルアップの承認は期限内でも可能です。この仕組みにより、「職員の声を尊重する」というVoiceDriveの理念が守られています。'
+                  },
+                  {
+                    question: '投票期限が終了したら、どう対応すればいいですか？',
+                    answer: '期限終了後、画面に「次にすべきこと」が表示されます。投票結果を確認して、以下のいずれかを選択してください：①承認してレベルアップ、②却下する、③保留する、④部署事項に変更。投稿ストーリー（タイムライン）で経緯を確認すると、判断の参考になります。'
+                  },
+                  {
+                    question: '投稿ストーリー（タイムライン）には何が表示されますか？',
+                    answer: '投稿の作成から現在までの経緯が時系列で表示されます：投稿作成日時、職員の投票数の推移、レベルアップのタイミング、コメント追加、投票期限などです。「この提案がどう育ってきたか」が一目で分かるので、判断の重要な材料になります。'
+                  },
                   {
                     question: 'システムが自動で提案書を作るなら、私は何をすればいいのですか？',
                     answer: 'システムは投票データやコメントを整理しますが、現場の実情や追加の背景情報は管理職の方にしかわかりません。「なぜこの提案が重要なのか」「現場ではどう受け止められているか」といった補足説明を追加することで、委員会での審議がスムーズになります。'
