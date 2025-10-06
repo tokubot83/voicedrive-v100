@@ -14,16 +14,19 @@ import {
 /**
  * レベルからアカウントタイプ名への変換
  * @param level 権限レベル
- * @param canPerformLeaderDuty リーダー業務可否（看護職の場合）
+ * @param canPerformLeaderDuty リーダー業務可否（看護職の場合のみ有効）
+ * @param professionCategory 職種カテゴリ（省略時は看護職として扱う）
  * @returns アカウントタイプ名
  */
 export function mapLevelToAccountType(
   level: number,
-  canPerformLeaderDuty: boolean = false
+  canPerformLeaderDuty: boolean = false,
+  professionCategory?: ProfessionCategory | string | null
 ): AccountTypeName {
-  // 看護職のリーダー可の場合、0.5刻みレベルを使用
+  // 看護職 × Level 1-4 × リーダー可 の場合のみ0.5刻みレベルを使用
+  const isNursing = professionCategory === undefined || professionCategory === 'nursing';
   const effectiveLevel =
-    canPerformLeaderDuty && level >= 1 && level <= 4 && Number.isInteger(level)
+    isNursing && canPerformLeaderDuty && level >= 1 && level <= 4 && Number.isInteger(level)
       ? level + 0.5
       : level;
 
