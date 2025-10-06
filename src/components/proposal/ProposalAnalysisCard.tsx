@@ -7,13 +7,15 @@ import React, { useState } from 'react';
 import { Post } from '../../types';
 import { AgendaLevel } from '../../types/committee';
 import { VoteAnalysis, CommentAnalysis } from '../../types/proposalDocument';
-import { BarChart3, MessageSquare, TrendingUp, Users, Calendar, Star } from 'lucide-react';
+import { BarChart3, MessageSquare, TrendingUp, Users, Calendar, Star, Send } from 'lucide-react';
 import { analyzeVotes, analyzeComments } from '../../utils/proposalAnalyzer';
+import { proposalPermissionService } from '../../services/ProposalPermissionService';
 
 interface ProposalAnalysisCardProps {
   post: Post;
   agendaLevel: AgendaLevel;
   currentScore: number;
+  canEdit: boolean;  // 編集権限があるか
   onCreateDocument?: () => void;
   onMarkAsCandidate?: () => void;
   isMarkedAsCandidate?: boolean;
@@ -23,6 +25,7 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
   post,
   agendaLevel,
   currentScore,
+  canEdit,
   onCreateDocument,
   onMarkAsCandidate,
   isMarkedAsCandidate = false
@@ -31,6 +34,10 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
 
   const voteAnalysis = analyzeVotes(post);
   const commentAnalysis = analyzeComments(post);
+
+  // 議題レベルの責任情報を取得
+  const responsibility = proposalPermissionService.getResponsibility(agendaLevel);
+  const targetCommittee = responsibility?.targetCommittee;
 
   // 議題レベルのラベルと色
   const levelConfig = {
@@ -66,7 +73,7 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-sm text-gray-400">
+        <div className="flex items-center gap-4 text-sm text-gray-400 flex-wrap">
           <div className="flex items-center gap-1">
             <Calendar className="w-4 h-4" />
             {new Date(post.timestamp).toLocaleDateString('ja-JP')}
@@ -75,6 +82,12 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
             <Users className="w-4 h-4" />
             {post.author.department}
           </div>
+          {targetCommittee && targetCommittee !== 'なし（様子見）' && (
+            <div className="flex items-center gap-1 text-purple-400">
+              <Send className="w-4 h-4" />
+              提出先: {targetCommittee}
+            </div>
+          )}
         </div>
       </div>
 
@@ -210,7 +223,7 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
             {isMarkedAsCandidate ? '候補マーク済み' : '議題候補としてマーク'}
           </button>
         )}
-        {onCreateDocument && (
+        {onCreateDocument && canEdit && (
           <button
             onClick={onCreateDocument}
             className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"

@@ -28,6 +28,7 @@ export interface AgendaResponsibility {
   targetPermissionLevel: number;  // 本来の担当レベル
   description: string;
   label: string;
+  targetCommittee: string;  // 提出先委員会
   nextLevel?: AgendaLevel;
   nextLevelThreshold?: number;
 }
@@ -40,8 +41,9 @@ export const AGENDA_RESPONSIBILITIES: AgendaResponsibility[] = [
     agendaLevel: 'PENDING',
     minPermissionLevel: 5,   // 副主任以上（いない場合は主任）
     targetPermissionLevel: 5,
-    description: '検討中の投稿を部署検討へ昇格させる判断',
+    description: '検討中（様子見・提案書不要）',
     label: '検討中 (0-29点)',
+    targetCommittee: 'なし（様子見）',
     nextLevel: 'DEPT_REVIEW',
     nextLevelThreshold: 30
   },
@@ -49,8 +51,9 @@ export const AGENDA_RESPONSIBILITIES: AgendaResponsibility[] = [
     agendaLevel: 'DEPT_REVIEW',
     minPermissionLevel: 6,   // 主任以上
     targetPermissionLevel: 6,
-    description: '部署検討を部署議題へ昇格させる判断',
+    description: '部署内で議論するための提案書作成',
     label: '部署検討 (30-49点)',
+    targetCommittee: '部署ミーティング',
     nextLevel: 'DEPT_AGENDA',
     nextLevelThreshold: 50
   },
@@ -58,8 +61,9 @@ export const AGENDA_RESPONSIBILITIES: AgendaResponsibility[] = [
     agendaLevel: 'DEPT_AGENDA',
     minPermissionLevel: 8,   // 師長以上
     targetPermissionLevel: 8,
-    description: '部署議題を施設議題へ昇格させる判断',
+    description: '施設レベルで検討するための提案書作成',
     label: '部署議題 (50-99点)',
+    targetCommittee: '施設運営委員会',
     nextLevel: 'FACILITY_AGENDA',
     nextLevelThreshold: 100
   },
@@ -67,8 +71,9 @@ export const AGENDA_RESPONSIBILITIES: AgendaResponsibility[] = [
     agendaLevel: 'FACILITY_AGENDA',
     minPermissionLevel: 10,  // 部長以上
     targetPermissionLevel: 10,
-    description: '施設議題を法人検討へ昇格させる判断',
+    description: '法人レベルで検討するための提案書作成',
     label: '施設議題 (100-299点)',
+    targetCommittee: '法人運営委員会',
     nextLevel: 'CORP_REVIEW',
     nextLevelThreshold: 300
   },
@@ -76,8 +81,9 @@ export const AGENDA_RESPONSIBILITIES: AgendaResponsibility[] = [
     agendaLevel: 'CORP_REVIEW',
     minPermissionLevel: 12,  // 副院長以上
     targetPermissionLevel: 12,
-    description: '法人検討を法人議題へ昇格させる判断',
+    description: '理事会で検討するための提案書作成',
     label: '法人検討 (300-599点)',
+    targetCommittee: '法人理事会',
     nextLevel: 'CORP_AGENDA',
     nextLevelThreshold: 600
   },
@@ -85,8 +91,9 @@ export const AGENDA_RESPONSIBILITIES: AgendaResponsibility[] = [
     agendaLevel: 'CORP_AGENDA',
     minPermissionLevel: 13,  // 院長以上
     targetPermissionLevel: 13,
-    description: '法人議題の最終判断',
-    label: '法人議題 (600点以上)'
+    description: '最終決定機関での審議のための提案書作成',
+    label: '法人議題 (600点以上)',
+    targetCommittee: '最終決定機関（理事会）'
   }
 ];
 

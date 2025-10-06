@@ -309,12 +309,14 @@ export const ProposalManagementPage: React.FC = () => {
         ) : viewMode === 'analysis' ? (
           filteredPosts.map(post => {
             const postData = getPostData(post);
+            const permission = activeUser ? proposalPermissionService.getPermission(activeUser, postData.agendaLevel) : { canEdit: false };
             return (
               <ProposalAnalysisCard
                 key={post.id}
                 post={post}
                 agendaLevel={postData.agendaLevel}
                 currentScore={postData.currentScore}
+                canEdit={permission.canEdit}
                 onCreateDocument={() => handleCreateDocument(post)}
                 onMarkAsCandidate={() => handleMarkAsCandidate(post.id)}
                 isMarkedAsCandidate={markedCandidates.has(post.id)}

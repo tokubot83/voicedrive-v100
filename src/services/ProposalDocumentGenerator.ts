@@ -17,6 +17,7 @@ import {
   generateCounterMeasures
 } from '../utils/proposalAnalyzer';
 import { proposalAuditService } from './ProposalAuditService';
+import { proposalPermissionService } from './ProposalPermissionService';
 
 export class ProposalDocumentGenerator {
   private static instance: ProposalDocumentGenerator;
@@ -44,6 +45,10 @@ export class ProposalDocumentGenerator {
     const commentAnalysis = analyzeComments(post);
     const relatedInfo = analyzeRelatedInfo(post);
 
+    // 議題レベルに応じた提出先委員会を取得
+    const responsibility = proposalPermissionService.getResponsibility(agendaLevel);
+    const targetCommittee = responsibility?.targetCommittee || '未定';
+
     // 提案書作成
     const documentId = `doc-${post.id}-${Date.now()}`;
     const now = new Date();
@@ -56,6 +61,7 @@ export class ProposalDocumentGenerator {
       // 基本情報
       title: this.generateTitle(post),
       agendaLevel,
+      targetCommittee,  // 議題レベルに応じた委員会を自動設定
       createdBy,
       createdDate: now,
       lastModifiedDate: now,

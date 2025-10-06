@@ -150,6 +150,12 @@ export const ProposalDocumentEditor: React.FC = () => {
              document.status === 'submitted' ? '委員会提出済み' :
              document.status}
           </span>
+          {document.targetCommittee && (
+            <span className="px-3 py-1 rounded text-sm font-medium bg-purple-900/30 text-purple-400 flex items-center gap-1">
+              <Send className="w-3 h-3" />
+              提出先: {document.targetCommittee}
+            </span>
+          )}
           <div className="flex items-center gap-2 text-sm text-gray-400">
             <Calendar className="w-4 h-4" />
             作成: {new Date(document.createdDate).toLocaleDateString('ja-JP')}

@@ -65,7 +65,7 @@ export const ProposalDocumentCard: React.FC<ProposalDocumentCardProps> = ({
       </div>
 
       {/* 情報 */}
-      <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
+      <div className="flex items-center gap-4 text-sm text-gray-400 mb-4 flex-wrap">
         <div className="flex items-center gap-1">
           <Calendar className="w-4 h-4" />
           作成: {new Date(document.createdDate).toLocaleDateString('ja-JP')}
@@ -74,6 +74,12 @@ export const ProposalDocumentCard: React.FC<ProposalDocumentCardProps> = ({
           <User className="w-4 h-4" />
           {document.createdBy.name}
         </div>
+        {document.targetCommittee && (
+          <div className="flex items-center gap-1 text-purple-400">
+            <FileText className="w-4 h-4" />
+            提出先: {document.targetCommittee}
+          </div>
+        )}
       </div>
 
       {/* 統計 */}

@@ -10,7 +10,7 @@ const useIdeaVoiceMode = () => {
 };
 
 const UserGuide: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'search' | 'basic' | 'interview' | 'ideavoice' | 'freevoice'>('search');
+  const [activeTab, setActiveTab] = useState<'search' | 'basic' | 'interview' | 'ideavoice' | 'freevoice' | 'proposal_management'>('search');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const ideaVoiceMode = useIdeaVoiceMode();
@@ -72,6 +72,41 @@ const UserGuide: React.FC = () => {
       answer: '面談ステーションの「予約一覧」から該当の面談を選び、「キャンセル」ボタンを押してください。',
       category: 'interview',
       keywords: ['面談', 'キャンセル', '予約']
+    },
+    {
+      id: 9,
+      question: '投稿管理とは何ですか？',
+      answer: '主任・師長・部長など管理職の方が、職員の投稿を整理して委員会に提出するための機能です。投票データを客観的に分析し、透明性を保ちながら議題提案書を作成できます。詳しい使い方は「投稿管理ガイド」をご覧ください。',
+      category: 'proposal_management',
+      keywords: ['投稿管理', '管理職', '議題', '提案書', '委員会']
+    },
+    {
+      id: 10,
+      question: 'なぜ主任と師長で別々に議題提案書を作るのですか？',
+      answer: '提出先の委員会が異なるためです。主任は「部署ミーティング」に、師長は「施設運営委員会」に提出します。部署レベルで解決できることは部署で完結し、施設全体で考えるべきことはより上のレベルへ上げる仕組みです。',
+      category: 'proposal_management',
+      keywords: ['主任', '師長', '提案書', '委員会', 'レベル']
+    },
+    {
+      id: 11,
+      question: '議題提案書を作成するにはどうすればいいですか？',
+      answer: '議題モードの左サイドバーから「投稿管理」を開き、「管轄のみ」タブで担当範囲の投稿を確認します。「議題提案書を作成」ボタンを押すと、投票データやコメントから自動で提案書が生成されます。その後、補足説明を追加して提出準備完了にしてください。',
+      category: 'proposal_management',
+      keywords: ['提案書', '作成', '投稿管理', '自動生成']
+    },
+    {
+      id: 12,
+      question: '投票数が増えて自動昇格したら、前の提案書は無駄になりますか？',
+      answer: 'いいえ、無駄ではありません。部署レベルの議論の記録として残り、上のレベルで提案書を作る際の参考資料になります。「部署では賛成だった」という事実が重要な情報となります。',
+      category: 'proposal_management',
+      keywords: ['昇格', '提案書', '無駄', 'スコア']
+    },
+    {
+      id: 13,
+      question: '「管轄のみ」と「全て」の違いは何ですか？',
+      answer: '「管轄のみ」は、あなたが編集・提出できる議題レベルの投稿のみを表示します。「全て」は、閲覧可能な全ての投稿を表示しますが、管轄外の投稿は編集できません。普段は「管轄のみ」で自分の担当範囲を確認することをお勧めします。',
+      category: 'proposal_management',
+      keywords: ['管轄', '全て', '編集', '閲覧', '権限']
     }
   ];
 
@@ -113,7 +148,8 @@ const UserGuide: React.FC = () => {
               { id: 'basic' as const, label: '基本操作', icon: '🏠' },
               { id: 'interview' as const, label: '面談予約', icon: '📅' },
               { id: 'ideavoice' as const, label: 'アイデアボイス', icon: '💡' },
-              { id: 'freevoice' as const, label: 'フリーボイス', icon: '💬' }
+              { id: 'freevoice' as const, label: 'フリーボイス', icon: '💬' },
+              { id: 'proposal_management' as const, label: '投稿管理（管理職向け）', icon: '🤝' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -670,6 +706,68 @@ const UserGuide: React.FC = () => {
                     </li>
                   </ul>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* 投稿管理（管理職向け） */}
+          {activeTab === 'proposal_management' && (
+            <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-purple-500/30">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                <span className="text-purple-400">🤝</span>
+                投稿管理（管理職向け）
+              </h2>
+
+              <div className="mb-6 bg-purple-900/20 rounded-xl p-6 border border-purple-500/30">
+                <p className="text-xl text-gray-300 leading-relaxed">
+                  主任・師長・部長など管理職の方が、職員の投稿を整理して委員会に提出するための機能です。<br />
+                  投票データを客観的に分析し、透明性を保ちながら議題提案書を作成できます。
+                </p>
+              </div>
+
+              {/* FAQ */}
+              <div className="space-y-4">
+                {faqData.filter(faq => faq.category === 'proposal_management').map((faq) => (
+                  <div
+                    key={faq.id}
+                    className="bg-gray-700/50 rounded-xl overflow-hidden border border-gray-600/50"
+                  >
+                    <button
+                      onClick={() => toggleFaq(faq.id)}
+                      className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-600/50 transition-colors"
+                    >
+                      <h3 className="text-xl font-semibold text-white pr-4">{faq.question}</h3>
+                      {expandedFaq === faq.id ? (
+                        <ChevronUp className="w-6 h-6 text-blue-400 flex-shrink-0" />
+                      ) : (
+                        <ChevronDown className="w-6 h-6 text-gray-400 flex-shrink-0" />
+                      )}
+                    </button>
+                    {expandedFaq === faq.id && (
+                      <div className="px-6 pb-4">
+                        <p className="text-lg text-gray-300 leading-relaxed">{faq.answer}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* 詳しいガイドへのリンク */}
+              <div className="mt-8 bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-xl p-6 border border-purple-500/20">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                  <span>📚</span>
+                  さらに詳しく知りたい方へ
+                </h3>
+                <p className="text-lg text-gray-300 mb-4">
+                  画面操作の手順や具体例を交えた詳しいガイドをご用意しています。
+                </p>
+                <button
+                  onClick={() => window.location.href = '/proposal-management-guide'}
+                  className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors flex items-center gap-2"
+                >
+                  <span>📖</span>
+                  投稿管理の詳しい使い方ガイドを見る
+                </button>
               </div>
             </div>
           )}
