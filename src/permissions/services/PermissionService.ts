@@ -75,12 +75,6 @@ export class PermissionService {
     return canAccessProjectScope(userLevel, scope);
   }
   
-  // 承認可能な予算上限を取得
-  getApprovalLimit(userId: string): number | undefined {
-    const userLevel = this.getUserPermissionLevel(userId);
-    return PERMISSION_METADATA[userLevel].approvalLimit;
-  }
-  
   // ユーザーのメタデータを取得
   getUserPermissionMetadata(userId: string): PermissionMetadata {
     const userLevel = this.getUserPermissionLevel(userId);

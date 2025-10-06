@@ -88,16 +88,6 @@ export const PROJECT_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'project'
   },
 
-  // 予算管理（レベル11+：事務長以上）
-  budget_management: {
-    id: 'budget_management',
-    title: '予算管理',
-    label: '予算管理',
-    icon: '💰',
-    path: '/budget',
-    requiredLevel: 11,
-    category: 'project'
-  },
 
   // エグゼクティブダッシュボード（レベル12+：副院長以上）
   executive_dashboard: {

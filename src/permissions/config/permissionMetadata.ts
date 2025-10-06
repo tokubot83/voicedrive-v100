@@ -7,7 +7,6 @@ export interface PermissionMetadata {
   displayName: string;
   description: string;
   accessibleFeatures: string[];
-  approvalLimit?: number;
   projectScopes: ProjectScope[];
   menuItems: string[];
   analyticsAccess: boolean;
@@ -119,7 +118,6 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     displayName: '副主任',
     description: '主任補佐、チームサブリーダー',
     accessibleFeatures: ['create_post', 'vote', 'view_department_posts', 'approve_team_items', 'team_coordination'],
-    approvalLimit: 50000,
     projectScopes: [ProjectScope.TEAM],
     menuItems: ['personal_station', 'team_dashboard', 'proposal_review'],
     analyticsAccess: true,
@@ -132,7 +130,6 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     displayName: '主任',
     description: '各部署主任',
     accessibleFeatures: ['create_post', 'vote', 'view_department_posts', 'approve_team_projects', 'moderate_team'],
-    approvalLimit: 100000,
     projectScopes: [ProjectScope.TEAM],
     menuItems: ['personal_station', 'team_dashboard', 'proposal_review', 'quick_implementation'],
     analyticsAccess: true,
@@ -145,7 +142,6 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     displayName: '副師長・副科長・副課長',
     description: '中間管理職補佐',
     accessibleFeatures: ['create_post', 'vote', 'view_department_posts', 'committee_preparation', 'department_coordination'],
-    approvalLimit: 300000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT],
     menuItems: ['personal_station', 'department_station', 'committee_tools', 'agenda_generator'],
     analyticsAccess: true,
@@ -158,7 +154,6 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     displayName: '師長・科長・課長・室長',
     description: '中間管理職',
     accessibleFeatures: ['create_post', 'vote', 'view_all_department_posts', 'approve_department_projects', 'committee_submission'],
-    approvalLimit: 500000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT],
     menuItems: ['personal_station', 'department_station', 'committee_tools', 'committee_bridge'],
     analyticsAccess: true,
@@ -171,7 +166,6 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     displayName: '副部長',
     description: '部長補佐',
     accessibleFeatures: ['create_post', 'vote', 'view_facility_posts', 'cross_department_coordination', 'strategic_planning_support'],
-    approvalLimit: 1000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: ['personal_station', 'department_station', 'project_governance', 'cross_department'],
     analyticsAccess: true,
@@ -184,7 +178,6 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     displayName: '部長・医局長',
     description: '部門責任者',
     accessibleFeatures: ['create_post', 'vote', 'view_facility_posts', 'approve_facility_projects', 'operations_committee_member'],
-    approvalLimit: 2000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: ['personal_station', 'department_station', 'operations_committee', 'facility_governance'],
     analyticsAccess: true,
@@ -196,12 +189,11 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     name: 'administrative_director',
     displayName: '事務長',
     description: '施設事務統括',
-    accessibleFeatures: ['create_post', 'vote', 'view_all_posts', 'facility_management', 'budget_control', 'administrative_approval'],
-    approvalLimit: 3000000,
+    accessibleFeatures: ['create_post', 'vote', 'view_all_posts', 'facility_management', 'administrative_approval'],
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
-    menuItems: ['personal_station', 'facility_management', 'strategic_initiatives', 'budget_management'],
+    menuItems: ['personal_station', 'facility_management', 'strategic_initiatives'],
     analyticsAccess: true,
-    workflowStages: ['proposal', 'initial_review', 'facility_approval', 'budget_review']
+    workflowStages: ['proposal', 'initial_review', 'facility_approval']
   },
 
   // ========== 施設経営層 ==========
@@ -211,7 +203,6 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     displayName: '副院長',
     description: '院長補佐、医療統括',
     accessibleFeatures: ['create_post', 'vote', 'view_all_posts', 'medical_direction', 'strategic_planning', 'decision_support'],
-    approvalLimit: 5000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: ['personal_station', 'strategic_decision', 'executive_dashboard', 'medical_governance'],
     analyticsAccess: true,
@@ -224,7 +215,6 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     displayName: '院長・施設長',
     description: '施設最高責任者',
     accessibleFeatures: ['create_post', 'vote', 'view_all_posts', 'facility_governance', 'strategic_decision', 'final_facility_approval'],
-    approvalLimit: 10000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: ['personal_station', 'strategic_decision', 'executive_dashboard', 'decision_meeting'],
     analyticsAccess: true,
@@ -250,7 +240,6 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     displayName: '人事各部門長',
     description: '採用戦略、教育体制、コンサルカウンター、業務革新の各部門長',
     accessibleFeatures: ['create_post', 'vote', 'view_all_posts', 'hr_management', 'department_strategy', 'organizational_insights'],
-    approvalLimit: 3000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: ['personal_station', 'voice_analytics', 'culture_development', 'organizational_insights'],
     analyticsAccess: true,
@@ -263,7 +252,6 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     displayName: '戦略企画・統括管理部門員',
     description: '廻総師長、徳留等の戦略企画メンバー',
     accessibleFeatures: ['create_post', 'vote', 'view_all_posts', 'strategic_hr_planning', 'cross_facility_coordination', 'system_integration'],
-    approvalLimit: 5000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY, ProjectScope.ORGANIZATION],
     menuItems: ['personal_station', 'strategic_hr_planning', 'organizational_insights', 'executive_reporting'],
     analyticsAccess: true,
@@ -276,7 +264,6 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     displayName: '戦略企画・統括管理部門長',
     description: '人事部統括責任者',
     accessibleFeatures: ['create_post', 'vote', 'view_all_posts', 'hr_governance', 'organization_design', 'executive_proposal'],
-    approvalLimit: 10000000,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY, ProjectScope.ORGANIZATION],
     menuItems: ['personal_station', 'strategic_hr_planning', 'executive_reporting', 'board_preparation'],
     analyticsAccess: true,
@@ -290,7 +277,6 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     displayName: '理事長・法人事務局長',
     description: '最終決定権者',
     accessibleFeatures: ['create_post', 'vote', 'view_all_posts', 'final_decision', 'organization_governance', 'executive_override'],
-    approvalLimit: undefined, // 無制限
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY, ProjectScope.ORGANIZATION, ProjectScope.STRATEGIC],
     menuItems: ['personal_station', 'board_functions', 'strategic_governance', 'final_approval'],
     analyticsAccess: true,
@@ -304,7 +290,6 @@ export const PERMISSION_METADATA_V2: Record<string, PermissionMetadata> = {
     displayName: 'システム管理者',
     description: 'システム開発者・管理者（徳留）',
     accessibleFeatures: ['all'], // 全機能アクセス可能
-    approvalLimit: undefined,
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY, ProjectScope.ORGANIZATION, ProjectScope.STRATEGIC],
     menuItems: ['all'], // 全メニューアクセス可能
     analyticsAccess: true,

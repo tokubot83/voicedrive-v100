@@ -508,6 +508,20 @@ const AppRouter: React.FC = () => {
         </ProtectedRoute>
       } />
 
+      {/* Proposal Document Editor */}
+      <Route path="proposal-document/:documentId" element={
+        <ProtectedRoute requiredLevel={3.5}>
+          {React.createElement(React.lazy(() => import('../pages/ProposalDocumentEditor')))}
+        </ProtectedRoute>
+      } />
+
+      {/* Committee Submission Approval (Level 8+) */}
+      <Route path="committee-submission-approval" element={
+        <ProtectedRoute requiredLevel={8}>
+          {React.createElement(React.lazy(() => import('../pages/CommitteeSubmissionApprovalPage')))}
+        </ProtectedRoute>
+      } />
+
       {/* Project Mode Routes */}
       <Route path="project-tracking" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_1}>

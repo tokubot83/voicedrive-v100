@@ -1,0 +1,466 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "lastUpdated": "2025-10-06T10:00:00Z",
+  "updatedBy": "VoiceDriveチーム（医療チーム提案を基に作成）",
+  "systemMode": {
+    "medical": {
+      "name": "staff-medical-system",
+      "version": "2.0.0",
+      "implementationDate": "2025-09-25"
+    },
+    "voicedrive": {
+      "name": "voicedrive-v100",
+      "version": "1.0.0",
+      "implementationDate": "2025-09-25"
+    }
+  },
+  "levels": [
+    {
+      "level": 1.0,
+      "code": "NEW_STAFF",
+      "name": "新人（1年目）",
+      "category": "一般職員",
+      "description": "入職1年目の全職種",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:12",
+      "voicedriveFile": "src/types/accountLevel.ts:16",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 1.5,
+      "code": "NEW_STAFF_LEADER",
+      "name": "新人看護師（リーダー可）",
+      "category": "一般職員（看護職専用）",
+      "description": "1年目でリーダー業務可能な看護師（稀）",
+      "requiresFlag": "canPerformLeaderDuty",
+      "professionConstraint": "nursing",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:15",
+      "voicedriveFile": "src/types/accountLevel.ts:48",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 2.0,
+      "code": "JUNIOR_STAFF",
+      "name": "若手（2-3年目）",
+      "category": "一般職員",
+      "description": "経験2-3年の職員",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:18",
+      "voicedriveFile": "src/types/accountLevel.ts:17",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 2.5,
+      "code": "JUNIOR_STAFF_LEADER",
+      "name": "若手看護師（リーダー可）",
+      "category": "一般職員（看護職専用）",
+      "description": "リーダー業務可能な2-3年目看護師",
+      "requiresFlag": "canPerformLeaderDuty",
+      "professionConstraint": "nursing",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:17",
+      "voicedriveFile": "src/types/accountLevel.ts:49",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 3.0,
+      "code": "MIDLEVEL_STAFF",
+      "name": "中堅（4-10年目）",
+      "category": "一般職員",
+      "description": "経験4-10年の職員",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:20",
+      "voicedriveFile": "src/types/accountLevel.ts:18",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 3.5,
+      "code": "MIDLEVEL_STAFF_LEADER",
+      "name": "中堅看護師（リーダー可）",
+      "category": "一般職員（看護職専用）",
+      "description": "リーダー業務可能な中堅看護師、プリセプター",
+      "requiresFlag": "canPerformLeaderDuty",
+      "professionConstraint": "nursing",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:19",
+      "voicedriveFile": "src/types/accountLevel.ts:50",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 4.0,
+      "code": "VETERAN_STAFF",
+      "name": "ベテラン（11年以上）",
+      "category": "一般職員",
+      "description": "経験11年以上の職員",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:22",
+      "voicedriveFile": "src/types/accountLevel.ts:19",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 4.5,
+      "code": "VETERAN_STAFF_LEADER",
+      "name": "ベテラン看護師（リーダー可）",
+      "category": "一般職員（看護職専用）",
+      "description": "リーダー業務可能なベテラン看護師",
+      "requiresFlag": "canPerformLeaderDuty",
+      "professionConstraint": "nursing",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:21",
+      "voicedriveFile": "src/types/accountLevel.ts:51",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 5.0,
+      "code": "DEPUTY_CHIEF",
+      "name": "副主任",
+      "category": "役職層",
+      "description": "副主任",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:24",
+      "voicedriveFile": "src/types/accountLevel.ts:22",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 6.0,
+      "code": "CHIEF",
+      "name": "主任",
+      "category": "役職層",
+      "description": "主任看護師、各部門主任",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:26",
+      "voicedriveFile": "src/types/accountLevel.ts:23",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 7.0,
+      "code": "DEPUTY_MANAGER",
+      "name": "副師長・副科長・副課長",
+      "category": "役職層",
+      "description": "副師長・副科長・副課長",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:28",
+      "voicedriveFile": "src/types/accountLevel.ts:24",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 8.0,
+      "code": "MANAGER",
+      "name": "師長・科長・課長・室長",
+      "category": "役職層",
+      "description": "師長・科長・課長・室長",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:30",
+      "voicedriveFile": "src/types/accountLevel.ts:25",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 9.0,
+      "code": "DEPUTY_DIRECTOR",
+      "name": "副部長",
+      "category": "役職層",
+      "description": "副部長",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:32",
+      "voicedriveFile": "src/types/accountLevel.ts:26",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 10.0,
+      "code": "DIRECTOR",
+      "name": "部長・医局長",
+      "category": "役職層",
+      "description": "部長・医局長",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:34",
+      "voicedriveFile": "src/types/accountLevel.ts:27",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 11.0,
+      "code": "ADMINISTRATIVE_DIRECTOR",
+      "name": "事務長",
+      "category": "役職層",
+      "description": "各施設の事務長",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:36",
+      "voicedriveFile": "src/types/accountLevel.ts:28",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 12.0,
+      "code": "VICE_PRESIDENT",
+      "name": "副院長",
+      "category": "施設経営層",
+      "description": "各施設の副院長・副施設長",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:38",
+      "voicedriveFile": "src/types/accountLevel.ts:31",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 13.0,
+      "code": "PRESIDENT",
+      "name": "院長・施設長",
+      "category": "施設経営層",
+      "description": "小原病院院長、立神リハビリテーション温泉病院施設長等",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:40",
+      "voicedriveFile": "src/types/accountLevel.ts:32",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 14.0,
+      "code": "HR_STAFF",
+      "name": "人事部門員",
+      "category": "法人人事部",
+      "description": "人財統括本部事務員、面談予約1次窓口",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:35",
+      "voicedriveFile": "src/types/accountLevel.ts:35",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 15.0,
+      "code": "HR_MANAGER",
+      "name": "人事各部門長",
+      "category": "法人人事部",
+      "description": "キャリア支援部門長、人材開発部門長、業務革新部門長",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:37",
+      "voicedriveFile": "src/types/accountLevel.ts:36",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 16.0,
+      "code": "STRATEGIC_PLANNING_STAFF",
+      "name": "戦略企画・統括管理部門員",
+      "category": "法人人事部",
+      "description": "戦略企画・統括管理部門員",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:39",
+      "voicedriveFile": "src/types/accountLevel.ts:37",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 17.0,
+      "code": "STRATEGIC_PLANNING_MANAGER",
+      "name": "戦略企画・統括管理部門長",
+      "category": "法人人事部",
+      "description": "戦略企画・統括管理部門長",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:41",
+      "voicedriveFile": "src/types/accountLevel.ts:38",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 18.0,
+      "code": "BOARD_MEMBER",
+      "name": "理事長・法人事務局長",
+      "category": "最高経営層",
+      "description": "医療法人厚生会理事長、法人事務局長",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/services/accountLevelCalculator.ts:43",
+      "voicedriveFile": "src/types/accountLevel.ts:41",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 97.0,
+      "code": "HEALTH_CHECKUP_STAFF",
+      "name": "健診担当者",
+      "category": "特別権限",
+      "description": "ストレスチェック実施者、健康管理データアクセス権限",
+      "specialAuthority": true,
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/config/accessControl.ts:274",
+      "voicedriveFile": "src/types/accountLevel.ts:58",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 98.0,
+      "code": "OCCUPATIONAL_PHYSICIAN",
+      "name": "産業医",
+      "category": "特別権限",
+      "description": "産業医、健康管理全般の権限",
+      "specialAuthority": true,
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/config/accessControl.ts:312",
+      "voicedriveFile": "src/types/accountLevel.ts:59",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    },
+    {
+      "level": 99.0,
+      "code": "SYSTEM_ADMIN",
+      "name": "システム管理者",
+      "category": "特別権限",
+      "description": "システム全権限（Xレベル）",
+      "specialAuthority": true,
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "medicalFile": "src/config/accessControl.ts:350",
+      "voicedriveFile": "src/types/accountLevel.ts:60",
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    }
+  ],
+  "facilityAdjustments": [
+    {
+      "position": "統括主任",
+      "positionCode": "unified_chief",
+      "facilityId": "tategami-rehabilitation",
+      "facilityName": "立神リハビリテーション温泉病院",
+      "baseLevel": 6.0,
+      "adjustedLevel": 7.0,
+      "reason": "立神リハビリテーション温泉病院の特例（統括主任は副師長相当）",
+      "medicalImplemented": true,
+      "voicedriveImplemented": true,
+      "lastModified": "2025-09-25",
+      "modifiedBy": "医療チーム"
+    }
+  ],
+  "validationRules": {
+    "allowedLevels": [
+      1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5,
+      5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0,
+      12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0,
+      97.0, 98.0, 99.0
+    ],
+    "nursingLeaderLevels": [1.5, 2.5, 3.5, 4.5],
+    "specialAuthorityLevels": [97.0, 98.0, 99.0],
+    "nursingLeaderConstraints": {
+      "minLevel": 1.0,
+      "maxLevel": 4.0,
+      "increment": 0.5,
+      "requiredFlag": "canPerformLeaderDuty",
+      "requiredProfession": "nursing"
+    },
+    "reservedForFuture": [
+      19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+      31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+      51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70,
+      71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
+      91, 92, 93, 94, 95, 96
+    ],
+    "prohibitedChanges": [
+      "既存レベル番号の変更",
+      "既存レベルの削除",
+      "0.5刻みロジックの変更",
+      "特別権限レベル（97-99）の用途変更"
+    ]
+  },
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2025-09-25",
+      "changes": "初回リリース（25段階定義）- 基本18レベル + 看護職専用4レベル + 特別権限3レベル",
+      "implementedBy": ["医療チーム", "VoiceDriveチーム"],
+      "affectedSystems": ["medical", "voicedrive"],
+      "testCasesPassed": 230,
+      "migrationCompleted": true
+    }
+  ],
+  "changeManagementPolicy": {
+    "changeClassification": {
+      "level1_emergency": {
+        "definition": "セキュリティ脆弱性・重大バグ",
+        "approvalProcess": "口頭合意 + 事後報告",
+        "implementationDeadline": "24時間以内"
+      },
+      "level2_important": {
+        "definition": "新レベル追加、レベル番号変更",
+        "approvalProcess": "統合ミーティング必須",
+        "implementationDeadline": "2週間以内"
+      },
+      "level3_normal": {
+        "definition": "説明文修正、コメント追加",
+        "approvalProcess": "mcp-shared/での書面合意",
+        "implementationDeadline": "1ヶ月以内"
+      }
+    },
+    "requiredDocuments": [
+      "変更提案書（Change Proposal）",
+      "影響範囲調査報告書（Impact Analysis Report）",
+      "統合テスト結果（Integration Test Results）"
+    ],
+    "reviewMeeting": {
+      "frequency": "月次",
+      "schedule": "毎月第1金曜15:00",
+      "duration": "60分",
+      "participants": ["医療チームリーダー", "VoiceDriveチームリーダー", "技術担当者"]
+    }
+  },
+  "metadata": {
+    "createdAt": "2025-10-06T10:00:00Z",
+    "createdBy": "VoiceDriveチーム（医療チーム提案を基に作成）",
+    "schemaVersion": "1.0.0",
+    "compatibleWith": {
+      "medical": ">=2.0.0",
+      "voicedrive": ">=1.0.0"
+    },
+    "nextReviewDate": "2025-11-01",
+    "contacts": {
+      "medical": {
+        "lead": "medical-lead@example.com",
+        "technical": "medical-tech@example.com"
+      },
+      "voicedrive": {
+        "lead": "voicedrive-lead@example.com",
+        "technical": "voicedrive-tech@example.com"
+      },
+      "slack": {
+        "integration": "#lightsail-integration",
+        "accountLevel": "#account-level-sync"
+      }
+    }
+  }
+}

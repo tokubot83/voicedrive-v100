@@ -61,7 +61,7 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     title: '委員会ブリッジ',
     label: '委員会ブリッジ',
     icon: '🌉',
-    path: '/committee-bridge',
+    path: '/committee-submission-approval',
     requiredLevel: 8,
     category: 'agenda'
   },
@@ -132,16 +132,6 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'agenda'
   },
 
-  // 予算管理（レベル11+）
-  budget_management: {
-    id: 'budget_management',
-    title: '予算管理',
-    label: '予算管理',
-    icon: '💰',
-    path: '/budget',
-    requiredLevel: 11,
-    category: 'agenda'
-  },
 
   // 施設管理（レベル11+）
   facility_management: {
