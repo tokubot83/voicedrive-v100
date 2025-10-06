@@ -4,7 +4,6 @@ import { Post, VoteOption, User } from '../types';
 import UnifiedProgressBar from './UnifiedProgressBar';
 import { ConsensusInsightGenerator } from '../utils/consensusInsights';
 import { useProjectScoring } from '../hooks/projects/useProjectScoring';
-import ModeAwareLevelIndicator from './mode/ModeAwareLevelIndicator';
 import SimpleApprovalCard from './approval/SimpleApprovalCard';
 import CommitteeReviewStatus from './committee/CommitteeReviewStatus';
 import { systemModeManager, SystemMode } from '../config/systemMode';
@@ -99,36 +98,123 @@ const VotingSection: React.FC<VotingSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* みんなの投票スコア（改善提案用） - モード対応レベル表示 */}
-      {post.type === 'improvement' && currentUser && (
-        <div className="w-full bg-white border border-emerald-300 rounded-xl p-4 hover:border-emerald-400 transition-all">
-          {/* Header Section */}
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-3">
+      {/* みんなの投票スコア（改善提案用） - モード対応統合表示 */}
+      {post.type === 'improvement' && currentUser && (() => {
+        const currentMode = systemModeManager.getCurrentMode();
+        const agendaLevel = currentMode === SystemMode.AGENDA
+          ? agendaLevelEngine.getAgendaLevel(currentScore)
+          : null;
+
+        // 議題レベル設定
+        const getLevelConfig = (level: string) => {
+          const configs = {
+            'PENDING': { emoji: '💭', label: '検討中', color: 'gray', gradient: 'from-gray-100 to-gray-200', badge: null },
+            'DEPT_REVIEW': { emoji: '📋', label: '部署検討', color: 'yellow', gradient: 'from-yellow-100 to-yellow-200', badge: null },
+            'DEPT_AGENDA': { emoji: '👥', label: '部署議題', color: 'blue', gradient: 'from-blue-100 to-blue-200', badge: null },
+            'FACILITY_AGENDA': { emoji: '🏥', label: '施設議題', color: 'green', gradient: 'from-green-100 to-green-200', badge: '委員会提出可' },
+            'CORP_REVIEW': { emoji: '🏢', label: '法人検討', color: 'purple', gradient: 'from-purple-100 to-purple-200', badge: null },
+            'CORP_AGENDA': { emoji: '🏛️', label: '法人議題', color: 'pink', gradient: 'from-pink-100 to-pink-200', badge: '理事会提出' }
+          };
+          return configs[level as keyof typeof configs] || configs['PENDING'];
+        };
+
+        // 次のレベル情報
+        const getNextLevelInfo = (score: number) => {
+          if (score >= 600) return null;
+          if (score >= 300) return { label: '法人議題', threshold: 600, remaining: 600 - score, progress: ((score - 300) / (600 - 300)) * 100 };
+          if (score >= 100) return { label: '法人検討', threshold: 300, remaining: 300 - score, progress: ((score - 100) / (300 - 100)) * 100 };
+          if (score >= 50) return { label: '施設議題', threshold: 100, remaining: 100 - score, progress: ((score - 50) / (100 - 50)) * 100 };
+          if (score >= 30) return { label: '部署議題', threshold: 50, remaining: 50 - score, progress: ((score - 30) / (50 - 30)) * 100 };
+          return { label: '部署検討', threshold: 30, remaining: 30 - score, progress: (score / 30) * 100 };
+        };
+
+        const levelConfig = agendaLevel ? getLevelConfig(agendaLevel) : getLevelConfig('PENDING');
+        const nextLevel = getNextLevelInfo(currentScore);
+        const totalVotes = Object.values(safeVotes).reduce((a, b) => a + b, 0);
+
+        return (
+          <div className="w-full bg-white border border-emerald-300 rounded-xl p-4 hover:border-emerald-400 transition-all">
+            {/* ヘッダー */}
+            <div className="flex items-center gap-3 mb-3">
               <div className="p-2 rounded-lg border text-emerald-700 border-emerald-300">
                 <Briefcase className="w-5 h-5" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-emerald-800">みんなの投票スコア</h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="inline-block w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="text-sm text-gray-600 capitalize">active</span>
+              <h3 className="text-lg font-semibold text-emerald-800">みんなの投票スコア</h3>
+            </div>
+
+            {/* 現在のレベル表示 */}
+            <div className={`bg-gradient-to-r ${levelConfig.gradient} rounded-lg p-3 mb-3`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{levelConfig.emoji}</span>
+                  <div>
+                    <div className={`font-bold text-${levelConfig.color}-800`}>{levelConfig.label}</div>
+                    <div className={`text-xs opacity-75 text-${levelConfig.color}-800`}>
+                      {Math.round(currentScore)}点
+                    </div>
+                  </div>
                 </div>
+                {levelConfig.badge && (
+                  <span className={`px-2 py-1 text-xs font-medium bg-white rounded-full text-${levelConfig.color}-800 border border-${levelConfig.color}-300`}>
+                    {levelConfig.badge}
+                  </span>
+                )}
               </div>
             </div>
+
+            {/* 次のレベルまでの進捗（ゲーミフィケーション） */}
+            {nextLevel && (
+              <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-gray-600">次のレベル</span>
+                  <span className="text-xs font-bold text-blue-700">
+                    {nextLevel.label}まであと{Math.round(nextLevel.remaining)}点
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(nextLevel.progress, 100)}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* 投票範囲 + 支持率 */}
+            {currentMode === SystemMode.AGENDA && agendaLevel && (
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-1 text-gray-600">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <span className="text-xs">
+                    {agendaLevel === 'PENDING' && '投稿者の部署内'}
+                    {agendaLevel === 'DEPT_REVIEW' && '部署内全員'}
+                    {agendaLevel === 'DEPT_AGENDA' && '部署内全員'}
+                    {agendaLevel === 'FACILITY_AGENDA' && '施設内全員投票可'}
+                    {agendaLevel === 'CORP_REVIEW' && '法人内全員'}
+                    {agendaLevel === 'CORP_AGENDA' && '法人内全員'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-600">支持率</span>
+                  <span className={`text-sm font-bold text-${levelConfig.color}-800`}>
+                    {consensusData.percentage}%
+                  </span>
+                  <span className="text-xs text-gray-500">({totalVotes}票)</span>
+                </div>
+              </div>
+            )}
+
+            {/* プロジェクトモードの場合は従来のバッジ表示 */}
+            {currentMode === SystemMode.PROJECT && (
+              <div className="text-sm text-gray-600 text-center">
+                プロジェクトレベル: {Math.round(currentScore)}点
+              </div>
+            )}
           </div>
-          {/* モード対応のレベル表示 - システムモードに応じて議題モード/プロジェクトモードの表示を自動切り替え */}
-          <ModeAwareLevelIndicator
-            post={post}
-            currentUser={currentUser}
-            currentScore={currentScore}
-            compact={true}
-            showNextLevel={true}
-            supportRate={consensusData.percentage}
-            totalVotes={Object.values(safeVotes).reduce((a, b) => a + b, 0)}
-          />
-        </div>
-      )}
+        );
+      })()}
 
       {/* 統一ステータス表示（縦積みレイアウト） */}
       <div className="space-y-4">
