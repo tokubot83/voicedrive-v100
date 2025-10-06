@@ -59,18 +59,38 @@ export function useAgendaDeadline(allUsers: User[] = []) {
   }, [allUsers]);
 
   /**
-   * 投票期限の延長
+   * 投票期限の延長（最大期限チェック付き）
    */
   const extendDeadline = useCallback(async (
     post: Post,
     extensionDays: number = 7
   ): Promise<void> => {
+    if (!post.agendaStatus?.level || !post.createdAt) {
+      throw new Error('議題情報が不足しています');
+    }
+
+    // 最大期限チェック
+    const currentDeadline = new Date(post.agendaDeadline || Date.now());
+    const hasReachedMax = AgendaDeadlineManager.hasReachedMaxDeadline(
+      currentDeadline,
+      post.agendaStatus.level,
+      new Date(post.createdAt)
+    );
+
+    if (hasReachedMax) {
+      throw new Error('最大期限に達しているため、これ以上延長できません');
+    }
+
     setIsExtending(true);
 
     try {
-      const currentDeadline = new Date(post.agendaDeadline || Date.now());
-      const newDeadline = new Date(currentDeadline);
-      newDeadline.setDate(newDeadline.getDate() + extensionDays);
+      // 最大期限を超えないように延長
+      const newDeadline = AgendaDeadlineManager.extendDeadline(
+        currentDeadline,
+        post.agendaStatus.level,
+        new Date(post.createdAt),
+        extensionDays
+      );
 
       const extensionCount = (post.agendaDeadlineExtensions || 0) + 1;
 
@@ -79,7 +99,8 @@ export function useAgendaDeadline(allUsers: User[] = []) {
         postTitle: post.title,
         oldDeadline: currentDeadline.toLocaleDateString('ja-JP'),
         newDeadline: newDeadline.toLocaleDateString('ja-JP'),
-        extensionCount
+        extensionCount,
+        level: post.agendaStatus.level
       });
 
       // 実際の実装では、ここでバックエンドAPIを呼び出し

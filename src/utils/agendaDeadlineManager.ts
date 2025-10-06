@@ -6,6 +6,7 @@ import { AgendaLevel, CommitteeStatus } from '../types/committee';
 
 export interface AgendaDeadlineConfig {
   standardDays: number;      // 標準期限（日数）
+  maxDays: number;           // 最大期限（日数）- 延長してもこれ以上は不可
   canExtend: boolean;        // 延長可能か
   autoExtendOnActivity: boolean; // 活動時に自動延長
 }
@@ -20,38 +21,50 @@ export interface DeadlineInfo {
 
 export class AgendaDeadlineManager {
   /**
-   * 議題レベル別の標準期限設定
+   * 議題レベル別の標準期限設定（公平性重視の短期設計）
+   *
+   * 設計思想:
+   * - 良い提案は数日〜数週間で上位レベルへ昇格
+   * - 大半の提案は部署レベル（DEPT_AGENDA）で完結
+   * - 人事制度改革など重要案件のみ法人レベルへ到達
+   * - 期限内は却下不可（公平性）、レベルアップ承認のみ可能
    */
   private static LEVEL_DEADLINES: Record<AgendaLevel, AgendaDeadlineConfig> = {
     'PENDING': {
-      standardDays: 30,
+      standardDays: 14,      // 標準14日（部署内様子見）
       canExtend: true,
-      autoExtendOnActivity: true
+      autoExtendOnActivity: true,
+      maxDays: 30            // 最大30日
     },
     'DEPT_REVIEW': {
-      standardDays: 60,
+      standardDays: 14,      // 標準14日（部署内本格検討）
       canExtend: true,
-      autoExtendOnActivity: true
+      autoExtendOnActivity: true,
+      maxDays: 30            // 最大30日
     },
     'DEPT_AGENDA': {
-      standardDays: 90,
+      standardDays: 30,      // 標準30日（大半の提案はここで終了）
       canExtend: true,
-      autoExtendOnActivity: true
+      autoExtendOnActivity: true,
+      maxDays: 60            // 最大60日
     },
     'FACILITY_AGENDA': {
-      standardDays: 180,
+      standardDays: 60,      // 標準60日（施設レベル案件）
       canExtend: true,
-      autoExtendOnActivity: false // 委員会審議中は別ロジック
+      autoExtendOnActivity: false, // 委員会審議中は別ロジック
+      maxDays: 90            // 最大90日
     },
     'CORP_REVIEW': {
-      standardDays: 365,
+      standardDays: 90,      // 標準90日（法人レベル精査）
       canExtend: true,
-      autoExtendOnActivity: false
+      autoExtendOnActivity: false,
+      maxDays: 180           // 最大180日
     },
     'CORP_AGENDA': {
-      standardDays: 9999, // 実質無期限
-      canExtend: false,
-      autoExtendOnActivity: false
+      standardDays: 90,      // 標準90日（理事会決議レベル）
+      canExtend: true,
+      autoExtendOnActivity: false,
+      maxDays: 180           // 最大180日（必ず期限あり）
     }
   };
 
@@ -164,15 +177,38 @@ export class AgendaDeadlineManager {
   }
 
   /**
-   * 期限延長を実行
+   * 期限延長を実行（最大期限を超えないように制限）
    */
   static extendDeadline(
     currentDeadline: Date,
+    agendaLevel: AgendaLevel,
+    createdAt: Date,
     extensionDays: number = 30
   ): Date {
+    const config = this.LEVEL_DEADLINES[agendaLevel];
+    const maxDeadline = new Date(createdAt);
+    maxDeadline.setDate(maxDeadline.getDate() + config.maxDays);
+
     const newDeadline = new Date(currentDeadline);
     newDeadline.setDate(newDeadline.getDate() + extensionDays);
-    return newDeadline;
+
+    // 最大期限を超えないように制限
+    return newDeadline > maxDeadline ? maxDeadline : newDeadline;
+  }
+
+  /**
+   * 最大期限に達しているかチェック
+   */
+  static hasReachedMaxDeadline(
+    currentDeadline: Date,
+    agendaLevel: AgendaLevel,
+    createdAt: Date
+  ): boolean {
+    const config = this.LEVEL_DEADLINES[agendaLevel];
+    const maxDeadline = new Date(createdAt);
+    maxDeadline.setDate(maxDeadline.getDate() + config.maxDays);
+
+    return currentDeadline >= maxDeadline;
   }
 
   /**
