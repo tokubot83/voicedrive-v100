@@ -1,0 +1,44 @@
+{
+  "type": "api_change_notice",
+  "priority": "medium",
+  "timestamp": "2025-10-07T00:00:00Z",
+  "source": "VoiceDrive",
+  "target": "職員カルテシステム",
+  "title": "人事お知らせUI変更に関する連携通知",
+  "summary": "VoiceDriveの人事お知らせページUIを簡素化しました。API連携への影響を確認してください。",
+  "changes": [
+    {
+      "type": "ui_change",
+      "description": "応答ボタンを削除し、アクションボタンクリック時に自動応答記録",
+      "impact": "low"
+    },
+    {
+      "type": "data_model_change",
+      "field": "requireResponse",
+      "before": "true",
+      "after": "false",
+      "impact": "medium"
+    },
+    {
+      "type": "behavior_change",
+      "description": "応答記録タイミングが変更（応答ボタン → アクションボタンクリック）",
+      "impact": "low"
+    }
+  ],
+  "action_required": [
+    "requireResponse: false の処理確認",
+    "統計ダッシュボードの動作確認",
+    "統合テストの実施"
+  ],
+  "documents": [
+    "mcp-shared/docs/HR_Announcement_UI_Change_Notice_20251007.md"
+  ],
+  "backward_compatible": true,
+  "testing_required": true,
+  "response_deadline": "2025-10-14",
+  "contact": {
+    "team": "VoiceDrive開発チーム",
+    "slack": "#phase2-integration",
+    "mcp_folder": "mcp-shared/docs/"
+  }
+}
