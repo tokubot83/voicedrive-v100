@@ -115,10 +115,10 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
   // 組織インサイト（レベル15+：人事各部門長以上）
   organization_insight: {
     id: 'organization_insight',
-    title: '組織インサイト',
-    label: '組織インサイト',
+    title: '組織分析',
+    label: '組織分析',
     icon: '🔍',
-    path: '/organization-insight',
+    path: '/organization-analytics',
     requiredLevel: 15,
     category: 'agenda'
   },
@@ -192,8 +192,8 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
   // 緊急アカウント停止（レベル14-17専用）
   emergency_account_deactivation: {
     id: 'emergency_account_deactivation',
-    title: '🚨 緊急アカウント停止',
-    label: '🚨 緊急アカウント停止',
+    title: '緊急アカウント停止',
+    label: '緊急アカウント停止',
     icon: '🚨',
     path: '/emergency/account-deactivation',
     requiredLevel: 14,

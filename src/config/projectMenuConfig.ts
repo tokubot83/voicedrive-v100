@@ -191,8 +191,8 @@ export const PROJECT_MODE_MENU_ITEMS: Record<string, MenuItem> = {
   // 緊急アカウント停止（レベル14-17専用）
   emergency_account_deactivation: {
     id: 'emergency_account_deactivation',
-    title: '🚨 緊急アカウント停止',
-    label: '🚨 緊急アカウント停止',
+    title: '緊急アカウント停止',
+    label: '緊急アカウント停止',
     icon: '🚨',
     path: '/emergency/account-deactivation',
     requiredLevel: 14,
