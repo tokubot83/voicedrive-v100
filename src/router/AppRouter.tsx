@@ -117,6 +117,15 @@ import Step1AccountDeactivation from '../components/retirement/Step1AccountDeact
 import Step2PermissionRevocation from '../components/retirement/Step2PermissionRevocation';
 import Step4CompletionNotification from '../components/retirement/Step4CompletionNotification';
 
+// Emergency Account Deactivation
+import EmergencyAccountDeactivation from '../pages/EmergencyAccountDeactivation';
+
+// Voice Analytics
+import VoiceAnalyticsPage from '../pages/VoiceAnalyticsPage';
+
+// Culture Development
+import CultureDevelopmentPage from '../pages/CultureDevelopmentPage';
+
 // Generational Analysis
 import GenerationalAnalysisPage from '../pages/GenerationalAnalysisPage';
 import DepartmentGenerationalAnalysisPage from '../pages/DepartmentGenerationalAnalysisPage';
@@ -349,7 +358,7 @@ const AppRouter: React.FC = () => {
           } />
           <Route path="step1/:processId" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
-              <Step1AccountDeactivation 
+              <Step1AccountDeactivation
                 onStepComplete={() => Promise.resolve()}
                 onStepError={() => {}}
                 onNavigateBack={() => {}}
@@ -358,7 +367,7 @@ const AppRouter: React.FC = () => {
           } />
           <Route path="step2/:processId" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
-              <Step2PermissionRevocation 
+              <Step2PermissionRevocation
                 onStepComplete={() => Promise.resolve()}
                 onStepError={() => {}}
                 onNavigateBack={() => {}}
@@ -367,7 +376,7 @@ const AppRouter: React.FC = () => {
           } />
           <Route path="step4/:processId" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
-              <Step4CompletionNotification 
+              <Step4CompletionNotification
                 onStepComplete={() => Promise.resolve()}
                 onStepError={() => {}}
                 onNavigateBack={() => {}}
@@ -375,7 +384,28 @@ const AppRouter: React.FC = () => {
             </ProtectedRoute>
           } />
         </Route>
-        
+
+        {/* Emergency Account Deactivation (Level 14-17) */}
+        <Route path="emergency/account-deactivation" element={
+          <ProtectedRoute requiredLevel={14}>
+            <EmergencyAccountDeactivation />
+          </ProtectedRoute>
+        } />
+
+        {/* Voice Analytics (Level 14+) */}
+        <Route path="voice-analytics" element={
+          <ProtectedRoute requiredLevel={14}>
+            <VoiceAnalyticsPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Culture Development (Level 14+) */}
+        <Route path="culture-development" element={
+          <ProtectedRoute requiredLevel={14}>
+            <CultureDevelopmentPage />
+          </ProtectedRoute>
+        } />
+
         {/* Facility Management (Level 7+) */}
         <Route path="facility-management" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
