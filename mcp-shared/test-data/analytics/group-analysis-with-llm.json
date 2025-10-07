@@ -1,0 +1,188 @@
+{
+  "analysisDate": "2025-10-07",
+  "period": {
+    "startDate": "2025-09-30",
+    "endDate": "2025-10-07"
+  },
+  "postingTrends": {
+    "totalPosts": 342,
+    "totalUsers": 89,
+    "totalEligibleUsers": 120,
+    "participationRate": 74.2,
+    "growthRate": 5.2,
+    "comparedToPreviousPeriod": {
+      "postCountChange": 12,
+      "postCountChangePercentage": 3.6,
+      "participationRateChange": 1.8
+    }
+  },
+  "sentimentAnalysis": {
+    "overall": {
+      "positive": 65,
+      "neutral": 40,
+      "negative": 15,
+      "averageConfidence": 0.92
+    },
+    "byDepartment": [
+      {
+        "department": "看護部",
+        "positive": 28,
+        "neutral": 18,
+        "negative": 6,
+        "sentiment": "positive"
+      },
+      {
+        "department": "医局",
+        "positive": 20,
+        "neutral": 12,
+        "negative": 4,
+        "sentiment": "positive"
+      },
+      {
+        "department": "薬剤部",
+        "positive": 10,
+        "neutral": 8,
+        "negative": 3,
+        "sentiment": "neutral"
+      },
+      {
+        "department": "事務部",
+        "positive": 7,
+        "neutral": 2,
+        "negative": 2,
+        "sentiment": "positive"
+      }
+    ],
+    "trendOverTime": [
+      {
+        "date": "2025-09-30",
+        "positive": 8,
+        "neutral": 5,
+        "negative": 2
+      },
+      {
+        "date": "2025-10-01",
+        "positive": 10,
+        "neutral": 6,
+        "negative": 1
+      },
+      {
+        "date": "2025-10-02",
+        "positive": 12,
+        "neutral": 4,
+        "negative": 3
+      },
+      {
+        "date": "2025-10-03",
+        "positive": 9,
+        "neutral": 7,
+        "negative": 2
+      },
+      {
+        "date": "2025-10-04",
+        "positive": 8,
+        "neutral": 6,
+        "negative": 1
+      },
+      {
+        "date": "2025-10-05",
+        "positive": 11,
+        "neutral": 5,
+        "negative": 3
+      },
+      {
+        "date": "2025-10-06",
+        "positive": 7,
+        "neutral": 3,
+        "negative": 2
+      }
+    ]
+  },
+  "topicAnalysis": {
+    "topKeywords": [
+      {
+        "keyword": "夜勤シフト",
+        "count": 25,
+        "tfidf": 0.85,
+        "relatedCategories": ["相談ボイス", "アイデアボイス"]
+      },
+      {
+        "keyword": "患者対応",
+        "count": 20,
+        "tfidf": 0.78,
+        "relatedCategories": ["質問ボイス", "フリーボイス"]
+      },
+      {
+        "keyword": "休憩時間",
+        "count": 15,
+        "tfidf": 0.65,
+        "relatedCategories": ["アイデアボイス"]
+      },
+      {
+        "keyword": "チームワーク",
+        "count": 12,
+        "tfidf": 0.58,
+        "relatedCategories": ["フリーボイス"]
+      },
+      {
+        "keyword": "電子カルテ",
+        "count": 10,
+        "tfidf": 0.52,
+        "relatedCategories": ["質問ボイス", "アイデアボイス"]
+      }
+    ],
+    "emergingTopics": [
+      {
+        "topic": "新人教育制度",
+        "firstAppearance": "2025-10-03",
+        "count": 8,
+        "growthRate": 85.5,
+        "sentiment": "neutral"
+      },
+      {
+        "topic": "リモートミーティング",
+        "firstAppearance": "2025-10-01",
+        "count": 6,
+        "growthRate": 45.2,
+        "sentiment": "positive"
+      }
+    ],
+    "topicClusters": [
+      {
+        "clusterId": "cluster-1",
+        "label": "業務改善提案",
+        "postCount": 45,
+        "keywords": ["夜勤シフト", "休憩時間", "電子カルテ"]
+      },
+      {
+        "clusterId": "cluster-2",
+        "label": "コミュニケーション",
+        "postCount": 32,
+        "keywords": ["チームワーク", "患者対応", "リモートミーティング"]
+      },
+      {
+        "clusterId": "cluster-3",
+        "label": "教育・研修",
+        "postCount": 20,
+        "keywords": ["新人教育制度", "スキルアップ"]
+      }
+    ]
+  },
+  "privacyMetadata": {
+    "totalConsentedUsers": 45,
+    "minimumGroupSize": 5,
+    "kAnonymityCompliant": true,
+    "suppressedDataPoints": 3,
+    "suppressionReason": "Group size < 5"
+  },
+  "metadata": {
+    "sourceSystem": "medical-staff-system",
+    "version": "1.0.0",
+    "generatedBy": "llm-analysis-pipeline",
+    "generatedAt": "2025-10-07T13:32:46.603Z",
+    "processingTime": 125.5,
+    "llmModel": "Llama 3.2 8B Instruct",
+    "llmVersion": "3.2",
+    "llmProvider": "Ollama Local"
+  }
+}

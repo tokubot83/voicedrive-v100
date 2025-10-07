@@ -17,6 +17,7 @@
     "type-check": "tsc --noEmit --skipLibCheck",
     "test": "jest",
     "test:integration": "jest --testMatch='**/integration*.test.ts'",
+    "test:integration:server": "tsx src/api/server.integration-test.ts",
     "test:scenario1": "jest --testMatch='**/scenario1*.test.ts'",
     "test:scenario2": "jest --testMatch='**/scenario2*.test.ts'",
     "test:scenario4": "jest --testMatch='**/scenario4*.test.ts'",
@@ -30,7 +31,8 @@
     "mcp:sync": "node mcp-integration-server/scripts/check-mcp-sync.js",
     "db:seed": "npx tsx prisma/seed.ts",
     "seed:integration-test": "npx tsx scripts/seed-integration-test-data.ts",
-    "generate:icons": "node scripts/generate-icons.js"
+    "generate:icons": "node scripts/generate-icons.js",
+    "generate:jwt": "tsx scripts/generate-test-jwt.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

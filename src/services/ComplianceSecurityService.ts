@@ -65,6 +65,9 @@ export class ComplianceSecurityService {
   private encryptionKeys: Map<string, Buffer> = new Map();
   private currentKeyId: string = '';
 
+  // テスト用メモリストレージ
+  private fileStorage: Map<string, Buffer> = new Map();
+
   constructor() {
     this.initializeEncryption();
   }
@@ -537,13 +540,18 @@ export class ComplianceSecurityService {
   }
 
   private async saveEncryptedFile(path: string, data: Buffer): Promise<void> {
-    // TODO: ファイルシステムまたはクラウドストレージへの保存
+    // メモリストレージに保存（テスト用）
+    this.fileStorage.set(path, data);
     console.log(`Saving encrypted file to: ${path}`);
   }
 
   private async loadEncryptedFile(path: string): Promise<Buffer> {
-    // TODO: ファイルシステムまたはクラウドストレージからの読み込み
-    return Buffer.from('');
+    // メモリストレージから読み込み（テスト用）
+    const data = this.fileStorage.get(path);
+    if (!data) {
+      throw new Error(`File not found: ${path}`);
+    }
+    return data;
   }
 
   private async getLastAuditLog(): Promise<AuditLog | null> {

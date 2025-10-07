@@ -1,0 +1,152 @@
+{
+  "period": {
+    "startDate": "2025-09-30",
+    "endDate": "2025-10-07",
+    "totalDays": 8
+  },
+  "stats": {
+    "totalPosts": 342,
+    "totalUsers": 89,
+    "participationRate": 74.2,
+    "byCategory": [
+      {
+        "category": "アイデアボイス",
+        "count": 145,
+        "percentage": 42.4,
+        "averageDuration": 52.3
+      },
+      {
+        "category": "フリーボイス",
+        "count": 97,
+        "percentage": 28.4,
+        "averageDuration": 48.1
+      },
+      {
+        "category": "質問ボイス",
+        "count": 58,
+        "percentage": 17.0,
+        "averageDuration": 35.2
+      },
+      {
+        "category": "相談ボイス",
+        "count": 42,
+        "percentage": 12.3,
+        "averageDuration": 67.5
+      }
+    ],
+    "byDepartment": [
+      {
+        "department": "看護部",
+        "postCount": 128,
+        "userCount": 34,
+        "participationRate": 76.8
+      },
+      {
+        "department": "医局",
+        "postCount": 89,
+        "userCount": 23,
+        "participationRate": 71.2
+      },
+      {
+        "department": "薬剤部",
+        "postCount": 67,
+        "userCount": 18,
+        "participationRate": 72.5
+      },
+      {
+        "department": "事務部",
+        "postCount": 58,
+        "userCount": 14,
+        "participationRate": 68.3
+      }
+    ],
+    "byLevel": [
+      {
+        "levelRange": "1-3",
+        "count": 156,
+        "percentage": 45.6,
+        "avgEngagement": 0.82
+      },
+      {
+        "levelRange": "4-6",
+        "count": 98,
+        "percentage": 28.7,
+        "avgEngagement": 0.75
+      },
+      {
+        "levelRange": "7-9",
+        "count": 67,
+        "percentage": 19.6,
+        "avgEngagement": 0.71
+      },
+      {
+        "levelRange": "10-12",
+        "count": 21,
+        "percentage": 6.1,
+        "avgEngagement": 0.68
+      }
+    ],
+    "timeSeries": [
+      {
+        "date": "2025-09-30",
+        "postCount": 20,
+        "userCount": 15,
+        "averageDuration": 45.2
+      },
+      {
+        "date": "2025-10-01",
+        "postCount": 7,
+        "userCount": 6,
+        "averageDuration": 38.5
+      },
+      {
+        "date": "2025-10-02",
+        "postCount": 19,
+        "userCount": 14,
+        "averageDuration": 51.3
+      },
+      {
+        "date": "2025-10-03",
+        "postCount": 21,
+        "userCount": 16,
+        "averageDuration": 49.7
+      },
+      {
+        "date": "2025-10-04",
+        "postCount": 16,
+        "userCount": 12,
+        "averageDuration": 46.8
+      },
+      {
+        "date": "2025-10-05",
+        "postCount": 24,
+        "userCount": 18,
+        "averageDuration": 53.1
+      },
+      {
+        "date": "2025-10-06",
+        "postCount": 13,
+        "userCount": 10,
+        "averageDuration": 42.6
+      },
+      {
+        "date": "2025-10-07",
+        "postCount": 24,
+        "userCount": 19,
+        "averageDuration": 55.4
+      }
+    ],
+    "engagement": {
+      "averageViewsPerPost": 12.5,
+      "averageRepliesPerPost": 2.3,
+      "topContributors": 15
+    }
+  },
+  "privacyMetadata": {
+    "consentedUsers": 13,
+    "kAnonymityCompliant": true,
+    "minimumGroupSize": 5,
+    "dataVersion": "1.0.0",
+    "generatedAt": "2025-10-07T13:32:00.000Z"
+  }
+}

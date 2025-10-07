@@ -9,6 +9,7 @@ import interviewRoutes from './interviewRoutes';
 import syncRoutes from './syncRoutes';
 import myInterviewRoutes from './myInterviewRoutes';
 import consentRoutes from '../api/routes/consent.routes';
+import analyticsRoutes from '../api/routes/analytics.routes';
 import { handleSummaryReceived } from '../api/medicalSystemReceiver';
 import {
   verifyWebhookSignature,
@@ -39,6 +40,11 @@ router.use('/my', authenticateToken, myInterviewRoutes);
 
 // データ同意API
 router.use('/consent', consentRoutes);
+
+// Analytics API（職員カルテシステム連携）
+console.log('📊 Registering Analytics API routes at /v1/analytics');
+console.log('   Analytics routes type:', typeof analyticsRoutes);
+router.use('/v1/analytics', analyticsRoutes);
 
 // 面談サマリ受信API
 router.post('/summaries/receive', standardRateLimit, handleSummaryReceived);

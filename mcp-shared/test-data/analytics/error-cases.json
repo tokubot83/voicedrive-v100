@@ -1,0 +1,199 @@
+{
+  "errorCases": [
+    {
+      "name": "日付範囲超過エラー（3ヶ月以上）",
+      "request": {
+        "url": "/api/v1/analytics/aggregated-stats",
+        "method": "GET",
+        "params": {
+          "startDate": "2025-06-01",
+          "endDate": "2025-10-07"
+        }
+      },
+      "expectedResponse": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "DATE_RANGE_TOO_LONG",
+            "message": "日付範囲は最大3ヶ月までです",
+            "details": {
+              "requestedDays": 128,
+              "maxAllowedDays": 90
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "過去6ヶ月を超えるデータリクエスト",
+      "request": {
+        "url": "/api/v1/analytics/aggregated-stats",
+        "method": "GET",
+        "params": {
+          "startDate": "2025-03-01",
+          "endDate": "2025-03-31"
+        }
+      },
+      "expectedResponse": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "DATE_TOO_OLD",
+            "message": "過去6ヶ月前までのデータのみ取得可能です",
+            "details": {
+              "requestedStart": "2025-03-01",
+              "oldestAllowed": "2025-04-07"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "無効な日付形式",
+      "request": {
+        "url": "/api/v1/analytics/aggregated-stats",
+        "method": "GET",
+        "params": {
+          "startDate": "2025/10/01",
+          "endDate": "2025-10-07"
+        }
+      },
+      "expectedResponse": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "INVALID_DATE_FORMAT",
+            "message": "日付はYYYY-MM-DD形式で指定してください",
+            "details": {
+              "field": "startDate",
+              "value": "2025/10/01",
+              "expectedFormat": "YYYY-MM-DD"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "JWT認証エラー（トークン無し）",
+      "request": {
+        "url": "/api/v1/analytics/aggregated-stats",
+        "method": "GET",
+        "params": {
+          "startDate": "2025-09-01",
+          "endDate": "2025-09-30"
+        },
+        "headers": {}
+      },
+      "expectedResponse": {
+        "status": 401,
+        "body": {
+          "error": {
+            "code": "UNAUTHORIZED",
+            "message": "認証トークンが必要です"
+          }
+        }
+      }
+    },
+    {
+      "name": "JWT認証エラー（無効なトークン）",
+      "request": {
+        "url": "/api/v1/analytics/aggregated-stats",
+        "method": "GET",
+        "params": {
+          "startDate": "2025-09-01",
+          "endDate": "2025-09-30"
+        },
+        "headers": {
+          "Authorization": "Bearer invalid-token-here"
+        }
+      },
+      "expectedResponse": {
+        "status": 401,
+        "body": {
+          "error": {
+            "code": "INVALID_TOKEN",
+            "message": "無効な認証トークンです"
+          }
+        }
+      }
+    },
+    {
+      "name": "レート制限超過",
+      "request": {
+        "url": "/api/v1/analytics/aggregated-stats",
+        "method": "GET",
+        "params": {
+          "startDate": "2025-09-01",
+          "endDate": "2025-09-30"
+        },
+        "note": "100回/時間を超えてリクエストした場合"
+      },
+      "expectedResponse": {
+        "status": 429,
+        "body": {
+          "error": {
+            "code": "RATE_LIMIT_EXCEEDED",
+            "message": "APIリクエストが多すぎます",
+            "details": {
+              "limit": 100,
+              "window": "1 hour",
+              "retryAfter": 3600
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "HMAC署名検証エラー",
+      "request": {
+        "url": "/api/v1/analytics/group-data",
+        "method": "POST",
+        "headers": {
+          "Authorization": "Bearer valid-jwt-token",
+          "X-VoiceDrive-Signature": "invalid-signature"
+        },
+        "body": {
+          "analysisDate": "2025-10-07",
+          "period": {
+            "startDate": "2025-09-30",
+            "endDate": "2025-10-07"
+          }
+        }
+      },
+      "expectedResponse": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "INVALID_SIGNATURE",
+            "message": "HMAC署名が不正です"
+          }
+        }
+      }
+    },
+    {
+      "name": "必須フィールド不足",
+      "request": {
+        "url": "/api/v1/analytics/group-data",
+        "method": "POST",
+        "headers": {
+          "Authorization": "Bearer valid-jwt-token"
+        },
+        "body": {
+          "analysisDate": "2025-10-07"
+        }
+      },
+      "expectedResponse": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "VALIDATION_ERROR",
+            "message": "必須フィールドが不足しています",
+            "details": {
+              "missingFields": ["period", "postingTrends", "privacyMetadata"]
+            }
+          }
+        }
+      }
+    }
+  ]
+}
