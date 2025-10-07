@@ -106,7 +106,7 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     title: 'エグゼクティブダッシュボード',
     label: 'エグゼクティブダッシュボード',
     icon: '📊',
-    path: '/executive-dashboard',
+    path: '/dashboard/executive',
     requiredLevel: 12,
     category: 'agenda'
   },

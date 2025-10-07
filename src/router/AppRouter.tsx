@@ -202,7 +202,7 @@ const AppRouter: React.FC = () => {
             </ProtectedRoute>
           } />
           <Route path="executive" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8} exactLevel>
+            <ProtectedRoute requiredLevel={12}>
               <ExecutiveDashboardPage />
             </ProtectedRoute>
           } />
