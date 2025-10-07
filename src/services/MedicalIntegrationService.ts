@@ -41,6 +41,34 @@ export interface MedicalTeamBookingRequest {
   notes?: string;
 }
 
+export interface StatsWebhookPayload {
+  event: 'stats.updated' | 'stats.hourly' | 'stats.daily';
+  timestamp: string;
+  announcement: {
+    id: string;
+    title: string;
+    category: string;
+    priority: string;
+    publishedAt: string;
+  };
+  stats: {
+    delivered: number;
+    actions: number;
+    completions: number;
+    details?: {
+      viewCount?: number;
+      uniqueViewers?: number;
+      averageReadTime?: number;
+      actionsByDepartment?: { [department: string]: number };
+    };
+  };
+  metadata: {
+    source: 'voicedrive';
+    version: '1.0.0';
+    environment: 'production' | 'staging' | 'development';
+  };
+}
+
 class MedicalIntegrationService {
   private static instance: MedicalIntegrationService;
   private apiBaseUrl: string;
@@ -181,6 +209,135 @@ class MedicalIntegrationService {
     } catch (error) {
       console.error('医療チームへの予約リクエスト送信エラー:', error);
       return false;
+    }
+  }
+
+  /**
+   * 統計情報を職員カルテシステムに送信（Webhook）
+   */
+  public async sendStatsToMedicalTeam(
+    announcement: HRAnnouncement,
+    event: 'stats.updated' | 'stats.hourly' | 'stats.daily' = 'stats.updated'
+  ): Promise<boolean> {
+    try {
+      const payload: StatsWebhookPayload = {
+        event,
+        timestamp: new Date().toISOString(),
+        announcement: {
+          id: announcement.id,
+          title: announcement.title,
+          category: convertToMedicalTeamCategory(announcement.category as VoiceDriveCategory),
+          priority: convertToMedicalTeamPriority(announcement.priority),
+          publishedAt: announcement.publishAt.toISOString()
+        },
+        stats: {
+          delivered: announcement.stats?.delivered || 0,
+          actions: announcement.stats?.responses || 0,  // 旧: responses
+          completions: announcement.stats?.completions || 0
+        },
+        metadata: {
+          source: 'voicedrive',
+          version: '1.0.0',
+          environment: (process.env.NODE_ENV as any) || 'development'
+        }
+      };
+
+      console.log('📊 職員カルテシステムへ統計送信:', {
+        event,
+        announcementId: announcement.id,
+        stats: payload.stats
+      });
+
+      // Webhook送信（HMAC署名付き）
+      const webhookUrl = process.env.REACT_APP_MEDICAL_STATS_WEBHOOK_URL;
+      if (!webhookUrl) {
+        console.warn('⚠️ Webhook URLが設定されていません');
+        return false;
+      }
+
+      const response = await this.sendWebhookWithSignature(webhookUrl, payload);
+      return response.success;
+
+    } catch (error) {
+      console.error('統計送信エラー:', error);
+      return false;
+    }
+  }
+
+  /**
+   * HMAC署名付きWebhook送信
+   */
+  private async sendWebhookWithSignature(
+    url: string,
+    payload: StatsWebhookPayload
+  ): Promise<{ success: boolean; data?: any }> {
+    try {
+      const payloadString = JSON.stringify(payload);
+      const secret = process.env.REACT_APP_MEDICAL_WEBHOOK_SECRET || '';
+
+      // HMAC-SHA256署名生成（ブラウザ環境ではSubtle Crypto APIを使用）
+      const signature = await this.generateHmacSignature(payloadString, secret);
+
+      console.log('🔐 Webhook送信:', {
+        url,
+        hasSignature: !!signature,
+        payloadSize: payloadString.length
+      });
+
+      // 本番環境では実際のfetch
+      // const response = await fetch(url, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${process.env.REACT_APP_MEDICAL_API_TOKEN}`,
+      //     'X-VoiceDrive-Signature': signature
+      //   },
+      //   body: payloadString
+      // });
+
+      // モック実装
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      return {
+        success: true,
+        data: {
+          receivedAt: new Date().toISOString(),
+          processed: true
+        }
+      };
+
+    } catch (error) {
+      console.error('Webhook送信エラー:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * HMAC-SHA256署名生成（ブラウザ対応）
+   */
+  private async generateHmacSignature(message: string, secret: string): Promise<string> {
+    try {
+      // Web Crypto API（ブラウザ環境）
+      const encoder = new TextEncoder();
+      const keyData = encoder.encode(secret);
+      const messageData = encoder.encode(message);
+
+      const key = await crypto.subtle.importKey(
+        'raw',
+        keyData,
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      );
+
+      const signature = await crypto.subtle.sign('HMAC', key, messageData);
+      const hashArray = Array.from(new Uint8Array(signature));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+      return hashHex;
+    } catch (error) {
+      console.error('HMAC署名生成エラー:', error);
+      return '';
     }
   }
 

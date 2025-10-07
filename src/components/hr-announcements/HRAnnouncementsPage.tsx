@@ -3,6 +3,7 @@ import { HRAnnouncement, CategoryConfig, HRAnnouncementFilter } from '../../type
 import HRMessageBubble from './HRMessageBubble';
 import HRCategoryFilter from './HRCategoryFilter';
 import HRDateDivider from './HRDateDivider';
+import MedicalIntegrationService from '../../services/MedicalIntegrationService';
 
 // カテゴリ設定（医療チームシステム仕様準拠）
 const categoryConfigs: CategoryConfig[] = [
@@ -278,17 +279,27 @@ const HRAnnouncementsPage: React.FC = () => {
   };
 
   const handleResponse = async (announcementId: string, responseType: string) => {
-    // 実際の実装ではAPIコール
-    console.log('Response:', { announcementId, responseType });
-
     // 楽観的UI更新
-    setAnnouncements(prev =>
-      prev.map(ann =>
-        ann.id === announcementId
-          ? { ...ann, stats: { ...ann.stats!, responses: (ann.stats?.responses || 0) + 1 } }
-          : ann
-      )
+    const updatedAnnouncements = announcements.map(ann =>
+      ann.id === announcementId
+        ? { ...ann, stats: { ...ann.stats!, responses: (ann.stats?.responses || 0) + 1 } }
+        : ann
     );
+    setAnnouncements(updatedAnnouncements);
+
+    // 更新されたお知らせを取得
+    const updatedAnnouncement = updatedAnnouncements.find(ann => ann.id === announcementId);
+
+    if (updatedAnnouncement) {
+      // 職員カルテシステムに統計送信
+      const medicalService = MedicalIntegrationService.getInstance();
+      const success = await medicalService.sendStatsToMedicalTeam(
+        updatedAnnouncement,
+        'stats.updated'
+      );
+
+      console.log('📊 統計送信結果:', { announcementId, success });
+    }
   };
 
   const filteredAnnouncements = announcements.filter(announcement => {
