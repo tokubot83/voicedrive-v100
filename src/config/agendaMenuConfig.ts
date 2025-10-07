@@ -33,69 +33,14 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'agenda'
   },
 
-  // 委員会ツール（レベル7+：副師長以上）
-  committee_tools: {
-    id: 'committee_tools',
-    title: '委員会ツール',
-    label: '委員会ツール',
+  // 委員会管理（レベル7+：副師長以上）
+  committee_management: {
+    id: 'committee_management',
+    title: '委員会管理',
+    label: '委員会管理',
     icon: '🏛️',
-    path: '/committee-tools',
+    path: '/committee-management',
     requiredLevel: 7,
-    category: 'agenda'
-  },
-
-  // 議題ジェネレーター（レベル7+）
-  agenda_generator: {
-    id: 'agenda_generator',
-    title: '議題ジェネレーター',
-    label: '議題ジェネレーター',
-    icon: '📝',
-    path: '/agenda-generator',
-    requiredLevel: 7,
-    category: 'agenda'
-  },
-
-  // 委員会ブリッジ（レベル8+：師長以上）
-  committee_bridge: {
-    id: 'committee_bridge',
-    title: '委員会ブリッジ',
-    label: '委員会ブリッジ',
-    icon: '🌉',
-    path: '/committee-submission-approval',
-    requiredLevel: 8,
-    category: 'agenda'
-  },
-
-  // 部署ステーション（レベル7+）
-  department_station: {
-    id: 'department_station',
-    title: '部署ステーション',
-    label: '部署ステーション',
-    icon: '🏢',
-    path: '/department-station',
-    requiredLevel: 7,
-    category: 'agenda'
-  },
-
-  // プロジェクトガバナンス（レベル9+：副部長以上）
-  project_governance: {
-    id: 'project_governance',
-    title: 'プロジェクトガバナンス',
-    label: 'プロジェクトガバナンス',
-    icon: '🎯',
-    path: '/project-governance',
-    requiredLevel: 9,
-    category: 'agenda'
-  },
-
-  // 部署横断（レベル9+）
-  cross_department: {
-    id: 'cross_department',
-    title: '部署横断',
-    label: '部署横断',
-    icon: '🔄',
-    path: '/cross-department',
-    requiredLevel: 9,
     category: 'agenda'
   },
 
@@ -335,31 +280,28 @@ export const AGENDA_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
 
   // レベル7：副師長・副科長・副課長
   7: [
-    'post_tracking', 'proposal_management', 'department_station', 'committee_tools', 'agenda_generator'
+    'post_tracking', 'proposal_management', 'committee_management'
   ],
 
   // レベル8：師長・科長・課長・室長
   8: [
-    'post_tracking', 'proposal_management', 'department_station', 'committee_tools', 'agenda_generator', 'committee_bridge'
+    'post_tracking', 'proposal_management', 'committee_management'
   ],
 
   // レベル9：副部長
   9: [
-    'post_tracking', 'proposal_management', 'department_station', 'committee_tools', 'agenda_generator',
-    'committee_bridge', 'project_governance', 'cross_department'
+    'post_tracking', 'proposal_management', 'committee_management'
   ],
 
   // レベル10：部長・医局長
   10: [
-    'post_tracking', 'proposal_management', 'department_station', 'committee_tools', 'agenda_generator',
-    'committee_bridge', 'project_governance', 'cross_department', 'management_committee', 'facility_governance'
+    'post_tracking', 'proposal_management', 'committee_management', 'management_committee', 'facility_governance'
   ],
 
   // レベル11：事務長
   11: [
-    'post_tracking', 'proposal_management', 'department_station', 'committee_tools', 'agenda_generator',
-    'committee_bridge', 'project_governance', 'cross_department', 'management_committee',
-    'facility_governance', 'facility_management', 'strategic_initiatives', 'budget_management'
+    'post_tracking', 'proposal_management', 'committee_management', 'management_committee',
+    'facility_governance', 'facility_management', 'strategic_initiatives'
   ],
 
   // レベル12：副院長

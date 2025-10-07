@@ -103,6 +103,11 @@ import StressCheckDemoPage from '../pages/StressCheckDemoPage';
 // Approvals & Notifications
 import { ApprovalsPage } from '../pages/ApprovalsPage';
 
+// Committee & Governance
+import CommitteeManagementPage from '../pages/CommitteeManagementPage';
+import ManagementCommitteePage from '../pages/ManagementCommitteePage';
+import FacilityGovernancePage from '../pages/FacilityGovernancePage';
+
 // Retirement Processing
 import RetirementProcessingPage from '../pages/RetirementProcessingPage';
 import Step1AccountDeactivation from '../components/retirement/Step1AccountDeactivation';
@@ -516,10 +521,31 @@ const AppRouter: React.FC = () => {
         </ProtectedRoute>
       } />
 
-      {/* Committee Submission Approval (Level 8+) */}
+      {/* Committee Management (Level 7+) */}
+      <Route path="committee-management" element={
+        <ProtectedRoute requiredLevel={7}>
+          <CommitteeManagementPage />
+        </ProtectedRoute>
+      } />
+
+      {/* Committee Submission Approval (Level 8+) - Legacy */}
       <Route path="committee-submission-approval" element={
         <ProtectedRoute requiredLevel={8}>
           {React.createElement(React.lazy(() => import('../pages/CommitteeSubmissionApprovalPage')))}
+        </ProtectedRoute>
+      } />
+
+      {/* Management Committee (Level 10+) */}
+      <Route path="management-committee" element={
+        <ProtectedRoute requiredLevel={10}>
+          <ManagementCommitteePage />
+        </ProtectedRoute>
+      } />
+
+      {/* Facility Governance (Level 10+) */}
+      <Route path="facility-governance" element={
+        <ProtectedRoute requiredLevel={10}>
+          <FacilityGovernancePage />
         </ProtectedRoute>
       } />
 
