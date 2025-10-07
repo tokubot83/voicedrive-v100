@@ -148,7 +148,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       </div>
 
       {/* メニューセクション */}
-      <div className="flex-1 overflow-y-auto p-4 pb-40 space-y-2">
+      <div className="flex-1 overflow-y-auto p-4 pb-[500px] space-y-2">
         {/* モード別メニュー */}
         {modeMenuItems.map(item => (
           <EnhancedSidebarMenuItem

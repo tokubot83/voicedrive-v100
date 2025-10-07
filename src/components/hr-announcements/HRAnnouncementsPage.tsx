@@ -64,10 +64,8 @@ const HRAnnouncementsPage: React.FC = () => {
         authorDepartment: '人事部 × 医療チーム',
         publishAt: new Date(),
         isActive: true,
-        requireResponse: true,
+        requireResponse: false,
         responseType: 'acknowledged',
-        responseText: 'アンケートに回答する',
-        responseRequired: false,
         targetAudience: { isGlobal: true },
         actionButton: {
           text: '📊 アンケートフォームへ',
@@ -78,7 +76,6 @@ const HRAnnouncementsPage: React.FC = () => {
         updatedAt: new Date(),
         stats: {
           delivered: 450,
-          responses: 234,
           completions: 189
         }
       },
@@ -93,10 +90,8 @@ const HRAnnouncementsPage: React.FC = () => {
         authorDepartment: '健康管理センター × 人事部',
         publishAt: new Date(Date.now() - 20 * 60 * 1000),
         isActive: true,
-        requireResponse: true,
+        requireResponse: false,
         responseType: 'acknowledged',
-        responseText: '面談を予約する',
-        responseRequired: false,
         targetAudience: { isGlobal: false, individuals: ['高ストレス対象者'] },
         actionButton: {
           text: '🏥 医療チーム面談予約',
@@ -107,7 +102,6 @@ const HRAnnouncementsPage: React.FC = () => {
         updatedAt: new Date(Date.now() - 20 * 60 * 1000),
         stats: {
           delivered: 45,
-          responses: 12,
           completions: 8
         }
       },
@@ -123,10 +117,8 @@ const HRAnnouncementsPage: React.FC = () => {
         authorDepartment: '人事部',
         publishAt: new Date(Date.now() - 30 * 60 * 1000),
         isActive: true,
-        requireResponse: true,
+        requireResponse: false,
         responseType: 'acknowledged',
-        responseText: '調査に参加する',
-        responseRequired: false,
         targetAudience: { isGlobal: true },
         actionButton: {
           text: '😊 満足度調査フォーム',
@@ -137,7 +129,6 @@ const HRAnnouncementsPage: React.FC = () => {
         updatedAt: new Date(Date.now() - 30 * 60 * 1000),
         stats: {
           delivered: 1250,
-          responses: 567,
           completions: 423
         }
       },
@@ -153,6 +144,7 @@ const HRAnnouncementsPage: React.FC = () => {
         publishAt: new Date(Date.now() - 30 * 60 * 1000),
         isActive: true,
         requireResponse: false,
+        responseType: 'acknowledged',
         targetAudience: { isGlobal: false, departments: ['要フォロー対象者'] },
         actionButton: {
           text: '📋 健康相談を予約',
@@ -163,7 +155,6 @@ const HRAnnouncementsPage: React.FC = () => {
         updatedAt: new Date(Date.now() - 30 * 60 * 1000),
         stats: {
           delivered: 230,
-          responses: 0,
           completions: 89
         }
       },
@@ -180,6 +171,7 @@ const HRAnnouncementsPage: React.FC = () => {
         publishAt: new Date(Date.now() - 60 * 60 * 1000),
         isActive: true,
         requireResponse: false,
+        responseType: 'acknowledged',
         targetAudience: { isGlobal: true },
         actionButton: {
           text: '📚 研修アンケート回答',
@@ -190,7 +182,6 @@ const HRAnnouncementsPage: React.FC = () => {
         updatedAt: new Date(Date.now() - 60 * 60 * 1000),
         stats: {
           delivered: 850,
-          responses: 234,
           completions: 198
         }
       },
@@ -206,6 +197,7 @@ const HRAnnouncementsPage: React.FC = () => {
         publishAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
         isActive: true,
         requireResponse: false,
+        responseType: 'acknowledged',
         targetAudience: { isGlobal: true },
         actionButton: {
           text: '🧠 メンタルヘルス面談予約',
@@ -216,7 +208,6 @@ const HRAnnouncementsPage: React.FC = () => {
         updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
         stats: {
           delivered: 380,
-          responses: 45,
           completions: 156
         }
       },
@@ -232,6 +223,7 @@ const HRAnnouncementsPage: React.FC = () => {
         publishAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
         isActive: true,
         requireResponse: false,
+        responseType: 'acknowledged',
         targetAudience: { isGlobal: true },
         actionButton: {
           text: '💪 プログラムに参加',
@@ -242,7 +234,6 @@ const HRAnnouncementsPage: React.FC = () => {
         updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
         stats: {
           delivered: 1250,
-          responses: 234,
           completions: 67
         }
       },
@@ -258,6 +249,7 @@ const HRAnnouncementsPage: React.FC = () => {
         publishAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
         isActive: true,
         requireResponse: false,
+        responseType: 'acknowledged',
         targetAudience: { isGlobal: true },
         actionButton: {
           text: '📊 統合テストページへ',
@@ -268,7 +260,6 @@ const HRAnnouncementsPage: React.FC = () => {
         updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
         stats: {
           delivered: 1250,
-          responses: 0,
           completions: 450
         }
       }

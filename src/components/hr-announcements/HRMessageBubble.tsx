@@ -14,20 +14,17 @@ const HRMessageBubble: React.FC<HRMessageBubbleProps> = ({
   categoryConfig,
   onResponse
 }) => {
-  const [hasResponded, setHasResponded] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
-
-  const handleResponse = async () => {
-    if (hasResponded || !onResponse || !announcement.responseType) return;
-
-    setHasResponded(true);
-    await onResponse(announcement.id, announcement.responseType);
-  };
 
   const handleActionClick = async () => {
     if (!announcement.actionButton) return;
 
     setIsActionLoading(true);
+
+    // アクションボタンクリック時に自動で応答記録
+    if (onResponse && announcement.responseType) {
+      await onResponse(announcement.id, announcement.responseType);
+    }
 
     try {
       if (announcement.actionButton.type === 'internal') {
@@ -95,21 +92,6 @@ const HRMessageBubble: React.FC<HRMessageBubbleProps> = ({
       minute: '2-digit',
       hour12: false
     });
-  };
-
-  const getResponseButtonClass = () => {
-    if (hasResponded) return 'hr-response-button responded';
-
-    switch (announcement.responseType) {
-      case 'acknowledged':
-        return 'hr-response-button acknowledged';
-      case 'completed':
-        return 'hr-response-button completed';
-      case 'custom':
-        return 'hr-response-button custom';
-      default:
-        return 'hr-response-button acknowledged';
-    }
   };
 
   const getActionButtonClass = () => {
@@ -228,43 +210,11 @@ const HRMessageBubble: React.FC<HRMessageBubbleProps> = ({
             </button>
           )}
 
-          {/* 応答ボタン（カスタマイズ機能） */}
-          {announcement.requireResponse && (
-            <button
-              className={getResponseButtonClass()}
-              onClick={handleResponse}
-              disabled={hasResponded}
-            >
-              {hasResponded ? (
-                <>
-                  <span>✓</span>
-                  対応済み
-                </>
-              ) : (
-                announcement.responseText || '了解しました'
-              )}
-            </button>
-          )}
-
           {/* フッター */}
           <div className="hr-message-footer">
             <span className="hr-author">
               👤 {announcement.authorDepartment} {announcement.authorName}
             </span>
-            {announcement.stats && (
-              <div className="flex items-center gap-4">
-                {announcement.requireResponse && (
-                  <span className="hr-response-count">
-                    ✅ 応答 {announcement.stats.responses}
-                  </span>
-                )}
-                {announcement.actionButton && (
-                  <span className="hr-response-count">
-                    📊 実行 {announcement.stats.completions}
-                  </span>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </div>
