@@ -32,7 +32,9 @@
   ],
   "documents": [
     "mcp-shared/docs/HR_Announcement_UI_Change_Notice_20251007.md",
-    "mcp-shared/docs/VoiceDrive_Stats_Webhook_Specification_20251007.md"
+    "mcp-shared/docs/VoiceDrive_Stats_Webhook_Specification_20251007.md",
+    "mcp-shared/docs/VoiceDrive_HR_Announcement_Receive_API_Specification_20251007.md",
+    "mcp-shared/docs/Response_To_Medical_Team_Questions_20251007.md"
   ],
   "backward_compatible": true,
   "testing_required": true,

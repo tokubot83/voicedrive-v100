@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.routes';
 import permissionsRoutes from './routes/permissions.routes';
 import healthRoutes from './routes/health.routes';
 import consentRoutes from './routes/consent.routes';
+import hrAnnouncementsRoutes from './routes/hr-announcements.routes';
 
 const app: Application = express();
 const PORT = process.env.PORT || 4000;
@@ -129,6 +130,7 @@ app.use('/api/users', apiLimiter, permissionsRoutes);
 app.use('/api', calculateLevelLimiter, permissionsRoutes); // /api/v1/calculate-level用
 app.use('/api/health', apiLimiter, healthRoutes);
 app.use('/api/consent', apiLimiter, consentRoutes);
+app.use('/api/hr-announcements', apiLimiter, hrAnnouncementsRoutes);
 
 // 404ハンドラー
 app.use((req: Request, res: Response) => {

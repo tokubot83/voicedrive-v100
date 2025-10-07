@@ -109,3 +109,70 @@ export interface HRAnnouncementFilter {
   requiresResponse?: boolean;
   hasResponded?: boolean;
 }
+
+// 職員カルテシステムからのお知らせ受信用型定義
+export interface MedicalSystemAnnouncementRequest {
+  // お知らせ基本情報
+  title: string;
+  content: string;
+  category: 'announcement' | 'interview' | 'training' | 'survey' | 'other';
+  priority: 'low' | 'medium' | 'high';
+
+  // 配信対象
+  targetType: 'all' | 'departments' | 'individuals' | 'positions';
+  targetDepartments?: string[];
+  targetIndividuals?: string[];
+  targetPositions?: string[];
+
+  // アクションボタン設定
+  hasActionButton: boolean;
+  actionButton?: {
+    type: 'interview_reservation' | 'survey_response' | 'training_apply' | 'health_check' | 'custom';
+    label: string;
+    url?: string;
+    config?: {
+      surveyId?: string;
+      interviewTypeId?: string;
+      trainingId?: string;
+    };
+  };
+
+  // VoiceDrive側の設定
+  requireResponse: boolean;
+  autoTrackResponse: boolean;
+
+  // 公開設定
+  scheduledPublishAt?: string;
+  expiresAt?: string;
+
+  // メタデータ
+  metadata: {
+    sourceSystem: 'medical-staff-system';
+    sourceAnnouncementId: string;
+    createdBy: string;
+    createdAt: string;
+  };
+}
+
+export interface MedicalSystemAnnouncementResponse {
+  success: boolean;
+  data?: {
+    voicedriveAnnouncementId: string;
+    status: 'published' | 'scheduled';
+    publishedAt: string;
+    estimatedDelivery: number;
+    targetedUsers?: {
+      department: string;
+      count: number;
+    }[];
+  };
+  error?: {
+    code: string;
+    message: string;
+    details?: {
+      field: string;
+      message: string;
+    }[];
+  };
+  message?: string;
+}
