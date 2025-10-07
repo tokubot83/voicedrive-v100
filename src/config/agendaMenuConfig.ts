@@ -140,7 +140,7 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     title: 'エグゼクティブ報告',
     label: 'エグゼクティブ報告',
     icon: '📋',
-    path: '/executive-report',
+    path: '/executive-reports',
     requiredLevel: 16,
     category: 'agenda'
   },

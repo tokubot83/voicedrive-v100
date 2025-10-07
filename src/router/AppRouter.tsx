@@ -32,6 +32,7 @@ import ExecutiveReportsPage from '../pages/ExecutiveReportsPage';
 import ExecutiveOverviewPage from '../pages/ExecutiveOverviewPage';
 import StrategicInitiativesPage from '../pages/StrategicInitiativesPage';
 import OrganizationAnalyticsPage from '../pages/OrganizationAnalyticsPage';
+import { StrategicHRPage } from '../pages/StrategicHRPage';
 import BoardReportsPage from '../pages/BoardReportsPage';
 import GovernancePage from '../pages/GovernancePage';
 import VotingSystemGuide from '../pages/VotingSystemGuide';
@@ -427,9 +428,16 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
         
-        {/* Executive Reports (Level 7+) */}
+        {/* Strategic HR Plan (Level 16+) */}
+        <Route path="strategic-hr-plan" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_16}>
+            <StrategicHRPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Executive Reports (Level 16+) */}
         <Route path="executive-reports" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_16}>
             <ExecutiveReportsPage />
           </ProtectedRoute>
         } />

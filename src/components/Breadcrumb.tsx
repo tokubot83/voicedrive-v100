@@ -33,6 +33,7 @@ const pathNameMap: Record<string, string> = {
   '/strategic-overview': '戦略概要',
   '/budget-planning': '予算計画',
   '/analytics': '分析',
+  '/strategic-hr-plan': '戦略HR計画',
   '/executive-reports': 'エグゼクティブレポート',
   '/executive-overview': '経営概要',
   '/strategic-initiatives': '戦略イニシアチブ',

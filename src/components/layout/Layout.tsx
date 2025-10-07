@@ -58,6 +58,7 @@ const Layout: React.FC = () => {
     '/strategic-overview',
     '/strategic-planning',
     '/strategic-initiatives',
+    '/strategic-hr-plan',
     '/executive-overview',
     '/executive-reports',
     '/board-reports',
