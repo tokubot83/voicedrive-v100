@@ -130,6 +130,12 @@ import CultureDevelopmentPage from '../pages/CultureDevelopmentPage';
 // Board Preparation
 import { BoardPreparationPage } from '../pages/BoardPreparationPage';
 
+// Level 18 Pages
+import { CorporateAgendaDashboardPage } from '../pages/CorporateAgendaDashboardPage';
+import { CrossFacilityAnalysisPage } from '../pages/CrossFacilityAnalysisPage';
+import { BoardAgendaReviewPage } from '../pages/BoardAgendaReviewPage';
+import { BoardDecisionFollowPage } from '../pages/BoardDecisionFollowPage';
+
 // Generational Analysis
 import GenerationalAnalysisPage from '../pages/GenerationalAnalysisPage';
 import DepartmentGenerationalAnalysisPage from '../pages/DepartmentGenerationalAnalysisPage';
@@ -449,6 +455,34 @@ const AppRouter: React.FC = () => {
         <Route path="board-preparation" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_17}>
             <BoardPreparationPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Corporate Agenda Dashboard (Level 18) */}
+        <Route path="corporate-agenda-dashboard" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_18}>
+            <CorporateAgendaDashboardPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Cross Facility Analysis (Level 18) */}
+        <Route path="cross-facility-analysis" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_18}>
+            <CrossFacilityAnalysisPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Board Agenda Review (Level 18) */}
+        <Route path="board-agenda-review" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_18}>
+            <BoardAgendaReviewPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Board Decision Follow (Level 18) */}
+        <Route path="board-decision-follow" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_18}>
+            <BoardDecisionFollowPage />
           </ProtectedRoute>
         } />
 

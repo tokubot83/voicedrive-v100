@@ -156,35 +156,46 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'agenda'
   },
 
-  // 理事会機能（レベル18：理事長専用）
-  board_function: {
-    id: 'board_function',
-    title: '理事会機能',
-    label: '理事会機能',
-    icon: '🏛️',
-    path: '/board-function',
+  // 法人全体議題化ダッシュボード（レベル18：理事長・法人事務局長専用）
+  corporate_agenda_dashboard: {
+    id: 'corporate_agenda_dashboard',
+    title: '法人全体議題化ダッシュボード',
+    label: '法人全体議題化ダッシュボード',
+    icon: '🏢',
+    path: '/corporate-agenda-dashboard',
     requiredLevel: 18,
     category: 'agenda'
   },
 
-  // 戦略ガバナンス（レベル18）
-  strategic_governance: {
-    id: 'strategic_governance',
-    title: '戦略ガバナンス',
-    label: '戦略ガバナンス',
-    icon: '⚖️',
-    path: '/strategic-governance',
+  // 施設横断課題分析（レベル18）
+  cross_facility_analysis: {
+    id: 'cross_facility_analysis',
+    title: '施設横断課題分析',
+    label: '施設横断課題分析',
+    icon: '🔄',
+    path: '/cross-facility-analysis',
     requiredLevel: 18,
     category: 'agenda'
   },
 
-  // 最終承認（レベル18）
-  final_approval: {
-    id: 'final_approval',
-    title: '最終承認',
-    label: '最終承認',
+  // 理事会議題確認（レベル18）
+  board_agenda_review: {
+    id: 'board_agenda_review',
+    title: '理事会議題確認',
+    label: '理事会議題確認',
+    icon: '📋',
+    path: '/board-agenda-review',
+    requiredLevel: 18,
+    category: 'agenda'
+  },
+
+  // 理事会決定事項フォロー（レベル18）
+  board_decision_follow: {
+    id: 'board_decision_follow',
+    title: '理事会決定事項フォロー',
+    label: '理事会決定事項フォロー',
     icon: '✅',
-    path: '/final-approval',
+    path: '/board-decision-follow',
     requiredLevel: 18,
     category: 'agenda'
   },
@@ -295,7 +306,8 @@ export const AGENDA_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
 
   // レベル18：理事長・法人事務局長
   18: [
-    'post_tracking', 'board_function', 'strategic_governance', 'final_approval'
+    'post_tracking', 'voice_analytics', 'corporate_agenda_dashboard',
+    'cross_facility_analysis', 'board_agenda_review', 'board_decision_follow'
   ],
 
   // レベルX：システム管理者（全アクセス）
