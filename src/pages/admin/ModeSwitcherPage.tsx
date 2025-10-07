@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, Info, AlertTriangle, CheckCircle, ArrowRight, TrendingUp, Users, FileText } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { useDemoMode } from '../../components/demo/DemoModeController';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '../../components/ui/Card';
 import { MobileFooter } from '../../components/layout/MobileFooter';
@@ -15,7 +16,9 @@ import { AuditService } from '../../services/AuditService';
 import { systemModeStatsService, MigrationStats, MigrationReadiness } from '../../services/SystemModeStatsService';
 
 export const ModeSwitcherPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
+  const { isDemoMode, currentUser: demoUser } = useDemoMode();
+  const user = isDemoMode ? demoUser : authUser;
   const navigate = useNavigate();
   const [currentMode, setCurrentMode] = useState<SystemMode>(SystemMode.AGENDA);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,10 +29,22 @@ export const ModeSwitcherPage: React.FC = () => {
 
   // 権限チェック（レベル99のみアクセス可能）
   useEffect(() => {
-    if (!user || user.permissionLevel !== 99) {
+    console.log('[ModeSwitcher] useEffect: user=', user, 'permissionLevel=', user?.permissionLevel);
+
+    if (!user) {
+      console.warn('[ModeSwitcher] ユーザーが存在しません。リダイレクト');
       navigate('/');
       return;
     }
+
+    if (user.permissionLevel !== 99) {
+      console.warn('[ModeSwitcher] 権限不足:', user.permissionLevel, '≠ 99. リダイレクト');
+      alert(`⚠️ アクセス拒否\n\nこのページはレベル99（システム管理者）のみアクセス可能です。\n現在の権限レベル: ${user.permissionLevel}\n\nデモモードの場合は、画面上部から「システム管理者 徳留」に切り替えてください。`);
+      navigate('/');
+      return;
+    }
+
+    console.log('[ModeSwitcher] 権限OK。初期化開始');
 
     // 現在のモードを取得
     setCurrentMode(systemModeManager.getCurrentMode());
@@ -59,7 +74,18 @@ export const ModeSwitcherPage: React.FC = () => {
    * モード切り替えハンドラー
    */
   const handleModeSwitch = async (targetMode: SystemMode) => {
-    if (!user) return;
+    console.log('[ModeSwitcher] handleModeSwitch呼び出し, targetMode=', targetMode);
+
+    if (!user) {
+      console.error('[ModeSwitcher] ユーザーが存在しません');
+      return;
+    }
+
+    // 現在のモードと同じ場合は何もしない
+    if (currentMode === targetMode) {
+      console.log('[ModeSwitcher] 既に選択されているモードです');
+      return;
+    }
 
     // 確認ダイアログ
     const modeNames = {
@@ -67,6 +93,7 @@ export const ModeSwitcherPage: React.FC = () => {
       [SystemMode.PROJECT]: 'プロジェクト化モード'
     };
 
+    console.log('[ModeSwitcher] 確認ダイアログ表示');
     const confirmed = window.confirm(
       `⚠️ 【レベルX専用操作】\n\n` +
       `システムモードを「${modeNames[targetMode]}」に切り替えます。\n\n` +
@@ -77,15 +104,23 @@ export const ModeSwitcherPage: React.FC = () => {
       `続行しますか？`
     );
 
-    if (!confirmed) return;
+    console.log('[ModeSwitcher] 確認結果:', confirmed);
+    if (!confirmed) {
+      console.log('[ModeSwitcher] キャンセルされました');
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
     setSuccess(null);
 
     try {
+      console.log('[ModeSwitcher] モード切り替え開始:', currentMode, '→', targetMode);
+
       // モード切り替え実行
       await systemModeManager.setMode(targetMode, user);
+
+      console.log('[ModeSwitcher] setMode完了。LocalStorageを確認:', localStorage.getItem('voicedrive_system_mode'));
 
       // 監査ログ記録（高優先度）
       AuditService.log({
@@ -100,15 +135,24 @@ export const ModeSwitcherPage: React.FC = () => {
         severity: 'high'
       });
 
+      // 状態を更新
       setCurrentMode(targetMode);
       setSuccess(`システムモードを「${modeNames[targetMode]}」に切り替えました`);
+      console.log('[ModeSwitcher] モード切り替え完了');
 
-      // 3秒後にメッセージをクリア
-      setTimeout(() => setSuccess(null), 3000);
+      // 移行準備状況を再読み込み
+      await loadMigrationStats();
+
+      // 5秒後にメッセージをクリア
+      setTimeout(() => setSuccess(null), 5000);
 
     } catch (err) {
       console.error('モード切り替えエラー:', err);
-      setError('モード切り替えに失敗しました');
+      const errorMessage = err instanceof Error ? err.message : 'モード切り替えに失敗しました';
+      setError(errorMessage);
+
+      // エラーは10秒間表示
+      setTimeout(() => setError(null), 10000);
     } finally {
       setIsLoading(false);
     }
@@ -172,12 +216,12 @@ export const ModeSwitcherPage: React.FC = () => {
     <div className="min-h-screen bg-gray-900 w-full pb-32">
       <div className="w-full p-6">
         {/* ヘッダー */}
-        <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-2xl p-6 backdrop-blur-xl border border-purple-500/20 mb-6">
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-6 shadow-2xl border border-purple-400/30 mb-6">
           <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
             <span className="text-4xl">🔄</span>
             システムモード管理
           </h1>
-          <p className="text-gray-300">
+          <p className="text-blue-50">
             レベルX専用 - 議題モードとプロジェクト化モードを切り替えます
           </p>
         </div>
@@ -200,15 +244,15 @@ export const ModeSwitcherPage: React.FC = () => {
         {/* 現在のモード表示 */}
         <div className="mb-8">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <Info className="w-5 h-5" />
+            <Info className="w-5 h-5 text-blue-400" />
             現在のシステムモード
           </h2>
-          <Card className={`bg-gradient-to-r ${currentInfo.color} p-6 border-none`}>
+          <Card className={`bg-gradient-to-r ${currentInfo.color} p-6 border-none shadow-xl`}>
             <div className="flex items-center gap-4 mb-4">
               <span className="text-6xl">{currentInfo.icon}</span>
               <div>
                 <h3 className="text-2xl font-bold text-white">{currentInfo.name}</h3>
-                <p className="text-white/80">{currentInfo.description}</p>
+                <p className="text-white/95">{currentInfo.description}</p>
               </div>
             </div>
           </Card>
@@ -218,12 +262,12 @@ export const ModeSwitcherPage: React.FC = () => {
         {currentMode === SystemMode.AGENDA && stats && readiness && (
           <div className="mb-8">
             <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
+              <TrendingUp className="w-5 h-5 text-green-400" />
               プロジェクト化モード移行準備状況
             </h2>
 
             {/* 全体進捗 */}
-            <Card className="bg-gray-800/50 p-6 border border-gray-700/50 mb-4">
+            <Card className="bg-slate-800 p-6 border border-slate-600 shadow-lg mb-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-semibold text-white">全体進捗</h3>
                 <span className="text-2xl font-bold text-white">{readiness.progress}%</span>
@@ -246,7 +290,7 @@ export const ModeSwitcherPage: React.FC = () => {
               </div>
 
               <p className={`text-sm ${
-                readiness.isReady ? 'text-green-400' : 'text-gray-400'
+                readiness.isReady ? 'text-green-300' : 'text-slate-300'
               }`}>
                 {readiness.message}
               </p>
@@ -255,7 +299,7 @@ export const ModeSwitcherPage: React.FC = () => {
             {/* 詳細統計 */}
             <div className="grid md:grid-cols-3 gap-4">
               {/* 月間投稿数 */}
-              <Card className="bg-gray-800/50 p-4 border border-gray-700/50">
+              <Card className="bg-slate-800 p-4 border border-slate-600 shadow-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <FileText className="w-5 h-5 text-blue-400" />
                   <h4 className="font-semibold text-white">月間投稿数</h4>
@@ -276,11 +320,11 @@ export const ModeSwitcherPage: React.FC = () => {
                     style={{ width: `${Math.min((stats.monthlyPosts / 30) * 100, 100)}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-2">組織全体での月間投稿数</p>
+                <p className="text-xs text-slate-400 mt-2">組織全体での月間投稿数</p>
               </Card>
 
               {/* 委員会提出数 */}
-              <Card className="bg-gray-800/50 p-4 border border-gray-700/50">
+              <Card className="bg-slate-800 p-4 border border-slate-600 shadow-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <CheckCircle className="w-5 h-5 text-purple-400" />
                   <h4 className="font-semibold text-white">委員会提出数</h4>
@@ -301,11 +345,11 @@ export const ModeSwitcherPage: React.FC = () => {
                     style={{ width: `${Math.min((stats.committeeSubmissions / 10) * 100, 100)}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-2">月間委員会提出数（100点以上）</p>
+                <p className="text-xs text-slate-400 mt-2">月間委員会提出数（100点以上）</p>
               </Card>
 
               {/* 職員参加率 */}
-              <Card className="bg-gray-800/50 p-4 border border-gray-700/50">
+              <Card className="bg-slate-800 p-4 border border-slate-600 shadow-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="w-5 h-5 text-green-400" />
                   <h4 className="font-semibold text-white">職員参加率</h4>
@@ -326,7 +370,7 @@ export const ModeSwitcherPage: React.FC = () => {
                     style={{ width: `${Math.min((stats.participationRate / 60) * 100, 100)}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-slate-400 mt-2">
                   月間アクティブ: {stats.activeUsers}/{stats.totalUsers}名
                 </p>
               </Card>
@@ -334,19 +378,19 @@ export const ModeSwitcherPage: React.FC = () => {
 
             {/* 推奨ガイド */}
             {!readiness.isReady && (
-              <Card className="bg-blue-500/10 border border-blue-500/50 p-4 mt-4">
+              <Card className="bg-blue-600/20 border border-blue-500/60 p-4 mt-4 shadow-lg">
                 <div className="flex items-start gap-3">
-                  <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-blue-200">
-                    <p className="font-semibold mb-2">移行推奨タイミング</p>
-                    <p>プロジェクト化モードは、以下の条件を満たした後の移行を推奨します：</p>
-                    <ul className="list-disc list-inside mt-2 space-y-1 text-blue-300/80">
+                  <Info className="w-5 h-5 text-blue-300 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-blue-50">
+                    <p className="font-semibold mb-2 text-white">移行推奨タイミング</p>
+                    <p className="text-blue-100">プロジェクト化モードは、以下の条件を満たした後の移行を推奨します：</p>
+                    <ul className="list-disc list-inside mt-2 space-y-1 text-blue-100">
                       <li>月間30件以上の投稿が安定して投稿されている</li>
                       <li>委員会への提出実績が月間10件以上ある</li>
                       <li>職員の60%以上が月間1回以上ログインしている</li>
                     </ul>
-                    <p className="mt-2">
-                      現在の進捗: <strong>{readiness.progress}%</strong> -
+                    <p className="mt-2 text-blue-50">
+                      現在の進捗: <strong className="text-white">{readiness.progress}%</strong> -
                       まずは議題モードで組織の改善文化を定着させましょう。
                     </p>
                   </div>
@@ -359,20 +403,20 @@ export const ModeSwitcherPage: React.FC = () => {
         {/* モード比較・切り替え */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           {/* 議題モード */}
-          <Card className="bg-gray-800/50 p-6 border border-gray-700/50">
+          <Card className="bg-slate-800 p-6 border border-slate-600 shadow-xl">
             <div className="flex items-center gap-3 mb-4">
               <span className="text-4xl">{agendaInfo.icon}</span>
               <div>
                 <h3 className="text-xl font-bold text-white">{agendaInfo.name}</h3>
-                <p className="text-sm text-gray-400">{agendaInfo.description}</p>
+                <p className="text-sm text-blue-100">{agendaInfo.description}</p>
               </div>
             </div>
 
             <div className="mb-4">
-              <h4 className="text-sm font-semibold text-gray-300 mb-2">主な機能</h4>
+              <h4 className="text-sm font-semibold text-white mb-2">主な機能</h4>
               <ul className="space-y-1">
                 {agendaInfo.features.map((feature, idx) => (
-                  <li key={idx} className="text-sm text-gray-400 flex items-start gap-2">
+                  <li key={idx} className="text-sm text-slate-200 flex items-start gap-2">
                     <span className="text-blue-400 mt-1">•</span>
                     <span>{feature}</span>
                   </li>
@@ -381,22 +425,26 @@ export const ModeSwitcherPage: React.FC = () => {
             </div>
 
             <div className="mb-4">
-              <h4 className="text-sm font-semibold text-gray-300 mb-2">スコア閾値</h4>
+              <h4 className="text-sm font-semibold text-white mb-2">スコア閾値</h4>
               <ul className="space-y-1">
                 {agendaInfo.levels.map((level, idx) => (
-                  <li key={idx} className="text-xs text-gray-500">{level}</li>
+                  <li key={idx} className="text-xs text-slate-300">{level}</li>
                 ))}
               </ul>
             </div>
 
             <div className="mb-4">
-              <h4 className="text-sm font-semibold text-gray-300 mb-2">推奨導入時期</h4>
-              <p className="text-sm text-gray-400">{agendaInfo.recommended}</p>
+              <h4 className="text-sm font-semibold text-white mb-2">推奨導入時期</h4>
+              <p className="text-sm text-slate-200">{agendaInfo.recommended}</p>
             </div>
 
             {currentMode !== SystemMode.AGENDA && (
               <button
-                onClick={() => handleModeSwitch(SystemMode.AGENDA)}
+                type="button"
+                onClick={() => {
+                  console.log('[ModeSwitcher] 議題モードボタンクリック検出');
+                  handleModeSwitch(SystemMode.AGENDA);
+                }}
                 disabled={isLoading}
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
@@ -422,20 +470,20 @@ export const ModeSwitcherPage: React.FC = () => {
           </Card>
 
           {/* プロジェクト化モード */}
-          <Card className="bg-gray-800/50 p-6 border border-gray-700/50">
+          <Card className="bg-slate-800 p-6 border border-slate-600 shadow-xl">
             <div className="flex items-center gap-3 mb-4">
               <span className="text-4xl">{projectInfo.icon}</span>
               <div>
                 <h3 className="text-xl font-bold text-white">{projectInfo.name}</h3>
-                <p className="text-sm text-gray-400">{projectInfo.description}</p>
+                <p className="text-sm text-purple-100">{projectInfo.description}</p>
               </div>
             </div>
 
             <div className="mb-4">
-              <h4 className="text-sm font-semibold text-gray-300 mb-2">主な機能</h4>
+              <h4 className="text-sm font-semibold text-white mb-2">主な機能</h4>
               <ul className="space-y-1">
                 {projectInfo.features.map((feature, idx) => (
-                  <li key={idx} className="text-sm text-gray-400 flex items-start gap-2">
+                  <li key={idx} className="text-sm text-slate-200 flex items-start gap-2">
                     <span className="text-purple-400 mt-1">•</span>
                     <span>{feature}</span>
                   </li>
@@ -444,22 +492,26 @@ export const ModeSwitcherPage: React.FC = () => {
             </div>
 
             <div className="mb-4">
-              <h4 className="text-sm font-semibold text-gray-300 mb-2">スコア閾値</h4>
+              <h4 className="text-sm font-semibold text-white mb-2">スコア閾値</h4>
               <ul className="space-y-1">
                 {projectInfo.levels.map((level, idx) => (
-                  <li key={idx} className="text-xs text-gray-500">{level}</li>
+                  <li key={idx} className="text-xs text-slate-300">{level}</li>
                 ))}
               </ul>
             </div>
 
             <div className="mb-4">
-              <h4 className="text-sm font-semibold text-gray-300 mb-2">推奨導入時期</h4>
-              <p className="text-sm text-gray-400">{projectInfo.recommended}</p>
+              <h4 className="text-sm font-semibold text-white mb-2">推奨導入時期</h4>
+              <p className="text-sm text-slate-200">{projectInfo.recommended}</p>
             </div>
 
             {currentMode !== SystemMode.PROJECT && (
               <button
-                onClick={() => handleModeSwitch(SystemMode.PROJECT)}
+                type="button"
+                onClick={() => {
+                  console.log('[ModeSwitcher] ボタンクリック検出');
+                  handleModeSwitch(SystemMode.PROJECT);
+                }}
                 disabled={isLoading}
                 className="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
@@ -486,12 +538,12 @@ export const ModeSwitcherPage: React.FC = () => {
         </div>
 
         {/* 注意事項 */}
-        <Card className="bg-yellow-500/10 border border-yellow-500/50 p-6">
+        <Card className="bg-yellow-600/20 border border-yellow-500/60 p-6 shadow-lg">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-6 h-6 text-yellow-400 flex-shrink-0 mt-1" />
+            <AlertTriangle className="w-6 h-6 text-yellow-300 flex-shrink-0 mt-1" />
             <div>
-              <h3 className="text-lg font-bold text-yellow-200 mb-2">重要な注意事項</h3>
-              <ul className="space-y-2 text-sm text-yellow-100/80">
+              <h3 className="text-lg font-bold text-yellow-50 mb-2">重要な注意事項</h3>
+              <ul className="space-y-2 text-sm text-yellow-50">
                 <li className="flex items-start gap-2">
                   <span>•</span>
                   <span>モード切り替えは全ユーザーに即座に影響します</span>

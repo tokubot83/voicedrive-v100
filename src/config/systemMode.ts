@@ -42,8 +42,22 @@ class SystemModeManager {
 
   /**
    * 現在のシステムモードを取得
+   * 毎回LocalStorageから最新の状態を読み込む
    */
   getCurrentMode(): SystemMode {
+    try {
+      const savedConfig = localStorage.getItem('voicedrive_system_mode');
+      console.log('[SystemMode] getCurrentMode呼び出し: localStorage=', savedConfig);
+      if (savedConfig) {
+        const config: SystemModeConfig = JSON.parse(savedConfig);
+        this.currentMode = config.mode;
+        this.modeConfig = config;
+        console.log('[SystemMode] モード更新:', config.mode);
+      }
+    } catch (error) {
+      console.error('[SystemMode] getCurrentMode: 読み込みエラー:', error);
+    }
+    console.log('[SystemMode] getCurrentMode返却値:', this.currentMode);
     return this.currentMode;
   }
 

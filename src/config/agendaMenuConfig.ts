@@ -89,39 +89,6 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'agenda'
   },
 
-  // 戦略決定（レベル12+：副院長以上）
-  strategic_decision: {
-    id: 'strategic_decision',
-    title: '戦略決定',
-    label: '戦略決定',
-    icon: '⚖️',
-    path: '/strategic-decision',
-    requiredLevel: 12,
-    category: 'agenda'
-  },
-
-  // エグゼクティブダッシュボード（レベル12+）
-  executive_dashboard: {
-    id: 'executive_dashboard',
-    title: 'エグゼクティブダッシュボード',
-    label: 'エグゼクティブダッシュボード',
-    icon: '📊',
-    path: '/dashboard/executive',
-    requiredLevel: 12,
-    category: 'agenda'
-  },
-
-  // 医療ガバナンス（レベル12：副院長専用）
-  medical_governance: {
-    id: 'medical_governance',
-    title: '医療ガバナンス',
-    label: '医療ガバナンス',
-    icon: '🏥',
-    path: '/medical-governance',
-    requiredLevel: 12,
-    category: 'agenda'
-  },
-
   // 決定会議（レベル13：院長専用）
   decision_meeting: {
     id: 'decision_meeting',
@@ -306,12 +273,12 @@ export const AGENDA_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
 
   // レベル12：副院長
   12: [
-    'post_tracking', 'strategic_decision', 'executive_dashboard', 'medical_governance'
+    'post_tracking', 'management_committee', 'facility_governance'
   ],
 
   // レベル13：院長・施設長
   13: [
-    'post_tracking', 'strategic_decision', 'executive_dashboard', 'decision_meeting'
+    'post_tracking', 'management_committee', 'facility_governance', 'decision_meeting'
   ],
 
   // レベル14：人事部門員

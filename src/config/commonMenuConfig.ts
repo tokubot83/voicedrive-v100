@@ -65,6 +65,17 @@ export const COMMON_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'common'
   },
 
+  // エグゼクティブダッシュボード（レベル12以上：副院長以上）
+  executive_dashboard: {
+    id: 'executive_dashboard',
+    title: 'エグゼクティブダッシュボード',
+    label: 'エグゼクティブダッシュボード',
+    icon: '📊',
+    path: '/dashboard/executive',
+    requiredLevel: 12,
+    category: 'common'
+  },
+
   // システム設定（レベルX専用）
   system_settings: {
     id: 'system_settings',
@@ -123,6 +134,17 @@ export function getCommonMenuItems(permissionLevel: number | string): MenuItem[]
     COMMON_MENU_ITEMS.notifications,
     COMMON_MENU_ITEMS.settings
   ];
+
+  // レベル12以上の場合、エグゼクティブダッシュボードを追加
+  const numericLevel = typeof permissionLevel === 'string' && permissionLevel !== 'X'
+    ? parseFloat(permissionLevel)
+    : typeof permissionLevel === 'number'
+      ? permissionLevel
+      : 0;
+
+  if (numericLevel >= 12 || permissionLevel === 'X' || permissionLevel === 99) {
+    items.push(COMMON_MENU_ITEMS.executive_dashboard);
+  }
 
   // レベルXの場合、システム設定とモード切り替えを追加
   if (permissionLevel === 'X' || permissionLevel === 99) {
