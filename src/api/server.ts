@@ -7,6 +7,7 @@ import permissionsRoutes from './routes/permissions.routes';
 import healthRoutes from './routes/health.routes';
 import consentRoutes from './routes/consent.routes';
 import hrAnnouncementsRoutes from './routes/hr-announcements.routes';
+import analyticsRoutes from './routes/analytics.routes';
 
 const app: Application = express();
 const PORT = process.env.PORT || 4000;
@@ -96,6 +97,32 @@ const webhookLimiter = rateLimit({
   }
 });
 
+// レート制限 - Analytics（集計データ取得）
+const analyticsStatsLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1時間
+  max: 100,
+  message: {
+    error: {
+      code: 'RATE_LIMIT_EXCEEDED',
+      message: 'Analytics集計データリクエストが多すぎます。',
+      timestamp: new Date().toISOString()
+    }
+  }
+});
+
+// レート制限 - Analytics（分析データ受信）
+const analyticsDataLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1時間
+  max: 10,
+  message: {
+    error: {
+      code: 'RATE_LIMIT_EXCEEDED',
+      message: 'Analytics分析データ送信が多すぎます。',
+      timestamp: new Date().toISOString()
+    }
+  }
+});
+
 // ヘルスチェック
 app.get('/health', (req: Request, res: Response) => {
   res.json({
@@ -131,6 +158,7 @@ app.use('/api', calculateLevelLimiter, permissionsRoutes); // /api/v1/calculate-
 app.use('/api/health', apiLimiter, healthRoutes);
 app.use('/api/consent', apiLimiter, consentRoutes);
 app.use('/api/hr-announcements', apiLimiter, hrAnnouncementsRoutes);
+app.use('/api/v1/analytics', analyticsRoutes); // レート制限はルート内で個別に設定
 
 // 404ハンドラー
 app.use((req: Request, res: Response) => {
