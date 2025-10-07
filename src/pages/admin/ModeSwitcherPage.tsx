@@ -378,19 +378,19 @@ export const ModeSwitcherPage: React.FC = () => {
 
             {/* 推奨ガイド */}
             {!readiness.isReady && (
-              <Card className="bg-blue-600/20 border border-blue-500/60 p-4 mt-4 shadow-lg">
+              <Card className="bg-blue-600/20 border border-blue-400/60 p-4 mt-4 shadow-lg">
                 <div className="flex items-start gap-3">
-                  <Info className="w-5 h-5 text-blue-300 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-blue-50">
+                  <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm">
                     <p className="font-semibold mb-2 text-white">移行推奨タイミング</p>
-                    <p className="text-blue-100">プロジェクト化モードは、以下の条件を満たした後の移行を推奨します：</p>
-                    <ul className="list-disc list-inside mt-2 space-y-1 text-blue-100">
+                    <p className="text-blue-50">プロジェクト化モードは、以下の条件を満たした後の移行を推奨します：</p>
+                    <ul className="list-disc list-inside mt-2 space-y-1 text-white">
                       <li>月間30件以上の投稿が安定して投稿されている</li>
                       <li>委員会への提出実績が月間10件以上ある</li>
                       <li>職員の60%以上が月間1回以上ログインしている</li>
                     </ul>
-                    <p className="mt-2 text-blue-50">
-                      現在の進捗: <strong className="text-white">{readiness.progress}%</strong> -
+                    <p className="mt-2 text-white">
+                      現在の進捗: <strong className="text-yellow-300">{readiness.progress}%</strong> -
                       まずは議題モードで組織の改善文化を定着させましょう。
                     </p>
                   </div>
@@ -408,7 +408,7 @@ export const ModeSwitcherPage: React.FC = () => {
               <span className="text-4xl">{agendaInfo.icon}</span>
               <div>
                 <h3 className="text-xl font-bold text-white">{agendaInfo.name}</h3>
-                <p className="text-sm text-blue-100">{agendaInfo.description}</p>
+                <p className="text-sm text-white/90">{agendaInfo.description}</p>
               </div>
             </div>
 
@@ -416,7 +416,7 @@ export const ModeSwitcherPage: React.FC = () => {
               <h4 className="text-sm font-semibold text-white mb-2">主な機能</h4>
               <ul className="space-y-1">
                 {agendaInfo.features.map((feature, idx) => (
-                  <li key={idx} className="text-sm text-slate-200 flex items-start gap-2">
+                  <li key={idx} className="text-sm text-white flex items-start gap-2">
                     <span className="text-blue-400 mt-1">•</span>
                     <span>{feature}</span>
                   </li>
@@ -428,14 +428,14 @@ export const ModeSwitcherPage: React.FC = () => {
               <h4 className="text-sm font-semibold text-white mb-2">スコア閾値</h4>
               <ul className="space-y-1">
                 {agendaInfo.levels.map((level, idx) => (
-                  <li key={idx} className="text-xs text-slate-300">{level}</li>
+                  <li key={idx} className="text-xs text-white/80">{level}</li>
                 ))}
               </ul>
             </div>
 
             <div className="mb-4">
               <h4 className="text-sm font-semibold text-white mb-2">推奨導入時期</h4>
-              <p className="text-sm text-slate-200">{agendaInfo.recommended}</p>
+              <p className="text-sm text-white">{agendaInfo.recommended}</p>
             </div>
 
             {currentMode !== SystemMode.AGENDA && (
@@ -475,7 +475,7 @@ export const ModeSwitcherPage: React.FC = () => {
               <span className="text-4xl">{projectInfo.icon}</span>
               <div>
                 <h3 className="text-xl font-bold text-white">{projectInfo.name}</h3>
-                <p className="text-sm text-purple-100">{projectInfo.description}</p>
+                <p className="text-sm text-white/90">{projectInfo.description}</p>
               </div>
             </div>
 
@@ -483,7 +483,7 @@ export const ModeSwitcherPage: React.FC = () => {
               <h4 className="text-sm font-semibold text-white mb-2">主な機能</h4>
               <ul className="space-y-1">
                 {projectInfo.features.map((feature, idx) => (
-                  <li key={idx} className="text-sm text-slate-200 flex items-start gap-2">
+                  <li key={idx} className="text-sm text-white flex items-start gap-2">
                     <span className="text-purple-400 mt-1">•</span>
                     <span>{feature}</span>
                   </li>
@@ -495,14 +495,14 @@ export const ModeSwitcherPage: React.FC = () => {
               <h4 className="text-sm font-semibold text-white mb-2">スコア閾値</h4>
               <ul className="space-y-1">
                 {projectInfo.levels.map((level, idx) => (
-                  <li key={idx} className="text-xs text-slate-300">{level}</li>
+                  <li key={idx} className="text-xs text-white/80">{level}</li>
                 ))}
               </ul>
             </div>
 
             <div className="mb-4">
               <h4 className="text-sm font-semibold text-white mb-2">推奨導入時期</h4>
-              <p className="text-sm text-slate-200">{projectInfo.recommended}</p>
+              <p className="text-sm text-white">{projectInfo.recommended}</p>
             </div>
 
             {currentMode !== SystemMode.PROJECT && (

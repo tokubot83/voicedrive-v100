@@ -66,16 +66,6 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'agenda'
   },
 
-  // 戦略イニシアチブ（レベル11+：事務長以上）
-  strategic_initiatives: {
-    id: 'strategic_initiatives',
-    title: '戦略イニシアチブ',
-    label: '戦略イニシアチブ',
-    icon: '🎯',
-    path: '/strategic-initiatives',
-    requiredLevel: 11,
-    category: 'agenda'
-  },
 
 
   // 施設管理（レベル11+）
@@ -268,7 +258,7 @@ export const AGENDA_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
   // レベル11：事務長
   11: [
     'post_tracking', 'proposal_management', 'committee_management', 'management_committee',
-    'facility_governance', 'facility_management', 'strategic_initiatives'
+    'facility_governance', 'facility_management'
   ],
 
   // レベル12：副院長

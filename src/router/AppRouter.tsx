@@ -107,6 +107,9 @@ import { ApprovalsPage } from '../pages/ApprovalsPage';
 import CommitteeManagementPage from '../pages/CommitteeManagementPage';
 import ManagementCommitteePage from '../pages/ManagementCommitteePage';
 import FacilityGovernancePage from '../pages/FacilityGovernancePage';
+import DecisionMeetingPage from '../pages/DecisionMeetingPage';
+import AutoProjectizationPage from '../pages/AutoProjectizationPage';
+import FacilityProjectManagementPage from '../pages/FacilityProjectManagementPage';
 
 // Retirement Processing
 import RetirementProcessingPage from '../pages/RetirementProcessingPage';
@@ -549,6 +552,13 @@ const AppRouter: React.FC = () => {
         </ProtectedRoute>
       } />
 
+      {/* Decision Meeting (Level 13) */}
+      <Route path="decision-meeting" element={
+        <ProtectedRoute requiredLevel={13}>
+          <DecisionMeetingPage />
+        </ProtectedRoute>
+      } />
+
       {/* Project Mode Routes */}
       <Route path="project-tracking" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_1}>
@@ -559,6 +569,20 @@ const AppRouter: React.FC = () => {
       <Route path="project-approval" element={
         <ProtectedRoute requiredLevel={3.5}>
           {React.createElement(React.lazy(() => import('../pages/ProjectApprovalPage')))}
+        </ProtectedRoute>
+      } />
+
+      {/* Auto Projectization (Level 3.5+) */}
+      <Route path="auto-projectization" element={
+        <ProtectedRoute requiredLevel={3.5}>
+          <AutoProjectizationPage />
+        </ProtectedRoute>
+      } />
+
+      {/* Facility Project Management (Level 10+) */}
+      <Route path="facility-project-management" element={
+        <ProtectedRoute requiredLevel={10}>
+          <FacilityProjectManagementPage />
         </ProtectedRoute>
       } />
 
