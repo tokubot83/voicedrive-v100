@@ -127,6 +127,9 @@ import VoiceAnalyticsPage from '../pages/VoiceAnalyticsPage';
 // Culture Development
 import CultureDevelopmentPage from '../pages/CultureDevelopmentPage';
 
+// Board Preparation
+import { BoardPreparationPage } from '../pages/BoardPreparationPage';
+
 // Generational Analysis
 import GenerationalAnalysisPage from '../pages/GenerationalAnalysisPage';
 import DepartmentGenerationalAnalysisPage from '../pages/DepartmentGenerationalAnalysisPage';
@@ -441,7 +444,14 @@ const AppRouter: React.FC = () => {
             <ExecutiveReportsPage />
           </ProtectedRoute>
         } />
-        
+
+        {/* Board Preparation (Level 17) */}
+        <Route path="board-preparation" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_17}>
+            <BoardPreparationPage />
+          </ProtectedRoute>
+        } />
+
         {/* Executive Overview (Level 8) */}
         <Route path="executive-overview" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8}>
