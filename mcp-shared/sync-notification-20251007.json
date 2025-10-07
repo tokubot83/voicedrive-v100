@@ -31,7 +31,8 @@
     "統合テストの実施"
   ],
   "documents": [
-    "mcp-shared/docs/HR_Announcement_UI_Change_Notice_20251007.md"
+    "mcp-shared/docs/HR_Announcement_UI_Change_Notice_20251007.md",
+    "mcp-shared/docs/VoiceDrive_Stats_Webhook_Specification_20251007.md"
   ],
   "backward_compatible": true,
   "testing_required": true,
