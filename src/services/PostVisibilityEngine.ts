@@ -54,14 +54,33 @@ export class PostVisibilityEngine {
   getDisplayConfig(post: Post, currentUser: User): PostDisplayConfig {
     const userScope = this.getUserScope(post, currentUser);
     const postLevel = this.getPostCurrentLevel(post);
-    
+    const isManager = this.isManagerOrAbove(currentUser);
+
+    // 閲覧権限の判定（新規追加）
+    const canView = this.checkViewEligibility(postLevel, userScope, isManager);
+
+    // 閲覧できない場合は制限付き設定を返す
+    if (!canView) {
+      return {
+        showVoteButtons: false,
+        showCommentForm: false,
+        showProjectStatus: false,
+        showEmergencyOverride: false,
+        accessLevel: 'no_access',
+        upgradeNotification: undefined,
+        emergencyOverrideOptions: [],
+        canView: false,
+        viewRestrictionReason: this.getViewRestrictionReason(postLevel, userScope)
+      };
+    }
+
     // 投票権限の判定
     const canVote = this.checkVotingEligibility(postLevel, userScope);
     const canComment = this.checkCommentEligibility(postLevel, userScope);
-    
+
     // 緊急昇格権限の確認
     const emergencyOptions = this.getEmergencyOverrideOptions(currentUser, post);
-    
+
     return {
       showVoteButtons: canVote,
       showCommentForm: canComment,
@@ -69,7 +88,8 @@ export class PostVisibilityEngine {
       showEmergencyOverride: emergencyOptions.length > 0,
       accessLevel: canVote ? 'full' : canComment ? 'limited' : 'view_only',
       upgradeNotification: this.getUpgradeMessage(post, userScope),
-      emergencyOverrideOptions: emergencyOptions
+      emergencyOverrideOptions: emergencyOptions,
+      canView: true
     };
   }
   
@@ -102,8 +122,69 @@ export class PostVisibilityEngine {
       'ORGANIZATION': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT, StakeholderGroup.SAME_FACILITY, StakeholderGroup.SAME_ORGANIZATION], // 法人プロジェクト：法人内コメント可能
       'STRATEGIC': [StakeholderGroup.SAME_TEAM, StakeholderGroup.SAME_DEPARTMENT, StakeholderGroup.SAME_FACILITY, StakeholderGroup.SAME_ORGANIZATION] // 戦略プロジェクト：法人内コメント可能
     };
-    
+
     return commentRules[postLevel]?.includes(userScope) || false;
+  }
+
+  /**
+   * 閲覧権限をチェック（プロジェクトレベルに応じた段階的公開）
+   */
+  private checkViewEligibility(postLevel: ProjectLevel, userScope: StakeholderGroup, isManager: boolean): boolean {
+    // プロジェクトレベルごとの閲覧ルール
+    switch (postLevel) {
+      case 'PENDING':
+      case 'TEAM':
+        // 検討中・チームレベル：同一部署 + 管理職（Lv.8以上）のみ閲覧可能
+        return userScope === StakeholderGroup.SAME_TEAM ||
+               userScope === StakeholderGroup.SAME_DEPARTMENT ||
+               isManager;
+
+      case 'DEPARTMENT':
+        // 部署プロジェクト：同一部署 + 施設内管理職のみ閲覧可能
+        return userScope === StakeholderGroup.SAME_TEAM ||
+               userScope === StakeholderGroup.SAME_DEPARTMENT ||
+               (userScope === StakeholderGroup.SAME_FACILITY && isManager);
+
+      case 'FACILITY':
+      case 'ORGANIZATION':
+      case 'STRATEGIC':
+        // 施設レベル以上：全員閲覧可能
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * 閲覧制限理由を取得
+   */
+  private getViewRestrictionReason(postLevel: ProjectLevel, userScope: StakeholderGroup): string {
+    switch (postLevel) {
+      case 'PENDING':
+      case 'TEAM':
+        if (userScope === StakeholderGroup.SAME_FACILITY) {
+          return '他部署での検討中案件のため、閲覧できません';
+        }
+        return '他施設での検討中案件のため、閲覧できません';
+
+      case 'DEPARTMENT':
+        if (userScope === StakeholderGroup.SAME_FACILITY) {
+          return '他部署のプロジェクトのため、閲覧できません（管理職のみ閲覧可）';
+        }
+        return '他施設のプロジェクトのため、閲覧できません';
+
+      default:
+        return '閲覧権限がありません';
+    }
+  }
+
+  /**
+   * 管理職判定（Lv.8以上）
+   */
+  private isManagerOrAbove(user: User): boolean {
+    if (!user.permissionLevel) return false;
+    return user.permissionLevel >= PermissionLevel.LEVEL_8;
   }
   
   /**

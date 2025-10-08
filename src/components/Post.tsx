@@ -8,7 +8,7 @@ import { useProjectScoring } from '../hooks/projects/useProjectScoring';
 import { generateSampleVotesByStakeholder } from '../utils/votingCalculations';
 import { proposalTypeConfigs } from '../config/proposalTypes';
 import { FACILITIES } from '../data/medical/facilities';
-import PostVisibilityEngine from '../services/PostVisibilityEngine';
+import { unifiedVisibilityEngine } from '../services/UnifiedVisibilityEngine';
 
 interface PostProps {
   post: PostType;
@@ -27,11 +27,25 @@ const Post = ({ post, currentUser, onVote, onComment, onClose }: PostProps) => {
   const { calculateScore, getStatusConfig, convertVotesToEngagements } = useProjectScoring();
   
   console.log('Post component rendered:', post.id, post.content.substring(0, 50));
-  
-  // PostVisibilityEngineを使用して権限を確認
-  const visibilityEngine = new PostVisibilityEngine();
-  const displayConfig = visibilityEngine.getDisplayConfig(post, currentUser);
-  
+
+  // UnifiedVisibilityEngineを使用して権限を確認（モード自動切替）
+  const displayConfig = unifiedVisibilityEngine.getDisplayConfig(post, currentUser);
+
+  // 閲覧権限がない場合は制限表示を返す
+  if (displayConfig.canView === false) {
+    return (
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 mb-4">
+        <div className="flex items-center justify-center flex-col text-center">
+          <div className="text-4xl mb-3">🔒</div>
+          <h3 className="font-bold text-gray-700 mb-2">閲覧制限</h3>
+          <p className="text-gray-500 text-sm">
+            {displayConfig.viewRestrictionReason || 'この投稿を表示する権限がありません'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // 施設名を取得するヘルパー関数
   const getFacilityName = (facilityId: string) => {
     return FACILITIES[facilityId as keyof typeof FACILITIES]?.name || '';

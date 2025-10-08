@@ -20,9 +20,11 @@ export interface PostDisplayConfig {
   showCommentForm: boolean;
   showProjectStatus: boolean;
   showEmergencyOverride: boolean;
-  accessLevel: 'full' | 'limited' | 'view_only';
+  accessLevel: 'full' | 'limited' | 'view_only' | 'no_access';
   upgradeNotification?: string;
   emergencyOverrideOptions?: EmergencyOverrideOption[];
+  canView?: boolean;
+  viewRestrictionReason?: string;
 }
 
 export interface EmergencyOverrideOption {
