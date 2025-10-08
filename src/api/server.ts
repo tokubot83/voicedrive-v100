@@ -2,12 +2,16 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { validateEnvironment } from '../config/validateEnv';
 import authRoutes from './routes/auth.routes';
 import permissionsRoutes from './routes/permissions.routes';
 import healthRoutes from './routes/health.routes';
 import consentRoutes from './routes/consent.routes';
 import hrAnnouncementsRoutes from './routes/hr-announcements.routes';
 import analyticsRoutes from './routes/analytics.routes';
+
+// 環境変数バリデーション（起動前にチェック）
+validateEnvironment();
 
 const app: Application = express();
 const PORT = process.env.PORT || 4000;
