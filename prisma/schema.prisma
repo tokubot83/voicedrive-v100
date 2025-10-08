@@ -325,3 +325,25 @@ model PostReportAlert {
   @@index([severity])
   @@index([acknowledged])
 }
+
+// Webhook通知（職員カルテシステムからのAnalyticsバッチ処理通知）
+model WebhookNotification {
+  id             String    @id @default(cuid())
+  notificationId String    @unique // 職員カルテシステム側のID
+  type           String    // success, error, warning, info
+  title          String
+  message        String
+  details        Json?     // SuccessDetails または ErrorDetails
+  accountLevel   Int
+  timestamp      DateTime  // 通知発生時刻（職員カルテシステム側）
+  read           Boolean   @default(false)
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([notificationId])
+  @@index([type])
+  @@index([accountLevel])
+  @@index([read])
+  @@index([timestamp])
+}

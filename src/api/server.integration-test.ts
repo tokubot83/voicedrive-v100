@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.routes';
 import permissionsRoutes from './routes/permissions.routes';
 import consentRoutes from './routes/consent.routes';
 import analyticsRoutes from './routes/analytics.routes';
+import webhookRoutes from './routes/webhook.routes';
 
 // 統合テスト環境変数の読み込み
 import { config } from 'dotenv';
@@ -126,6 +127,7 @@ app.use('/api/users', apiLimiter, permissionsRoutes);
 app.use('/api', calculateLevelLimiter, permissionsRoutes); // /api/v1/calculate-level用
 app.use('/api/consent', apiLimiter, consentRoutes);
 app.use('/api/v1/analytics', analyticsRoutes); // レート制限はルート内で個別に設定
+app.use('/api/webhook', webhookRoutes); // Webhook通知受信
 
 // 404ハンドラー
 app.use((req: Request, res: Response) => {
