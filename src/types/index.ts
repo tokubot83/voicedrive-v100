@@ -8,6 +8,13 @@ export type UserRole = 'employee' | 'chief' | 'manager' | 'executive';
 // Re-export types from other files (avoiding circular imports)
 export type { Poll, PollOption } from './poll';
 export type { Event } from './event';
+export type {
+  PostMode,
+  PostModeInfo,
+  DiscussionAnalysisData,
+  ProjectAnalysisData,
+  PostAnalysisPanel,
+} from './postMode';
 
 // Stakeholder categories
 export type StakeholderCategory = 'frontline' | 'management' | 'veteran' | 'zGen';

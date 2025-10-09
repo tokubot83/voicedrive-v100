@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Comment, CommentType, User, AnonymityLevel, Post } from '../../types';
 import { MessageCircle, AlertCircle } from 'lucide-react';
 import { formatDate } from '../../utils/dateUtils';
-import SituationAnalysisPanel from './SituationAnalysisPanel';
+import PostAnalysisPanel from '../post/PostAnalysisPanel';
 import FreevoiceAnalysisPanel from './FreevoiceAnalysisPanel';
 
 interface ThreadedCommentSystemProps {
@@ -207,9 +207,9 @@ const ThreadedCommentSystem: React.FC<ThreadedCommentSystemProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* 現在の状況分析パネル */}
-      <SituationAnalysisPanel post={post} />
-      
+      {/* モード別状況分析パネル（議題モード / プロジェクト化モード） */}
+      <PostAnalysisPanel post={post} />
+
       {/* フリーボイス専用分析パネル */}
       <FreevoiceAnalysisPanel post={post} />
 

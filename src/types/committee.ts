@@ -88,3 +88,80 @@ export interface SubmissionReview {
   };
   reviewedAt: Date;
 }
+
+// 運営委員会議題
+export interface ManagementCommitteeAgenda {
+  id: string;
+  title: string;
+  agendaType: 'committee_proposal' | 'facility_policy' | 'personnel' | 'budget' | 'equipment' | 'other';
+  description: string;
+  background: string;
+
+  // 提案元情報
+  proposedBy: string;
+  proposedDate: Date;
+  proposerDepartment: string;
+  proposerId?: string;
+
+  // 関連投稿
+  relatedPostId?: string;
+  escalationSource?: 'voting_system' | 'department_proposal' | 'direct_submission';
+
+  // ステータス
+  status: 'pending' | 'in_review' | 'approved' | 'rejected' | 'deferred';
+  priority: 'urgent' | 'high' | 'normal' | 'low';
+
+  // 審議情報
+  scheduledDate?: Date;
+  actualReviewDate?: Date;
+  decidedDate?: Date;
+  decidedBy?: string;
+  decision?: 'approved' | 'rejected' | 'deferred';
+  decisionNotes?: string;
+
+  // 影響分析
+  impactDepartments: string[];
+  estimatedCost?: number;
+  implementationPeriod?: string;
+  expectedEffect: string;
+
+  tags?: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 委員会メンバー
+export interface CommitteeMember {
+  id: string;
+  userId: string;
+  name: string;
+  department: string;
+  position: string;
+  role: 'chairman' | 'vice_chairman' | 'secretary' | 'member' | 'observer';
+  termStart: Date;
+  termEnd?: Date;
+  isActive: boolean;
+  attendanceRate: number;
+}
+
+// 委員会情報
+export interface CommitteeData {
+  id: string;
+  name: string;
+  description: string;
+  memberCount: number;
+  chairperson: string;
+  nextMeetingDate?: Date;
+  totalMeetings: number;
+  activeAgendas: number;
+}
+
+// 会議スケジュール
+export interface MeetingSchedule {
+  id: string;
+  committeeName: string;
+  date: Date;
+  venue: string;
+  agendaCount: number;
+  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+}
