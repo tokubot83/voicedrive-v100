@@ -1,0 +1,50 @@
+{
+  "type": "reexamination_required",
+  "staffId": "OH-NS-2024-004",
+  "timestamp": "2025-10-10T10:03:00Z",
+  "assessment": {
+    "overallScore": 35,
+    "overallLevel": "very-high",
+    "highRiskCategories": [
+      {
+        "category": "心血管リスク",
+        "score": 28,
+        "level": "very-high"
+      },
+      {
+        "category": "脂質異常",
+        "score": 38,
+        "level": "very-high"
+      }
+    ],
+    "priorityActions": [
+      "至急、循環器内科を受診してください",
+      "産業医面談を予約してください",
+      "精密検査を2週間以内に受けてください"
+    ],
+    "nextCheckup": "2025-10-20T00:00:00Z"
+  },
+  "recommendations": {
+    "lifestyle": [
+      "禁煙を強く推奨",
+      "ストレス管理を徹底"
+    ],
+    "diet": [
+      "減塩食を徹底",
+      "コレステロールを控える"
+    ],
+    "exercise": [
+      "医師の指導のもとで運動"
+    ],
+    "medicalFollowUp": [
+      "2週間以内に精密検査",
+      "循環器内科専門医を受診",
+      "投薬治療の検討"
+    ]
+  },
+  "metadata": {
+    "source": "staff-medical-system",
+    "version": "1.0.0",
+    "priority": "urgent"
+  }
+}

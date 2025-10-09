@@ -50,15 +50,8 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
 
   // モード変更を監視してメニュー項目を更新
   useEffect(() => {
-    const updateMenuItems = () => {
-      const mode = systemModeManager.getCurrentMode();
-      console.log('[EnhancedSidebar] ポーリング: currentMode=', currentMode, 'newMode=', mode);
-
-      // モードが変更された場合のみ更新
-      if (mode !== currentMode) {
-        console.log('[EnhancedSidebar] モード変更検出！', currentMode, '→', mode);
-        setCurrentMode(mode);
-      }
+    const updateMenuItems = (mode: SystemMode) => {
+      console.log('[EnhancedSidebar] メニュー更新: mode=', mode);
 
       // モード別メニュー項目を取得
       const modeItems = mode === SystemMode.AGENDA
@@ -73,13 +66,24 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
     };
 
     // 初回実行
-    updateMenuItems();
+    const initialMode = systemModeManager.getCurrentMode();
+    setCurrentMode(initialMode);
+    updateMenuItems(initialMode);
 
-    // 1秒ごとにモード変更をチェック（軽量な処理）
-    const intervalId = setInterval(updateMenuItems, 1000);
+    // モード変更リスナーを登録
+    const handleModeChange = (newMode: SystemMode) => {
+      console.log('[EnhancedSidebar] モード変更検出:', currentMode, '→', newMode);
+      setCurrentMode(newMode);
+      updateMenuItems(newMode);
+    };
 
-    return () => clearInterval(intervalId);
-  }, [userPermissionLevel, currentMode]);
+    systemModeManager.addModeChangeListener(handleModeChange);
+
+    // クリーンアップ時にリスナーを削除
+    return () => {
+      systemModeManager.removeModeChangeListener(handleModeChange);
+    };
+  }, [userPermissionLevel]);
 
   // モード表示名
   const getModeLabel = () => {

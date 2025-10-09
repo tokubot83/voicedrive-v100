@@ -27,10 +27,31 @@ class SystemModeManager {
   private static instance: SystemModeManager;
   private currentMode: SystemMode = SystemMode.AGENDA; // デフォルトは議題モード
   private modeConfig: SystemModeConfig | null = null;
+  private listeners: Set<(mode: SystemMode) => void> = new Set();
 
   private constructor() {
     // 初期化時にlocalStorageから設定を読み込む
     this.loadModeConfig();
+
+    // localStorage の変更を監視（他のタブでの変更も検出）
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'voicedrive_system_mode' && e.newValue) {
+          try {
+            const config: SystemModeConfig = JSON.parse(e.newValue);
+            const previousMode = this.currentMode;
+            this.currentMode = config.mode;
+            this.modeConfig = config;
+            if (previousMode !== this.currentMode) {
+              console.log('[SystemMode] 他タブでのモード変更を検出:', previousMode, '→', this.currentMode);
+              this.notifyListeners(this.currentMode);
+            }
+          } catch (error) {
+            console.error('[SystemMode] storage event parse error:', error);
+          }
+        }
+      });
+    }
   }
 
   static getInstance(): SystemModeManager {
@@ -76,6 +97,36 @@ class SystemModeManager {
   }
 
   /**
+   * モード変更リスナーを追加
+   */
+  addModeChangeListener(listener: (mode: SystemMode) => void): void {
+    this.listeners.add(listener);
+    console.log('[SystemMode] リスナー追加、合計:', this.listeners.size);
+  }
+
+  /**
+   * モード変更リスナーを削除
+   */
+  removeModeChangeListener(listener: (mode: SystemMode) => void): void {
+    this.listeners.delete(listener);
+    console.log('[SystemMode] リスナー削除、残り:', this.listeners.size);
+  }
+
+  /**
+   * 全リスナーに通知
+   */
+  private notifyListeners(mode: SystemMode): void {
+    console.log('[SystemMode] リスナーに通知中、リスナー数:', this.listeners.size);
+    this.listeners.forEach(listener => {
+      try {
+        listener(mode);
+      } catch (error) {
+        console.error('[SystemMode] リスナー通知エラー:', error);
+      }
+    });
+  }
+
+  /**
    * システムモードを変更（レベルX管理者のみ）
    */
   async setMode(mode: SystemMode, adminUser: User): Promise<void> {
@@ -113,6 +164,11 @@ class SystemModeManager {
 
     console.log(`[SystemMode] ${previousMode} → ${mode} に変更しました`);
     console.log(`[SystemMode] 権限システムが ${mode} に対応しました`);
+
+    // リスナーに通知（同一タブ内の変更）
+    if (previousMode !== mode) {
+      this.notifyListeners(mode);
+    }
   }
 
   /**

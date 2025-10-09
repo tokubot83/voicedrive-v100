@@ -159,8 +159,125 @@ router.post('/deletion-completed', async (req: Request, res: Response) => {
 });
 
 /**
+ * GET /api/consent/:userId
+ * ユーザーの同意状態を取得（ComposeForm用）
+ */
+router.get('/:userId', async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    // 🔴 共通DB構築前の暫定実装: 権限チェックをスキップ
+    // 本来は JWT認証で req.user.id と userId を比較
+    // if (req.user?.id !== userId) {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: '他のユーザーの同意状態は取得できません。'
+    //   });
+    // }
+
+    let consentRecord = await prisma.dataConsent.findUnique({
+      where: { userId }
+    });
+
+    // レコードが存在しない場合は初期値を返す
+    if (!consentRecord) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          userId,
+          analyticsConsent: false,
+          personalFeedbackConsent: false,
+          consentedAt: null,
+          isRevoked: false,
+          dataDeletionRequested: false
+        }
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        userId: consentRecord.userId,
+        analyticsConsent: consentRecord.analyticsConsent,
+        personalFeedbackConsent: consentRecord.personalFeedbackConsent,
+        consentedAt: consentRecord.analyticsConsentDate,
+        isRevoked: !!consentRecord.revokeDate,
+        dataDeletionRequested: consentRecord.dataDeletionRequested
+      }
+    });
+
+  } catch (error) {
+    console.error('[GET /api/consent/:userId] エラー:', error);
+
+    return res.status(500).json({
+      success: false,
+      message: '同意状態の取得中にエラーが発生しました。'
+    });
+  }
+});
+
+/**
+ * POST /api/consent/:userId
+ * ユーザーの同意状態を更新（ComposeForm用）
+ */
+router.post('/:userId', async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { analyticsConsent, personalFeedbackConsent } = req.body;
+
+    // 🔴 共通DB構築前の暫定実装: 権限チェックをスキップ
+    // 本来は JWT認証で req.user.id と userId を比較
+    // if (req.user?.id !== userId) {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: '他のユーザーの同意状態は更新できません。'
+    //   });
+    // }
+
+    const consentRecord = await prisma.dataConsent.upsert({
+      where: { userId },
+      update: {
+        analyticsConsent,
+        analyticsConsentDate: analyticsConsent ? new Date() : undefined,
+        personalFeedbackConsent: personalFeedbackConsent !== undefined
+          ? personalFeedbackConsent
+          : undefined,
+        personalFeedbackConsentDate: personalFeedbackConsent ? new Date() : undefined,
+        revokeDate: null  // 同意を更新したら取り消し日時をリセット
+      },
+      create: {
+        userId,
+        analyticsConsent,
+        analyticsConsentDate: analyticsConsent ? new Date() : null,
+        personalFeedbackConsent: personalFeedbackConsent || false,
+        personalFeedbackConsentDate: personalFeedbackConsent ? new Date() : null
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        userId: consentRecord.userId,
+        analyticsConsent: consentRecord.analyticsConsent,
+        personalFeedbackConsent: consentRecord.personalFeedbackConsent,
+        consentedAt: consentRecord.analyticsConsentDate,
+        isRevoked: false
+      }
+    });
+
+  } catch (error) {
+    console.error('[POST /api/consent/:userId] エラー:', error);
+
+    return res.status(500).json({
+      success: false,
+      message: '同意状態の更新中にエラーが発生しました。'
+    });
+  }
+});
+
+/**
  * GET /api/consent/status/:userId
- * ユーザーの同意状態を取得
+ * ユーザーの同意状態を取得（既存エンドポイント・後方互換性のため維持）
  */
 router.get('/status/:userId', async (req: Request, res: Response) => {
   try {

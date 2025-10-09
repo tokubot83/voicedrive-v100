@@ -69,10 +69,10 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
   // Data consent management
   const navigate = useNavigate();
   const {
-    shouldShowConsentModal,
+    shouldShowModal,
     updateConsent,
-    refreshConsentStatus
-  } = useDataConsent(user?.id || 'demo-user');
+    refreshStatus
+  } = useDataConsent((user as any)?.id || 'demo-user');
   const [showConsentModal, setShowConsentModal] = useState(false);
   const [pendingSubmission, setPendingSubmission] = useState(false);
 
@@ -149,7 +149,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
 
   const handleSubmit = async () => {
     // 同意モーダルチェック（初回投稿時）
-    if (shouldShowConsentModal) {
+    if (shouldShowModal) {
       setShowConsentModal(true);
       setPendingSubmission(true);
       return;
@@ -171,7 +171,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       setShowConsentModal(false);
 
       // 同意状態をリフレッシュ
-      await refreshConsentStatus();
+      await refreshStatus();
 
       // 保留中の投稿を実行
       if (pendingSubmission) {
@@ -218,7 +218,7 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
         return;
       }
     }
-    
+
     // フリースペース投稿の場合、有効期限を計算
     let expirationDate: Date | undefined;
     if (selectedType === 'community') {
@@ -236,51 +236,61 @@ const ComposeForm = ({ selectedType, onCancel }: ComposeFormProps) => {
       }
     }
 
-    // Phase 3: 議題作成データ作成
-    const proposalId = `proposal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-    console.log('Submitting:', {
-      content,
-      priority,
-      anonymity,
-      type: selectedType,
-      proposalType: selectedType === 'improvement' ? proposalType : undefined,
-      freespaceCategory: selectedType === 'community' ? freespaceCategory : undefined,
-      freespaceScope: selectedType === 'community' ? freespaceScope : undefined,
-      pollData: selectedType === 'community' ? pollData : undefined,
-      eventData: selectedType === 'community' ? eventData : undefined,
-      expirationDate: selectedType === 'community' ? expirationDate : undefined,
-      season: currentSeason
-    });
-
-    // Phase 3: 医療システムWebhook通知（議題作成）
-    if (user && userPermissionLevel && selectedType === 'improvement') {
-      try {
-        const webhookSuccess = await medicalSystemWebhook.notifyProposalCreated({
-          proposalId,
-          staffId: user.staffId,
-          staffName: user.name,
-          department: user.department,
-          title: content.slice(0, 50) + (content.length > 50 ? '...' : ''), // 最初の50文字をタイトルとして使用
+    // 🆕 API呼び出し: POST /api/posts
+    try {
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+          // 🔴 共通DB構築前: JWT認証ヘッダーをスキップ
+          // 'Authorization': `Bearer ${user?.token}`
+        },
+        body: JSON.stringify({
+          // 基本情報
+          type: selectedType,
           content,
-          proposalType: proposalType,
-          priority,
-          permissionLevel: userPermissionLevel,
-          expectedAgendaLevel: getExpectedAgendaLevel(userPermissionLevel)
-        });
+          anonymityLevel: anonymity,
 
-        if (webhookSuccess) {
-          console.log(`[Phase 3] 医療システムに議題作成を通知しました: ${proposalId}`);
-        } else {
-          console.warn(`[Phase 3] 医療システムへの通知に失敗しましたが、投稿は継続します: ${proposalId}`);
-        }
-      } catch (error) {
-        console.error('[Phase 3] Webhook通知エラー:', error);
+          // improvement専用
+          proposalType: selectedType === 'improvement' ? proposalType : undefined,
+          priority: selectedType !== 'community' ? priority : undefined,
+
+          // community専用
+          freespaceCategory: selectedType === 'community' ? freespaceCategory : undefined,
+          freespaceScope: selectedType === 'community' ? freespaceScope : undefined,
+          expirationDate: expirationDate?.toISOString(),
+          pollData: selectedType === 'community' ? pollData : undefined,
+          eventData: selectedType === 'community' ? eventData : undefined,
+
+          // メタデータ
+          season: currentSeason,
+          moderationScore: clientModerationService.assessConstructiveness(content)
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || '投稿の作成に失敗しました。');
       }
-    }
 
-    alert('投稿が完了しました！');
-    onCancel();
+      const result = await response.json();
+      const createdPost = result.data;
+
+      console.log('[ComposeForm] 投稿作成成功:', createdPost.id);
+
+      // 成功通知
+      alert('投稿が完了しました！');
+
+      // 🔴 共通DB構築前: 投稿詳細ページへのリダイレクトをスキップ
+      // navigate(`/posts/${createdPost.id}`);
+
+      // フォームを閉じる
+      onCancel();
+
+    } catch (error) {
+      console.error('[ComposeForm] 投稿作成エラー:', error);
+      alert(error instanceof Error ? error.message : '投稿の作成中にエラーが発生しました。');
+    }
   };
 
   const handleReviveProposal = (revivedProposal: any) => {

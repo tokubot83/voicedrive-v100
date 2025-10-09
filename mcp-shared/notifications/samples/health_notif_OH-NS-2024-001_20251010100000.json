@@ -1,0 +1,51 @@
+{
+  "type": "health_risk_assessment",
+  "staffId": "OH-NS-2024-001",
+  "timestamp": "2025-10-10T10:00:00Z",
+  "assessment": {
+    "overallScore": 65,
+    "overallLevel": "medium",
+    "highRiskCategories": [
+      {
+        "category": "代謝リスク",
+        "score": 55,
+        "level": "high"
+      },
+      {
+        "category": "心血管リスク",
+        "score": 72,
+        "level": "medium"
+      }
+    ],
+    "priorityActions": [
+      "食事改善指導を受けてください",
+      "運動習慣の見直しを行ってください",
+      "3ヶ月後に再評価が必要です"
+    ],
+    "nextCheckup": "2026-04-09T00:00:00Z"
+  },
+  "recommendations": {
+    "lifestyle": [
+      "規則正しい生活習慣を心がける",
+      "十分な睡眠時間を確保する"
+    ],
+    "diet": [
+      "塩分控えめの食事",
+      "野菜を多く摂取",
+      "間食を控える"
+    ],
+    "exercise": [
+      "週3回30分の有酸素運動",
+      "階段を使う習慣をつける"
+    ],
+    "medicalFollowUp": [
+      "3ヶ月後に再検査",
+      "保健師面談を受ける"
+    ]
+  },
+  "metadata": {
+    "source": "staff-medical-system",
+    "version": "1.0.0",
+    "priority": "medium"
+  }
+}

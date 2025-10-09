@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -29,6 +29,7 @@ model User {
   isRetired            Boolean        @default(false)
   retirementDate       DateTime?
   anonymizedId         String?
+  experienceYears      Float?
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
   lastLoginAt          DateTime?
@@ -44,8 +45,24 @@ model User {
   reportsSent          PostReport[]   @relation("ReportSender")
   reportsReviewed      PostReport[]   @relation("ReportReviewer")
   alertsAcknowledged   PostReportAlert[] @relation("AlertAcknowledger")
+  voteHistory          VoteHistory[]
+  activitySummary      UserActivitySummary?
   parent               User?          @relation("UserHierarchy", fields: [parentId], references: [id])
   children             User[]         @relation("UserHierarchy")
+
+  // ComposeForm統合実装（2025-10-09）
+  posts                Post[]         @relation("PostAuthor")
+  postVotes            Vote[]         @relation("PostVote")
+  comments             Comment[]      @relation("CommentAuthor")
+  pollsCreated         Poll[]         @relation("PollCreator")
+  pollVotes            PollVote[]     @relation("PollVoter")
+  eventsOrganized      Event[]        @relation("EventOrganizer")
+  dateVotes            DateVote[]     @relation("DateVoter")
+  eventParticipations  Participant[]  @relation("EventParticipant")
+
+  // TeamLeaderDashboard統合実装（2025-10-09）
+  approvalTasksRequested ApprovalTask[] @relation("ApprovalRequester")
+  approvalTasksApproved  ApprovalTask[] @relation("ApprovalApprover")
 }
 
 model Notification {
@@ -346,4 +363,366 @@ model WebhookNotification {
   @@index([accountLevel])
   @@index([read])
   @@index([timestamp])
+}
+
+// 投票履歴（パーソナルステーション用）
+model VoteHistory {
+  id            String    @id @default(cuid())
+  userId        String
+  postId        String
+  voteOption    String    // "agree", "disagree", "neutral"
+  voteWeight    Float     @default(1.0)  // 権限レベルによる重み
+  votedAt       DateTime  @default(now())
+  postCategory  String?   // "改善提案", "質問相談" etc.
+  postType      String?   // "personal", "department", "organization"
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])  // 1人1投稿1回のみ投票可能
+  @@index([userId])
+  @@index([postId])
+  @@index([votedAt])
+}
+
+// ユーザー活動サマリー（パフォーマンス最適化用）
+model UserActivitySummary {
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  totalPosts            Int       @default(0)
+  totalVotes            Int       @default(0)
+  thisMonthVotes        Int       @default(0)
+  impactScore           Float     @default(0)
+  feedbackReceived      Int       @default(0)
+  feedbackSent          Int       @default(0)
+  projectsProposed      Int       @default(0)
+  surveysCompleted      Int       @default(0)
+  loginDays             Int       @default(0)
+  lastCalculatedAt      DateTime  @default(now())
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([impactScore])
+}
+
+// ===================================
+// ComposeForm統合実装（2025-10-09）
+// ===================================
+
+// 投稿（Post）- VoiceDriveの中核テーブル
+model Post {
+  id                    String    @id @default(cuid())
+
+  // 基本情報
+  type                  String    // 'improvement' | 'community' | 'report'
+  content               String
+  authorId              String
+  anonymityLevel        String    // AnonymityLevel enum
+  status                String    @default("active") // 'active' | 'archived' | 'deleted'
+
+  // improvement投稿専用
+  proposalType          String?   // 'operational' | 'communication' | 'innovation' | 'strategic'
+  priority              String?   // 'low' | 'medium' | 'high' | 'urgent'
+
+  // community投稿専用（フリースペース）
+  freespaceCategory     String?   // 'idea_sharing' | 'casual_discussion' | 'event_planning'
+  freespaceScope        String?   // 'team' | 'department' | 'facility' | 'organization'
+  expirationDate        DateTime?
+  isExpired             Boolean   @default(false)
+  extensionRequested    Boolean   @default(false)
+  extensionReason       String?
+
+  // メタデータ
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // 議題モード用（将来実装）
+  agendaScore           Int?      @default(0)
+  agendaLevel           String?   // 'PENDING' | 'DEPT_REVIEW' | 'DEPT_AGENDA' | 'FACILITY_AGENDA'
+
+  // 季節情報（キャパシティ管理用）
+  season                String?   // '春', '夏', '秋', '冬'
+
+  // モデレーション情報
+  moderationStatus      String    @default("pending") // 'pending' | 'approved' | 'flagged'
+  moderationScore       Int?      // 建設性スコア (0-100)
+
+  // リレーション
+  author                User      @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  votes                 Vote[]
+  comments              Comment[]
+  poll                  Poll?
+  event                 Event?
+
+  @@index([authorId])
+  @@index([type])
+  @@index([status])
+  @@index([proposalType])
+  @@index([freespaceCategory])
+  @@index([createdAt])
+  @@index([expirationDate])
+}
+
+// 投票（Vote）- 投稿に対する5段階投票
+model Vote {
+  id        String    @id @default(cuid())
+  postId    String
+  userId    String
+  option    String    // 'strongly-oppose' | 'oppose' | 'neutral' | 'support' | 'strongly-support'
+  timestamp DateTime  @default(now())
+
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User      @relation("PostVote", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+// コメント（Comment）- 投稿に対するコメント
+model Comment {
+  id              String    @id @default(cuid())
+  postId          String
+  parentId        String?   // 返信の場合、親コメントID
+  authorId        String
+  content         String
+  commentType     String    // 'proposal' | 'question' | 'support' | 'concern'
+  anonymityLevel  String
+  privacyLevel    String?
+  likes           Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  post            Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent          Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies         Comment[] @relation("CommentReplies")
+  author          User      @relation("CommentAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([parentId])
+  @@index([authorId])
+}
+
+// 投票（Poll）- フリースペース投票機能
+model Poll {
+  id              String        @id @default(cuid())
+  postId          String        @unique
+  question        String
+  description     String?
+  totalVotes      Int           @default(0)
+  deadline        DateTime
+  isActive        Boolean       @default(true)
+  allowMultiple   Boolean       @default(false)
+  showResults     String        // 'afterVote' | 'afterDeadline' | 'always'
+  category        String        // 'idea_sharing' | 'casual_discussion' | 'event_planning'
+  scope           String        // 'team' | 'department' | 'facility' | 'organization'
+  createdAt       DateTime      @default(now())
+  createdById     String
+
+  post            Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdBy       User          @relation("PollCreator", fields: [createdById], references: [id])
+  options         PollOption[]
+  votes           PollVote[]
+
+  @@index([postId])
+  @@index([deadline])
+  @@index([isActive])
+}
+
+// 投票選択肢（PollOption）
+model PollOption {
+  id        String      @id @default(cuid())
+  pollId    String
+  text      String
+  emoji     String?
+  votes     Int         @default(0)
+  sortOrder Int         @default(0)
+
+  poll      Poll        @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  pollVotes PollVote[]
+
+  @@index([pollId])
+}
+
+// 投票記録（PollVote）
+model PollVote {
+  id           String    @id @default(cuid())
+  pollId       String
+  optionId     String
+  userId       String
+  isAnonymous  Boolean   @default(false)
+  timestamp    DateTime  @default(now())
+
+  poll         Poll      @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option       PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  user         User      @relation("PollVoter", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId, optionId])
+  @@index([pollId])
+  @@index([userId])
+}
+
+// イベント（Event）- フリースペースイベント企画
+model Event {
+  id                    String          @id @default(cuid())
+  postId                String          @unique
+  title                 String
+  description           String
+  type                  String          // EventType enum
+
+  // 日程情報
+  registrationDeadline  DateTime?
+  finalDate             DateTime?
+  finalStartTime        String?
+  finalEndTime          String?
+
+  // 参加者情報
+  organizerId           String
+  maxParticipants       Int?
+
+  // 会場・詳細
+  venueName             String?
+  venueAddress          String?
+  cost                  Float?
+  requirements          Json?           // string[]
+
+  // ステータス
+  status                String          @default("planning") // EventStatus enum
+  visibility            String          // EventVisibility enum
+
+  // 機能設定
+  allowDateVoting       Boolean         @default(true)
+  allowComments         Boolean         @default(true)
+  sendReminders         Boolean         @default(true)
+
+  // メタデータ
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  tags                  Json?           // string[]
+
+  post                  Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  organizer             User            @relation("EventOrganizer", fields: [organizerId], references: [id])
+  proposedDates         ProposedDate[]
+  participants          Participant[]
+
+  @@index([postId])
+  @@index([organizerId])
+  @@index([status])
+}
+
+// 提案日程（ProposedDate）
+model ProposedDate {
+  id          String      @id @default(cuid())
+  eventId     String
+  date        DateTime
+  startTime   String
+  endTime     String
+  totalVotes  Int         @default(0)
+  sortOrder   Int         @default(0)
+
+  event       Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  votes       DateVote[]
+
+  @@index([eventId])
+}
+
+// 日程投票（DateVote）
+model DateVote {
+  id              String        @id @default(cuid())
+  proposedDateId  String
+  userId          String
+  response        String        // 'available' | 'maybe' | 'unavailable'
+  timestamp       DateTime      @default(now())
+
+  proposedDate    ProposedDate  @relation(fields: [proposedDateId], references: [id], onDelete: Cascade)
+  user            User          @relation("DateVoter", fields: [userId], references: [id])
+
+  @@unique([proposedDateId, userId])
+  @@index([proposedDateId])
+  @@index([userId])
+}
+
+// イベント参加者（Participant）
+model Participant {
+  id                  String    @id @default(cuid())
+  eventId             String
+  userId              String
+  status              String    // 'confirmed' | 'tentative' | 'declined' | 'waitlisted'
+  joinedAt            DateTime  @default(now())
+  note                String?
+  dietaryRequirements Json?     // string[]
+
+  event               Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user                User      @relation("EventParticipant", fields: [userId], references: [id])
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+}
+
+// ===================================
+// TeamLeaderDashboard統合実装（2025-10-09）
+// ===================================
+
+// 承認タスク（TeamLeaderDashboard専用）
+model ApprovalTask {
+  id              String    @id @default(cuid())
+
+  // タスク基本情報
+  title           String
+  description     String?
+  taskType        String    // purchase_request, training_request, leave_request, expense_report, etc.
+  amount          Float?    // 金額（該当する場合のみ）
+
+  // 申請者情報
+  requesterId     String    // User.id（VoiceDrive内部ID）
+  requesterName   String?   // キャッシュ用（表示高速化）
+  requesterEmployeeId String? // User.employeeId（医療システムID）
+
+  // 承認者情報
+  approverId      String?   // User.id（承認後に設定）
+  approverName    String?   // キャッシュ用
+  approverEmployeeId String? // User.employeeId（承認者の医療システムID）
+
+  // ステータス
+  status          String    @default("pending") // pending, approved, rejected, cancelled
+  priority        String    @default("medium")  // low, medium, high
+
+  // 組織情報（フィルタリング用）
+  department      String?   // 部門コード（例: "medical_care_ward"）
+  facilityId      String?   // 施設ID（例: "tategami_hospital"）
+
+  // タイムスタンプ
+  submittedAt     DateTime  @default(now())  // 申請日時
+  respondedAt     DateTime?                  // 承認/却下日時
+
+  // 承認コメント
+  approverComment String?   // 承認者のコメント（承認理由・却下理由）
+
+  // 追加情報（JSON形式で柔軟に拡張可能）
+  metadata        Json?     // タスクタイプごとの追加情報
+
+  // 監査情報
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // リレーション
+  requester       User      @relation("ApprovalRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  approver        User?     @relation("ApprovalApprover", fields: [approverId], references: [id])
+
+  // インデックス（パフォーマンス最適化）
+  @@index([requesterId])          // 申請者で検索
+  @@index([approverId])           // 承認者で検索
+  @@index([status])               // ステータスで検索（pending一覧など）
+  @@index([department])           // 部門で検索
+  @@index([facilityId])           // 施設で検索
+  @@index([taskType])             // タスクタイプで検索
+  @@index([priority])             // 優先度で検索
+  @@index([submittedAt])          // 申請日時でソート
+  @@index([status, department])   // 複合インデックス（部門×ステータス）
+  @@index([status, approverId])   // 複合インデックス（承認者×ステータス）
 }

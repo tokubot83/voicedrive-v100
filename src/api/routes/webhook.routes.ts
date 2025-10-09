@@ -422,4 +422,410 @@ router.post('/analytics-notification', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * POST /api/webhook/employee-updated
+ *
+ * 医療システムからの職員情報更新通知を受信
+ * PersonalStation Phase 1統合 - Webhook-1
+ */
+router.post('/employee-updated', async (req: Request, res: Response) => {
+  try {
+    console.log('📨 職員情報更新通知受信:', req.body);
+
+    // ヘッダー取得
+    const signature = req.headers['x-signature'] as string;
+    const timestamp = req.headers['x-timestamp'] as string;
+
+    // 必須ヘッダーチェック
+    if (!signature || !timestamp) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_HEADERS',
+          message: 'X-SignatureまたはX-Timestampヘッダーが必要です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // HMAC署名検証
+    const payload = JSON.stringify(req.body);
+    const HMAC_SECRET = process.env.MEDICAL_SYSTEM_WEBHOOK_SECRET || process.env.ANALYTICS_WEBHOOK_SECRET || '';
+
+    if (!HMAC_SECRET) {
+      console.error('❌ MEDICAL_SYSTEM_WEBHOOK_SECRET が設定されていません');
+      return res.status(500).json({
+        success: false,
+        error: {
+          code: 'SERVER_CONFIGURATION_ERROR',
+          message: 'サーバー設定エラー',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    if (!verifyHmacSignature(payload, signature, timestamp, HMAC_SECRET)) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'INVALID_SIGNATURE',
+          message: 'HMAC署名が無効です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // リクエストボディ
+    const { employeeId, changes } = req.body;
+
+    if (!employeeId) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_EMPLOYEE_ID',
+          message: 'employeeIdが必要です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // ユーザーキャッシュを更新
+    const updateData: any = {};
+
+    if (changes.name) updateData.name = changes.name.new;
+    if (changes.department) updateData.department = changes.department.new;
+    if (changes.position) updateData.position = changes.position.new;
+    if (changes.permissionLevel) updateData.permissionLevel = changes.permissionLevel.new;
+    if (changes.canPerformLeaderDuty !== undefined) updateData.canPerformLeaderDuty = changes.canPerformLeaderDuty.new;
+    if (changes.avatar) updateData.avatar = changes.avatar.new;
+
+    updateData.updatedAt = new Date();
+
+    const user = await prisma.user.update({
+      where: { employeeId },
+      data: updateData
+    });
+
+    console.log('✅ ユーザーキャッシュ更新:', {
+      employeeId,
+      userId: user.id,
+      changes: Object.keys(updateData)
+    });
+
+    res.status(200).json({
+      success: true,
+      message: '職員情報を更新しました',
+      employeeId,
+      receivedAt: new Date().toISOString()
+    });
+  } catch (error: any) {
+    console.error('職員情報更新エラー:', error);
+
+    if (error.code === 'P2025') {
+      // Prisma: Record not found
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'EMPLOYEE_NOT_FOUND',
+          message: '職員が見つかりません',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: '内部エラーが発生しました',
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+});
+
+/**
+ * POST /api/webhook/employee-experience-updated
+ *
+ * 医療システムからの職員経験年数更新通知を受信（日次バッチ）
+ * PersonalStation Phase 1統合 - Webhook-2
+ */
+router.post('/employee-experience-updated', async (req: Request, res: Response) => {
+  try {
+    console.log('📨 職員経験年数更新通知受信:', req.body);
+
+    // ヘッダー取得
+    const signature = req.headers['x-signature'] as string;
+    const timestamp = req.headers['x-timestamp'] as string;
+
+    // 必須ヘッダーチェック
+    if (!signature || !timestamp) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_HEADERS',
+          message: 'X-SignatureまたはX-Timestampヘッダーが必要です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // HMAC署名検証
+    const payload = JSON.stringify(req.body);
+    const HMAC_SECRET = process.env.MEDICAL_SYSTEM_WEBHOOK_SECRET || process.env.ANALYTICS_WEBHOOK_SECRET || '';
+
+    if (!verifyHmacSignature(payload, signature, timestamp, HMAC_SECRET)) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'INVALID_SIGNATURE',
+          message: 'HMAC署名が無効です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // リクエストボディ
+    const { employeeId, experienceSummary } = req.body;
+
+    if (!employeeId || !experienceSummary) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_FIELDS',
+          message: 'employeeIdまたはexperienceSummaryが必要です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // ユーザーキャッシュを更新
+    const user = await prisma.user.update({
+      where: { employeeId },
+      data: {
+        experienceYears: experienceSummary.totalExperienceYears,
+        updatedAt: new Date()
+      }
+    });
+
+    console.log('✅ 経験年数キャッシュ更新:', {
+      employeeId,
+      userId: user.id,
+      experienceYears: experienceSummary.totalExperienceYears
+    });
+
+    res.status(200).json({
+      success: true,
+      message: '経験年数を更新しました',
+      employeeId,
+      receivedAt: new Date().toISOString()
+    });
+  } catch (error: any) {
+    console.error('経験年数更新エラー:', error);
+
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'EMPLOYEE_NOT_FOUND',
+          message: '職員が見つかりません',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: '内部エラーが発生しました',
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+});
+
+/**
+ * POST /api/webhook/employee-retired
+ *
+ * 医療システムからの職員退職通知を受信
+ * PersonalStation Phase 1統合 - Webhook-3
+ */
+router.post('/employee-retired', async (req: Request, res: Response) => {
+  try {
+    console.log('📨 職員退職通知受信:', req.body);
+
+    // HMAC署名検証
+    const signature = req.headers['x-signature'] as string;
+    const timestamp = req.headers['x-timestamp'] as string;
+    const payload = JSON.stringify(req.body);
+    const HMAC_SECRET = process.env.MEDICAL_SYSTEM_WEBHOOK_SECRET || process.env.ANALYTICS_WEBHOOK_SECRET || '';
+
+    if (!signature || !timestamp || !verifyHmacSignature(payload, signature, timestamp, HMAC_SECRET)) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'INVALID_SIGNATURE',
+          message: 'HMAC署名が無効です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // リクエストボディ
+    const { employeeId, retirementDate, anonymizedId } = req.body;
+
+    if (!employeeId) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_EMPLOYEE_ID',
+          message: 'employeeIdが必要です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // ユーザーを退職状態に更新（データは保持、個人情報のみ匿名化）
+    const user = await prisma.user.update({
+      where: { employeeId },
+      data: {
+        isRetired: true,
+        retirementDate: retirementDate ? new Date(retirementDate) : new Date(),
+        anonymizedId: anonymizedId || `RETIRED_${Date.now()}`,
+        // 個人情報を匿名化
+        name: anonymizedId || `退職者_${Date.now()}`,
+        email: `${anonymizedId || 'retired'}@anonymized.local`,
+        avatar: null,
+        updatedAt: new Date()
+      }
+    });
+
+    console.log('✅ ユーザー退職処理完了:', {
+      employeeId,
+      userId: user.id,
+      anonymizedId: user.anonymizedId
+    });
+
+    res.status(200).json({
+      success: true,
+      message: '職員退職処理を完了しました',
+      employeeId,
+      receivedAt: new Date().toISOString()
+    });
+  } catch (error: any) {
+    console.error('職員退職処理エラー:', error);
+
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'EMPLOYEE_NOT_FOUND',
+          message: '職員が見つかりません',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: '内部エラーが発生しました',
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+});
+
+/**
+ * POST /api/webhook/employee-reinstated
+ *
+ * 医療システムからの職員復職通知を受信
+ * PersonalStation Phase 1統合 - Webhook-4
+ */
+router.post('/employee-reinstated', async (req: Request, res: Response) => {
+  try {
+    console.log('📨 職員復職通知受信:', req.body);
+
+    // HMAC署名検証
+    const signature = req.headers['x-signature'] as string;
+    const timestamp = req.headers['x-timestamp'] as string;
+    const payload = JSON.stringify(req.body);
+    const HMAC_SECRET = process.env.MEDICAL_SYSTEM_WEBHOOK_SECRET || process.env.ANALYTICS_WEBHOOK_SECRET || '';
+
+    if (!signature || !timestamp || !verifyHmacSignature(payload, signature, timestamp, HMAC_SECRET)) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'INVALID_SIGNATURE',
+          message: 'HMAC署名が無効です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // リクエストボディ
+    const { employeeId } = req.body;
+
+    if (!employeeId) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_EMPLOYEE_ID',
+          message: 'employeeIdが必要です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // 退職フラグを解除（最新情報は医療システムAPIから取得する想定）
+    const user = await prisma.user.update({
+      where: { employeeId },
+      data: {
+        isRetired: false,
+        retirementDate: null,
+        anonymizedId: null,
+        updatedAt: new Date()
+      }
+    });
+
+    console.log('✅ ユーザー復職処理完了:', {
+      employeeId,
+      userId: user.id
+    });
+
+    console.log('⚠️  注意: 最新の職員情報は医療システムAPIから再取得してください');
+
+    res.status(200).json({
+      success: true,
+      message: '職員復職処理を完了しました。最新情報はAPIから再取得してください。',
+      employeeId,
+      receivedAt: new Date().toISOString()
+    });
+  } catch (error: any) {
+    console.error('職員復職処理エラー:', error);
+
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'EMPLOYEE_NOT_FOUND',
+          message: '職員が見つかりません',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: '内部エラーが発生しました',
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+});
+
 export default router;

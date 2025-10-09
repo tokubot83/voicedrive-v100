@@ -3,6 +3,16 @@
  * Phase 2統合 - 権限レベル計算API
  */
 
+interface ExperienceSummaryResponse {
+  employeeId: string;
+  yearsOfService: number;
+  totalExperienceYears: number;
+  currentPositionYears: number;
+  priorExperience: number;
+  specialtyExperienceYears: number;
+  calculatedAt: string;
+}
+
 interface CalculateLevelRequest {
   staffId: string;
   facilityId?: string;
@@ -361,6 +371,83 @@ class MedicalSystemAPI {
     } catch (error) {
       console.error('医療システムAPI接続エラー:', error);
       return false;
+    }
+  }
+
+  /**
+   * 経験年数サマリ取得API（PersonalStation用）
+   * Phase 1統合 - API-2実装
+   * @param employeeId 職員ID
+   */
+  async getExperienceSummary(employeeId: string): Promise<ExperienceSummaryResponse> {
+    if (!this.jwtToken) {
+      throw new Error('認証トークンが設定されていません');
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+    try {
+      const response = await fetch(`${this.baseURL}/employees/${employeeId}/experience-summary`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.jwtToken}`,
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error(`職員が見つかりません: ${employeeId}`);
+        }
+        const error: APIError = await response.json();
+        throw new Error(error.error?.message || `APIエラー: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+
+      if (error.name === 'AbortError') {
+        throw new Error('APIタイムアウト: 5秒以内に応答がありませんでした');
+      }
+
+      throw error;
+    }
+  }
+
+  /**
+   * 経験年数サマリ取得（フォールバック機能付き）
+   * API障害時は簡易計算で暫定値を返す
+   * @param employeeId 職員ID
+   * @param useFallback フォールバック使用フラグ（デフォルト: true）
+   */
+  async getExperienceSummaryWithFallback(
+    employeeId: string,
+    useFallback: boolean = true
+  ): Promise<ExperienceSummaryResponse> {
+    try {
+      return await this.getExperienceSummary(employeeId);
+    } catch (error) {
+      console.error('経験年数サマリAPI呼び出しエラー:', error);
+
+      if (!useFallback) {
+        throw error;
+      }
+
+      console.warn('フォールバック機能: 簡易計算で暫定値を返します');
+      return {
+        employeeId,
+        yearsOfService: 0,
+        totalExperienceYears: 0,
+        currentPositionYears: 0,
+        priorExperience: 0,
+        specialtyExperienceYears: 0,
+        calculatedAt: new Date().toISOString()
+      };
     }
   }
 }

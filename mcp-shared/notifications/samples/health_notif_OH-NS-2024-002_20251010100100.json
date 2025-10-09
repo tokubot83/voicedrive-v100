@@ -1,0 +1,31 @@
+{
+  "type": "health_checkup_result",
+  "staffId": "OH-NS-2024-002",
+  "timestamp": "2025-10-10T10:01:00Z",
+  "assessment": {
+    "overallScore": 88,
+    "overallLevel": "low",
+    "highRiskCategories": [],
+    "priorityActions": [],
+    "nextCheckup": "2026-10-01T00:00:00Z"
+  },
+  "recommendations": {
+    "lifestyle": [
+      "現状の健康習慣を維持してください"
+    ],
+    "diet": [
+      "バランスの良い食事を継続"
+    ],
+    "exercise": [
+      "適度な運動を継続"
+    ],
+    "medicalFollowUp": [
+      "次回定期健診まで経過観察"
+    ]
+  },
+  "metadata": {
+    "source": "staff-medical-system",
+    "version": "1.0.0",
+    "priority": "low"
+  }
+}

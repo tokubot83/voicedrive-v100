@@ -1,0 +1,47 @@
+{
+  "type": "stress_check_result",
+  "staffId": "OH-NS-2024-003",
+  "timestamp": "2025-10-10T10:02:00Z",
+  "assessment": {
+    "overallScore": 52,
+    "overallLevel": "high",
+    "highRiskCategories": [
+      {
+        "category": "仕事の負担",
+        "score": 45,
+        "level": "high"
+      },
+      {
+        "category": "対人関係のストレス",
+        "score": 58,
+        "level": "medium"
+      }
+    ],
+    "priorityActions": [
+      "産業医面談を受けてください",
+      "ストレス軽減策を実施してください"
+    ],
+    "nextCheckup": "2026-04-01T00:00:00Z"
+  },
+  "recommendations": {
+    "lifestyle": [
+      "休息を十分にとる",
+      "趣味の時間を確保する"
+    ],
+    "diet": [
+      "栄養バランスの良い食事"
+    ],
+    "exercise": [
+      "軽い運動でリフレッシュ"
+    ],
+    "medicalFollowUp": [
+      "1ヶ月以内に産業医面談",
+      "3ヶ月後にストレスチェック再実施"
+    ]
+  },
+  "metadata": {
+    "source": "staff-medical-system",
+    "version": "1.0.0",
+    "priority": "high"
+  }
+}

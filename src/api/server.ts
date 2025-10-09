@@ -9,6 +9,7 @@ import healthRoutes from './routes/health.routes';
 import consentRoutes from './routes/consent.routes';
 import hrAnnouncementsRoutes from './routes/hr-announcements.routes';
 import analyticsRoutes from './routes/analytics.routes';
+import postRoutes from './routes/post.routes';
 
 // 環境変数バリデーション（起動前にチェック）
 validateEnvironment();
@@ -163,6 +164,7 @@ app.use('/api/health', apiLimiter, healthRoutes);
 app.use('/api/consent', apiLimiter, consentRoutes);
 app.use('/api/hr-announcements', apiLimiter, hrAnnouncementsRoutes);
 app.use('/api/v1/analytics', analyticsRoutes); // レート制限はルート内で個別に設定
+app.use('/api', apiLimiter, postRoutes); // ComposeForm統合実装（2025-10-09）
 
 // 404ハンドラー
 app.use((req: Request, res: Response) => {

@@ -13,21 +13,24 @@ const ModeAwareRightSidebar: React.FC = () => {
   const [modeDescription, setModeDescription] = useState('');
 
   useEffect(() => {
-    // モードの説明を設定
+    // 初期モードの説明を設定
     const description = systemModeManager.getModeDescription();
     setModeDescription(description);
 
-    // モード変更を監視（将来的にイベントリスナーで実装）
-    const checkModeInterval = setInterval(() => {
-      const mode = systemModeManager.getCurrentMode();
-      if (mode !== currentMode) {
-        setCurrentMode(mode);
-        setModeDescription(systemModeManager.getModeDescription());
-      }
-    }, 1000);
+    // モード変更リスナーを登録
+    const handleModeChange = (newMode: SystemMode) => {
+      console.log('[ModeAwareRightSidebar] モード変更検出:', currentMode, '→', newMode);
+      setCurrentMode(newMode);
+      setModeDescription(systemModeManager.getModeDescription());
+    };
 
-    return () => clearInterval(checkModeInterval);
-  }, [currentMode]);
+    systemModeManager.addModeChangeListener(handleModeChange);
+
+    // クリーンアップ時にリスナーを削除
+    return () => {
+      systemModeManager.removeModeChangeListener(handleModeChange);
+    };
+  }, []);
 
   // サイドバーの折りたたみ切り替え
   const toggleCollapse = () => {
