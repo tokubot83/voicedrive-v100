@@ -9,6 +9,7 @@
 import React, { useMemo } from 'react';
 import { Post, DiscussionAnalysisData, ProjectAnalysisData } from '../../types';
 import { usePostMode } from '../../hooks/usePostMode';
+import { getAgendaLevelInfo, getScoreToNextLevel } from '../../utils/agendaLevelHelpers';
 import DiscussionAnalysisPanel from './DiscussionAnalysisPanel';
 import ProjectProgressPanel from './ProjectProgressPanel';
 
@@ -36,27 +37,14 @@ function generateDiscussionData(post: Post): DiscussionAnalysisData {
   const supportRate = totalVotes > 0 ? (supportCount / totalVotes) * 100 : 0;
   const opposeRate = totalVotes > 0 ? (opposeCount / totalVotes) * 100 : 0;
 
-  // スコア計算（簡易版）
-  const totalScore =
-    votes['strongly-support'] * 50 +
-    votes.support * 30 +
-    votes.neutral * 10 -
-    votes.oppose * 20 -
-    votes['strongly-oppose'] * 40;
+  // DB のスコアとレベルを使用（Prisma schema統合）
+  const totalScore = post.agendaScore || 0;
+  const agendaLevel = post.agendaLevel || 'PENDING';
 
-  // レベル判定
-  let level = '個人レベル';
-  let icon = '👤';
-  if (totalScore >= 200) {
-    level = '全社レベル';
-    icon = '🏢🏢🏢';
-  } else if (totalScore >= 150) {
-    level = '施設レベル';
-    icon = '🏢🏢';
-  } else if (totalScore >= 100) {
-    level = '部署レベル';
-    icon = '🏢';
-  }
+  // 議題レベル情報を取得
+  const levelInfo = getAgendaLevelInfo(agendaLevel);
+  const level = levelInfo.display;
+  const icon = levelInfo.icon;
 
   // 参加段階の判定
   let stage = '初期段階';
@@ -87,9 +75,9 @@ function generateDiscussionData(post: Post): DiscussionAnalysisData {
     '他部署での成功事例はあるか？（説得力を高めるために）',
   ];
 
-  // 次のマイルストーン
-  const targetVotes = 20;
-  const progressRate = Math.min((totalVotes / targetVotes) * 100, 100);
+  // 次のマイルストーン（DB統合）
+  const nextLevelInfo = getScoreToNextLevel(totalScore);
+  const progressRate = nextLevelInfo.progressRate;
 
   return {
     voteDistribution: {
@@ -114,9 +102,11 @@ function generateDiscussionData(post: Post): DiscussionAnalysisData {
     oppositionSummary,
     discussionPrompts,
     nextMilestone: {
-      current: `あと${targetVotes - totalVotes}票で部署承認の目安（${targetVotes}票）に到達`,
-      target: targetVotes,
-      achieved: totalVotes,
+      current: nextLevelInfo.remainingScore > 0
+        ? `あと${nextLevelInfo.remainingScore}点で「${getAgendaLevelInfo(nextLevelInfo.nextLevel).display}」に到達`
+        : `最高レベル「${level}」到達済み`,
+      target: nextLevelInfo.requiredScore,
+      achieved: totalScore,
       progressRate,
     },
   };
@@ -152,8 +142,8 @@ function generateProjectData(post: Post): ProjectAnalysisData {
   const phases = [
     { name: '要件定義', status: 'completed' as const, progress: 100 },
     { name: '人員配置検討', status: 'active' as const, progress: 60 },
-    { name: '予算承認', status: 'pending' as const },
-    { name: '試行運用', status: 'pending' as const },
+    { name: '予算承認', status: 'pending' as const, progress: 0 },
+    { name: '試行運用', status: 'pending' as const, progress: 0 },
   ];
 
   // 課題（簡易版）

@@ -8,6 +8,7 @@
 import { useMemo } from 'react';
 import { Post } from '../types';
 import { PostMode, PostModeInfo } from '../types/postMode';
+import { AgendaLevel } from '../types/committee';
 
 /**
  * 投稿のモードを判定する関数
@@ -61,6 +62,8 @@ export function detectPostMode(post: Post): PostModeInfo {
     mode: 'discussion',
     isProject: false,
     isDiscussion: true,
+    agendaLevel: (post.agendaLevel as AgendaLevel) || undefined,
+    agendaScore: post.agendaScore || 0,
   };
 }
 

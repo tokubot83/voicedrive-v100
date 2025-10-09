@@ -112,6 +112,10 @@ export interface Post {
   projectId?: string;
   approver?: User;
 
+  // 議題モード用（DB統合 - 2025-10-09）
+  agendaScore?: number;  // 投票スコア (Prisma schema)
+  agendaLevel?: 'PENDING' | 'DEPT_REVIEW' | 'DEPT_AGENDA' | 'FACILITY_AGENDA' | 'CORP_REVIEW' | 'CORP_AGENDA';  // 議題レベル (Prisma schema)
+
   // 議題モード用のステータス（委員会活性化）
   agendaStatus?: {
     level: 'PENDING' | 'DEPT_REVIEW' | 'DEPT_AGENDA' | 'FACILITY_AGENDA' | 'CORP_REVIEW' | 'CORP_AGENDA';

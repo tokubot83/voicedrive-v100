@@ -26,6 +26,10 @@ export interface PostModeInfo {
   projectProgress?: number;
   /** プロジェクトステージ（プロジェクト化モードの場合のみ） */
   projectStage?: string;
+  /** 議題レベル（議題モードの場合） */
+  agendaLevel?: 'PENDING' | 'DEPT_REVIEW' | 'DEPT_AGENDA' | 'FACILITY_AGENDA' | 'CORP_REVIEW' | 'CORP_AGENDA';
+  /** 議題スコア（議題モードの場合） */
+  agendaScore?: number;
 }
 
 /**
