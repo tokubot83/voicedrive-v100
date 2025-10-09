@@ -70,6 +70,16 @@ model User {
   committeeMemberships    CommitteeMember[]           @relation("CommitteeMemberUser")
   submissionRequestsSent  CommitteeSubmissionRequest[] @relation("SubmissionRequester")
   submissionRequestsApproved CommitteeSubmissionRequest[] @relation("SubmissionApprover")
+
+  // DecisionMeeting統合実装（2025-10-10）
+  proposedDecisionAgendas DecisionMeetingAgenda[]     @relation("DecisionProposer")
+  decidedAgendas          DecisionMeetingAgenda[]     @relation("DecisionDecider")
+
+  // VoiceAnalytics統合実装（2025-10-10）
+  acknowledgedAlerts      AnalyticsAlert[]            @relation("AlertAcknowledger")
+
+  // CultureDevelopment統合実装（2025-10-10）
+  ownedInitiatives        CultureInitiative[]         @relation("InitiativeOwner")
 }
 
 model Notification {
@@ -364,6 +374,9 @@ model WebhookNotification {
   readAt         DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+
+  // VoiceAnalytics統合実装（2025-10-10）
+  groupAnalytics GroupAnalytics[]
 
   @@index([notificationId])
   @@index([type])
@@ -787,6 +800,7 @@ model ManagementCommitteeAgenda {
   // リレーション
   proposer             User?     @relation("AgendaProposer", fields: [proposerId], references: [id])
   relatedPost          Post?     @relation("AgendaRelatedPost", fields: [relatedPostId], references: [id])
+  escalatedToDecision  DecisionMeetingAgenda? @relation("CommitteeToDecisionEscalation")
 
   @@index([proposerId])
   @@index([relatedPostId])
@@ -942,4 +956,404 @@ model CommitteeSubmissionRequest {
   @@index([status])
   @@index([targetCommittee])
   @@index([requestedAt])
+}
+
+// ===================================
+// DecisionMeeting統合実装（2025-10-10）
+// ===================================
+
+// 経営会議議題（院長・施設長専用）
+model DecisionMeetingAgenda {
+  id                      String    @id @default(cuid())
+
+  // 基本情報
+  title                   String
+  type                    String    // 'committee_proposal' | 'facility_policy' | 'personnel' | 'budget' | 'equipment' | 'strategic' | 'other'
+  description             String
+  background              String
+
+  // 提案元情報
+  proposedBy              String    // 提案者名（キャッシュ）
+  proposedDate            DateTime
+  proposerDepartment      String    // 提案者部署（キャッシュ）
+  proposerId              String?   // User.id
+
+  // ステータス
+  status                  String    @default("pending") // 'pending' | 'in_review' | 'approved' | 'rejected' | 'deferred'
+  priority                String    @default("normal")  // 'urgent' | 'high' | 'normal' | 'low'
+
+  // 審議情報
+  scheduledDate           DateTime?
+  decidedDate             DateTime?
+  decidedBy               String?   // 決定者名（キャッシュ）
+  deciderId               String?   // User.id
+  decision                String?   // 'approved' | 'rejected' | 'deferred'
+  decisionNotes           String?
+
+  // 影響分析
+  impactDepartments       Json      // string[] - 影響部署リスト
+  impactEstimatedCost     Float?    // 見積もり費用
+  impactImplementationPeriod String? // 実施期間
+  impactExpectedEffect    String    // 期待される効果
+
+  // 添付資料
+  attachments             Json?     // string[] - ファイルURL
+
+  // 会議情報
+  meetingAttendeesRaw     Json?     // string[] - 参加者名（raw）
+  meetingAttendees        Json?     // { name, title }[] - 構造化参加者リスト
+  meetingDiscussion       String?   // 議論内容
+  meetingConcerns         Json?     // string[] - 懸念事項
+  meetingConditions       Json?     // string[] - 承認条件
+
+  // その他
+  tags                    Json?     // string[] - タグ
+
+  // タイムスタンプ
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  // リレーション
+  proposerUser            User?     @relation("DecisionProposer", fields: [proposerId], references: [id])
+  deciderUser             User?     @relation("DecisionDecider", fields: [deciderId], references: [id])
+
+  // 委員会議題からのエスカレーション
+  relatedCommitteeAgendaId String?  @unique
+  relatedCommitteeAgenda   ManagementCommitteeAgenda? @relation("CommitteeToDecisionEscalation", fields: [relatedCommitteeAgendaId], references: [id])
+
+  @@index([proposerId])
+  @@index([deciderId])
+  @@index([status])
+  @@index([priority])
+  @@index([type])
+  @@index([proposedDate])
+  @@index([decidedDate])
+  @@index([relatedCommitteeAgendaId])
+}
+
+// ===================================
+// VoiceAnalytics統合実装（2025-10-10）
+// ===================================
+
+// 集団分析データ（職員カルテシステムからバッチ受信）
+model GroupAnalytics {
+  id                        String    @id @default(cuid())
+
+  // メタデータ
+  analysisDate              DateTime  // 分析実施日
+  periodStartDate           DateTime  // 分析期間開始
+  periodEndDate             DateTime  // 分析期間終了
+  analysisType              String    @default("monthly") // 'weekly' | 'monthly' | 'quarterly' | 'yearly'
+
+  // 投稿動向（JSON: PostingTrends）
+  postingTrendsData         Json      // { totalPosts, totalUsers, participationRate, byCategory, byDepartment, byLevel, monthlyTrend }
+
+  // 感情分析（JSON: SentimentAnalysis）
+  sentimentAnalysisData     Json?     // { positive, neutral, negative, positiveRate, negativeRate, byDepartment }
+
+  // トピック分析（JSON: TopicAnalysis）
+  topicAnalysisData         Json?     // { topKeywords, emergingTopics, byDepartment }
+
+  // エンゲージメント（JSON: EngagementMetrics）
+  engagementMetricsData     Json      // { averageCommentsPerPost, averageVotesPerIdea, activeUserRate, byDepartment }
+
+  // プライバシー保護情報（JSON: PrivacyMetadata）
+  privacyMetadata           Json      // { totalConsentedUsers, minimumGroupSize, excludedSmallGroupsCount }
+
+  // 受信情報
+  receivedAt                DateTime  @default(now())  // VoiceDriveが受信した日時
+  webhookNotificationId     String?   // WebhookNotification.id
+
+  // ステータス
+  isProcessed               Boolean   @default(true)   // 処理完了フラグ
+  isActive                  Boolean   @default(true)   // 最新データフラグ（古いデータはfalse）
+
+  // タイムスタンプ
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  // リレーション
+  webhookNotification       WebhookNotification? @relation(fields: [webhookNotificationId], references: [id])
+  alerts                    AnalyticsAlert[]
+
+  @@index([analysisDate])
+  @@index([analysisType])
+  @@index([isActive])
+  @@index([periodStartDate, periodEndDate])
+  @@index([webhookNotificationId])
+}
+
+// 分析アラート
+model AnalyticsAlert {
+  id                    String           @id @default(cuid())
+
+  // 分析データとの関連
+  groupAnalyticsId      String           // GroupAnalytics.id
+
+  // アラート情報
+  severity              String           // 'low' | 'medium' | 'high' | 'critical'
+  topic                 String           // トピック名
+  description           String           // 詳細説明
+  affectedDepartments   Json             // string[] - 影響部門リスト
+  recommendedAction     String           // 推奨アクション
+
+  // 閾値情報（医療チーム提案）
+  thresholdValue        Float?           // 閾値
+  actualValue           Float?           // 実測値
+
+  // ステータス
+  isAcknowledged        Boolean          @default(false)  // 確認済みフラグ
+  acknowledgedBy        String?          // User.id（確認者）
+  acknowledgedAt        DateTime?        // 確認日時
+
+  // タイムスタンプ
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  // リレーション
+  groupAnalytics        GroupAnalytics   @relation(fields: [groupAnalyticsId], references: [id], onDelete: Cascade)
+  acknowledgedByUser    User?            @relation("AlertAcknowledger", fields: [acknowledgedBy], references: [id])
+
+  @@index([groupAnalyticsId])
+  @@index([severity])
+  @@index([isAcknowledged])
+  @@index([severity, isAcknowledged])
+  @@index([createdAt])
+}
+
+// ===================================
+// CultureDevelopment統合実装（2025-10-10）
+// ===================================
+
+// 文化診断
+model CultureAssessment {
+  id                    String                    @id @default(cuid())
+
+  // 診断期間（医療チーム回答: 四半期ごと年4回）
+  assessmentDate        DateTime                  // 診断実施日
+  quarter               String                    // 四半期識別子（例: 'Q3-2025'）
+  periodStartDate       DateTime                  // 対象期間開始
+  periodEndDate         DateTime                  // 対象期間終了
+
+  // スコア
+  overallScore          Int                       // 総合スコア（0-100）
+  previousScore         Int?                      // 前四半期スコア
+  previousYearScore     Int?                      // 前年同期スコア
+  trend                 String                    // 'improving' | 'stable' | 'declining'
+
+  // SWOT分析
+  strengths             Json                      // string[] - 強み
+  weaknesses            Json                      // string[] - 弱み
+  opportunities         Json                      // string[] - 機会
+
+  // 参加データ
+  participantCount      Int                       // 参加者数
+  responseRate          Float                     // 参加率（%）
+
+  // ステータス（医療チーム回答: 全期間保存、論理削除のみ）
+  isActive              Boolean                   @default(true)  // 論理削除フラグ
+
+  // タイムスタンプ
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+
+  // リレーション
+  dimensions            CultureDimension[]
+  departmentScores      DepartmentCultureScore[]
+
+  @@index([assessmentDate])
+  @@index([quarter])
+  @@index([isActive])
+  @@index([periodStartDate, periodEndDate])
+}
+
+// 文化次元
+model CultureDimension {
+  id                    String                    @id @default(cuid())
+
+  // 診断との関連
+  assessmentId          String                    // CultureAssessment.id
+
+  // 次元情報
+  dimensionType         String                    // 'psychological_safety' | 'collaboration' | 'innovation' | 'learning' | 'work_life_balance' | ...
+  name                  String                    // 次元名（日本語）
+  description           String                    // 説明
+
+  // スコア
+  score                 Int                       // スコア（0-100）
+  previousScore         Int?                      // 前回スコア
+  change                Int                       // 変化（前回比）
+
+  // 推奨アクション
+  recommendedActions    Json                      // string[]
+
+  // タイムスタンプ
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+
+  // リレーション
+  assessment            CultureAssessment         @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  indicators            CultureIndicator[]
+
+  @@index([assessmentId])
+  @@index([dimensionType])
+}
+
+// 文化指標
+model CultureIndicator {
+  id                String                        @id @default(cuid())
+
+  // 次元との関連
+  dimensionId       String                        // CultureDimension.id
+
+  // 指標情報
+  name              String                        // 指標名
+  value             Int                           // 現在値（0-100）
+  target            Int                           // 目標値（0-100）
+  achievement       Float                         // 達成率（%）
+  trend             String                        // 'up' | 'down' | 'stable'
+
+  // タイムスタンプ
+  createdAt         DateTime                      @default(now())
+  updatedAt         DateTime                      @updatedAt
+
+  // リレーション
+  dimension         CultureDimension              @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
+
+  @@index([dimensionId])
+}
+
+// 部門別文化スコア
+model DepartmentCultureScore {
+  id                    String                    @id @default(cuid())
+
+  // 診断との関連
+  assessmentId          String                    // CultureAssessment.id
+
+  // 部門情報
+  department            String                    // 部門名
+  departmentId          String?                   // 医療システムの部門ID（将来実装）
+
+  // スコア
+  overallScore          Int                       // 総合スコア（0-100）
+  dimensionScores       Json                      // { dimension: string, score: number }[]
+  rank                  Int                       // 部門ランキング
+  participationRate     Float                     // 参加率（%）
+
+  // タイムスタンプ
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+
+  // リレーション
+  assessment            CultureAssessment         @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@index([assessmentId])
+  @@index([department])
+  @@index([rank])
+}
+
+// 文化改善施策
+model CultureInitiative {
+  id                    String                    @id @default(cuid())
+
+  // 基本情報
+  title                 String                    // タイトル
+  description           String                    // 説明
+  objective             String                    // 目標
+
+  // ステータス
+  status                String                    @default("planning") // 'planning' | 'active' | 'completed' | 'on_hold' | 'cancelled'
+  priority              String                    @default("medium")   // 'low' | 'medium' | 'high' | 'critical'
+
+  // ターゲット
+  targetDimensions      Json                      // string[] - 対象文化次元
+  targetDepartments     Json                      // string[] - 対象部門（空配列=全体）
+  targetAudience        String                    // 対象者（例: 「全職員」）
+
+  // スケジュール
+  startDate             DateTime                  // 開始日
+  endDate               DateTime                  // 終了日
+
+  // 責任者（医療システムから取得）
+  ownerId               String?                   // User.id
+  ownerName             String                    // User.name（キャッシュ）
+  teamMembers           Json                      // string[] - User.id[]
+
+  // 進捗
+  progress              Int                       @default(0) // 0-100
+  currentPhase          String?                   // 現在のフェーズ
+
+  // 予算
+  budget                Float?                    // 予算
+  actualSpending        Float?                    // 実支出
+
+  // 成果（完了時のみ）
+  outcomesDescription   String?                   // 成果説明
+  outcomesMetrics       Json?                     // { name, before, after, improvement }[]
+
+  // タイムスタンプ
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+  completedAt           DateTime?                 // 完了日時
+
+  // リレーション
+  owner                 User?                     @relation("InitiativeOwner", fields: [ownerId], references: [id])
+  kpis                  InitiativeKPI[]
+  milestones            InitiativeMilestone[]
+
+  @@index([ownerId])
+  @@index([status])
+  @@index([priority])
+  @@index([startDate, endDate])
+}
+
+// 施策KPI
+model InitiativeKPI {
+  id                String                        @id @default(cuid())
+
+  // 施策との関連
+  initiativeId      String                        // CultureInitiative.id
+
+  // KPI情報
+  name              String                        // KPI名
+  baseline          Float                         // ベースライン値
+  target            Float                         // 目標値
+  current           Float                         // 現在値
+  unit              String                        // 単位
+  achievement       Float                         // 達成率（%）
+
+  // タイムスタンプ
+  createdAt         DateTime                      @default(now())
+  updatedAt         DateTime                      @updatedAt
+
+  // リレーション
+  initiative        CultureInitiative             @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+
+  @@index([initiativeId])
+}
+
+// 施策マイルストーン
+model InitiativeMilestone {
+  id                String                        @id @default(cuid())
+
+  // 施策との関連
+  initiativeId      String                        // CultureInitiative.id
+
+  // マイルストーン情報
+  name              String                        // マイルストーン名
+  targetDate        DateTime                      // 目標日
+  completedDate     DateTime?                     // 完了日
+  status            String                        @default("pending") // 'pending' | 'in_progress' | 'completed' | 'delayed'
+  deliverables      Json                          // string[] - 成果物リスト
+
+  // タイムスタンプ
+  createdAt         DateTime                      @default(now())
+  updatedAt         DateTime                      @updatedAt
+
+  // リレーション
+  initiative        CultureInitiative             @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+
+  @@index([initiativeId])
+  @@index([targetDate])
+  @@index([status])
 }
