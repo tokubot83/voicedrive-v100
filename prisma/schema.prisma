@@ -63,6 +63,13 @@ model User {
   // TeamLeaderDashboard統合実装（2025-10-09）
   approvalTasksRequested ApprovalTask[] @relation("ApprovalRequester")
   approvalTasksApproved  ApprovalTask[] @relation("ApprovalApprover")
+
+  // CommitteeManagement統合実装（2025-10-09）
+  proposedAgendas         ManagementCommitteeAgenda[] @relation("AgendaProposer")
+  chairmanCommittees      CommitteeInfo[]             @relation("CommitteeChairperson")
+  committeeMemberships    CommitteeMember[]           @relation("CommitteeMemberUser")
+  submissionRequestsSent  CommitteeSubmissionRequest[] @relation("SubmissionRequester")
+  submissionRequestsApproved CommitteeSubmissionRequest[] @relation("SubmissionApprover")
 }
 
 model Notification {
@@ -457,6 +464,7 @@ model Post {
   comments              Comment[]
   poll                  Poll?
   event                 Event?
+  relatedAgendas        ManagementCommitteeAgenda[] @relation("AgendaRelatedPost")
 
   @@index([authorId])
   @@index([type])
@@ -725,4 +733,213 @@ model ApprovalTask {
   @@index([submittedAt])          // 申請日時でソート
   @@index([status, department])   // 複合インデックス（部門×ステータス）
   @@index([status, approverId])   // 複合インデックス（承認者×ステータス）
+}
+
+// ===================================
+// CommitteeManagement統合実装（2025-10-09）
+// ===================================
+
+// 運営委員会議題
+model ManagementCommitteeAgenda {
+  id                   String    @id @default(cuid())
+
+  // 基本情報
+  title                String
+  agendaType           String    // 'committee_proposal' | 'facility_policy' | 'personnel' | 'budget' | 'equipment' | 'other'
+  description          String
+  background           String
+
+  // 提案元情報
+  proposedBy           String    // 提案者名（キャッシュ）
+  proposedDate         DateTime
+  proposerDepartment   String    // 提案者部署（キャッシュ）
+  proposerId           String?   // User.id
+
+  // 関連投稿
+  relatedPostId        String?   // Post.id
+  escalationSource     String?   // 'voting_system' | 'department_proposal' | 'direct_submission'
+
+  // ステータス
+  status               String    @default("pending") // 'pending' | 'in_review' | 'approved' | 'rejected' | 'deferred'
+  priority             String    @default("normal")  // 'urgent' | 'high' | 'normal' | 'low'
+
+  // 審議情報
+  scheduledDate        DateTime?
+  actualReviewDate     DateTime?
+  decidedDate          DateTime?
+  decidedBy            String?   // 決定者名（キャッシュ）
+  decision             String?   // 'approved' | 'rejected' | 'deferred'
+  decisionNotes        String?
+
+  // 影響分析
+  impactDepartments    Json      // string[] - 部署リスト
+  estimatedCost        Float?
+  implementationPeriod String?
+  expectedEffect       String
+
+  // その他
+  tags                 Json?     // string[]
+
+  // タイムスタンプ
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  // リレーション
+  proposer             User?     @relation("AgendaProposer", fields: [proposerId], references: [id])
+  relatedPost          Post?     @relation("AgendaRelatedPost", fields: [relatedPostId], references: [id])
+
+  @@index([proposerId])
+  @@index([relatedPostId])
+  @@index([status])
+  @@index([priority])
+  @@index([agendaType])
+  @@index([proposedDate])
+}
+
+// 委員会情報
+model CommitteeInfo {
+  id               String             @id @default(cuid())
+
+  // 基本情報
+  name             String             @unique
+  description      String
+
+  // 統計情報
+  memberCount      Int                @default(0)
+  totalMeetings    Int                @default(0)
+  activeAgendas    Int                @default(0)
+
+  // 委員長情報
+  chairperson      String?            // 委員長名（キャッシュ）
+  chairpersonId    String?            // User.id
+
+  // スケジュール
+  nextMeetingDate  DateTime?
+
+  // タイムスタンプ
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  // リレーション
+  chairpersonUser  User?              @relation("CommitteeChairperson", fields: [chairpersonId], references: [id])
+  members          CommitteeMember[]
+  meetings         CommitteeMeeting[]
+
+  @@index([name])
+  @@index([chairpersonId])
+}
+
+// 委員会メンバー
+model CommitteeMember {
+  id              String         @id @default(cuid())
+
+  // 委員会情報
+  committeeId     String
+
+  // 職員情報
+  userId          String         // User.id
+  name            String         // 職員名（キャッシュ）
+  department      String         // 部署（キャッシュ）
+  position        String         // 役職（キャッシュ）
+
+  // 委員会内役割
+  role            String         // 'chairman' | 'vice_chairman' | 'secretary' | 'member' | 'observer'
+
+  // 任期
+  termStart       DateTime
+  termEnd         DateTime?
+  isActive        Boolean        @default(true)
+
+  // 統計
+  attendanceRate  Float          @default(0)
+
+  // タイムスタンプ
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // リレーション
+  committee       CommitteeInfo  @relation(fields: [committeeId], references: [id], onDelete: Cascade)
+  user            User           @relation("CommitteeMemberUser", fields: [userId], references: [id])
+
+  @@unique([committeeId, userId])
+  @@index([committeeId])
+  @@index([userId])
+  @@index([role])
+  @@index([isActive])
+}
+
+// 会議スケジュール
+model CommitteeMeeting {
+  id              String         @id @default(cuid())
+
+  // 委員会情報
+  committeeId     String
+  committeeName   String         // 委員会名（キャッシュ）
+
+  // 日時・会場
+  date            DateTime
+  venue           String
+
+  // 議題情報
+  agendaCount     Int            @default(0)
+
+  // ステータス
+  status          String         @default("scheduled") // 'scheduled' | 'in_progress' | 'completed' | 'cancelled'
+
+  // 拡張情報（将来実装）
+  chairperson     String?        // 委員長名（キャッシュ）
+  participants    Json?          // string[] - 参加者リスト
+  meetingMinutes  String?        // 議事録URL
+
+  // タイムスタンプ
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // リレーション
+  committee       CommitteeInfo  @relation(fields: [committeeId], references: [id], onDelete: Cascade)
+
+  @@index([committeeId])
+  @@index([date])
+  @@index([status])
+}
+
+// 提出承認リクエスト
+model CommitteeSubmissionRequest {
+  id                String    @id @default(cuid())
+
+  // 提案情報
+  proposalTitle     String
+  targetCommittee   String
+
+  // 申請者情報
+  requesterId       String    // User.id
+  requesterName     String    // 申請者名（キャッシュ）
+  requesterLevel    Float     // 権限レベル（キャッシュ）
+
+  // ステータス
+  status            String    @default("pending") // 'pending' | 'approved' | 'rejected'
+
+  // 承認情報
+  approvedBy        String?   // 承認者名（キャッシュ）
+  approverId        String?   // User.id
+  approvedAt        DateTime?
+  approvalNotes     String?
+
+  // 却下情報
+  rejectionReason   String?
+
+  // タイムスタンプ
+  requestedAt       DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // リレーション
+  requester         User      @relation("SubmissionRequester", fields: [requesterId], references: [id])
+  approver          User?     @relation("SubmissionApprover", fields: [approverId], references: [id])
+
+  @@index([requesterId])
+  @@index([approverId])
+  @@index([status])
+  @@index([targetCommittee])
+  @@index([requestedAt])
 }
