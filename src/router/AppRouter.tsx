@@ -12,7 +12,6 @@ import ProfilePage from '../pages/ProfilePage';
 import ProjectListPage from '../pages/ProjectListPage';
 import EnhancedProjectListPage from '../pages/EnhancedProjectListPage';
 import { ProjectDetailPage } from '../pages/ProjectDetailPage';
-import TeamManagementPage from '../pages/TeamManagementPage';
 import { PersonalStationPage } from '../pages/PersonalStationPage';
 import { LeaderStationPage } from '../pages/LeaderStationPage';
 import { DepartmentStationPage } from '../pages/DepartmentStationPage';
@@ -29,12 +28,9 @@ import FacilityManagementPage from '../pages/FacilityManagementPage';
 import StrategicOverviewPage from '../pages/StrategicOverviewPage';
 import BudgetPlanningPage from '../pages/BudgetPlanningPage';
 import ExecutiveReportsPage from '../pages/ExecutiveReportsPage';
-import ExecutiveOverviewPage from '../pages/ExecutiveOverviewPage';
 import StrategicInitiativesPage from '../pages/StrategicInitiativesPage';
 import OrganizationAnalyticsPage from '../pages/OrganizationAnalyticsPage';
 import { StrategicHRPage } from '../pages/StrategicHRPage';
-import BoardReportsPage from '../pages/BoardReportsPage';
-import GovernancePage from '../pages/GovernancePage';
 import VotingSystemGuide from '../pages/VotingSystemGuide';
 import StaffVotingGuide from '../pages/StaffVotingGuide';
 import IdeaVoiceGuide from '../pages/IdeaVoiceGuide';
@@ -51,7 +47,6 @@ import TestSummaryReceiver from '../pages/TestSummaryReceiver';
 
 // Dashboard pages
 import PersonalDashboardPage from '../pages/PersonalDashboardPage';
-import TeamLeaderDashboardPage from '../pages/TeamLeaderDashboardPage';
 import DepartmentDashboardPage from '../pages/DepartmentDashboardPage';
 import FacilityDashboardPage from '../pages/FacilityDashboardPage';
 import HRManagementDashboardPage from '../pages/HRManagementDashboardPage';
@@ -193,11 +188,6 @@ const AppRouter: React.FC = () => {
               <PersonalDashboardPage />
             </ProtectedRoute>
           } />
-          <Route path="team-leader" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_2} exactLevel>
-              <TeamLeaderDashboardPage />
-            </ProtectedRoute>
-          } />
           <Route path="department" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3} exactLevel>
               <DepartmentDashboardPage />
@@ -270,12 +260,6 @@ const AppRouter: React.FC = () => {
           } />
         </Route>
         
-        {/* Team management (Level 2+) */}
-        <Route path="team-management" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_2}>
-            <TeamManagementPage />
-          </ProtectedRoute>
-        } />
         
         {/* Department overview (Level 3+) */}
         <Route path="department-overview" element={
@@ -486,38 +470,17 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
 
-        {/* Executive Overview (Level 8) */}
-        <Route path="executive-overview" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8}>
-            <ExecutiveOverviewPage />
-          </ProtectedRoute>
-        } />
-        
-        {/* Strategic Initiatives (Level 8) */}
+        {/* Strategic Initiatives (Level 13 - Project Mode) */}
         <Route path="strategic-initiatives" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8}>
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_13}>
             <StrategicInitiativesPage />
           </ProtectedRoute>
         } />
-        
-        {/* Organization Analytics (Level 8) */}
+
+        {/* Organization Analytics (Level 14+ - Both Modes) */}
         <Route path="organization-analytics" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8}>
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_14}>
             <OrganizationAnalyticsPage />
-          </ProtectedRoute>
-        } />
-        
-        {/* Board Reports (Level 8) */}
-        <Route path="board-reports" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8}>
-            <BoardReportsPage />
-          </ProtectedRoute>
-        } />
-        
-        {/* Governance (Level 8) */}
-        <Route path="governance" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8}>
-            <GovernancePage />
           </ProtectedRoute>
         } />
         

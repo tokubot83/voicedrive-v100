@@ -80,6 +80,33 @@ model User {
 
   // CultureDevelopment統合実装（2025-10-10）
   ownedInitiatives        CultureInitiative[]         @relation("InitiativeOwner")
+
+  // ExecutiveReports統合実装（2025-10-10）
+  generatedReports        GeneratedReport[]           @relation("ReportGenerator")
+  reportCustomizations    ReportCustomization[]       @relation("ReportCustomizer")
+  reportAccessLogs        ReportAccessLog[]           @relation("ReportAccessUser")
+  boardPresentations      BoardMeetingAgenda[]        @relation("BoardPresenter")
+  approvedInsights        StrategicInsight[]          @relation("InsightApprover")
+
+  // BoardPreparation統合実装（2025-10-10）
+  createdBoardMeetings        BoardMeeting[]                  @relation("BoardMeetingCreator")
+  selectedAgendaCandidates    BoardAgendaCandidateSelection[] @relation("AgendaSelector")
+  createdProposals            ChairmanProposal[]              @relation("ProposalCreator")
+  reviewedProposals           ChairmanProposal[]              @relation("ProposalReviewer")
+
+  // CrossFacilityAnalysis統合実装（2025-10-11）
+  assignedCommonIssues        CrossFacilityCommonIssue[]      @relation("CommonIssueAssignee")
+  successCasesFromFacility    CrossFacilitySuccessCase[]      @relation("SuccessCaseFacility")
+  approvedSuccessCases        CrossFacilitySuccessCase[]      @relation("SuccessCaseApprover")
+  replicationsAtFacility      SuccessCaseReplication[]        @relation("ReplicationTargetFacility")
+  responsibleReplications     SuccessCaseReplication[]        @relation("ReplicationResponsible")
+  approvedOpportunities       StrategicOpportunity[]          @relation("OpportunityApprover")
+
+  // BoardAgendaReview統合実装（2025-10-11）
+  reviewedAgendas             BoardMeetingAgenda[]            @relation("AgendaChairmanReviewer")
+
+  // ProjectApproval統合実装（2025-10-11）
+  projectApprovals            ProjectApproval[]               @relation("ProjectApprover")
 }
 
 model Notification {
@@ -243,7 +270,18 @@ model AuditLog {
   ipAddress  String?
   userAgent  String?
   createdAt  DateTime @default(now())
+
+  // 緊急停止専用フィールド（account-deactivation統合 2025-10-10）
+  executorLevel      Float?    @map("executor_level")
+  targetUserId       String?   @map("target_user_id")
+  reason             String?   @db.Text
+  isEmergencyAction  Boolean   @default(false) @map("is_emergency_action")
+  syncPending        Boolean   @default(false) @map("sync_pending")
+
   user       User     @relation(fields: [userId], references: [id])
+
+  @@index([action, isEmergencyAction])
+  @@index([targetUserId])
 }
 
 model InterviewResult {
@@ -471,6 +509,15 @@ model Post {
   moderationStatus      String    @default("pending") // 'pending' | 'approved' | 'flagged'
   moderationScore       Int?      // 建設性スコア (0-100)
 
+  // ProjectApproval統合実装（2025-10-11）
+  approvalStatus        String?   @default("pending") @map("approval_status")
+  // 'pending' | 'approved' | 'rejected' | 'on_hold' | 'team_formation'
+  approvedAt            DateTime? @map("approved_at")
+  approvedBy            String?   @map("approved_by")
+  rejectedAt            DateTime? @map("rejected_at")
+  rejectedBy            String?   @map("rejected_by")
+  rejectionReason       String?   @map("rejection_reason")
+
   // リレーション
   author                User      @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
   votes                 Vote[]
@@ -478,6 +525,10 @@ model Post {
   poll                  Poll?
   event                 Event?
   relatedAgendas        ManagementCommitteeAgenda[] @relation("AgendaRelatedPost")
+  approvals             ProjectApproval[]           @relation("PostApprovals")
+
+  // CrossFacilityAnalysis統合実装（2025-10-11）
+  successCases          CrossFacilitySuccessCase[]  @relation("SuccessCaseSource")
 
   @@index([authorId])
   @@index([type])
@@ -486,6 +537,9 @@ model Post {
   @@index([freespaceCategory])
   @@index([createdAt])
   @@index([expirationDate])
+  @@index([authorId, type, createdAt])  // ProjectTracking: 提案したプロジェクト高速取得用（2025-10-11）
+  @@index([approvalStatus, createdAt])  // ProjectApproval: 承認待ちプロジェクト高速取得用（2025-10-11）
+  @@index([approvalStatus])              // ProjectApproval: 承認ステータスフィルタ用（2025-10-11）
 }
 
 // 投票（Vote）- 投稿に対する5段階投票
@@ -502,6 +556,7 @@ model Vote {
   @@unique([postId, userId])
   @@index([postId])
   @@index([userId])
+  @@index([userId, timestamp])  // ProjectTracking: 投票したプロジェクト高速取得用（2025-10-11）
 }
 
 // コメント（Comment）- 投稿に対するコメント
@@ -790,6 +845,19 @@ model ManagementCommitteeAgenda {
   implementationPeriod String?
   expectedEffect       String
 
+  // 🆕 実装追跡（Organization Analytics用）
+  implementationStatus    String?    @default("not_started") @map("implementation_status")
+  // 'not_started' | 'in_progress' | 'completed' | 'on_hold' | 'cancelled'
+  implementationStartDate DateTime?  @map("implementation_start_date")
+  implementationEndDate   DateTime?  @map("implementation_end_date")
+  implementationProgress  Float?     @default(0) @map("implementation_progress") // 0-100
+  implementationNotes     String?    @map("implementation_notes")
+
+  // 🆕 影響度評価（Executive Reports用 - 2025-10-10）
+  impactAssessment        String?    @db.Text @map("impact_assessment")  // "採用目標達成率20%向上見込み"
+  impactCategory          String?    @map("impact_category")              // "cost_reduction", "efficiency", "satisfaction"
+  estimatedImpact         Float?     @map("estimated_impact")             // 数値化された影響度（%）
+
   // その他
   tags                 Json?     // string[]
 
@@ -798,12 +866,16 @@ model ManagementCommitteeAgenda {
   updatedAt            DateTime  @updatedAt
 
   // リレーション
-  proposer             User?     @relation("AgendaProposer", fields: [proposerId], references: [id])
-  relatedPost          Post?     @relation("AgendaRelatedPost", fields: [relatedPostId], references: [id])
-  escalatedToDecision  DecisionMeetingAgenda? @relation("CommitteeToDecisionEscalation")
+  proposer                  User?     @relation("AgendaProposer", fields: [proposerId], references: [id])
+  relatedPost               Post?     @relation("AgendaRelatedPost", fields: [relatedPostId], references: [id])
+  escalatedToDecision       DecisionMeetingAgenda? @relation("CommitteeToDecisionEscalation")
+  relatedBoardMeetingAgenda BoardMeetingAgenda[]   @relation("BoardRelatedAgenda")
 
   @@index([proposerId])
   @@index([relatedPostId])
+  @@index([implementationStatus])
+  @@index([implementationEndDate])
+  @@index([impactCategory])
   @@index([status])
   @@index([priority])
   @@index([agendaType])
@@ -1356,4 +1428,704 @@ model InitiativeMilestone {
   @@index([initiativeId])
   @@index([targetDate])
   @@index([status])
+}
+
+// ===================================
+// EmergencyAccountDeactivation統合実装（2025-10-10）
+// ===================================
+
+// 緊急アカウント停止記録
+model EmergencyDeactivation {
+  id                  String    @id @default(cuid())
+  targetUserId        String    @map("target_user_id")
+  targetEmployeeId    String?   @map("target_employee_id")
+  executedBy          String    @map("executed_by")
+  executorEmployeeId  String?   @map("executor_employee_id")
+  executorName        String?   @map("executor_name")
+  executorLevel       Float     @map("executor_level")
+  reason              String    @db.Text
+  timestamp           DateTime  @default(now())
+  isEmergency         Boolean   @default(true) @map("is_emergency")
+  syncToStaffSystem   Boolean   @default(false) @map("sync_to_staff_system")
+  syncedAt            DateTime? @map("synced_at")
+
+  // ステータス
+  status              String    @default("pending") // 'pending' | 'synced' | 'failed'
+  errorMessage        String?   @map("error_message")
+
+  // 監査情報
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  @@index([targetUserId])
+  @@index([executedBy])
+  @@index([timestamp])
+  @@index([status])
+  @@index([syncToStaffSystem])
+  @@map("emergency_deactivations")
+}
+
+// 医療システム同期キュー
+model StaffSystemSyncQueue {
+  id                    String    @id @default(cuid())
+
+  // 同期タイプ
+  type                  String    // 'ACCOUNT_DEACTIVATION' | 'ACCOUNT_REACTIVATION' | 'USER_UPDATE'
+
+  // 対象
+  targetUserId          String?   @map("target_user_id")
+  targetEmployeeId      String?   @map("target_employee_id")
+
+  // ペイロード
+  payload               Json      // 同期データ（type別に内容が異なる）
+
+  // ステータス
+  status                String    @default("queued") // 'queued' | 'processing' | 'completed' | 'failed'
+  retryCount            Int       @default(0) @map("retry_count")
+  maxRetries            Int       @default(3) @map("max_retries")
+
+  // 実行情報
+  queuedAt              DateTime  @default(now()) @map("queued_at")
+  processedAt           DateTime? @map("processed_at")
+  completedAt           DateTime? @map("completed_at")
+  nextRetryAt           DateTime? @map("next_retry_at")
+
+  // エラー情報
+  errorMessage          String?   @map("error_message")
+  errorStack            String?   @db.Text @map("error_stack")
+
+  // 関連レコード
+  relatedDeactivationId String?   @map("related_deactivation_id")
+
+  // タイムスタンプ
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([type])
+  @@index([queuedAt])
+  @@index([nextRetryAt])
+  @@index([targetUserId])
+  @@map("staff_system_sync_queue")
+}
+
+// ===================================
+// ExecutiveReports統合実装（2025-10-10）
+// ===================================
+
+// レポートテンプレート定義
+model ReportTemplate {
+  id                  String    @id @default(cuid())
+  templateKey         String    @unique @map("template_key")   // "monthly_summary", "quarterly_hr"
+  title               String
+  description         String    @db.Text
+  category            String                                    // "monthly", "quarterly", "board"
+  icon                String?                                   // アイコン名
+
+  // テンプレート設定
+  defaultPages        Int       @default(10) @map("default_pages")
+  requiredDataSources Json      @map("required_data_sources")   // ["posts", "agendas", "employees"]
+  outputFormats       Json      @map("output_formats")          // ["pdf", "excel", "pptx"]
+
+  // 生成設定
+  isActive            Boolean   @default(true) @map("is_active")
+  permissionLevel     Decimal   @map("permission_level")        // Level 16+のみ
+  generationSchedule  String?   @map("generation_schedule")     // "monthly", "quarterly", "on_demand"
+
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  reports             GeneratedReport[]
+  customizations      ReportCustomization[]
+
+  @@index([category])
+  @@index([permissionLevel])
+  @@map("report_templates")
+}
+
+// 生成済みレポート
+model GeneratedReport {
+  id                  String    @id @default(cuid())
+  templateId          String    @map("template_id")
+  reportKey           String    @unique @map("report_key")      // "monthly_2025_10"
+
+  // レポート情報
+  title               String
+  period              String                                    // "2025-10", "2025-Q3", "2025"
+  periodStart         DateTime  @map("period_start")
+  periodEnd           DateTime  @map("period_end")
+
+  // 生成情報
+  generatedBy         String    @map("generated_by")            // User ID
+  generatedAt         DateTime  @default(now()) @map("generated_at")
+  status              String    @default("generating")          // "generating", "ready", "failed"
+
+  // ファイル情報
+  fileUrl             String?   @map("file_url")                // S3 URL
+  fileSize            Int?      @map("file_size")               // bytes
+  fileFormat          String?   @map("file_format")             // "pdf", "excel", "pptx"
+  pageCount           Int?      @map("page_count")
+
+  // 統計情報
+  downloadCount       Int       @default(0) @map("download_count")
+  viewCount           Int       @default(0) @map("view_count")
+  lastAccessedAt      DateTime? @map("last_accessed_at")
+
+  // エラー情報
+  errorMessage        String?   @db.Text @map("error_message")
+
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  template            ReportTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  generator           User           @relation("ReportGenerator", fields: [generatedBy], references: [id])
+  accessLogs          ReportAccessLog[]
+  sourceAgendas       BoardMeetingAgenda[] @relation("AgendaSourceReport")
+
+  @@index([templateId])
+  @@index([generatedBy])
+  @@index([status])
+  @@index([periodStart, periodEnd])
+  @@map("generated_reports")
+}
+
+// レポートカスタマイズ設定
+model ReportCustomization {
+  id                  String    @id @default(cuid())
+  templateId          String    @map("template_id")
+  userId              String    @map("user_id")
+
+  // カスタマイズ内容
+  customTitle         String?   @map("custom_title")
+  includedSections    Json      @map("included_sections")       // ["kpi", "topics", "insights"]
+  excludedSections    Json?     @map("excluded_sections")
+  customFilters       Json?     @map("custom_filters")          // { department: "看護部" }
+
+  // 表示設定
+  chartTypes          Json?     @map("chart_types")             // { "trend": "line", "distribution": "pie" }
+  colorScheme         String?   @map("color_scheme")            // "default", "colorblind"
+
+  isDefault           Boolean   @default(false) @map("is_default")
+
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  template            ReportTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  user                User           @relation("ReportCustomizer", fields: [userId], references: [id])
+
+  @@unique([templateId, userId])
+  @@index([userId])
+  @@map("report_customizations")
+}
+
+// レポートアクセスログ
+model ReportAccessLog {
+  id                  String    @id @default(cuid())
+  reportId            String    @map("report_id")
+  userId              String    @map("user_id")
+
+  // アクセス情報
+  action              String                                    // "view", "download", "preview"
+  accessedAt          DateTime  @default(now()) @map("accessed_at")
+
+  // デバイス情報
+  ipAddress           String?   @map("ip_address")
+  userAgent           String?   @db.Text @map("user_agent")
+
+  // リレーション
+  report              GeneratedReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  user                User            @relation("ReportAccessUser", fields: [userId], references: [id])
+
+  @@index([reportId])
+  @@index([userId])
+  @@index([accessedAt])
+  @@map("report_access_logs")
+}
+
+// 理事会アジェンダ
+model BoardMeetingAgenda {
+  id                  String    @id @default(cuid())
+  meetingDate         DateTime  @map("meeting_date")
+  agendaOrder         Int       @map("agenda_order")              // 議題順序
+
+  // 議題情報
+  item                String
+  description         String?   @db.Text
+  category            String                                      // "hr_strategy", "financial", "operational"
+
+  // 発表情報
+  duration            Int                                         // 分
+  presenterId         String    @map("presenter_id")              // 発表者（User ID）
+  presenterTitle      String    @map("presenter_title")           // "人事部門長"
+
+  // 関連データ
+  relatedAgendaId     String?   @map("related_agenda_id")         // 委員会議題ID
+  attachments         Json?                                       // 添付資料URL配列
+
+  // ステータス
+  status              String    @default("scheduled")             // "scheduled", "presented", "postponed"
+  actualDuration      Int?      @map("actual_duration")           // 実際の所要時間
+
+  // 🆕 理事会準備用フィールド（2025-10-10）
+  priority            String?   @default("medium")                // "high", "medium", "low"
+  sourceReport        String?   @map("source_report")             // "月次議題化プロセスレポート"
+  sourceReportId      String?   @map("source_report_id")          // GeneratedReport ID
+  preparedBy          String?   @map("prepared_by")               // "戦略企画部"
+  preparationStatus   String?   @default("draft") @map("preparation_status")  // "draft", "reviewing", "approved", "finalized"
+  documentsReady      Boolean   @default(false) @map("documents_ready")
+  presentationReady   Boolean   @default(false) @map("presentation_ready")
+  documentUrls        Json?     @map("document_urls")             // { report: "url", presentation: "url" }
+
+  // 🆕 理事長レビュー用フィールド（2025-10-11）
+  keyPoints           String?   @map("key_points")                // JSON配列: 主要ポイント
+  expectedDiscussion  String?   @map("expected_discussion")       // 想定される議論
+  requiredDecision    String?   @map("required_decision")         // 求められる決定
+  chairmanReview      String?   @default("pending") @map("chairman_review")  // "pending", "approved", "needs_revision", "rejected"
+  chairmanComment     String?   @map("chairman_comment")          // 理事長コメント
+  chairmanReviewedBy  String?   @map("chairman_reviewed_by")      // レビュー実施者（User ID）
+  chairmanReviewedAt  DateTime? @map("chairman_reviewed_at")      // レビュー日時
+
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  presenter           User                         @relation("BoardPresenter", fields: [presenterId], references: [id])
+  relatedAgenda       ManagementCommitteeAgenda?   @relation("BoardRelatedAgenda", fields: [relatedAgendaId], references: [id])
+  sourceReportRef     GeneratedReport?             @relation("AgendaSourceReport", fields: [sourceReportId], references: [id])
+  candidateSelections BoardAgendaCandidateSelection[]
+  chairmanReviewer    User?                        @relation("AgendaChairmanReviewer", fields: [chairmanReviewedBy], references: [id])
+
+  @@unique([meetingDate, agendaOrder])
+  @@index([meetingDate])
+  @@index([presenterId])
+  @@index([chairmanReview])
+  @@index([chairmanReviewedAt])
+  @@map("board_meeting_agendas")
+}
+
+// 戦略的インサイト
+model StrategicInsight {
+  id                  String    @id @default(cuid())
+  insightType         String    @map("insight_type")              // "success_story", "improvement_suggestion"
+  category            String                                      // "department", "process", "engagement"
+
+  // インサイト内容
+  title               String
+  summary             String    @db.Text
+  details             String?   @db.Text
+
+  // 根拠データ
+  evidenceData        Json      @map("evidence_data")             // { avgDays: 35, department: "医療療養病棟" }
+  relatedPostIds      Json?     @map("related_post_ids")          // 関連投稿ID配列
+  relatedDepartments  Json?     @map("related_departments")       // 関連部門配列
+
+  // 優先度
+  priority            String    @default("medium")                // "high", "medium", "low"
+  confidence          Float     @default(0.8) @map("confidence")  // AI信頼度（0-1）
+
+  // ステータス
+  status              String    @default("pending")               // "pending", "approved", "implemented", "dismissed"
+  approvedBy          String?   @map("approved_by")               // 承認者ID
+  approvedAt          DateTime? @map("approved_at")
+
+  // 実装追跡
+  actionTaken         String?   @db.Text @map("action_taken")
+  implementedAt       DateTime? @map("implemented_at")
+
+  // AI分析情報
+  generatedBy         String    @default("ai") @map("generated_by") // "ai", "manual"
+  generationModel     String?   @map("generation_model")          // "gpt-4", "llama-3.2"
+  generatedAt         DateTime  @default(now()) @map("generated_at")
+
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  approver            User?     @relation("InsightApprover", fields: [approvedBy], references: [id])
+
+  @@index([insightType])
+  @@index([priority])
+  @@index([status])
+  @@index([generatedAt])
+  @@map("strategic_insights")
+}
+
+// 理事会マスタ（BoardPreparation統合 - 2025-10-10）
+model BoardMeeting {
+  id                  String    @id @default(cuid())
+
+  // 開催情報
+  meetingDate         DateTime  @map("meeting_date")
+  startTime           String    @map("start_time")                // "14:00"
+  location            String                                      // "本部会議室A"
+  expectedDuration    Int       @map("expected_duration")         // 予定時間（分）
+  actualDuration      Int?      @map("actual_duration")           // 実際の時間
+
+  // 参加者
+  expectedAttendees   Int       @map("expected_attendees")        // 出席予定者数
+  actualAttendees     Int?      @map("actual_attendees")          // 実際の出席者数
+  attendeeList        Json?     @map("attendee_list")             // 出席者リスト
+
+  // ステータス
+  status              String    @default("planning")              // "planning", "agenda_draft", "materials_ready", "confirmed", "completed"
+  preparationProgress Int       @default(0) @map("preparation_progress")  // 0-100%
+
+  // 資料
+  agendaDocumentUrl   String?   @map("agenda_document_url")       // 議事次第PDF
+  minutesDocumentUrl  String?   @map("minutes_document_url")      // 議事録PDF
+
+  // メタ
+  createdBy           String    @map("created_by")                // User ID
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  creator             User                    @relation("BoardMeetingCreator", fields: [createdBy], references: [id])
+  candidateSelections BoardAgendaCandidateSelection[]
+  proposals           ChairmanProposal[]
+  decisions           BoardDecision[]         @relation("BoardDecisions")
+
+  @@index([meetingDate])
+  @@map("board_meetings")
+}
+
+// 議題候補選定履歴（BoardPreparation統合 - 2025-10-10）
+model BoardAgendaCandidateSelection {
+  id                  String    @id @default(cuid())
+  boardMeetingId      String    @map("board_meeting_id")
+  agendaId            String    @map("agenda_id")
+
+  // 選定情報
+  selectedAt          DateTime  @default(now()) @map("selected_at")
+  selectedBy          String    @map("selected_by")                // User ID
+  selectionReason     String?   @db.Text @map("selection_reason")
+  isFinalized         Boolean   @default(false) @map("is_finalized")
+
+  // ステータス変更履歴
+  statusHistory       Json?     @map("status_history")            // { timestamp, from, to, by }[]
+
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  boardMeeting        BoardMeeting            @relation(fields: [boardMeetingId], references: [id], onDelete: Cascade)
+  agenda              BoardMeetingAgenda      @relation(fields: [agendaId], references: [id], onDelete: Cascade)
+  selector            User                    @relation("AgendaSelector", fields: [selectedBy], references: [id])
+
+  @@unique([boardMeetingId, agendaId])
+  @@index([boardMeetingId])
+  @@index([selectedBy])
+  @@map("board_agenda_candidate_selections")
+}
+
+// 理事長への提案（BoardPreparation統合 - 2025-10-10）
+model ChairmanProposal {
+  id                  String    @id @default(cuid())
+
+  // 提案情報
+  title               String
+  description         String    @db.Text
+  impact              String    @db.Text                          // 期待効果
+  requiredBudget      String                                      // "約800万円"
+  budgetAmount        Decimal?  @db.Decimal(15, 2)               // 数値（集計用）
+  timeline            String    @db.Text                          // "2026年1月準備開始、4月本格運用"
+
+  // ステータス
+  status              String    @default("draft")                 // "draft", "pending_review", "approved", "rejected", "implemented"
+  submittedAt         DateTime? @map("submitted_at")
+  reviewedAt          DateTime? @map("reviewed_at")
+  reviewedBy          String?   @map("reviewed_by")               // User ID（理事長）
+  reviewComments      String?   @db.Text @map("review_comments")
+
+  // 関連
+  relatedBoardMeetingId String? @map("related_board_meeting_id")
+  documentUrl         String?   @map("document_url")              // 提案書PDF
+
+  // メタ
+  createdBy           String    @map("created_by")                // User ID
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  creator             User          @relation("ProposalCreator", fields: [createdBy], references: [id])
+  reviewer            User?         @relation("ProposalReviewer", fields: [reviewedBy], references: [id])
+  relatedBoardMeeting BoardMeeting? @relation(fields: [relatedBoardMeetingId], references: [id])
+
+  @@index([status])
+  @@index([createdBy])
+  @@index([relatedBoardMeetingId])
+  @@map("chairman_proposals")
+}
+
+// =============================================================================
+// CrossFacilityAnalysis統合実装（2025-10-11）
+// =============================================================================
+
+// 施設横断共通課題
+model CrossFacilityCommonIssue {
+  id                    String    @id @default(cuid())
+  title                 String                          // "夜勤時の人手不足"
+  category              String                          // "人材配置"
+  description           String                          // 詳細説明
+  affectedFacilities    String                          // JSON配列: ["FAC001", "FAC002", ...]
+  affectedFacilityCount Int       @map("affected_facility_count")
+  totalVoices           Int       @map("total_voices")  // 関連投稿数
+  severity              String    @default("medium")    // "high", "medium", "low"
+  trend                 String    @default("stable")    // "increasing", "stable", "decreasing"
+  suggestedAction       String                          // 推奨アクション
+  sourcePostIds         String    @map("source_post_ids")  // JSON配列: ["POST123", "POST456", ...]
+  detectedAt            DateTime  @default(now()) @map("detected_at")
+  lastUpdatedAt         DateTime  @updatedAt @map("last_updated_at")
+  status                String    @default("active")    // "active", "addressing", "resolved", "archived"
+  assignedTo            String?   @map("assigned_to")   // 担当者（Level 18ユーザー）
+
+  // リレーション
+  assignee              User?     @relation("CommonIssueAssignee", fields: [assignedTo], references: [id])
+
+  @@index([category])
+  @@index([severity])
+  @@index([detectedAt])
+  @@map("cross_facility_common_issue")
+}
+
+// 横展開可能な成功事例
+model CrossFacilitySuccessCase {
+  id                    String    @id @default(cuid())
+  facilityId            String    @map("facility_id")   // 成功事例の発生施設
+  title                 String                          // "メンター制度による新人定着率向上"
+  category              String                          // "人材育成"
+  description           String                          // 詳細説明
+  impact                String                          // "新人離職率 35% → 8%（-27pt）"
+  impactMetrics         String?   @map("impact_metrics")  // JSON: { before: 35, after: 8, unit: "%" }
+  replicability         Int       @default(50)          // 横展開可能性スコア（0-100）
+  implementationCost    String?   @map("implementation_cost")  // "約50万円"
+  implementationPeriod  String?   @map("implementation_period") // "3ヶ月"
+  interestedFacilities  String?   @map("interested_facilities") // JSON配列: ["FAC002", "FAC003", ...]
+  sourcePostId          String    @map("source_post_id")  // 元となったPost ID
+  identifiedAt          DateTime  @default(now()) @map("identified_at")
+  status                String    @default("proposed")  // "proposed", "approved", "replicating", "replicated"
+  approvedBy            String?   @map("approved_by")   // 承認者（Level 18）
+  approvedAt            DateTime? @map("approved_at")
+
+  // リレーション
+  facility              User      @relation("SuccessCaseFacility", fields: [facilityId], references: [id])
+  sourcePost            Post      @relation("SuccessCaseSource", fields: [sourcePostId], references: [id])
+  approver              User?     @relation("SuccessCaseApprover", fields: [approvedBy], references: [id])
+  replications          SuccessCaseReplication[]
+
+  @@index([facilityId])
+  @@index([category])
+  @@index([replicability])
+  @@map("cross_facility_success_case")
+}
+
+// 成功事例の横展開状況
+model SuccessCaseReplication {
+  id                    String    @id @default(cuid())
+  successCaseId         String    @map("success_case_id")
+  targetFacilityId      String    @map("target_facility_id")
+  status                String    @default("planning")  // "planning", "implementing", "completed", "failed"
+  startedAt             DateTime? @map("started_at")
+  completedAt           DateTime? @map("completed_at")
+  progress              Int       @default(0)           // 進捗率（0-100）
+  results               String?                         // 実施結果
+  resultMetrics         String?   @map("result_metrics")  // JSON: 成果指標
+  responsiblePerson     String    @map("responsible_person")  // 実施責任者
+  notes                 String?                         // 備考
+
+  // リレーション
+  successCase           CrossFacilitySuccessCase @relation(fields: [successCaseId], references: [id], onDelete: Cascade)
+  targetFacility        User      @relation("ReplicationTargetFacility", fields: [targetFacilityId], references: [id])
+  responsible           User      @relation("ReplicationResponsible", fields: [responsiblePerson], references: [id])
+
+  @@unique([successCaseId, targetFacilityId])
+  @@index([targetFacilityId])
+  @@index([status])
+  @@map("success_case_replication")
+}
+
+// 法人全体での戦略的機会
+model StrategicOpportunity {
+  id                    String    @id @default(cuid())
+  title                 String                          // "施設間人材ローテーション制度"
+  opportunity           String                          // 機会の詳細
+  expectedImpact        String    @map("expected_impact")  // 期待効果
+  requiredInvestment    String    @map("required_investment")  // "約500万円"
+  investmentAmount      Float?    @map("investment_amount")
+  timeline              String                          // 実施スケジュール
+  priority              String    @default("medium")    // "high", "medium", "low"
+  status                String    @default("proposed")  // "proposed", "approved", "implementing", "completed", "rejected"
+  proposedAt            DateTime  @default(now()) @map("proposed_at")
+  approvedAt            DateTime? @map("approved_at")
+  approvedBy            String?   @map("approved_by")   // 承認者（理事長等）
+  relatedIssueIds       String?   @map("related_issue_ids")  // JSON配列: 関連する共通課題ID
+  targetFacilities      String?   @map("target_facilities")  // JSON配列: 対象施設
+  kpiTargets            String?   @map("kpi_targets")   // JSON: KPI目標値
+  actualResults         String?   @map("actual_results")  // JSON: 実績値
+  documentUrl           String?   @map("document_url")  // 企画書URL
+
+  // リレーション
+  approver              User?     @relation("OpportunityApprover", fields: [approvedBy], references: [id])
+
+  @@index([priority])
+  @@index([status])
+  @@index([proposedAt])
+  @@map("strategic_opportunity")
+}
+
+// =============================================================================
+// ProjectApproval統合実装（2025-10-11）
+// =============================================================================
+
+// プロジェクト承認履歴
+model ProjectApproval {
+  id                  String    @id @default(cuid())
+
+  // 対象プロジェクト
+  postId              String    @map("post_id")
+
+  // 承認者情報
+  approverId          String    @map("approver_id")          // User.id
+  approverName        String    @map("approver_name")        // キャッシュ（表示用）
+  approverLevel       Float     @map("approver_level")       // 承認時の権限レベル
+
+  // 承認情報
+  action              String                                  // 'approved' | 'rejected' | 'held' | 'emergency_override'
+  reason              String?                                 // 理由（却下・保留時）
+  comment             String?                                 // コメント
+
+  // プロジェクト情報（承認時点のスナップショット）
+  projectLevel        String    @map("project_level")         // 'PENDING' | 'TEAM' | 'DEPARTMENT' | 'FACILITY' | 'ORGANIZATION'
+  projectScore        Int       @map("project_score")         // 承認時のスコア
+  totalVotes          Int       @map("total_votes")           // 承認時の総投票数
+  supportRate         Float     @map("support_rate")          // 承認時の支持率（%）
+
+  // 緊急介入フラグ
+  isEmergencyOverride Boolean   @default(false) @map("is_emergency_override")
+
+  // タイムスタンプ
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  post                Post      @relation("PostApprovals", fields: [postId], references: [id], onDelete: Cascade)
+  approver            User      @relation("ProjectApprover", fields: [approverId], references: [id])
+
+  // インデックス
+  @@index([postId])
+  @@index([approverId])
+  @@index([action])
+  @@index([projectLevel])
+  @@index([createdAt])
+  @@index([postId, createdAt])            // 承認履歴を時系列で取得
+  @@index([approverId, projectLevel])     // 承認者別レベル別統計取得用
+  @@map("project_approvals")
+}
+
+// =============================================================================
+// BoardDecisionFollow統合実装（2025-10-11）
+// =============================================================================
+
+// 理事会決定事項
+model BoardDecision {
+  id                      String    @id @default(cuid())
+
+  // 理事会情報
+  boardMeetingId          String    @map("board_meeting_id")
+  meetingDate             DateTime  @map("meeting_date")
+
+  // 決定事項情報
+  title                   String
+  category                String    // "システム導入", "人事制度", "IT・システム", "人材育成"
+  description             String    @db.Text
+  decision                String    @db.Text  // 理事会決定内容
+
+  // 実施情報
+  implementationDeadline  DateTime  @map("implementation_deadline")
+  responsibleDept         String    @map("responsible_dept")  // 担当部門名（キャッシュ）
+  responsibleDeptId       String?   @map("responsible_dept_id")  // 医療システム部門ID
+  affectedFacilities      Json      @map("affected_facilities")  // 影響施設ID配列
+
+  // 進捗管理
+  status                  String    @default("on_track")  // "completed", "on_track", "at_risk", "delayed"
+  progress                Int       @default(0)  // 0-100
+  lastUpdate              DateTime  @default(now()) @map("last_update")
+
+  // メタデータ
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  boardMeeting            BoardMeeting @relation("BoardDecisions", fields: [boardMeetingId], references: [id], onDelete: Cascade)
+  milestones              BoardDecisionMilestone[]
+  facilityImplementations BoardDecisionFacilityImplementation[]
+
+  @@index([boardMeetingId])
+  @@index([status])
+  @@index([implementationDeadline])
+  @@index([category])
+  @@map("board_decisions")
+}
+
+// 理事会決定事項マイルストーン
+model BoardDecisionMilestone {
+  id                String        @id @default(cuid())
+  boardDecisionId   String        @map("board_decision_id")
+
+  // マイルストーン情報
+  title             String
+  deadline          DateTime
+  status            String        @default("pending")  // "completed", "in_progress", "pending", "delayed"
+  assignee          String        // 担当者名（キャッシュ）
+  assigneeId        String?       @map("assignee_id")  // User ID
+  sortOrder         Int           @default(0) @map("sort_order")  // 表示順
+
+  // メタデータ
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+  completedAt       DateTime?     @map("completed_at")
+
+  // リレーション
+  boardDecision     BoardDecision @relation(fields: [boardDecisionId], references: [id], onDelete: Cascade)
+
+  @@index([boardDecisionId])
+  @@index([status])
+  @@index([deadline])
+  @@index([sortOrder])
+  @@map("board_decision_milestones")
+}
+
+// 理事会決定事項の施設別実施状況
+model BoardDecisionFacilityImplementation {
+  id                String        @id @default(cuid())
+  boardDecisionId   String        @map("board_decision_id")
+
+  // 施設情報
+  facilityId        String        @map("facility_id")  // 医療システム施設ID
+  facilityName      String        @map("facility_name")  // 施設名（キャッシュ）
+
+  // 実施状況
+  status            String        @default("not_started")  // "completed", "in_progress", "not_started"
+  progress          Int           @default(0)  // 0-100
+  note              String?       // 備考
+
+  // スケジュール
+  startedAt         DateTime?     @map("started_at")
+  completedAt       DateTime?     @map("completed_at")
+
+  // メタデータ
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  // リレーション
+  boardDecision     BoardDecision @relation(fields: [boardDecisionId], references: [id], onDelete: Cascade)
+
+  @@unique([boardDecisionId, facilityId])
+  @@index([boardDecisionId])
+  @@index([facilityId])
+  @@index([status])
+  @@map("board_decision_facility_implementations")
 }

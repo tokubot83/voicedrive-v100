@@ -41,14 +41,6 @@ export const MENU_STRUCTURE: MenuStructure = {
 
   // 管理機能ページ
   management: {
-    team: {
-      id: 'team_management',
-      label: 'チーム管理',
-      icon: '👥',
-      path: '/team-management',
-      requiredLevel: 2,
-      category: 'management'
-    },
     authority_basic: {
       id: 'authority_basic',
       label: '権限管理（基本）',
@@ -350,22 +342,6 @@ export const MENU_STRUCTURE: MenuStructure = {
       path: '/organization-analytics',
       requiredLevel: 11,
       category: 'executive'
-    },
-    board_reports: {
-      id: 'board_reports',
-      label: '全体会議レポート',
-      icon: '📋',
-      path: '/board-reports',
-      requiredLevel: 11,
-      category: 'executive'
-    },
-    governance: {
-      id: 'governance',
-      label: 'ガバナンス',
-      icon: '⚖️',
-      path: '/governance',
-      requiredLevel: 11,
-      category: 'executive'
     }
   }
 };
@@ -401,7 +377,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   2.5: { // 若手看護師（リーダー可）
     station: ['personal', 'leader'],
-    management: ['team'],
+    management: [],
     hr: [],
     strategic_hr: [],
     facility: [],
@@ -410,7 +386,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   3: { // 中堅（4-10年目）
     station: ['personal', 'leader'],
-    management: ['team'],
+    management: [],
     hr: [],
     strategic_hr: [],
     facility: [],
@@ -419,7 +395,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   3.5: { // 中堅看護師（リーダー可）
     station: ['personal', 'leader'],
-    management: ['team', 'authority_basic'],
+    management: ['authority_basic'],
     hr: [],
     strategic_hr: [],
     facility: [],
@@ -428,7 +404,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   4: { // ベテラン（11年以上）
     station: ['personal', 'leader'],
-    management: ['team', 'authority_basic'],
+    management: ['authority_basic'],
     hr: [],
     strategic_hr: [],
     facility: [],
@@ -437,7 +413,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   4.5: { // ベテラン看護師（リーダー可）
     station: ['personal', 'leader', 'department'],
-    management: ['team', 'authority_basic', 'department'],
+    management: ['authority_basic', 'department'],
     hr: [],
     strategic_hr: [],
     facility: [],
@@ -446,7 +422,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   5: { // 副主任
     station: ['personal', 'leader', 'department'],
-    management: ['team', 'authority_basic', 'department'],
+    management: ['authority_basic', 'department'],
     hr: [],
     strategic_hr: [],
     facility: [],
@@ -455,7 +431,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   6: { // 主任
     station: ['personal', 'leader', 'department'],
-    management: ['team', 'authority_basic', 'department'],
+    management: ['authority_basic', 'department'],
     hr: ['policy'],
     strategic_hr: [],
     facility: [],
@@ -464,7 +440,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   7: { // 副師長・副科長
     station: ['personal', 'leader', 'department'],
-    management: ['team', 'authority_basic', 'department', 'section'],
+    management: ['authority_basic', 'department', 'section'],
     hr: ['policy'],
     strategic_hr: [],
     facility: [],
@@ -473,7 +449,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   8: { // 師長・科長・課長
     station: ['personal', 'leader', 'department', 'section'],
-    management: ['team', 'authority_basic', 'department', 'section', 'budget'],
+    management: ['authority_basic', 'department', 'section', 'budget'],
     hr: ['policy'],
     strategic_hr: [],
     facility: [],
@@ -482,7 +458,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   9: { // 副部長
     station: ['personal', 'leader', 'department', 'section'],
-    management: ['team', 'authority_basic', 'department', 'section', 'budget'],
+    management: ['authority_basic', 'department', 'section', 'budget'],
     hr: ['policy'],
     strategic_hr: [],
     facility: ['own_facility'],
@@ -491,7 +467,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   10: { // 部長・医局長
     station: ['personal', 'leader', 'department', 'section'],
-    management: ['team', 'authority_basic', 'department', 'section', 'budget', 'users'],
+    management: ['authority_basic', 'department', 'section', 'budget', 'users'],
     hr: ['policy'],
     strategic_hr: [],
     facility: ['own_facility', 'own_strategy'],
@@ -500,7 +476,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   11: { // 事務長
     station: ['personal', 'leader', 'department', 'section'],
-    management: ['team', 'authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs'],
+    management: ['authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs'],
     hr: ['policy'],
     strategic_hr: [],
     facility: ['own_facility', 'own_strategy', 'own_budget'],
@@ -509,7 +485,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   12: { // 副院長
     station: ['personal', 'leader', 'department', 'section'],
-    management: ['team', 'authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs', 'system_settings'],
+    management: ['authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs', 'system_settings'],
     hr: ['policy'],
     strategic_hr: [],
     facility: ['own_facility', 'own_strategy', 'own_budget'],
@@ -518,7 +494,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   13: { // 院長・施設長
     station: ['personal', 'leader', 'department', 'section'],
-    management: ['team', 'authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs', 'system_settings'],
+    management: ['authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs', 'system_settings'],
     hr: ['policy'],
     strategic_hr: [],
     facility: ['own_facility', 'own_strategy', 'own_budget'],
@@ -572,7 +548,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
   },
   'X': { // システム管理者
     station: ['personal', 'leader', 'department', 'section'],
-    management: ['team', 'authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs', 'system_settings'],
+    management: ['authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'performance', 'retirement'],
     facility: ['all_facility', 'all_strategy', 'all_budget', 'own_facility', 'own_strategy', 'own_budget'],

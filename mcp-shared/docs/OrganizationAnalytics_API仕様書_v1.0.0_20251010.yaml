@@ -1,0 +1,720 @@
+openapi: 3.0.3
+info:
+  title: 医療職員管理システム - OrganizationAnalytics API
+  description: |
+    VoiceDrive組織分析ページ（OrganizationAnalytics）向けのAPI仕様書
+
+    ## 認証方式
+    - API Key認証（X-API-Keyヘッダー）
+    - VoiceDrive専用APIキーを使用
+
+    ## Rate Limit
+    - 100 req/min/IP
+    - 超過時は429 Too Many Requestsを返却
+
+    ## 関連ドキュメント
+    - [医療システム確認結果](./organization-analytics_医療システム確認結果_20251010.md)
+    - [VoiceDrive回答](./OrganizationAnalytics_API実装質問への回答_20251010.md)
+    - [質問書](./組織分析ページ_医療システムからの質問書.md)
+
+  version: 1.0.0
+  contact:
+    name: 医療職員管理システムチーム
+    email: medical-system-dev@example.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://medical.example.com/api/v2
+    description: 本番環境
+  - url: https://medical-staging.example.com/api/v2
+    description: ステージング環境
+  - url: http://localhost:3000/api/v2
+    description: ローカル開発環境
+
+tags:
+  - name: departments
+    description: 部門マスタ関連API
+  - name: employees
+    description: 職員情報関連API
+
+paths:
+  /departments:
+    get:
+      tags:
+        - departments
+      summary: 部門マスタ取得API
+      description: |
+        施設に紐づく部門リストを取得します。
+
+        ## 使用目的
+        - VoiceDrive OrganizationAnalyticsページの「部門別活性度」表示
+        - 各部門の投稿数・議題化数・活性度スコアの集計に使用
+
+        ## データソース
+        - Department テーブル（部門情報）
+        - Facility テーブル（施設情報）
+        - Employee テーブル（職員数集計）
+
+        ## 実装方式
+        - FacilityテーブルとJOINして施設名を取得
+        - Employeeテーブルから動的集計して職員数を計算
+        - 全部門を有効（isActive: true）として返却
+
+      operationId: getDepartments
+
+      parameters:
+        - name: facilityId
+          in: query
+          description: 施設ID（省略時は全施設の部門を返却）
+          required: false
+          schema:
+            type: string
+          example: tategami-hospital
+
+        - name: isActive
+          in: query
+          description: 有効/無効フィルタ（Phase 1では常にtrue）
+          required: false
+          schema:
+            type: boolean
+            default: true
+          example: true
+
+      responses:
+        '200':
+          description: 部門リスト取得成功
+          headers:
+            X-RateLimit-Limit:
+              description: Rate Limit上限
+              schema:
+                type: integer
+                example: 100
+            X-RateLimit-Remaining:
+              description: 残りリクエスト数
+              schema:
+                type: integer
+                example: 95
+            X-RateLimit-Reset:
+              description: Rate Limitリセット時刻（Unixタイムスタンプ）
+              schema:
+                type: integer
+                example: 1696934460
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentListResponse'
+              examples:
+                success:
+                  summary: 正常レスポンス例
+                  value:
+                    departments:
+                      - id: dept-001
+                        name: 医療療養病棟
+                        facilityId: tategami-hospital
+                        facilityName: 立神リハビリテーション温泉病院
+                        employeeCount: 45
+                        departmentCode: MTB
+                        isActive: true
+                        parentDepartmentId: null
+                        createdAt: "2024-01-01T00:00:00Z"
+                        updatedAt: "2025-10-01T00:00:00Z"
+                      - id: dept-002
+                        name: 回復期リハ病棟
+                        facilityId: tategami-hospital
+                        facilityName: 立神リハビリテーション温泉病院
+                        employeeCount: 38
+                        departmentCode: RHB
+                        isActive: true
+                        parentDepartmentId: null
+                        createdAt: "2024-01-01T00:00:00Z"
+                        updatedAt: "2025-10-01T00:00:00Z"
+                    totalCount: 15
+                    activeCount: 14
+                    retrievedAt: "2025-10-10T10:30:00Z"
+
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unauthorized:
+                  summary: 認証トークンが無効
+                  value:
+                    error:
+                      code: UNAUTHORIZED
+                      message: 認証トークンが無効です
+                      timestamp: "2025-10-10T10:30:00Z"
+
+        '403':
+          description: 認可エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+              examples:
+                forbidden:
+                  summary: Level 15未満のユーザー
+                  value:
+                    error:
+                      code: FORBIDDEN
+                      message: このAPIへのアクセス権限がありません（Level 15以上が必要）
+                      requiredLevel: 15
+                      currentLevel: 10
+                      timestamp: "2025-10-10T10:30:00Z"
+
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+              examples:
+                validation_error:
+                  summary: 不正な施設ID
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      message: リクエストパラメータが不正です
+                      details:
+                        - field: facilityId
+                          message: 施設IDが存在しません
+                      timestamp: "2025-10-10T10:30:00Z"
+
+        '429':
+          description: Rate Limit超過
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitErrorResponse'
+              examples:
+                rate_limit_exceeded:
+                  summary: Rate Limit超過
+                  value:
+                    error:
+                      code: RATE_LIMIT_EXCEEDED
+                      message: リクエスト数が制限を超えました
+                      limit: 100
+                      remaining: 0
+                      resetAt: "2025-10-10T10:31:00Z"
+                      timestamp: "2025-10-10T10:30:00Z"
+
+        '500':
+          description: サーバー内部エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+              examples:
+                internal_error:
+                  summary: サーバー内部エラー
+                  value:
+                    error:
+                      code: INTERNAL_SERVER_ERROR
+                      message: サーバー内部エラーが発生しました
+                      requestId: req-12345-abcde
+                      timestamp: "2025-10-10T10:30:00Z"
+
+      security:
+        - ApiKeyAuth: []
+
+  /employees/count:
+    get:
+      tags:
+        - employees
+      summary: 職員総数取得API
+      description: |
+        職員総数を取得します。
+
+        ## 使用目的
+        - VoiceDrive OrganizationAnalyticsページの「組織健康度指標」計算
+        - 声の活性度: (投稿数 ÷ 職員数) × 100
+        - 参加率: (投稿者数 ÷ 職員数) × 100
+
+        ## データソース
+        - Employee テーブル
+        - Department テーブル（部門別集計用）
+        - Facility テーブル（施設別集計用）
+
+        ## 実装方式（Phase 1）
+        - status IN ('active', 'leave')でカウント
+        - 退職者（status='retired'）は除外
+        - 雇用形態は区別しない（全職員をカウント）
+
+        ## 制約事項
+        - employmentTypeフィールドが存在しないため、雇用形態の区別不可
+        - 派遣職員・外部委託職員を除外できない
+        - Phase 2で対応予定（時期未定）
+
+      operationId: getEmployeeCount
+
+      parameters:
+        - name: facilityId
+          in: query
+          description: 施設ID（省略時は全施設の職員数を返却）
+          required: false
+          schema:
+            type: string
+          example: tategami-hospital
+
+        - name: departmentId
+          in: query
+          description: 部門ID（省略時は全部門の職員数を返却）
+          required: false
+          schema:
+            type: string
+          example: dept-001
+
+        - name: isActive
+          in: query
+          description: 有効な職員のみ（status='active'または'leave'）
+          required: false
+          schema:
+            type: boolean
+            default: true
+          example: true
+
+        - name: excludeRetired
+          in: query
+          description: 退職者を除外（status!='retired'）
+          required: false
+          schema:
+            type: boolean
+            default: true
+          example: true
+
+      responses:
+        '200':
+          description: 職員総数取得成功
+          headers:
+            X-RateLimit-Limit:
+              description: Rate Limit上限
+              schema:
+                type: integer
+                example: 100
+            X-RateLimit-Remaining:
+              description: 残りリクエスト数
+              schema:
+                type: integer
+                example: 95
+            X-RateLimit-Reset:
+              description: Rate Limitリセット時刻（Unixタイムスタンプ）
+              schema:
+                type: integer
+                example: 1696934460
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeCountResponse'
+              examples:
+                success:
+                  summary: 正常レスポンス例
+                  value:
+                    totalEmployees: 245
+                    byFacility:
+                      tategami-hospital: 120
+                      obara-hospital: 100
+                      headquarters: 25
+                    byDepartment:
+                      医療療養病棟: 45
+                      回復期リハ病棟: 38
+                      外来・健診センター: 28
+                      訪問看護: 25
+                      事務部門: 18
+                      リハビリ部門: 22
+                      その他: 69
+                    activeOnly: true
+                    excludeRetired: true
+                    calculatedAt: "2025-10-10T10:30:00Z"
+                    limitations:
+                      employmentTypeDistinction: false
+                      note: 全職員を同一カウント（雇用形態フィールド未実装）
+
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '403':
+          description: 認可エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+        '429':
+          description: Rate Limit超過
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitErrorResponse'
+
+        '500':
+          description: サーバー内部エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+      security:
+        - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: |
+        VoiceDrive専用APIキー
+
+        ## 発行・共有方法
+        1. 医療システム側でVoiceDrive用APIキーを発行
+        2. Slackの非公開チャンネルで共有
+        3. VoiceDrive側で環境変数 MEDICAL_SYSTEM_API_KEY に設定
+        4. 医療システム側で環境変数 VOICEDRIVE_API_KEY としてホワイトリスト管理
+
+        ## セキュリティ
+        - HTTPS通信必須
+        - APIキーは環境変数で管理（コードにハードコード禁止）
+        - 定期的なローテーション推奨（6ヶ月ごと）
+
+  schemas:
+    DepartmentListResponse:
+      type: object
+      required:
+        - departments
+        - totalCount
+        - activeCount
+        - retrievedAt
+      properties:
+        departments:
+          type: array
+          description: 部門リスト
+          items:
+            $ref: '#/components/schemas/Department'
+        totalCount:
+          type: integer
+          description: 総部門数
+          example: 15
+        activeCount:
+          type: integer
+          description: 有効部門数（Phase 1では常にtotalCountと同じ）
+          example: 14
+        retrievedAt:
+          type: string
+          format: date-time
+          description: データ取得日時（ISO 8601形式）
+          example: "2025-10-10T10:30:00Z"
+
+    Department:
+      type: object
+      required:
+        - id
+        - name
+        - facilityId
+        - facilityName
+        - employeeCount
+        - departmentCode
+        - isActive
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          description: 部門ID（一意識別子）
+          example: dept-001
+        name:
+          type: string
+          description: 部門名
+          example: 医療療養病棟
+        facilityId:
+          type: string
+          description: 施設ID
+          example: tategami-hospital
+        facilityName:
+          type: string
+          description: 施設名（FacilityテーブルからJOIN取得）
+          example: 立神リハビリテーション温泉病院
+        employeeCount:
+          type: integer
+          description: 所属職員数（動的集計、status='active'または'leave'）
+          example: 45
+        departmentCode:
+          type: string
+          description: 部門コード（unique）
+          example: MTB
+        isActive:
+          type: boolean
+          description: 有効/無効フラグ（Phase 1では常にtrue）
+          example: true
+        parentDepartmentId:
+          type: string
+          nullable: true
+          description: 親部門ID（階層構造、nullの場合はトップレベル部門）
+          example: null
+        createdAt:
+          type: string
+          format: date-time
+          description: 作成日時（ISO 8601形式）
+          example: "2024-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: 更新日時（ISO 8601形式）
+          example: "2025-10-01T00:00:00Z"
+
+    EmployeeCountResponse:
+      type: object
+      required:
+        - totalEmployees
+        - byFacility
+        - byDepartment
+        - activeOnly
+        - excludeRetired
+        - calculatedAt
+        - limitations
+      properties:
+        totalEmployees:
+          type: integer
+          description: 総職員数
+          example: 245
+        byFacility:
+          type: object
+          description: 施設別職員数（キー: facilityId）
+          additionalProperties:
+            type: integer
+          example:
+            tategami-hospital: 120
+            obara-hospital: 100
+            headquarters: 25
+        byDepartment:
+          type: object
+          description: 部門別職員数（キー: departmentName）
+          additionalProperties:
+            type: integer
+          example:
+            医療療養病棟: 45
+            回復期リハ病棟: 38
+            外来・健診センター: 28
+        activeOnly:
+          type: boolean
+          description: 有効な職員のみカウントしたか
+          example: true
+        excludeRetired:
+          type: boolean
+          description: 退職者を除外したか
+          example: true
+        calculatedAt:
+          type: string
+          format: date-time
+          description: 計算日時（ISO 8601形式）
+          example: "2025-10-10T10:30:00Z"
+        limitations:
+          $ref: '#/components/schemas/EmployeeCountLimitations'
+
+    EmployeeCountLimitations:
+      type: object
+      required:
+        - employmentTypeDistinction
+        - note
+      description: Phase 1の制約事項
+      properties:
+        employmentTypeDistinction:
+          type: boolean
+          description: 雇用形態の区別が可能か（Phase 1ではfalse）
+          example: false
+        note:
+          type: string
+          description: 制約内容の説明
+          example: 全職員を同一カウント（雇用形態フィールド未実装）
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+            - timestamp
+          properties:
+            code:
+              type: string
+              description: エラーコード
+              example: UNAUTHORIZED
+            message:
+              type: string
+              description: エラーメッセージ
+              example: 認証トークンが無効です
+            timestamp:
+              type: string
+              format: date-time
+              description: エラー発生日時（ISO 8601形式）
+              example: "2025-10-10T10:30:00Z"
+
+    ForbiddenErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+            - requiredLevel
+            - currentLevel
+            - timestamp
+          properties:
+            code:
+              type: string
+              description: エラーコード
+              example: FORBIDDEN
+            message:
+              type: string
+              description: エラーメッセージ
+              example: このAPIへのアクセス権限がありません（Level 15以上が必要）
+            requiredLevel:
+              type: integer
+              description: 必要な権限レベル
+              example: 15
+            currentLevel:
+              type: integer
+              description: 現在の権限レベル
+              example: 10
+            timestamp:
+              type: string
+              format: date-time
+              description: エラー発生日時（ISO 8601形式）
+              example: "2025-10-10T10:30:00Z"
+
+    ValidationErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+            - details
+            - timestamp
+          properties:
+            code:
+              type: string
+              description: エラーコード
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              description: エラーメッセージ
+              example: リクエストパラメータが不正です
+            details:
+              type: array
+              description: バリデーションエラー詳細
+              items:
+                type: object
+                required:
+                  - field
+                  - message
+                properties:
+                  field:
+                    type: string
+                    description: エラーフィールド名
+                    example: facilityId
+                  message:
+                    type: string
+                    description: エラー内容
+                    example: 施設IDが存在しません
+            timestamp:
+              type: string
+              format: date-time
+              description: エラー発生日時（ISO 8601形式）
+              example: "2025-10-10T10:30:00Z"
+
+    RateLimitErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+            - limit
+            - remaining
+            - resetAt
+            - timestamp
+          properties:
+            code:
+              type: string
+              description: エラーコード
+              example: RATE_LIMIT_EXCEEDED
+            message:
+              type: string
+              description: エラーメッセージ
+              example: リクエスト数が制限を超えました
+            limit:
+              type: integer
+              description: Rate Limit上限
+              example: 100
+            remaining:
+              type: integer
+              description: 残りリクエスト数（常に0）
+              example: 0
+            resetAt:
+              type: string
+              format: date-time
+              description: Rate Limitリセット日時（ISO 8601形式）
+              example: "2025-10-10T10:31:00Z"
+            timestamp:
+              type: string
+              format: date-time
+              description: エラー発生日時（ISO 8601形式）
+              example: "2025-10-10T10:30:00Z"
+
+    InternalErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+            - requestId
+            - timestamp
+          properties:
+            code:
+              type: string
+              description: エラーコード
+              example: INTERNAL_SERVER_ERROR
+            message:
+              type: string
+              description: エラーメッセージ
+              example: サーバー内部エラーが発生しました
+            requestId:
+              type: string
+              description: リクエストID（サーバーログとの紐付け用）
+              example: req-12345-abcde
+            timestamp:
+              type: string
+              format: date-time
+              description: エラー発生日時（ISO 8601形式）
+              example: "2025-10-10T10:30:00Z"

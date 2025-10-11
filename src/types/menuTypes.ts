@@ -27,11 +27,13 @@ export interface StationMenu {
 }
 
 export interface ManagementMenu {
-  team: MenuItem;          // チーム管理（レベル2〜）
   authority_basic: MenuItem;  // 権限管理（基本）（レベル2〜）
   department: MenuItem;    // 部門管理（レベル3〜）
   section: MenuItem;       // 部署管理（レベル4〜）
   budget: MenuItem;        // 予算管理（レベル4〜）
+  users: MenuItem;         // ユーザー管理（レベル5〜）
+  audit_logs: MenuItem;    // 監査ログ（レベル5〜）
+  system_settings: MenuItem; // システム設定（レベル6〜）
 }
 
 export interface HRMenu {
@@ -71,10 +73,8 @@ export interface AnalyticsMenu {
 
 export interface ExecutiveMenu {
   overview: MenuItem;         // 経営概要（レベル11〜）
-  strategic_initiatives: MenuItem; // 戦略イニシアチブ（レベル11〜）
-  organization_analytics: MenuItem; // 組織分析（レベル11〜）
-  board_reports: MenuItem;    // 全体会議レポート（レベル11〜）
-  governance: MenuItem;       // ガバナンス（レベル11〜）
+  strategic_initiatives: MenuItem; // 戦略イニシアチブ（レベル13〜プロジェクトモード）
+  organization_analytics: MenuItem; // 組織分析（レベル14〜両モード）
 }
 
 // 完全なメニュー構造
