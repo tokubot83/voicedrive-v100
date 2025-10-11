@@ -107,6 +107,10 @@ model User {
 
   // ProjectApproval統合実装（2025-10-11）
   projectApprovals            ProjectApproval[]               @relation("ProjectApprover")
+
+  // ProgressDashboard統合実装（2025-10-11）
+  projectMemberships          ProjectTeamMember[]             @relation("ProjectMemberships")
+  completedMilestones         ProjectMilestone[]              @relation("MilestoneCompletedBy")
 }
 
 model Notification {
@@ -549,6 +553,9 @@ model Post {
   @@index([authorId, type, createdAt])  // ProjectTracking: 提案したプロジェクト高速取得用（2025-10-11）
   @@index([approvalStatus, createdAt])  // ProjectApproval: 承認待ちプロジェクト高速取得用（2025-10-11）
   @@index([approvalStatus])              // ProjectApproval: 承認ステータスフィルタ用（2025-10-11）
+  @@index([type, status, createdAt])    // ProgressDashboard: プロジェクト一覧取得用（2025-10-11）
+  @@index([projectDueDate])              // ProgressDashboard: 期限ソート・遅延判定用（2025-10-11）
+  @@index([projectLevel])                // ProgressDashboard: レベル別フィルタリング用（2025-10-11）
 }
 
 // 投票（Vote）- 投稿に対する5段階投票
