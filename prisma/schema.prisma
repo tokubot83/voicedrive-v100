@@ -518,6 +518,11 @@ model Post {
   rejectedBy            String?   @map("rejected_by")
   rejectionReason       String?   @map("rejection_reason")
 
+  // ProgressDashboard統合実装（2025-10-11）
+  projectDueDate        DateTime? @map("project_due_date")      // プロジェクト期限
+  projectLevel          String?   @map("project_level")         // 'team' | 'department' | 'facility' | 'organization'
+  projectProgress       Int?      @default(0) @map("project_progress")  // 進捗率（0-100）
+
   // リレーション
   author                User      @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
   votes                 Vote[]
@@ -529,6 +534,10 @@ model Post {
 
   // CrossFacilityAnalysis統合実装（2025-10-11）
   successCases          CrossFacilitySuccessCase[]  @relation("SuccessCaseSource")
+
+  // ProgressDashboard統合実装（2025-10-11）
+  milestones            ProjectMilestone[]          @relation("ProjectMilestones")
+  teamMembers           ProjectTeamMember[]         @relation("ProjectTeamMembers")
 
   @@index([authorId])
   @@index([type])
@@ -2128,4 +2137,56 @@ model BoardDecisionFacilityImplementation {
   @@index([facilityId])
   @@index([status])
   @@map("board_decision_facility_implementations")
+}
+
+// ===================================
+// ProgressDashboard統合実装（2025-10-11）
+// ===================================
+
+// プロジェクトマイルストーン - プロジェクトの中間目標管理
+model ProjectMilestone {
+  id                String    @id @default(cuid())
+  projectId         String    @map("project_id")
+  title             String
+  description       String?   @db.Text
+  dueDate           DateTime  @map("due_date")
+  completedAt       DateTime? @map("completed_at")
+  completedBy       String?   @map("completed_by")
+  status            String    @default("pending") // 'pending' | 'in_progress' | 'completed' | 'cancelled'
+  order             Int       @default(0)
+
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  project           Post      @relation("ProjectMilestones", fields: [projectId], references: [id], onDelete: Cascade)
+  completedByUser   User?     @relation("MilestoneCompletedBy", fields: [completedBy], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("project_milestones")
+}
+
+// プロジェクトチームメンバー - プロジェクト参加者管理
+model ProjectTeamMember {
+  id                String    @id @default(cuid())
+  projectId         String    @map("project_id")
+  userId            String    @map("user_id")
+  role              String    @default("member") // 'leader' | 'sub_leader' | 'member' | 'observer'
+  joinedAt          DateTime  @default(now()) @map("joined_at")
+  leftAt            DateTime? @map("left_at")
+
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  project           Post      @relation("ProjectTeamMembers", fields: [projectId], references: [id], onDelete: Cascade)
+  user              User      @relation("ProjectMemberships", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+  @@index([role])
+  @@map("project_team_members")
 }
