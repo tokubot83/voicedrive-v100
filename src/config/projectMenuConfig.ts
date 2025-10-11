@@ -44,17 +44,6 @@ export const PROJECT_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'project'
   },
 
-  // チーム管理（レベル5+：副主任以上）
-  team_management: {
-    id: 'team_management',
-    title: 'チーム管理',
-    label: 'チーム管理',
-    icon: '👥',
-    path: '/team-management',
-    requiredLevel: 5,
-    category: 'project'
-  },
-
   // 進捗ダッシュボード（レベル5+）
   progress_dashboard: {
     id: 'progress_dashboard',
@@ -240,45 +229,45 @@ export const PROJECT_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
   4.5: ['idea_tracking', 'project_tracking', 'project_approval'],
 
   // レベル5：副主任
-  5: ['idea_tracking', 'project_tracking', 'project_approval', 'team_management', 'progress_dashboard'],
+  5: ['idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard'],
 
   // レベル6：主任
-  6: ['idea_tracking', 'project_tracking', 'project_approval', 'team_management', 'progress_dashboard'],
+  6: ['idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard'],
 
   // レベル7：副師長・副科長・副課長
-  7: ['idea_tracking', 'project_tracking', 'project_approval', 'team_management', 'progress_dashboard', 'milestone_management'],
+  7: ['idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard', 'milestone_management'],
 
   // レベル8：師長・科長・課長・室長
-  8: ['idea_tracking', 'project_tracking', 'project_approval', 'team_management', 'progress_dashboard', 'milestone_management'],
+  8: ['idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard', 'milestone_management'],
 
   // レベル9：副部長
   9: [
-    'idea_tracking', 'project_tracking', 'project_approval', 'team_management', 'progress_dashboard',
+    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
     'milestone_management', 'cross_department_project'
   ],
 
   // レベル10：部長・医局長
   10: [
-    'idea_tracking', 'project_tracking', 'project_approval', 'team_management', 'progress_dashboard',
+    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
     'milestone_management', 'cross_department_project', 'facility_project_management'
   ],
 
   // レベル11：事務長
   11: [
-    'idea_tracking', 'project_tracking', 'project_approval', 'team_management', 'progress_dashboard',
+    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
     'milestone_management', 'cross_department_project', 'facility_project_management', 'budget_management'
   ],
 
   // レベル12：副院長
   12: [
-    'idea_tracking', 'project_tracking', 'project_approval', 'team_management', 'progress_dashboard', 'milestone_management',
+    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard', 'milestone_management',
     'cross_department_project', 'facility_project_management', 'budget_management',
     'executive_dashboard', 'project_governance'
   ],
 
   // レベル13：院長・施設長
   13: [
-    'idea_tracking', 'project_tracking', 'project_approval', 'team_management', 'progress_dashboard', 'milestone_management',
+    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard', 'milestone_management',
     'cross_department_project', 'facility_project_management', 'budget_management',
     'executive_dashboard', 'project_governance', 'strategic_initiatives'
   ],

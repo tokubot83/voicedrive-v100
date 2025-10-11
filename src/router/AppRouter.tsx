@@ -623,6 +623,12 @@ const AppRouter: React.FC = () => {
         </ProtectedRoute>
       } />
 
+      <Route path="progress-dashboard" element={
+        <ProtectedRoute requiredLevel={5}>
+          {React.createElement(React.lazy(() => import('../pages/ProgressDashboardPage')))}
+        </ProtectedRoute>
+      } />
+
       {/* Auto Projectization (Level 3.5+) */}
       <Route path="auto-projectization" element={
         <ProtectedRoute requiredLevel={3.5}>
