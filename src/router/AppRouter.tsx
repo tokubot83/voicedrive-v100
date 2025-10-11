@@ -605,6 +605,12 @@ const AppRouter: React.FC = () => {
       } />
 
       {/* Project Mode Routes */}
+      <Route path="idea-tracking" element={
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_1}>
+          {React.createElement(React.lazy(() => import('../pages/IdeaVoiceTrackingPage')))}
+        </ProtectedRoute>
+      } />
+
       <Route path="project-tracking" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_1}>
           {React.createElement(React.lazy(() => import('../pages/ProjectTracking')))}

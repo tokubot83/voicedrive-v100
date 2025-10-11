@@ -37,7 +37,6 @@ const Layout: React.FC = () => {
     '/system-management',
     '/projects',
     '/dashboard/personal',
-    '/dashboard/team-leader',
     '/dashboard/department',
     '/dashboard/facility',
     '/dashboard/integrated-corporate',
@@ -73,7 +72,6 @@ const Layout: React.FC = () => {
     '/budget',
     '/budget-planning',
     '/facility-management',
-    '/team-management',
     '/org-development',
     '/admin',
     // ステーション系ページ
