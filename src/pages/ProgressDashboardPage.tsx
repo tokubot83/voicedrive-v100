@@ -6,8 +6,8 @@ import { DesktopFooter } from '../components/layout/DesktopFooter';
 import { TrendingUp, Calendar, Users, Target, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 
 /**
- * 進捗ダッシュボードページ（レベル5+）
- * プロジェクトの進捗状況を可視化
+ * 進捗ダッシュボードページ（レベル10+：部長以上）
+ * 複数部署・施設全体のプロジェクト進捗を俯瞰的に可視化
  */
 export const ProgressDashboardPage: React.FC = () => {
   const { currentUser: authUser } = useAuth();
@@ -60,7 +60,7 @@ export const ProgressDashboardPage: React.FC = () => {
           進捗ダッシュボード
         </h1>
         <p className="text-gray-300">
-          プロジェクトの進捗状況を確認
+          複数部署・施設全体のプロジェクト進捗を俯瞰的に管理（部長以上）
         </p>
       </div>
 

@@ -35,12 +35,13 @@ export interface ProjectResponsibility {
 
 /**
  * プロジェクトレベルごとの承認責任定義
+ * 2025-10-11更新: 組織階層に合わせて権限レベルを調整
  */
 export const PROJECT_RESPONSIBILITIES: ProjectResponsibility[] = [
   {
     projectLevel: 'PENDING',
-    minPermissionLevel: 3.5,  // 中堅リーダー以上
-    targetPermissionLevel: 3.5,
+    minPermissionLevel: 5,   // 副主任以上（代行）
+    targetPermissionLevel: 6, // 主任
     description: 'アイデア段階の提案を確認',
     label: 'アイデア検討中 (0-99点)',
     nextLevel: 'TEAM',
@@ -48,42 +49,42 @@ export const PROJECT_RESPONSIBILITIES: ProjectResponsibility[] = [
   },
   {
     projectLevel: 'TEAM',
-    minPermissionLevel: 5,   // 副主任以上
-    targetPermissionLevel: 5,
-    description: 'チームプロジェクトの開始を承認',
+    minPermissionLevel: 7,   // 副師長以上（代行）
+    targetPermissionLevel: 8, // 師長
+    description: 'チームプロジェクトの開始を承認（5-15名規模）',
     label: 'チームプロジェクト (100-199点)',
     nextLevel: 'DEPARTMENT',
     nextLevelThreshold: 200
   },
   {
     projectLevel: 'DEPARTMENT',
-    minPermissionLevel: 8,   // 師長以上
-    targetPermissionLevel: 8,
-    description: '部署プロジェクトの開始を承認',
+    minPermissionLevel: 9,   // 副部長以上（代行）
+    targetPermissionLevel: 10, // 部長
+    description: '部署横断プロジェクトの開始を承認（15-30名規模）',
     label: '部署プロジェクト (200-399点)',
     nextLevel: 'FACILITY',
     nextLevelThreshold: 400
   },
   {
     projectLevel: 'FACILITY',
-    minPermissionLevel: 10,  // 部長以上
-    targetPermissionLevel: 10,
-    description: '施設横断プロジェクトの開始を承認',
+    minPermissionLevel: 11,  // 事務長（代行なし）
+    targetPermissionLevel: 11, // 事務長
+    description: '施設横断プロジェクトの開始を承認（30-60名規模）',
     label: '施設プロジェクト (400-799点)',
     nextLevel: 'ORGANIZATION',
     nextLevelThreshold: 800
   },
   {
     projectLevel: 'ORGANIZATION',
-    minPermissionLevel: 13,  // 院長以上
-    targetPermissionLevel: 13,
-    description: '法人プロジェクトの開始を承認',
+    minPermissionLevel: 12,  // 副院長以上（代行）
+    targetPermissionLevel: 13, // 院長
+    description: '法人プロジェクトの開始を承認（60名以上規模）',
     label: '法人プロジェクト (800点以上)'
   },
   {
     projectLevel: 'STRATEGIC',
-    minPermissionLevel: 18,  // 理事長
-    targetPermissionLevel: 18,
+    minPermissionLevel: 18,  // 理事長（代行なし）
+    targetPermissionLevel: 18, // 理事長
     description: '戦略プロジェクトの承認',
     label: '戦略プロジェクト'
   }

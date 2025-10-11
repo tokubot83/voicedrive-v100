@@ -618,13 +618,13 @@ const AppRouter: React.FC = () => {
       } />
 
       <Route path="project-approval" element={
-        <ProtectedRoute requiredLevel={3.5}>
+        <ProtectedRoute requiredLevel={6}>
           {React.createElement(React.lazy(() => import('../pages/ProjectApprovalPage')))}
         </ProtectedRoute>
       } />
 
       <Route path="progress-dashboard" element={
-        <ProtectedRoute requiredLevel={5}>
+        <ProtectedRoute requiredLevel={10}>
           {React.createElement(React.lazy(() => import('../pages/ProgressDashboardPage')))}
         </ProtectedRoute>
       } />

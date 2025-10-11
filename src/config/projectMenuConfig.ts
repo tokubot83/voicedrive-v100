@@ -33,25 +33,25 @@ export const PROJECT_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'project'
   },
 
-  // プロジェクト承認（レベル3.5+：中堅リーダー以上）
+  // プロジェクト承認（レベル6+：主任以上）
   project_approval: {
     id: 'project_approval',
     title: 'プロジェクト承認',
     label: 'プロジェクト承認',
     icon: '✅',
     path: '/project-approval',
-    requiredLevel: 3.5,
+    requiredLevel: 6,
     category: 'project'
   },
 
-  // 進捗ダッシュボード（レベル5+）
+  // 進捗ダッシュボード（レベル10+：部長以上）
   progress_dashboard: {
     id: 'progress_dashboard',
     title: '進捗ダッシュボード',
     label: '進捗ダッシュボード',
     icon: '📈',
     path: '/progress-dashboard',
-    requiredLevel: 5,
+    requiredLevel: 10,
     category: 'project'
   },
 
@@ -220,29 +220,29 @@ export const PROJECT_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
   3: ['idea_tracking', 'project_tracking'],
 
   // レベル3.5：中堅看護師（リーダー可）
-  3.5: ['idea_tracking', 'project_tracking', 'project_approval'],
+  3.5: ['idea_tracking', 'project_tracking'],
 
   // レベル4：ベテラン（11年以上）
-  4: ['idea_tracking', 'project_tracking', 'project_approval'],
+  4: ['idea_tracking', 'project_tracking'],
 
   // レベル4.5：ベテラン看護師（リーダー可）
-  4.5: ['idea_tracking', 'project_tracking', 'project_approval'],
+  4.5: ['idea_tracking', 'project_tracking'],
 
   // レベル5：副主任
-  5: ['idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard'],
+  5: ['idea_tracking', 'project_tracking'],
 
   // レベル6：主任
-  6: ['idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard'],
+  6: ['idea_tracking', 'project_tracking', 'project_approval'],
 
   // レベル7：副師長・副科長・副課長
-  7: ['idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard', 'milestone_management'],
+  7: ['idea_tracking', 'project_tracking', 'project_approval', 'milestone_management'],
 
   // レベル8：師長・科長・課長・室長
-  8: ['idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard', 'milestone_management'],
+  8: ['idea_tracking', 'project_tracking', 'project_approval', 'milestone_management'],
 
   // レベル9：副部長
   9: [
-    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
+    'idea_tracking', 'project_tracking', 'project_approval',
     'milestone_management', 'cross_department_project'
   ],
 
