@@ -111,6 +111,9 @@ model User {
   // ProgressDashboard統合実装（2025-10-11）
   projectMemberships          ProjectTeamMember[]             @relation("ProjectMemberships")
   completedMilestones         ProjectMilestone[]              @relation("MilestoneCompletedBy")
+
+  // OrganizationStructure統合実装（2025-10-12）
+  votingGroupsAsPrimaryApprover VotingGroup[]                 @relation("VotingGroupPrimaryApprover")
 }
 
 model Notification {
@@ -2265,6 +2268,11 @@ model VotingGroup {
   agendaModeEnabled Boolean  @default(true)
   projectModeEnabled Boolean @default(true)
   isActive          Boolean  @default(true)
+
+  // 承認者管理（投票グループ統合時の承認者指定）
+  primaryApproverId String?  @map("primary_approver_id")  // 代表承認者のユーザーID
+  approverRotation  Json?    @map("approver_rotation")    // ローテーション設定
+
   metadata          Json?
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
@@ -2275,9 +2283,11 @@ model VotingGroup {
   members           OrganizationStructure[] @relation("GroupMembers")
   agendaModeGroupConfig AgendaModeGroupConfig?
   projectModeGroupConfig ProjectModeGroupConfig?
+  primaryApprover   User?    @relation("VotingGroupPrimaryApprover", fields: [primaryApproverId], references: [id], onDelete: SetNull)
 
   @@index([groupId])
   @@index([facilityCode])
+  @@index([primaryApproverId])
   @@map("voting_groups")
 }
 
