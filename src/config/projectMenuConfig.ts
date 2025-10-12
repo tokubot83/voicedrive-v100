@@ -55,105 +55,6 @@ export const PROJECT_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'project'
   },
 
-  // エグゼクティブダッシュボード（レベル12+：副院長以上）
-  executive_dashboard: {
-    id: 'executive_dashboard',
-    title: 'エグゼクティブダッシュボード',
-    label: 'エグゼクティブダッシュボード',
-    icon: '📊',
-    path: '/executive-dashboard',
-    requiredLevel: 12,
-    category: 'project'
-  },
-
-  // プロジェクトガバナンス（レベル12+）
-  project_governance: {
-    id: 'project_governance',
-    title: 'プロジェクトガバナンス',
-    label: 'プロジェクトガバナンス',
-    icon: '⚖️',
-    path: '/project-governance',
-    requiredLevel: 12,
-    category: 'project'
-  },
-
-  // 戦略イニシアチブ（レベル13+：院長以上）
-  strategic_initiatives: {
-    id: 'strategic_initiatives',
-    title: '戦略イニシアチブ',
-    label: '戦略イニシアチブ',
-    icon: '🎯',
-    path: '/strategic-initiatives',
-    requiredLevel: 13,
-    category: 'project'
-  },
-
-  // 組織分析（レベル14+：人事部門員以上）
-  organization_analytics: {
-    id: 'organization_analytics',
-    title: '組織分析',
-    label: '組織分析',
-    icon: '📊',
-    path: '/organization-analytics',
-    requiredLevel: 14,
-    category: 'project'
-  },
-
-  // 人材開発プロジェクト（レベル15+：人事各部門長以上）
-  talent_development_project: {
-    id: 'talent_development_project',
-    title: '人材開発プロジェクト',
-    label: '人材開発プロジェクト',
-    icon: '🌱',
-    path: '/talent-development-project',
-    requiredLevel: 15,
-    category: 'project'
-  },
-
-  // 戦略的HR計画（レベル16+：戦略企画部門員以上）
-  strategic_hr_plan: {
-    id: 'strategic_hr_plan',
-    title: '戦略的HR計画',
-    label: '戦略的HR計画',
-    icon: '📈',
-    path: '/strategic-hr-plan',
-    requiredLevel: 16,
-    category: 'project'
-  },
-
-  // 法人プロジェクト管理（レベル17+：統括管理部門長以上）
-  corporate_project_management: {
-    id: 'corporate_project_management',
-    title: '法人プロジェクト管理',
-    label: '法人プロジェクト管理',
-    icon: '🏛️',
-    path: '/corporate-project-management',
-    requiredLevel: 17,
-    category: 'project'
-  },
-
-  // 理事会プロジェクト（レベル18：理事長専用）
-  board_projects: {
-    id: 'board_projects',
-    title: '理事会プロジェクト',
-    label: '理事会プロジェクト',
-    icon: '🏛️',
-    path: '/board-projects',
-    requiredLevel: 18,
-    category: 'project'
-  },
-
-  // 最終承認（レベル18）
-  final_approval: {
-    id: 'final_approval',
-    title: '最終承認',
-    label: '最終承認',
-    icon: '✅',
-    path: '/final-approval',
-    requiredLevel: 18,
-    category: 'project'
-  },
-
   // 緊急アカウント停止（レベル14-17専用）
   emergency_account_deactivation: {
     id: 'emergency_account_deactivation',
@@ -223,42 +124,37 @@ export const PROJECT_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
 
   // レベル12：副院長
   12: [
-    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
-    'executive_dashboard', 'project_governance'
+    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard'
   ],
 
   // レベル13：院長・施設長
   13: [
-    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
-    'executive_dashboard', 'project_governance', 'strategic_initiatives'
+    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard'
   ],
 
   // レベル14：人事部門員
   14: [
-    'idea_tracking', 'project_tracking', 'organization_analytics', 'emergency_account_deactivation'
+    'idea_tracking', 'project_tracking', 'emergency_account_deactivation'
   ],
 
   // レベル15：人事各部門長
   15: [
-    'idea_tracking', 'project_tracking', 'organization_analytics', 'talent_development_project', 'emergency_account_deactivation'
+    'idea_tracking', 'project_tracking', 'emergency_account_deactivation'
   ],
 
   // レベル16：戦略企画・統括管理部門員
   16: [
-    'idea_tracking', 'project_tracking', 'organization_analytics', 'talent_development_project',
-    'strategic_hr_plan', 'emergency_account_deactivation'
+    'idea_tracking', 'project_tracking', 'emergency_account_deactivation'
   ],
 
   // レベル17：戦略企画・統括管理部門長
   17: [
-    'idea_tracking', 'project_tracking', 'organization_analytics', 'talent_development_project',
-    'strategic_hr_plan', 'corporate_project_management', 'emergency_account_deactivation'
+    'idea_tracking', 'project_tracking', 'emergency_account_deactivation'
   ],
 
   // レベル18：理事長・法人事務局長
   18: [
-    'idea_tracking', 'project_tracking', 'executive_dashboard', 'project_governance',
-    'strategic_initiatives', 'board_projects', 'final_approval'
+    'idea_tracking', 'project_tracking'
   ],
 
   // レベルX：システム管理者（全アクセス）
