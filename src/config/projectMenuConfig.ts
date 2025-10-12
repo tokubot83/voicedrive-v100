@@ -55,18 +55,6 @@ export const PROJECT_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'project'
   },
 
-  // 施設プロジェクト管理（レベル10+：部長以上）
-  facility_project_management: {
-    id: 'facility_project_management',
-    title: '施設プロジェクト管理',
-    label: '施設プロジェクト管理',
-    icon: '🏢',
-    path: '/facility-project-management',
-    requiredLevel: 10,
-    category: 'project'
-  },
-
-
   // エグゼクティブダッシュボード（レベル12+：副院長以上）
   executive_dashboard: {
     id: 'executive_dashboard',
@@ -225,27 +213,23 @@ export const PROJECT_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
 
   // レベル10：部長・医局長
   10: [
-    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
-    'facility_project_management'
+    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard'
   ],
 
   // レベル11：事務長
   11: [
-    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
-    'facility_project_management', 'budget_management'
+    'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard'
   ],
 
   // レベル12：副院長
   12: [
     'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
-    'facility_project_management', 'budget_management',
     'executive_dashboard', 'project_governance'
   ],
 
   // レベル13：院長・施設長
   13: [
     'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
-    'facility_project_management', 'budget_management',
     'executive_dashboard', 'project_governance', 'strategic_initiatives'
   ],
 
