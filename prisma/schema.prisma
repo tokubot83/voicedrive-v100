@@ -278,7 +278,7 @@ model AuditLog {
   // 緊急停止専用フィールド（account-deactivation統合 2025-10-10）
   executorLevel      Float?    @map("executor_level")
   targetUserId       String?   @map("target_user_id")
-  reason             String?   @db.Text
+  reason             String?   
   isEmergencyAction  Boolean   @default(false) @map("is_emergency_action")
   syncPending        Boolean   @default(false) @map("sync_pending")
 
@@ -870,7 +870,7 @@ model ManagementCommitteeAgenda {
   implementationNotes     String?    @map("implementation_notes")
 
   // 🆕 影響度評価（Executive Reports用 - 2025-10-10）
-  impactAssessment        String?    @db.Text @map("impact_assessment")  // "採用目標達成率20%向上見込み"
+  impactAssessment        String?     @map("impact_assessment")  // "採用目標達成率20%向上見込み"
   impactCategory          String?    @map("impact_category")              // "cost_reduction", "efficiency", "satisfaction"
   estimatedImpact         Float?     @map("estimated_impact")             // 数値化された影響度（%）
 
@@ -1459,7 +1459,7 @@ model EmergencyDeactivation {
   executorEmployeeId  String?   @map("executor_employee_id")
   executorName        String?   @map("executor_name")
   executorLevel       Float     @map("executor_level")
-  reason              String    @db.Text
+  reason              String    
   timestamp           DateTime  @default(now())
   isEmergency         Boolean   @default(true) @map("is_emergency")
   syncToStaffSystem   Boolean   @default(false) @map("sync_to_staff_system")
@@ -1508,7 +1508,7 @@ model StaffSystemSyncQueue {
 
   // エラー情報
   errorMessage          String?   @map("error_message")
-  errorStack            String?   @db.Text @map("error_stack")
+  errorStack            String?    @map("error_stack")
 
   // 関連レコード
   relatedDeactivationId String?   @map("related_deactivation_id")
@@ -1534,7 +1534,7 @@ model ReportTemplate {
   id                  String    @id @default(cuid())
   templateKey         String    @unique @map("template_key")   // "monthly_summary", "quarterly_hr"
   title               String
-  description         String    @db.Text
+  description         String    
   category            String                                    // "monthly", "quarterly", "board"
   icon                String?                                   // アイコン名
 
@@ -1589,7 +1589,7 @@ model GeneratedReport {
   lastAccessedAt      DateTime? @map("last_accessed_at")
 
   // エラー情報
-  errorMessage        String?   @db.Text @map("error_message")
+  errorMessage        String?    @map("error_message")
 
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @updatedAt @map("updated_at")
@@ -1649,7 +1649,7 @@ model ReportAccessLog {
 
   // デバイス情報
   ipAddress           String?   @map("ip_address")
-  userAgent           String?   @db.Text @map("user_agent")
+  userAgent           String?    @map("user_agent")
 
   // リレーション
   report              GeneratedReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
@@ -1669,7 +1669,7 @@ model BoardMeetingAgenda {
 
   // 議題情報
   item                String
-  description         String?   @db.Text
+  description         String?   
   category            String                                      // "hr_strategy", "financial", "operational"
 
   // 発表情報
@@ -1730,8 +1730,8 @@ model StrategicInsight {
 
   // インサイト内容
   title               String
-  summary             String    @db.Text
-  details             String?   @db.Text
+  summary             String    
+  details             String?   
 
   // 根拠データ
   evidenceData        Json      @map("evidence_data")             // { avgDays: 35, department: "医療療養病棟" }
@@ -1748,7 +1748,7 @@ model StrategicInsight {
   approvedAt          DateTime? @map("approved_at")
 
   // 実装追跡
-  actionTaken         String?   @db.Text @map("action_taken")
+  actionTaken         String?    @map("action_taken")
   implementedAt       DateTime? @map("implemented_at")
 
   // AI分析情報
@@ -1817,7 +1817,7 @@ model BoardAgendaCandidateSelection {
   // 選定情報
   selectedAt          DateTime  @default(now()) @map("selected_at")
   selectedBy          String    @map("selected_by")                // User ID
-  selectionReason     String?   @db.Text @map("selection_reason")
+  selectionReason     String?    @map("selection_reason")
   isFinalized         Boolean   @default(false) @map("is_finalized")
 
   // ステータス変更履歴
@@ -1843,18 +1843,18 @@ model ChairmanProposal {
 
   // 提案情報
   title               String
-  description         String    @db.Text
-  impact              String    @db.Text                          // 期待効果
+  description         String    
+  impact              String                              // 期待効果
   requiredBudget      String                                      // "約800万円"
-  budgetAmount        Decimal?  @db.Decimal(15, 2)               // 数値（集計用）
-  timeline            String    @db.Text                          // "2026年1月準備開始、4月本格運用"
+  budgetAmount        Decimal?                 // 数値（集計用）
+  timeline            String                              // "2026年1月準備開始、4月本格運用"
 
   // ステータス
   status              String    @default("draft")                 // "draft", "pending_review", "approved", "rejected", "implemented"
   submittedAt         DateTime? @map("submitted_at")
   reviewedAt          DateTime? @map("reviewed_at")
   reviewedBy          String?   @map("reviewed_by")               // User ID（理事長）
-  reviewComments      String?   @db.Text @map("review_comments")
+  reviewComments      String?    @map("review_comments")
 
   // 関連
   relatedBoardMeetingId String? @map("related_board_meeting_id")
@@ -2056,8 +2056,8 @@ model BoardDecision {
   // 決定事項情報
   title                   String
   category                String    // "システム導入", "人事制度", "IT・システム", "人材育成"
-  description             String    @db.Text
-  decision                String    @db.Text  // 理事会決定内容
+  description             String    
+  decision                String      // 理事会決定内容
 
   // 実施情報
   implementationDeadline  DateTime  @map("implementation_deadline")
@@ -2155,7 +2155,7 @@ model ProjectMilestone {
   id                String    @id @default(cuid())
   projectId         String    @map("project_id")
   title             String
-  description       String?   @db.Text
+  description       String?   
   dueDate           DateTime  @map("due_date")
   completedAt       DateTime? @map("completed_at")
   completedBy       String?   @map("completed_by")
@@ -2196,4 +2196,195 @@ model ProjectTeamMember {
   @@index([userId])
   @@index([role])
   @@map("project_team_members")
+}
+
+// ===================================
+// 組織構造拡張（2025-10-12）
+// 議題モード・プロジェクトモード共通基盤
+// ===================================
+
+// 施設マスター - 病院・施設の基本情報管理
+model Facility {
+  id                String   @id @default(cuid())
+  facilityCode      String   @unique
+  facilityName      String
+  facilityType      String
+  totalStaffCount   Int      @default(0)
+  totalBedCount     Int?
+  address           String?
+  establishedYear   Int?
+  corporationId     String
+  isActive          Boolean  @default(true)
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  organizations     OrganizationStructure[]
+  votingGroups      VotingGroup[]
+
+  @@index([facilityCode])
+  @@index([corporationId])
+  @@map("facilities")
+}
+
+// 組織構造マスター - 部門・セクションの階層構造管理
+model OrganizationStructure {
+  id                String   @id @default(cuid())
+  facilityCode      String
+  departmentId      String   @unique
+  departmentName    String
+  departmentType    String
+  sectionId         String?
+  sectionName       String?
+  votingGroupId     String?
+  isActive          Boolean  @default(true)
+  sortOrder         Int      @default(0)
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  facility          Facility @relation(fields: [facilityCode], references: [facilityCode], onDelete: Cascade)
+  votingGroup       VotingGroup? @relation("GroupMembers", fields: [votingGroupId], references: [groupId], onDelete: SetNull)
+  agendaModeConfig  AgendaModeConfig?
+  projectModeConfig ProjectModeConfig?
+
+  @@index([facilityCode])
+  @@index([departmentId])
+  @@index([votingGroupId])
+  @@map("organization_structures")
+}
+
+// 投票グループ - 小規模部門の統合投票単位
+model VotingGroup {
+  id                String   @id @default(cuid())
+  groupId           String   @unique
+  groupName         String
+  memberDepartmentIds Json
+  agendaModeEnabled Boolean  @default(true)
+  projectModeEnabled Boolean @default(true)
+  isActive          Boolean  @default(true)
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  facility          Facility @relation(fields: [facilityCode], references: [facilityCode], onDelete: Cascade)
+  facilityCode      String
+  members           OrganizationStructure[] @relation("GroupMembers")
+  agendaModeGroupConfig AgendaModeGroupConfig?
+  projectModeGroupConfig ProjectModeGroupConfig?
+
+  @@index([groupId])
+  @@index([facilityCode])
+  @@map("voting_groups")
+}
+
+// 議題モード設定 - 部門別の議題システム設定
+model AgendaModeConfig {
+  id                String   @id @default(cuid())
+  departmentId      String   @unique
+  pending           Int      @default(30)
+  deptReview        Int      @default(50)
+  deptAgenda        Int      @default(100)
+  facilityAgenda    Int      @default(300)
+  corpReview        Int      @default(600)
+  corpAgenda        Int      @default(1000)
+  votingScopeRules  Json
+  committeeSubmissionEnabled Boolean @default(true)
+  committeeSubmissionThreshold Int @default(100)
+  isActive          Boolean  @default(true)
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  department        OrganizationStructure @relation(fields: [departmentId], references: [departmentId], onDelete: Cascade)
+
+  @@index([departmentId])
+  @@map("agenda_mode_configs")
+}
+
+// 議題モードグループ設定 - 投票グループ用の議題設定
+model AgendaModeGroupConfig {
+  id                String   @id @default(cuid())
+  groupId           String   @unique
+  pending           Int      @default(30)
+  deptReview        Int      @default(50)
+  deptAgenda        Int      @default(100)
+  facilityAgenda    Int      @default(300)
+  corpReview        Int      @default(600)
+  corpAgenda        Int      @default(1000)
+  votingScopeRules  Json
+  committeeSubmissionEnabled Boolean @default(true)
+  committeeSubmissionThreshold Int @default(100)
+  isActive          Boolean  @default(true)
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  votingGroup       VotingGroup @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+
+  @@index([groupId])
+  @@map("agenda_mode_group_configs")
+}
+
+// プロジェクトモード設定 - 部門別のプロジェクト化設定
+model ProjectModeConfig {
+  id                String   @id @default(cuid())
+  departmentId      String   @unique
+  projectUpgradeThreshold Int @default(400)
+  teamFormationRules Json
+  milestoneRequired Boolean  @default(true)
+  progressReportFrequency String @default("weekly")
+  isActive          Boolean  @default(true)
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  department        OrganizationStructure @relation(fields: [departmentId], references: [departmentId], onDelete: Cascade)
+
+  @@index([departmentId])
+  @@map("project_mode_configs")
+}
+
+// プロジェクトモードグループ設定 - 投票グループ用のプロジェクト設定
+model ProjectModeGroupConfig {
+  id                String   @id @default(cuid())
+  groupId           String   @unique
+  projectUpgradeThreshold Int @default(400)
+  teamFormationRules Json
+  milestoneRequired Boolean  @default(true)
+  progressReportFrequency String @default("weekly")
+  isActive          Boolean  @default(true)
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  votingGroup       VotingGroup @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+
+  @@index([groupId])
+  @@map("project_mode_group_configs")
+}
+
+// 職種マスター - 職種・資格情報管理
+model JobCategory {
+  id                String   @id @default(cuid())
+  jobCategoryCode   String   @unique
+  jobCategoryName   String
+  jobCategoryGroup  String
+  requiresLicense   Boolean  @default(false)
+  sortOrder         Int      @default(0)
+  isActive          Boolean  @default(true)
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([jobCategoryCode])
+  @@index([jobCategoryGroup])
+  @@map("job_categories")
 }

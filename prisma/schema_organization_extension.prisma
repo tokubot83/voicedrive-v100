@@ -1,0 +1,511 @@
+// ============================================================
+// VoiceDrive 組織構造拡張スキーマ
+// 目的: 議題モードとプロジェクトモードの共通組織基盤
+// 作成日: 2025-10-12
+// ============================================================
+
+// ============================================================
+// 1. 施設マスター（Facility）
+// ============================================================
+
+model Facility {
+  id                String   @id @default(cuid())
+
+  // 施設情報
+  facilityCode      String   @unique              // "kobara_hospital", "tategami_rehab"
+  facilityName      String                        // "小原病院", "立神リハビリテーション温泉病院"
+  facilityType      String                        // "hospital", "clinic", "rehab_facility"
+
+  // 法人情報
+  corporationId     String                        // "espoir_medical_group"
+  corporationName   String                        // "エスポワール医療グループ"
+
+  // 住所・連絡先
+  address           String?
+  phoneNumber       String?
+
+  // 施設規模
+  totalStaffCount   Int      @default(0)
+  totalBedCount     Int?                          // 病床数（病院の場合）
+
+  // メタ情報
+  isActive          Boolean  @default(true)
+  displayOrder      Int      @default(0)
+  createdBy         String                        // "LEVEL_99"
+  updatedBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // リレーション
+  departments       OrganizationStructure[]       // 所属部門
+  votingGroups      VotingGroup[]                 // 投票グループ
+  users             User[]                        // 所属職員
+  posts             Post[]                        // 投稿
+
+  @@index([facilityCode])
+  @@index([corporationId, isActive])
+  @@map("facilities")
+}
+
+// ============================================================
+// 2. 組織構造マスター（OrganizationStructure）
+// ============================================================
+
+model OrganizationStructure {
+  id                String   @id @default(cuid())
+
+  // ========== 施設情報 ==========
+  facilityId        String
+  facilityCode      String                        // キャッシュ
+  facility          Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  // ========== 部門情報 ==========
+  departmentId      String   @unique              // "nursing_dept_kobara"
+  departmentCode    String                        // "nursing_dept"
+  departmentName    String                        // "看護部"
+  departmentType    String                        // "clinical", "administrative", "support"
+
+  // ========== セクション情報（任意） ==========
+  sectionId         String?  @unique              // "ward_3f_kobara"
+  sectionCode       String?                       // "ward_3f"
+  sectionName       String?                       // "3階病棟"
+  sectionType       String?                       // "inpatient", "outpatient", "rehab"
+
+  // ========== 組織階層 ==========
+  parentDeptId      String?                       // 上位組織のdepartmentId
+  parentDepartment  OrganizationStructure? @relation("OrgHierarchy", fields: [parentDeptId], references: [departmentId], onDelete: SetNull)
+  childDepartments  OrganizationStructure[] @relation("OrgHierarchy")
+
+  level             Int                            // 1=施設, 2=部門, 3=セクション, 4=チーム
+  hierarchyPath     String?                        // "kobara/nursing/ward_3f"
+
+  // ========== 人数情報 ==========
+  staffCount        Int      @default(0)          // 所属人数
+
+  // ========== 投票グループ（任意） ==========
+  votingGroupId     String?
+  votingGroup       VotingGroup? @relation("GroupMembers", fields: [votingGroupId], references: [groupId], onDelete: SetNull)
+
+  // ========== メタ情報 ==========
+  description       String?                       // "看護部の組織説明"
+  isActive          Boolean  @default(true)
+  displayOrder      Int      @default(0)
+  createdBy         String                        // "LEVEL_99"
+  updatedBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // ========== リレーション ==========
+  // ユーザー
+  primaryUsers      User[]   @relation("UserPrimaryDept")
+  primarySectionUsers User[] @relation("UserPrimarySection")
+
+  // 投稿
+  authorDepartmentPosts Post[] @relation("PostAuthorDept")
+  authorSectionPosts    Post[] @relation("PostAuthorSection")
+
+  // モード別設定
+  agendaModeConfig   AgendaModeConfig?
+  projectModeConfig  ProjectModeConfig?
+
+  @@index([facilityId, departmentId])
+  @@index([departmentId, isActive])
+  @@index([votingGroupId])
+  @@index([parentDeptId])
+  @@map("organization_structures")
+}
+
+// ============================================================
+// 3. 投票グループ（VotingGroup）
+// ============================================================
+
+model VotingGroup {
+  id                String   @id @default(cuid())
+
+  // グループ情報
+  groupId           String   @unique              // "medical_support_group_kobara"
+  groupCode         String                        // "medical_support_group"
+  groupName         String                        // "診療・薬剤・事務グループ"
+  groupDisplayName  String                        // "診療支援・薬剤・事務部"
+
+  // 施設
+  facilityId        String
+  facility          Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  // 所属部門（JSON配列）
+  memberDepartmentIds Json                        // ["diagnostic_support", "pharmacy", "admin"]
+  memberDepartments   OrganizationStructure[] @relation("GroupMembers")
+
+  // 合計人数
+  totalStaffCount   Int      @default(0)
+
+  // モード別の有効化
+  agendaModeEnabled   Boolean  @default(true)
+  projectModeEnabled  Boolean  @default(true)
+
+  // グループタイプ
+  groupType         String   @default("standard") // "standard", "small_dept_merged", "facility_wide"
+
+  // メタ情報
+  description       String?                       // "人数の関係で統合運用"
+  reason            String?                       // "少人数部門の統合"
+  isActive          Boolean  @default(true)
+  createdBy         String
+  updatedBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // リレーション
+  users             User[]                        // 所属ユーザー
+  posts             Post[]                        // 投稿
+
+  // モード別設定
+  agendaModeGroupConfig   AgendaModeGroupConfig?
+  projectModeGroupConfig  ProjectModeGroupConfig?
+
+  @@index([facilityId, isActive])
+  @@index([groupId])
+  @@index([groupType])
+  @@map("voting_groups")
+}
+
+// ============================================================
+// 4. 議題モード設定（部門別）
+// ============================================================
+
+model AgendaModeConfig {
+  id                String   @id @default(cuid())
+
+  departmentId      String   @unique
+  department        OrganizationStructure @relation(fields: [departmentId], references: [departmentId], onDelete: Cascade)
+
+  // スコア閾値
+  scoreThresholds   Json                          // { pending: 30, deptReview: 50, deptAgenda: 50, facilityAgenda: 100, corpReview: 300, corpAgenda: 600 }
+
+  // 投票スコープルール
+  votingScopeRules  Json                          // { scopeType: "location_based" | "profession_based", rules: [...] }
+
+  // 委員会連携設定
+  committeeSettings Json?                         // { autoSubmit: true, targetCommittee: "operations_committee", submitThreshold: 100 }
+
+  // 承認フロー
+  approvalFlow      Json?                         // { levels: [5, 6, 8], ... }
+
+  // 通知設定
+  notificationSettings Json?                      // { enableAutoNotify: true, ... }
+
+  // メタ情報
+  isActive          Boolean  @default(true)
+  createdBy         String
+  updatedBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([departmentId, isActive])
+  @@map("agenda_mode_configs")
+}
+
+// ============================================================
+// 5. 議題モード設定（グループ別）
+// ============================================================
+
+model AgendaModeGroupConfig {
+  id                String   @id @default(cuid())
+
+  votingGroupId     String   @unique
+  votingGroup       VotingGroup @relation(fields: [votingGroupId], references: [groupId], onDelete: Cascade)
+
+  // グループ全体のスコア閾値
+  groupScoreThresholds Json                       // { pending: 30, deptReview: 50, ... }
+
+  // 投票スコープルール
+  votingScopeRules  Json                          // { scopeType: "voting_group_based", rules: [...] }
+
+  // 委員会連携設定
+  committeeSettings Json?
+
+  // 承認フロー
+  approvalFlow      Json?
+
+  // メタ情報
+  isActive          Boolean  @default(true)
+  createdBy         String
+  updatedBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([votingGroupId, isActive])
+  @@map("agenda_mode_group_configs")
+}
+
+// ============================================================
+// 6. プロジェクトモード設定（部門別）
+// ============================================================
+
+model ProjectModeConfig {
+  id                String   @id @default(cuid())
+
+  departmentId      String   @unique
+  department        OrganizationStructure @relation(fields: [departmentId], references: [departmentId], onDelete: Cascade)
+
+  // スコア閾値
+  scoreThresholds   Json                          // { team: 100, dept: 400, facility: 1000, corp: 2000 }
+
+  // チーム編成ルール
+  teamFormationRules Json                         // { minMembers: 3, maxMembers: 12, allowCrossDept: true, ... }
+
+  // 可視範囲ルール（段階的公開）
+  visibilityRules   Json                          // { progressive: true, stages: [...] }
+
+  // マイルストーン設定
+  milestoneSettings Json?                         // { defaultPhases: ["planning", "execution", "review"], ... }
+
+  // 予算承認設定
+  budgetApprovalSettings Json?                    // { levels: [...], thresholds: [...] }
+
+  // メタ情報
+  isActive          Boolean  @default(true)
+  createdBy         String
+  updatedBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([departmentId, isActive])
+  @@map("project_mode_configs")
+}
+
+// ============================================================
+// 7. プロジェクトモード設定（グループ別）
+// ============================================================
+
+model ProjectModeGroupConfig {
+  id                String   @id @default(cuid())
+
+  votingGroupId     String   @unique
+  votingGroup       VotingGroup @relation(fields: [votingGroupId], references: [groupId], onDelete: Cascade)
+
+  // グループ全体のスコア閾値
+  groupScoreThresholds Json                       // { team: 100, dept: 400, ... }
+
+  // チーム編成ルール
+  teamFormationRules Json                         // { allowGroupCrossing: true, ... }
+
+  // 可視範囲ルール
+  visibilityRules   Json
+
+  // メタ情報
+  isActive          Boolean  @default(true)
+  createdBy         String
+  updatedBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([votingGroupId, isActive])
+  @@map("project_mode_group_configs")
+}
+
+// ============================================================
+// 8. User テーブル拡張（既存テーブルに追加）
+// ============================================================
+
+// 既存の User テーブルに以下のフィールドを追加：
+
+model User {
+  id                   String   @id @default(cuid())
+  employeeId           String   @unique
+  email                String   @unique
+  name                 String
+
+  // ========== 組織情報（新規フィールド） ==========
+
+  // 施設
+  facilityId           String
+  facility             Facility @relation(fields: [facilityId], references: [id])
+
+  // 主所属（部門）
+  primaryDepartmentId  String
+  primaryDepartment    OrganizationStructure @relation("UserPrimaryDept", fields: [primaryDepartmentId], references: [departmentId])
+
+  // 主配置（セクション、任意）
+  primarySectionId     String?
+  primarySection       OrganizationStructure? @relation("UserPrimarySection", fields: [primarySectionId], references: [sectionId])
+
+  // 投票グループ（自動計算、任意）
+  votingGroupId        String?
+  votingGroup          VotingGroup? @relation(fields: [votingGroupId], references: [groupId])
+
+  // 副所属（複数所属対応、JSON配列）
+  secondaryDepartmentIds Json?                    // ["infection_control_committee", "safety_committee"]
+
+  // ========== 職種・役職情報（新規フィールド） ==========
+
+  jobCategory          String                     // "nurse", "pt", "ot", "st", "pharmacist", "clerk", "doctor"
+  jobTitle             String?                    // "主任看護師", "理学療法士", "薬剤師"
+  jobFunction          String?                    // "clinical", "administrative", "support"
+  specialty            String?                    // "internal_medicine", "orthopedics", "rehabilitation"
+
+  // ========== 既存フィールド（変更なし） ==========
+
+  accountType          String
+  permissionLevel      Decimal
+  canPerformLeaderDuty Boolean  @default(false)
+
+  // @deprecated 後方互換のため残す
+  department           String?  @map("legacy_department")
+  role                 String?  @map("legacy_role")
+
+  // その他既存フィールド
+  avatar               String?
+  professionCategory   String?
+  parentId             String?
+  budgetApprovalLimit  Float?
+  stakeholderCategory  String?
+  position             String?
+  expertise            Int?
+  hierarchyLevel       Int?
+  isRetired            Boolean  @default(false)
+  retirementDate       DateTime?
+  anonymizedId         String?
+  experienceYears      Float?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  lastLoginAt          DateTime?
+  loginCount           Int      @default(0)
+
+  // 既存リレーション
+  posts                Post[]
+  comments             Comment[]
+  votes                Vote[]
+  // ... その他の既存リレーション
+
+  @@index([facilityId])
+  @@index([primaryDepartmentId])
+  @@index([primarySectionId])
+  @@index([votingGroupId])
+  @@index([jobCategory])
+  @@map("users")
+}
+
+// ============================================================
+// 9. Post テーブル拡張（既存テーブルに追加）
+// ============================================================
+
+model Post {
+  id                   String   @id @default(cuid())
+
+  // ========== システムモード識別（新規フィールド） ==========
+
+  systemMode           String   @default("AGENDA_MODE")  // "AGENDA_MODE" | "PROJECT_MODE"
+
+  // ========== 投稿者の組織情報（キャッシュ、新規フィールド） ==========
+
+  authorFacilityId     String
+  authorFacility       Facility @relation(fields: [authorFacilityId], references: [id])
+
+  authorDepartmentId   String
+  authorDepartment     OrganizationStructure @relation("PostAuthorDept", fields: [authorDepartmentId], references: [departmentId])
+
+  authorSectionId      String?
+  authorSection        OrganizationStructure? @relation("PostAuthorSection", fields: [authorSectionId], references: [sectionId])
+
+  authorVotingGroupId  String?
+  authorVotingGroup    VotingGroup? @relation(fields: [authorVotingGroupId], references: [groupId])
+
+  authorJobCategory    String?                    // "nurse", "pt", etc.
+
+  // ========== 議題モード固有フィールド（新規） ==========
+
+  agendaLevel          String?                    // "PENDING", "DEPT_REVIEW", "DEPT_AGENDA", "FACILITY_AGENDA", "CORP_REVIEW", "CORP_AGENDA"
+  agendaScope          String?                    // "section", "department", "voting_group", "facility", "corporation"
+  agendaStatus         String?                    // "active", "closed", "archived"
+
+  committeeId          String?                    // 提出先委員会ID
+  committeeStatus      String?                    // "pending", "submitted", "approved", "rejected"
+  committeeSubmittedAt DateTime?
+
+  // ========== プロジェクトモード固有フィールド（新規） ==========
+
+  projectLevel         String?                    // "TEAM", "DEPT", "FACILITY", "CORP"
+  projectScope         String?                    // "team", "department", "facility", "corporation"
+  projectStatus        String?                    // "planning", "in_progress", "completed"
+
+  projectTeamId        String?                    // プロジェクトチームID
+  projectMilestoneId   String?                    // マイルストーンID
+  projectPhase         String?                    // "planning", "execution", "review"
+
+  // ========== 共通フィールド（既存） ==========
+
+  content              String
+  title                String?
+  score                Int      @default(0)
+  voteCount            Int      @default(0)
+  commentCount         Int      @default(0)
+
+  authorId             String
+  author               User     @relation(fields: [authorId], references: [id])
+
+  // @deprecated 後方互換
+  level                String?  @map("legacy_level")
+
+  // その他既存フィールド
+  category             String?
+  tags                 Json?
+  isAnonymous          Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // 既存リレーション
+  comments             Comment[]
+  votes                Vote[]
+  // ... その他の既存リレーション
+
+  @@index([systemMode, authorDepartmentId])
+  @@index([systemMode, agendaLevel])
+  @@index([systemMode, projectLevel])
+  @@index([authorFacilityId, systemMode])
+  @@index([authorVotingGroupId, systemMode])
+  @@index([agendaScope, score])
+  @@index([projectScope, score])
+  @@map("posts")
+}
+
+// ============================================================
+// 10. 職種マスター（JobCategory）
+// ============================================================
+
+model JobCategory {
+  id                String   @id @default(cuid())
+
+  categoryCode      String   @unique              // "nurse", "pt", "ot", "st", "pharmacist"
+  categoryName      String                        // "看護師", "理学療法士"
+  categoryNameEn    String?                       // "Nurse", "Physical Therapist"
+
+  // 分類
+  profession        String                        // "nursing", "rehabilitation", "pharmacy", "medical", "administrative"
+  jobFunction       String                        // "clinical", "administrative", "support"
+
+  // 資格要件
+  requiresLicense   Boolean  @default(false)
+  licenseType       String?                       // "national", "prefectural", "certification"
+
+  // 表示順
+  displayOrder      Int      @default(0)
+  isActive          Boolean  @default(true)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([profession])
+  @@map("job_categories")
+}
+
+// ============================================================
+// 注意事項
+// ============================================================
+//
+// 1. このスキーマは既存のschema.prismaに統合する必要があります
+// 2. 既存のUserテーブル、Postテーブルに新規フィールドを追加します
+// 3. マイグレーション実行前に既存データのバックアップを取ってください
+// 4. 段階的なマイグレーションを推奨します
+//
+// ============================================================
