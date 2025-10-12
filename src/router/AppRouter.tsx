@@ -629,6 +629,25 @@ const AppRouter: React.FC = () => {
         </ProtectedRoute>
       } />
 
+      {/* HR Department Project Mode Routes */}
+      <Route path="project-talent-analytics" element={
+        <ProtectedRoute requiredLevel={14}>
+          {React.createElement(React.lazy(() => import('../pages/ProjectTalentAnalyticsPage')))}
+        </ProtectedRoute>
+      } />
+
+      <Route path="project-participation-recommendation" element={
+        <ProtectedRoute requiredLevel={15}>
+          {React.createElement(React.lazy(() => import('../pages/ProjectParticipationRecommendationPage')))}
+        </ProtectedRoute>
+      } />
+
+      <Route path="project-org-development" element={
+        <ProtectedRoute requiredLevel={16}>
+          {React.createElement(React.lazy(() => import('../pages/ProjectOrgDevelopmentPage')))}
+        </ProtectedRoute>
+      } />
+
       {/* Auto Projectization (Level 3.5+) */}
       <Route path="auto-projectization" element={
         <ProtectedRoute requiredLevel={3.5}>
