@@ -150,6 +150,11 @@ import { AuditLogPage } from '../pages/AuditLogPage';
 import { ModeSwitcherPage } from '../pages/admin/ModeSwitcherPage';
 import { UserManagementPage } from '../pages/admin/UserManagementPage';
 import { SystemMonitorPage } from '../pages/admin/SystemMonitorPage';
+import VotingSettingsPage from '../pages/admin/VotingSettingsPage';
+import { AgendaModeSettingsPage } from '../pages/admin/AgendaModeSettingsPage';
+import { ProjectModeSettingsPage } from '../pages/admin/ProjectModeSettingsPage';
+import { VotingHistoryPage } from '../pages/admin/VotingHistoryPage';
+import { SystemOperationsPage } from '../pages/admin/SystemOperationsPage';
 
 // Appeal pages
 import AppealV3Page from '../pages/AppealV3Page';
@@ -734,13 +739,16 @@ const AppRouter: React.FC = () => {
       } />
       
       {/* Admin Pages - Full width without sidebar */}
-      <Route path="admin/users" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-          <UserManagementPage />
+      {/* システム運用ページ（Level 99専用） */}
+      <Route path="admin/system-operations" element={
+        <ProtectedRoute requiredLevel={99}>
+          <SystemOperationsPage />
         </ProtectedRoute>
       } />
+
+      {/* 個別管理ページ（システム運用ページからアクセス） */}
       <Route path="admin/system-settings" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
+        <ProtectedRoute requiredLevel={99}>
           <SystemSettingsPage />
         </ProtectedRoute>
       } />
@@ -757,6 +765,23 @@ const AppRouter: React.FC = () => {
       <Route path="admin/system-monitor" element={
         <ProtectedRoute requiredLevel={99}>
           <SystemMonitorPage />
+        </ProtectedRoute>
+      } />
+      <Route path="admin/voting-settings" element={
+        <ProtectedRoute requiredLevel={99}>
+          <VotingSettingsPage />
+        </ProtectedRoute>
+      }>
+        <Route index element={<Navigate to="agenda" replace />} />
+        <Route path="agenda" element={<AgendaModeSettingsPage />} />
+        <Route path="project" element={<ProjectModeSettingsPage />} />
+        <Route path="history" element={<VotingHistoryPage />} />
+      </Route>
+
+      {/* その他管理ページ */}
+      <Route path="admin/users" element={
+        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
+          <UserManagementPage />
         </ProtectedRoute>
       } />
       <Route path="admin/audit-logs" element={

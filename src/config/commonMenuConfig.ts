@@ -76,46 +76,13 @@ export const COMMON_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'common'
   },
 
-  // システム設定（レベルX専用）
-  system_settings: {
-    id: 'system_settings',
-    title: 'システム設定',
-    label: 'システム設定',
+  // システム運用（レベルX専用）
+  system_operations: {
+    id: 'system_operations',
+    title: 'システム運用',
+    label: 'システム運用',
     icon: '🔧',
-    path: '/admin/system-settings',
-    requiredLevel: 99, // レベルXのみ
-    category: 'common'
-  },
-
-  // モード切り替え（レベルX専用）
-  mode_switcher: {
-    id: 'mode_switcher',
-    title: 'モード切り替え',
-    label: 'モード切り替え',
-    icon: '🔄',
-    path: '/admin/mode-switcher',
-    requiredLevel: 99, // レベルXのみ
-    category: 'common'
-  },
-
-  // ユーザー管理（レベルX専用）
-  user_management: {
-    id: 'user_management',
-    title: 'ユーザー管理',
-    label: 'ユーザー管理',
-    icon: '👥',
-    path: '/admin/user-management',
-    requiredLevel: 99, // レベルXのみ
-    category: 'common'
-  },
-
-  // システム監視（レベルX専用）
-  system_monitor: {
-    id: 'system_monitor',
-    title: 'システム監視',
-    label: 'システム監視',
-    icon: '📊',
-    path: '/admin/system-monitor',
+    path: '/admin/system-operations',
     requiredLevel: 99, // レベルXのみ
     category: 'common'
   }
@@ -146,12 +113,9 @@ export function getCommonMenuItems(permissionLevel: number | string): MenuItem[]
     items.push(COMMON_MENU_ITEMS.executive_dashboard);
   }
 
-  // レベルXの場合、システム設定とモード切り替えを追加
+  // レベルXの場合、システム運用を追加
   if (permissionLevel === 'X' || permissionLevel === 99) {
-    items.push(COMMON_MENU_ITEMS.system_settings);
-    items.push(COMMON_MENU_ITEMS.user_management);
-    items.push(COMMON_MENU_ITEMS.system_monitor);
-    items.push(COMMON_MENU_ITEMS.mode_switcher);
+    items.push(COMMON_MENU_ITEMS.system_operations);
   }
 
   return items;
