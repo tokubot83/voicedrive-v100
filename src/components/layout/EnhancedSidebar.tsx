@@ -30,6 +30,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
   const [currentMode, setCurrentMode] = useState<SystemMode>(systemModeManager.getCurrentMode());
   const [modeMenuItems, setModeMenuItems] = useState<MenuItem[]>([]);
   const [commonMenuItems, setCommonMenuItems] = useState<MenuItem[]>([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   // UserPermissionフックを安全に使用
   let permission = {
@@ -48,10 +49,20 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
   // ユーザーの権限レベルを決定
   const userPermissionLevel = permission.calculatedLevel || currentUser?.permissionLevel || 1;
 
+  // モバイル検出
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // モード変更を監視してメニュー項目を更新
   useEffect(() => {
     const updateMenuItems = (mode: SystemMode) => {
-      console.log('[EnhancedSidebar] メニュー更新: mode=', mode);
+      console.log('[EnhancedSidebar] メニュー更新: mode=', mode, 'isMobile=', isMobile);
 
       // モード別メニュー項目を取得
       const modeItems = mode === SystemMode.AGENDA
@@ -60,8 +71,8 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
 
       setModeMenuItems(modeItems);
 
-      // 共通メニュー項目を取得
-      const commonItems = getCommonMenuItems(userPermissionLevel);
+      // 共通メニュー項目を取得（モバイル判定を渡す）
+      const commonItems = getCommonMenuItems(userPermissionLevel, isMobile);
       setCommonMenuItems(commonItems);
     };
 
@@ -83,7 +94,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
     return () => {
       systemModeManager.removeModeChangeListener(handleModeChange);
     };
-  }, [userPermissionLevel]);
+  }, [userPermissionLevel, isMobile]);
 
   // モード表示名
   const getModeLabel = () => {

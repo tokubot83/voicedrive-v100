@@ -91,13 +91,17 @@ export const COMMON_MENU_ITEMS: Record<string, MenuItem> = {
 /**
  * ユーザーの権限レベルに応じた共通メニュー項目を取得
  * @param permissionLevel ユーザーの権限レベル
+ * @param isMobile モバイルデバイスかどうか（オプション）
  * @returns 表示可能な共通メニュー項目の配列
  */
-export function getCommonMenuItems(permissionLevel: number | string): MenuItem[] {
+export function getCommonMenuItems(permissionLevel: number | string, isMobile: boolean = false): MenuItem[] {
+  const isLevel99 = permissionLevel === 'X' || permissionLevel === 99;
+
   const items: MenuItem[] = [
-    COMMON_MENU_ITEMS.personal_station,
-    COMMON_MENU_ITEMS.user_guide,
-    COMMON_MENU_ITEMS.compliance_guide,
+    // レベル99では使い方ガイドとパーソナルステーションを非表示
+    ...(isLevel99 ? [] : [COMMON_MENU_ITEMS.personal_station, COMMON_MENU_ITEMS.user_guide]),
+    // モバイルではコンプライアンス窓口を非表示（スペース確保のため）
+    ...(isMobile ? [] : [COMMON_MENU_ITEMS.compliance_guide]),
     COMMON_MENU_ITEMS.notifications,
     COMMON_MENU_ITEMS.settings
   ];
@@ -109,12 +113,12 @@ export function getCommonMenuItems(permissionLevel: number | string): MenuItem[]
       ? permissionLevel
       : 0;
 
-  if (numericLevel >= 12 || permissionLevel === 'X' || permissionLevel === 99) {
+  if (numericLevel >= 12 || isLevel99) {
     items.push(COMMON_MENU_ITEMS.executive_dashboard);
   }
 
   // レベルXの場合、システム運用を追加
-  if (permissionLevel === 'X' || permissionLevel === 99) {
+  if (isLevel99) {
     items.push(COMMON_MENU_ITEMS.system_operations);
   }
 
