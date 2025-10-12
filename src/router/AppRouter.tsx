@@ -648,6 +648,13 @@ const AppRouter: React.FC = () => {
         </ProtectedRoute>
       } />
 
+      {/* Board Level Project Mode Routes */}
+      <Route path="project-portfolio-management" element={
+        <ProtectedRoute requiredLevel={18}>
+          {React.createElement(React.lazy(() => import('../pages/ProjectPortfolioManagementPage')))}
+        </ProtectedRoute>
+      } />
+
       {/* Auto Projectization (Level 3.5+) */}
       <Route path="auto-projectization" element={
         <ProtectedRoute requiredLevel={3.5}>

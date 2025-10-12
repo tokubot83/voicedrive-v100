@@ -88,6 +88,17 @@ export const PROJECT_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'project'
   },
 
+  // プロジェクトポートフォリオ管理（レベル18：理事会）
+  project_portfolio_management: {
+    id: 'project_portfolio_management',
+    title: 'プロジェクトポートフォリオ管理',
+    label: 'プロジェクトポートフォリオ管理',
+    icon: '📊',
+    path: '/project-portfolio-management',
+    requiredLevel: 18,
+    category: 'project'
+  },
+
   // 緊急アカウント停止（レベル14-17専用）
   emergency_account_deactivation: {
     id: 'emergency_account_deactivation',
@@ -187,7 +198,7 @@ export const PROJECT_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
 
   // レベル18：理事長・法人事務局長
   18: [
-    'idea_tracking', 'project_tracking'
+    'idea_tracking', 'project_tracking', 'project_portfolio_management'
   ],
 
   // レベルX：システム管理者（全アクセス）
