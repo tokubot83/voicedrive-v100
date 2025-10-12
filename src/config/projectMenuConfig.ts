@@ -55,6 +55,39 @@ export const PROJECT_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'project'
   },
 
+  // プロジェクト人材分析（レベル14+：人事部門員以上）
+  project_talent_analytics: {
+    id: 'project_talent_analytics',
+    title: 'プロジェクト人材分析',
+    label: 'プロジェクト人材分析',
+    icon: '👥',
+    path: '/project-talent-analytics',
+    requiredLevel: 14,
+    category: 'project'
+  },
+
+  // プロジェクト参加推奨（レベル15+：人事各部門長以上）
+  project_participation_recommendation: {
+    id: 'project_participation_recommendation',
+    title: 'プロジェクト参加推奨',
+    label: 'プロジェクト参加推奨',
+    icon: '💡',
+    path: '/project-participation-recommendation',
+    requiredLevel: 15,
+    category: 'project'
+  },
+
+  // 組織開発インサイト（レベル16+：戦略企画部門員以上）
+  project_org_development: {
+    id: 'project_org_development',
+    title: '組織開発インサイト',
+    label: '組織開発インサイト',
+    icon: '🏗️',
+    path: '/project-org-development',
+    requiredLevel: 16,
+    category: 'project'
+  },
+
   // 緊急アカウント停止（レベル14-17専用）
   emergency_account_deactivation: {
     id: 'emergency_account_deactivation',
@@ -134,22 +167,22 @@ export const PROJECT_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
 
   // レベル14：人事部門員
   14: [
-    'idea_tracking', 'project_tracking', 'emergency_account_deactivation'
+    'idea_tracking', 'project_tracking', 'project_talent_analytics', 'emergency_account_deactivation'
   ],
 
   // レベル15：人事各部門長
   15: [
-    'idea_tracking', 'project_tracking', 'emergency_account_deactivation'
+    'idea_tracking', 'project_tracking', 'project_talent_analytics', 'project_participation_recommendation', 'emergency_account_deactivation'
   ],
 
   // レベル16：戦略企画・統括管理部門員
   16: [
-    'idea_tracking', 'project_tracking', 'emergency_account_deactivation'
+    'idea_tracking', 'project_tracking', 'project_talent_analytics', 'project_participation_recommendation', 'project_org_development', 'emergency_account_deactivation'
   ],
 
   // レベル17：戦略企画・統括管理部門長
   17: [
-    'idea_tracking', 'project_tracking', 'emergency_account_deactivation'
+    'idea_tracking', 'project_tracking', 'project_talent_analytics', 'project_participation_recommendation', 'project_org_development', 'emergency_account_deactivation'
   ],
 
   // レベル18：理事長・法人事務局長
