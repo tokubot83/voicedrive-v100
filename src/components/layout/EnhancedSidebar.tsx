@@ -136,10 +136,13 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
   };
 
   return (
-    <div className="w-80 bg-slate-800/95 backdrop-blur-xl shadow-lg h-full flex flex-col border-r border-slate-700/50 relative">
+    <div className={`
+      w-80 bg-slate-800/95 backdrop-blur-xl shadow-lg flex flex-col border-r border-slate-700/50
+      ${isMobile ? 'h-[calc(100vh-64px)]' : 'h-full'}
+    `}>
       {/* ユーザー情報（上部） */}
       <div
-        className="p-4 hover:bg-slate-700/30 transition-colors cursor-pointer border-b border-slate-700/50"
+        className="p-4 hover:bg-slate-700/30 transition-colors cursor-pointer border-b border-slate-700/50 flex-shrink-0"
         onClick={() => onNavigate('/profile')}
       >
         {isDemoMode ? (
@@ -172,14 +175,14 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       </div>
 
       {/* モード表示（上部） */}
-      <div className="px-4 py-2 border-b border-slate-700/50 bg-slate-900/50">
+      <div className="px-4 py-2 border-b border-slate-700/50 bg-slate-900/50 flex-shrink-0">
         <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
           {getModeLabel()}
         </div>
       </div>
 
       {/* メニューセクション */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+      <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-0">
         {/* モード別メニュー */}
         {modeMenuItems.map(item => (
           <EnhancedSidebarMenuItem
@@ -192,8 +195,8 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
         ))}
       </div>
 
-      {/* 共通メニュー（下部固定） */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 space-y-1 border-t border-slate-700/50 bg-slate-800/95 backdrop-blur-xl">
+      {/* 共通メニュー（下部） */}
+      <div className="p-4 space-y-1 border-t border-slate-700/50 bg-slate-800/95 backdrop-blur-xl flex-shrink-0">
         {commonMenuItems.map(item => (
           <button
             key={item.id}
