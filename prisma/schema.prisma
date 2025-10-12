@@ -30,6 +30,9 @@ model User {
   retirementDate       DateTime?
   anonymizedId         String?
   experienceYears      Float?
+  age                  Int?           // ProjectTalentAnalytics統合実装（2025-10-12）
+  generation           String?        // ProjectTalentAnalytics統合実装（2025-10-12）
+  ageUpdatedAt         DateTime?      @map("age_updated_at") // ProjectTalentAnalytics統合実装（2025-10-12）
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
   lastLoginAt          DateTime?
@@ -2397,4 +2400,76 @@ model JobCategory {
   @@index([jobCategoryCode])
   @@index([jobCategoryGroup])
   @@map("job_categories")
+}
+
+// ===================================
+// プロジェクト人材分析統合（2025-10-12）
+// ProjectTalentAnalyticsPage用集計テーブル
+// ===================================
+
+// プロジェクト参加統計 - 全体統計（総参加者数、多様性スコア等）
+model ProjectParticipationStats {
+  id                      String    @id @default(cuid())
+
+  // 集計期間
+  periodType              String                                // 'month' | 'quarter' | 'year'
+  periodStart             DateTime  @map("period_start")
+  periodEnd               DateTime  @map("period_end")
+
+  // 全体統計
+  totalParticipants       Int       @default(0) @map("total_participants")
+  totalProjects           Int       @default(0) @map("total_projects")
+  averageProjectsPerPerson Float    @default(0) @map("avg_projects_per_person")
+
+  // 多様性スコア（0-100）
+  diversityScore          Float     @default(0) @map("diversity_score")
+  professionDiversityScore Float    @default(0) @map("profession_diversity_score")
+  generationDiversityScore Float    @default(0) @map("generation_diversity_score")
+  hierarchyDiversityScore Float    @default(0) @map("hierarchy_diversity_score")
+
+  // 成長率（前期比%）
+  growthRate              Float?    @map("growth_rate")
+  participantGrowthRate   Float?    @map("participant_growth_rate")
+  projectGrowthRate       Float?    @map("project_growth_rate")
+
+  // 集計タイムスタンプ
+  calculatedAt            DateTime  @default(now()) @map("calculated_at")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+
+  @@unique([periodType, periodStart, periodEnd])
+  @@index([periodType])
+  @@index([periodStart, periodEnd])
+  @@map("project_participation_stats")
+}
+
+// プロジェクト参加統計（職種別） - 職種別プロジェクト参加状況
+model ProjectParticipationByProfession {
+  id                String    @id @default(cuid())
+
+  // 集計期間
+  periodType        String                                // 'month' | 'quarter' | 'year'
+  periodStart       DateTime  @map("period_start")
+  periodEnd         DateTime  @map("period_end")
+
+  // 職種情報（医療システムから取得してキャッシュ）
+  professionCode    String    @map("profession_code")      // 'nurse' | 'doctor' | ...
+  professionName    String    @map("profession_name")      // '看護師' | '医師' | ...
+  professionGroup   String    @map("profession_group")     // 'medical' | 'nursing' | 'allied' | 'admin'
+
+  // 統計データ
+  participantCount  Int       @default(0) @map("participant_count")
+  projectCount      Int       @default(0) @map("project_count")
+  averageProjects   Float     @default(0) @map("average_projects")
+  percentage        Float     @default(0) @map("percentage")
+
+  // タイムスタンプ
+  calculatedAt      DateTime  @default(now()) @map("calculated_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  @@unique([periodType, periodStart, periodEnd, professionCode])
+  @@index([periodType])
+  @@index([professionCode])
+  @@map("project_participation_by_profession")
 }
