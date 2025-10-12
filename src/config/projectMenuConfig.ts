@@ -55,17 +55,6 @@ export const PROJECT_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'project'
   },
 
-  // 部署横断プロジェクト（レベル9+：副部長以上）
-  cross_department_project: {
-    id: 'cross_department_project',
-    title: '部署横断プロジェクト',
-    label: '部署横断プロジェクト',
-    icon: '🔄',
-    path: '/cross-department-project',
-    requiredLevel: 9,
-    category: 'project'
-  },
-
   // 施設プロジェクト管理（レベル10+：部長以上）
   facility_project_management: {
     id: 'facility_project_management',
@@ -231,33 +220,32 @@ export const PROJECT_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
 
   // レベル9：副部長
   9: [
-    'idea_tracking', 'project_tracking', 'project_approval',
-    'cross_department_project'
+    'idea_tracking', 'project_tracking', 'project_approval'
   ],
 
   // レベル10：部長・医局長
   10: [
     'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
-    'cross_department_project', 'facility_project_management'
+    'facility_project_management'
   ],
 
   // レベル11：事務長
   11: [
     'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
-    'cross_department_project', 'facility_project_management', 'budget_management'
+    'facility_project_management', 'budget_management'
   ],
 
   // レベル12：副院長
   12: [
     'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
-    'cross_department_project', 'facility_project_management', 'budget_management',
+    'facility_project_management', 'budget_management',
     'executive_dashboard', 'project_governance'
   ],
 
   // レベル13：院長・施設長
   13: [
     'idea_tracking', 'project_tracking', 'project_approval', 'progress_dashboard',
-    'cross_department_project', 'facility_project_management', 'budget_management',
+    'facility_project_management', 'budget_management',
     'executive_dashboard', 'project_governance', 'strategic_initiatives'
   ],
 
