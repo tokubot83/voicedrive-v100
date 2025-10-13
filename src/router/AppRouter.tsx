@@ -14,7 +14,6 @@ import EnhancedProjectListPage from '../pages/EnhancedProjectListPage';
 import { ProjectDetailPage } from '../pages/ProjectDetailPage';
 import { PersonalStationPage } from '../pages/PersonalStationPage';
 import { DepartmentStationPage } from '../pages/DepartmentStationPage';
-import DepartmentOverviewPage from '../pages/DepartmentOverviewPage';
 import BudgetPage from '../pages/BudgetPage';
 import HRDashboardPage from '../pages/HRDashboardPage';
 import PolicyManagementPage from '../pages/PolicyManagementPage';
@@ -45,11 +44,6 @@ import TestSummaryReceiver from '../pages/TestSummaryReceiver';
 
 // Dashboard pages
 import ExecutiveDashboardPage from '../pages/ExecutiveDashboardPage';
-
-// Staff Dashboard pages
-import DepartmentStaffDashboardPage from '../pages/DepartmentStaffDashboardPage';
-import FacilityStaffDashboardPage from '../pages/FacilityStaffDashboardPage';
-import CorporateStaffDashboardPage from '../pages/CorporateStaffDashboardPage';
 
 // Error Boundary
 import ErrorBoundary from '../components/common/ErrorBoundary';
@@ -186,48 +180,6 @@ const AppRouter: React.FC = () => {
             </ProtectedRoute>
           } />
         </Route>
-        
-        {/* Staff Dashboard routes */}
-        <Route path="staff-dashboard">
-          <Route path="department" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
-              <DepartmentStaffDashboardPage />
-            </ProtectedRoute>
-          } />
-          <Route path="facility" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_4}>
-              <FacilityStaffDashboardPage />
-            </ProtectedRoute>
-          } />
-          <Route path="corporate" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-              <ErrorBoundary fallback={
-                <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
-                  <div className="text-center">
-                    <h2 className="text-xl font-bold text-white mb-4">法人職員ダッシュボードでエラーが発生しました</h2>
-                    <p className="text-gray-400 mb-4">データの読み込みに問題があります。しばらく後に再試行してください。</p>
-                    <button
-                      onClick={() => window.location.reload()}
-                      className="px-4 py-2 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/30 rounded-lg text-cyan-400 transition-colors"
-                    >
-                      再読み込み
-                    </button>
-                  </div>
-                </div>
-              }>
-                <CorporateStaffDashboardPage />
-              </ErrorBoundary>
-            </ProtectedRoute>
-          } />
-        </Route>
-        
-        
-        {/* Department overview (Level 3+) */}
-        <Route path="department-overview" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
-            <DepartmentOverviewPage />
-          </ProtectedRoute>
-        } />
         
         {/* Budget control (Level 4+) */}
         <Route path="budget" element={
