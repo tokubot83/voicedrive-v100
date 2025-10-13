@@ -15,7 +15,6 @@ import { ProjectDetailPage } from '../pages/ProjectDetailPage';
 import { PersonalStationPage } from '../pages/PersonalStationPage';
 import { DepartmentStationPage } from '../pages/DepartmentStationPage';
 import BudgetPage from '../pages/BudgetPage';
-import HRDashboardPage from '../pages/HRDashboardPage';
 import PolicyManagementPage from '../pages/PolicyManagementPage';
 import TalentAnalyticsPage from '../pages/TalentAnalyticsPage';
 import StrategicPlanningPage from '../pages/StrategicPlanningPage';
@@ -202,14 +201,7 @@ const AppRouter: React.FC = () => {
             <AuthorityDashboard />
           </ProtectedRoute>
         } />
-        
-        {/* HR Dashboard (Level 5+) */}
-        <Route path="hr-dashboard" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-            <HRDashboardPage />
-          </ProtectedRoute>
-        } />
-        
+
         {/* HR Functions (Level 8+) */}
         <Route path="interview-management" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8}>

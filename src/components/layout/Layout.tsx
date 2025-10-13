@@ -42,7 +42,6 @@ const Layout: React.FC = () => {
     '/department-dashboard',
     '/facility-dashboard',
     '/corporate-dashboard',
-    '/hr-dashboard',
     '/strategic-dashboard',
     '/strategic-overview',
     '/strategic-planning',
