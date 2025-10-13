@@ -44,7 +44,6 @@ import MedicalAPITestPanel from '../components/test/MedicalAPITestPanel';
 import TestSummaryReceiver from '../pages/TestSummaryReceiver';
 
 // Dashboard pages
-import PersonalDashboardPage from '../pages/PersonalDashboardPage';
 import DepartmentDashboardPage from '../pages/DepartmentDashboardPage';
 import FacilityDashboardPage from '../pages/FacilityDashboardPage';
 import HRManagementDashboardPage from '../pages/HRManagementDashboardPage';
@@ -187,11 +186,6 @@ const AppRouter: React.FC = () => {
         
         {/* Role-based dashboard routes with exact level protection */}
         <Route path="dashboard">
-          <Route path="personal" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_1} exactLevel>
-              <PersonalDashboardPage />
-            </ProtectedRoute>
-          } />
           <Route path="department" element={
             <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3} exactLevel>
               <DepartmentDashboardPage />

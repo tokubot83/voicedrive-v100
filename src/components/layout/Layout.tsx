@@ -36,7 +36,6 @@ const Layout: React.FC = () => {
     '/admin-settings',
     '/system-management',
     '/projects',
-    '/dashboard/personal',
     '/dashboard/department',
     '/dashboard/facility',
     '/dashboard/integrated-corporate',

@@ -11,7 +11,6 @@ const pathNameMap: Record<string, string> = {
   '/': 'ホーム',
   '/profile': 'プロフィール',
   '/projects': 'プロジェクト一覧',
-  '/dashboard/personal': 'マイダッシュボード',
   '/dashboard/team-leader': '現場リーダーダッシュボード',
   '/dashboard/department': '部門管理ダッシュボード',
   '/dashboard/facility': '施設管理ダッシュボード',
