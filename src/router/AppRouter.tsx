@@ -14,7 +14,6 @@ import EnhancedProjectListPage from '../pages/EnhancedProjectListPage';
 import { ProjectDetailPage } from '../pages/ProjectDetailPage';
 import { PersonalStationPage } from '../pages/PersonalStationPage';
 import { DepartmentStationPage } from '../pages/DepartmentStationPage';
-import { SectionStationPage } from '../pages/SectionStationPage';
 import DepartmentOverviewPage from '../pages/DepartmentOverviewPage';
 import BudgetPage from '../pages/BudgetPage';
 import HRDashboardPage from '../pages/HRDashboardPage';
@@ -681,11 +680,6 @@ const AppRouter: React.FC = () => {
       <Route path="department-station" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
           <DepartmentStationPage />
-        </ProtectedRoute>
-      } />
-      <Route path="section-station" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_4}>
-          <SectionStationPage />
         </ProtectedRoute>
       } />
       

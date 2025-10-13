@@ -77,7 +77,6 @@ const Layout: React.FC = () => {
     // ステーション系ページ
     '/personal-station',
     '/department-station',
-    '/section-station',
     // 通知ページもパンくずリスト非表示
     '/notifications'
   ];
@@ -88,7 +87,7 @@ const Layout: React.FC = () => {
   );
   
   // ステーション系ページの確実な判定（追加対策）
-  const isStationPage = ['/personal-station', '/department-station', '/section-station']
+  const isStationPage = ['/personal-station', '/department-station']
     .includes(location.pathname);
   
   // 最終的な表示判定（管理画面またはステーション系ページ）

@@ -20,14 +20,6 @@ export const MENU_STRUCTURE: MenuStructure = {
       path: '/department-station',
       requiredLevel: 3,
       category: 'station'
-    },
-    section: {
-      id: 'section_station',
-      label: '部署ステーション',
-      icon: '🏢',
-      path: '/section-station',
-      requiredLevel: 4,
-      category: 'station'
     }
   },
 

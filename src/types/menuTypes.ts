@@ -22,7 +22,6 @@ export type MenuCategory =
 export interface StationMenu {
   personal: MenuItem;      // パーソナルステーション（全員）
   department: MenuItem;    // 部門ステーション（レベル3〜）
-  section: MenuItem;       // 部署ステーション（レベル4〜）
 }
 
 export interface ManagementMenu {
