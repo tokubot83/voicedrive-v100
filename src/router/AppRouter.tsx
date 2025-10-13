@@ -88,6 +88,7 @@ import ComposePage from '../pages/ComposePage';
 
 // Interview Booking
 import InterviewStation from '../pages/InterviewStation';
+import InterviewBookingPage from '../pages/InterviewBookingPage';
 import InterviewManagementPage from '../pages/InterviewManagementPage';
 
 // HR Announcements
@@ -684,7 +685,7 @@ const AppRouter: React.FC = () => {
       } />
       
       {/* Interview and Project Management - Full width */}
-      <Route path="interview-booking" element={<InterviewStation />} />
+      <Route path="interview-booking" element={<InterviewBookingPage />} />
       <Route path="interview-management" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
           <InterviewManagementPage />

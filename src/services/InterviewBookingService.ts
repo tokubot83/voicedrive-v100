@@ -1720,7 +1720,7 @@ export class InterviewBookingService {
       urgencyLevel: 'medium',
       interviewerId: 'interviewer_001',
       interviewerName: '田中 キャリア支援部門長',
-      interviewerLevel: 7,
+      interviewerLevel: PermissionLevel.LEVEL_7,
       status: config.status,
       createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
       createdBy: config.user.id
