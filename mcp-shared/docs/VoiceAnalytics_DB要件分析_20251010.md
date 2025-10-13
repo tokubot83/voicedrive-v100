@@ -1,11 +1,38 @@
-# ボイス分析ページ DB要件分析
+# ボイス分析ページ DB要件分析（REV2 - 5ページ統合版）
 
-**文書番号**: VA-DB-REQ-2025-1010-001
+**文書番号**: VA-DB-REQ-2025-1010-001-REV2
 **作成日**: 2025年10月10日
+**最終更新**: 2025年10月13日（5ページ統合要件追加）
 **作成者**: VoiceDriveチーム
 **目的**: ボイス分析ページのDB要件を明確化し、医療システムとの責任分界を定義
 **重要度**: 🔴 最重要
-**関連文書**: データ管理責任分界点定義書_20251008.md
+**関連文書**:
+- データ管理責任分界点定義書_20251008.md
+- Level18対応推奨_分析ページ統合提案_20251013.md
+
+---
+
+## 🆕 REV2 更新内容（2025年10月13日）
+
+### 統合提案概要
+以下5ページの分析機能を**VoiceAnalyticsPage**に統合：
+1. UserAnalysisPage (`/user-analysis`) - ユーザー分析
+2. GenerationalAnalysisPage (`/generational-analysis`) - 世代分析
+3. HierarchicalAnalysisPage (`/hierarchical-analysis`) - 階層分析
+4. ProfessionalAnalysisPage (`/professional-analysis`) - 職種分析
+5. DepartmentGenerationalAnalysisPage (`/department-generational-analysis`) - 部門世代分析
+
+### 統合の理由
+- 5ページ全て同一パターン（Level 18未対応、同じ権限スコープロジック）
+- VoiceAnalyticsはLevel 14-17専用でDB分析完了済み
+- Level 18（理事会）サポート追加が容易
+- DB分析工数削減（15日分の節約）
+- コード重複排除
+
+### 統合後の構造
+- **6タブ式ダッシュボード**: ボイス分析、ユーザー分析、世代分析、階層分析、職種分析、グループ分析（Level 18専用）
+- **権限**: Level 14-17（人事部門）+ Level 18（理事会）強化
+- **削除予定**: 統合後、5ページを全て削除
 
 ---
 
@@ -16,6 +43,7 @@
 - **人事部門専用**ページ（組織の声を可視化する集団分析ダッシュボード）
 - 現在は**デモデータのみ**でDB未統合
 - **職員カルテシステムからWebhook経由でバッチ分析データを受信**する体制
+- **🆕 5つの類似分析ページを統合し、統一ダッシュボード化**
 
 ### 実装状況
 - ✅ UI完全実装（[VoiceAnalyticsPage.tsx](src/pages/VoiceAnalyticsPage.tsx):373行）
@@ -240,7 +268,7 @@
 
 ## 🏗️ 必要なDBテーブル設計
 
-### テーブル1: GroupAnalytics（集団分析データ）
+### テーブル1: GroupAnalytics（集団分析データ - 拡張版）
 
 ```prisma
 model GroupAnalytics {
@@ -251,6 +279,8 @@ model GroupAnalytics {
   periodStartDate           DateTime  // 分析期間開始
   periodEndDate             DateTime  // 分析期間終了
   analysisType              String    @default("monthly") // 'weekly' | 'monthly' | 'quarterly' | 'yearly'
+  scopeType                 String    @default("corporate") // 🆕 'department' | 'facility' | 'corporate' | 'group'
+  scopeId                   String?   // 🆕 部門ID/施設ID/企業ID/グループID（scope依存）
 
   // 投稿動向（JSON: PostingTrends）
   postingTrendsData         Json      // { totalPosts, totalUsers, participationRate, byCategory, byDepartment, byLevel, monthlyTrend }
@@ -266,6 +296,21 @@ model GroupAnalytics {
 
   // プライバシー保護情報（JSON: PrivacyMetadata）
   privacyMetadata           Json      // { totalConsentedUsers, minimumGroupSize, excludedSmallGroupsCount }
+
+  // 🆕 ユーザー分析データ（JSON: UserAnalyticsData）
+  userAnalyticsData         Json?     // { byGeneration, byHierarchy, byProfession, byFacility, rankings, trends }
+
+  // 🆕 世代分析データ（JSON: GenerationalAnalyticsData）
+  generationalAnalyticsData Json?     // { distribution, engagementByGeneration, sentimentByGeneration, postingTrendsByGeneration }
+
+  // 🆕 階層分析データ（JSON: HierarchicalAnalyticsData）
+  hierarchicalAnalyticsData Json?     // { distribution, engagementByLevel, sentimentByLevel, postingTrendsByLevel }
+
+  // 🆕 職種分析データ（JSON: ProfessionalAnalyticsData）
+  professionalAnalyticsData Json?     // { distribution, engagementByProfession, sentimentByProfession, postingTrendsByProfession }
+
+  // 🆕 グループ横断分析データ（JSON: CrossGroupAnalyticsData）Level 18専用
+  crossGroupAnalyticsData   Json?     // { corporationComparison, benchmarking, groupTrends, consolidatedMetrics }
 
   // 受信情報
   receivedAt                DateTime  @default(now())  // VoiceDriveが受信した日時
@@ -286,9 +331,23 @@ model GroupAnalytics {
   @@index([analysisDate])
   @@index([analysisType])
   @@index([isActive])
+  @@index([scopeType, scopeId])  // 🆕
   @@index([periodStartDate, periodEndDate])
 }
 ```
+
+**🆕 追加フィールド説明**:
+- `scopeType`: 分析スコープタイプ（Level 18対応）
+  - `department`: 部門スコープ（Level 3-6）
+  - `facility`: 施設スコープ（Level 4-6）
+  - `corporate`: 企業スコープ（Level 7-17）
+  - `group`: グループスコープ（Level 18）
+- `scopeId`: スコープ識別子（departmentId, facilityId, corporationId, groupId）
+- `userAnalyticsData`: ユーザー分析結果（世代別、階層別、職種別、施設別、ランキング）
+- `generationalAnalyticsData`: 世代別詳細分析
+- `hierarchicalAnalyticsData`: 階層別詳細分析
+- `professionalAnalyticsData`: 職種別詳細分析
+- `crossGroupAnalyticsData`: グループ横断分析（Level 18専用、複数法人比較）
 
 ---
 
@@ -443,12 +502,27 @@ model WebhookNotification {
 
 ---
 
-## 📅 実装ロードマップ
+## 📅 実装ロードマップ（REV2 - 5ページ統合版）
+
+### Phase 0: 🆕 5ページ統合準備（2日）
+
+**Day -2 ~ -1**:
+- [ ] UserAnalysisPage分析機能抽出（世代、階層、職種、施設別分析）
+- [ ] GenerationalAnalysisPage分析機能抽出
+- [ ] HierarchicalAnalysisPage分析機能抽出
+- [ ] ProfessionalAnalysisPage分析機能抽出
+- [ ] DepartmentGenerationalAnalysisPage分析機能抽出
+- [ ] 共通分析ロジックをVoiceAnalyticsServiceに統合
+- [ ] Level 18グループ分析ロジック追加
+
+---
 
 ### Phase 1: DB構築（1日）
 
 **Day 1**:
 - [ ] schema.prisma更新（GroupAnalytics、AnalyticsAlert追加）
+- [ ] 🆕 GroupAnalyticsに5フィールド追加（userAnalyticsData、generationalAnalyticsData等）
+- [ ] 🆕 scopeType、scopeIdフィールド追加（Level 18対応）
 - [ ] WebhookNotificationにリレーション追加
 - [ ] Prisma Migration実行（MySQL移行後）
 - [ ] Prisma Client再生成
@@ -460,9 +534,10 @@ model WebhookNotification {
 **Day 2**:
 - [ ] `/api/webhooks/analytics-batch-completed`エンドポイント実装
 - [ ] Webhook署名検証
-- [ ] GroupAnalyticsデータ保存ロジック
+- [ ] GroupAnalyticsデータ保存ロジック（🆕 5種類の分析データ含む）
 - [ ] AnalyticsAlertデータ保存ロジック
 - [ ] 古いデータの`isActive`更新ロジック
+- [ ] 🆕 scopeType/scopeId判定ロジック（Level依存）
 
 ---
 
@@ -472,30 +547,56 @@ model WebhookNotification {
 - [ ] VoiceAnalyticsService.tsをDB版に変更
 - [ ] `getAnalyticsData()`メソッド：DB取得に変更
 - [ ] `getSummary()`メソッド：DB集計に変更
+- [ ] 🆕 `getUserAnalyticsData()`メソッド追加
+- [ ] 🆕 `getGenerationalAnalyticsData()`メソッド追加
+- [ ] 🆕 `getHierarchicalAnalyticsData()`メソッド追加
+- [ ] 🆕 `getProfessionalAnalyticsData()`メソッド追加
+- [ ] 🆕 `getCrossGroupAnalyticsData()`メソッド追加（Level 18専用）
 - [ ] デモデータ投入スクリプト作成
 - [ ] 統合テスト（CRUD操作）
 
 ---
 
-### Phase 4: UI統合（0.5日）
+### Phase 4: UI統合（2日）
 
-**Day 4午前**:
-- [ ] VoiceAnalyticsPage.tsxをDB版に接続
+**Day 4-5**:
+- [ ] VoiceAnalyticsPage.tsxに6タブ構造実装
+  - [ ] タブ1: ボイス分析（既存）
+  - [ ] タブ2: ユーザー分析（🆕 UserAnalysisPageから移植）
+  - [ ] タブ3: 世代分析（🆕 GenerationalAnalysisPageから移植）
+  - [ ] タブ4: 階層分析（🆕 HierarchicalAnalysisPageから移植）
+  - [ ] タブ5: 職種分析（🆕 ProfessionalAnalysisPageから移植）
+  - [ ] タブ6: グループ分析（🆕 Level 18専用）
+- [ ] Level 18権限判定ロジック追加
+- [ ] タブ6表示/非表示切り替え（Level 18のみ表示）
 - [ ] リアルタイムデータ表示確認
-- [ ] フィルタリング機能実装（期間選択）
+- [ ] フィルタリング機能実装（期間選択、スコープ選択）
 - [ ] E2Eテスト
 
 ---
 
 ### Phase 5: 医療システム連携（0.5日）
 
-**Day 4午後**:
+**Day 6午前**:
 - [ ] 医療システムとWebhook連携テスト
-- [ ] バッチ分析データ受信確認
+- [ ] バッチ分析データ受信確認（🆕 5種類の分析データ含む）
 - [ ] データ整合性チェック
 - [ ] エラーハンドリング確認
 
-**合計**: 4日間
+---
+
+### Phase 6: 🆕 旧ページ削除（0.5日）
+
+**Day 6午後**:
+- [ ] 統合完了確認（全タブ動作確認）
+- [ ] 5ページ削除マーク（Deprecation警告表示3日間）
+- [ ] menuConfig.tsからエントリ削除
+- [ ] AppRouter.tsxからルート削除
+- [ ] 5ページファイル削除（UserAnalysisPage.tsx等）
+
+**合計**: 6.5日間（Phase 0-6）
+**旧計画**: 4日間 + 5ページ分析15日 = 19日間
+**削減**: 12.5日間の工数削減
 
 ---
 

@@ -225,69 +225,13 @@ export const MENU_STRUCTURE: MenuStructure = {
     }
   },
 
-  // 分析機能ページ
+  // 分析機能ページ（5ページ削除 - VoiceAnalyticsPage Phase 18.5に統合予定）
   analytics: {
-    dept_user: {
-      id: 'dept_user_analysis',
-      label: '所属部門ユーザー分析',
-      icon: '👥',
-      path: '/user-analysis',
-      requiredLevel: 3,
-      category: 'analytics'
-    },
-    dept_generation: {
-      id: 'dept_generation_analysis',
-      label: '所属部門世代間分析',
-      icon: '📊',
-      path: '/department-generational-analysis',
-      requiredLevel: 3,
-      category: 'analytics'
-    },
-    facility_hierarchy: {
-      id: 'facility_hierarchy_analysis',
-      label: '所属施設階層間分析',
-      icon: '🏗️',
-      path: '/hierarchical-analysis',
-      requiredLevel: 5,
-      category: 'analytics'
-    },
-    facility_profession: {
-      id: 'facility_profession_analysis',
-      label: '所属施設職種間分析',
-      icon: '⚕️',
-      path: '/professional-analysis',
-      requiredLevel: 5,
-      category: 'analytics'
-    },
     all_user: {
       id: 'all_user_analysis',
       label: '全施設ユーザー分析',
       icon: '👥',
       path: '/organization-analytics',
-      requiredLevel: 10,
-      category: 'analytics'
-    },
-    all_generation: {
-      id: 'all_generation_analysis',
-      label: '全施設世代間分析',
-      icon: '📈',
-      path: '/generational-analysis',
-      requiredLevel: 10,
-      category: 'analytics'
-    },
-    all_hierarchy: {
-      id: 'all_hierarchy_analysis',
-      label: '全施設階層間分析',
-      icon: '🏢',
-      path: '/hierarchical-analysis',
-      requiredLevel: 10,
-      category: 'analytics'
-    },
-    all_profession: {
-      id: 'all_profession_analysis',
-      label: '全施設職種間分析',
-      icon: '⚕️',
-      path: '/professional-analysis',
       requiredLevel: 10,
       category: 'analytics'
     },

@@ -116,18 +116,7 @@ import { CrossFacilityAnalysisPage } from '../pages/CrossFacilityAnalysisPage';
 import { BoardAgendaReviewPage } from '../pages/BoardAgendaReviewPage';
 import { BoardDecisionFollowPage } from '../pages/BoardDecisionFollowPage';
 
-// Generational Analysis
-import GenerationalAnalysisPage from '../pages/GenerationalAnalysisPage';
-import DepartmentGenerationalAnalysisPage from '../pages/DepartmentGenerationalAnalysisPage';
-
-// Hierarchical Analysis
-import HierarchicalAnalysisPage from '../pages/HierarchicalAnalysisPage';
-
-// User Analysis
-import UserAnalysisPage from '../pages/UserAnalysisPage';
-
-// Professional Analysis
-import ProfessionalAnalysisPage from '../pages/ProfessionalAnalysisPage';
+// Analysis pages removed - integrated into VoiceAnalyticsPage (Phase 18.5)
 
 // Admin pages
 import { SystemSettingsPage } from '../pages/SystemSettingsPage';
@@ -601,32 +590,7 @@ const AppRouter: React.FC = () => {
         </React.Suspense>
       } />
       
-      {/* Analysis Pages - Full width without sidebar */}
-      <Route path="generational-analysis" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
-          <GenerationalAnalysisPage />
-        </ProtectedRoute>
-      } />
-      <Route path="department-generational-analysis" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
-          <DepartmentGenerationalAnalysisPage />
-        </ProtectedRoute>
-      } />
-      <Route path="hierarchical-analysis" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-          <HierarchicalAnalysisPage />
-        </ProtectedRoute>
-      } />
-      <Route path="user-analysis" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
-          <UserAnalysisPage />
-        </ProtectedRoute>
-      } />
-      <Route path="professional-analysis" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-          <ProfessionalAnalysisPage />
-        </ProtectedRoute>
-      } />
+      {/* Analysis Pages - Removed (integrated into VoiceAnalyticsPage Phase 18.5) */}
       
       {/* Admin Pages - Full width without sidebar */}
       {/* システム運用ページ（Level 99専用） */}

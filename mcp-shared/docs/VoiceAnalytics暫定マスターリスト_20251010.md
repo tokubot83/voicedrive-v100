@@ -1,32 +1,92 @@
-# VoiceAnalytics 暫定マスターリスト
+# VoiceAnalytics 暫定マスターリスト（REV2 - 5ページ統合版）
 
 **作成日**: 2025年10月10日
+**最終更新**: 2025年10月13日（5ページ統合計画追加）
 **対象ページ**: VoiceAnalyticsPage (https://voicedrive-v100.vercel.app/voice-analytics)
-**対象権限**: Level 14-17（人事部門専用）
-**実装期間**: 4日間（DB構築1日 + Webhook実装1日 + サービス層移行1日 + UI統合+連携1日）
+**対象権限**: Level 14-17（人事部門専用）+ Level 18（理事会）強化
+**実装期間**: 6.5日間（統合準備2日 + DB構築1日 + Webhook実装1日 + サービス層移行1日 + UI統合2日 + 連携+削除0.5日）
+**工数削減**: 12.5日間（旧計画19日 → 新計画6.5日）
+
+---
+
+## 🆕 REV2 更新内容（2025年10月13日）
+
+### 統合対象5ページ
+1. **UserAnalysisPage** (`/user-analysis`) - ユーザー分析（世代、階層、職種、施設別）
+2. **GenerationalAnalysisPage** (`/generational-analysis`) - 世代分析
+3. **HierarchicalAnalysisPage** (`/hierarchical-analysis`) - 階層分析
+4. **ProfessionalAnalysisPage** (`/professional-analysis`) - 職種分析
+5. **DepartmentGenerationalAnalysisPage** (`/department-generational-analysis`) - 部門世代分析
+
+### 統合理由
+- 5ページ全て同一パターン・コード重複
+- Level 18（理事会）未対応
+- VoiceAnalyticsは既にDB分析完了（15日分の工数削減）
+
+### 統合後の構造
+**6タブ統一ダッシュボード**:
+- タブ1: 💬 ボイス分析（既存）
+- タブ2: 👥 ユーザー分析（新規統合）
+- タブ3: 📊 世代分析（新規統合）
+- タブ4: 🏗️ 階層分析（新規統合）
+- タブ5: ⚕️ 職種分析（新規統合）
+- タブ6: 🏢 グループ分析（Level 18専用、新規追加）
 
 ---
 
 ## 📋 概要
 
-- **目的**: 集団分析ダッシュボードのDB基盤構築とWebhook連携実装
-- **スコープ**: GroupAnalyticsテーブル + AnalyticsAlertテーブル + Webhook受信体制
+- **目的**: 集団分析ダッシュボードのDB基盤構築とWebhook連携実装 + 5ページ統合
+- **スコープ**: GroupAnalyticsテーブル（拡張版）+ AnalyticsAlertテーブル + Webhook受信体制 + 6タブUI実装
 - **前提条件**:
   - MySQL移行完了後の実装を想定
   - WebhookNotificationテーブル既存（拡張のみ）
   - 医療システムがバッチ分析を実施済み
+  - 🆕 5ページの既存実装を参照可能
 
 ---
 
-## 🎯 実装フェーズ
+## 🎯 実装フェーズ（REV2）
+
+### Phase 0: 🆕 5ページ統合準備（2日）
+
+#### タスク0-1: 既存ページ分析（4時間）
+- [ ] UserAnalysisPage.tsx読解（世代、階層、職種、施設別分析ロジック）
+- [ ] GenerationalAnalysisPage.tsx読解（世代分布、エンゲージメント）
+- [ ] HierarchicalAnalysisPage.tsx読解（階層分布、権限レベル分析）
+- [ ] ProfessionalAnalysisPage.tsx読解（職種分布、職種別エンゲージメント）
+- [ ] DepartmentGenerationalAnalysisPage.tsx読解（部門×世代クロス分析）
+
+#### タスク0-2: 共通ロジック抽出（6時間）
+- [ ] 権限スコープ判定ロジック抽出（department/facility/corporate）
+- [ ] 分析データ取得ロジック抽出
+- [ ] グラフ描画ロジック抽出（共通コンポーネント化）
+- [ ] フィルタリングロジック抽出
+
+#### タスク0-3: VoiceAnalyticsService拡張（6時間）
+- [ ] `getUserAnalyticsData(scope, scopeId)`メソッド追加
+- [ ] `getGenerationalAnalyticsData(scope, scopeId)`メソッド追加
+- [ ] `getHierarchicalAnalyticsData(scope, scopeId)`メソッド追加
+- [ ] `getProfessionalAnalyticsData(scope, scopeId)`メソッド追加
+- [ ] `getCrossGroupAnalyticsData()`メソッド追加（Level 18専用）
+
+#### タスク0-4: Level 18グループ分析設計（2時間）
+- [ ] グループ横断分析データ構造設計
+- [ ] 複数法人比較ロジック設計
+- [ ] ベンチマーキング指標定義
+- [ ] デモデータ作成（3法人分）
+
+---
 
 ### Phase 1: DB構築（1日）
 
-#### タスク1-1: テーブル作成（3時間）
+#### タスク1-1: テーブル作成（4時間）
 - [ ] `GroupAnalytics`テーブルをschema.prismaに追加
+- [ ] 🆕 5つの分析フィールド追加（userAnalyticsData、generationalAnalyticsData、hierarchicalAnalyticsData、professionalAnalyticsData、crossGroupAnalyticsData）
+- [ ] 🆕 scopeType、scopeIdフィールド追加（Level 18対応）
 - [ ] `AnalyticsAlert`テーブルをschema.prismaに追加
 - [ ] `WebhookNotification`にGroupAnalyticsリレーション追加
-- [ ] インデックス設定（analysisDate, analysisType, isActive）
+- [ ] インデックス設定（analysisDate, analysisType, isActive, scopeType+scopeId）
 
 #### タスク1-2: マイグレーション実行（1時間）
 - [ ] Prisma migrate実行
