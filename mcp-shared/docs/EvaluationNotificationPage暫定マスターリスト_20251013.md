@@ -648,29 +648,177 @@ interface DeliveryMethods {
 
 ---
 
+## 🗄️ データベーススキーマ実装状況
+
+### schema.prisma更新完了（2025-10-13）
+
+VoiceDriveチームにより、以下の2つのテーブルがschema.prismaに追加されました：
+
+#### ✅ EvaluationNotification テーブル（30フィールド）
+
+```prisma
+model EvaluationNotification {
+  id                      String    @id @default(cuid())
+
+  // 職員情報
+  employeeId              String    @map("employee_id")
+  employeeName            String    @map("employee_name")
+
+  // 評価情報
+  evaluationPeriod        String    @map("evaluation_period")
+  evaluationScore         Int       @map("evaluation_score")
+  evaluationGrade         String    @map("evaluation_grade")
+
+  // 3軸評価対応（V3評価システム）
+  facilityGrade           String?   @map("facility_grade")
+  corporateGrade          String?   @map("corporate_grade")
+  overallGrade            String?   @map("overall_grade")
+  overallScore            Int?      @map("overall_score")
+
+  // 開示・締切情報
+  disclosureDate          DateTime  @map("disclosure_date")
+  appealDeadline          DateTime  @map("appeal_deadline")
+  daysUntilDeadline       Int?      @map("days_until_deadline")
+  isUrgent                Boolean   @default(false) @map("is_urgent")
+
+  // 通知ステータス
+  notificationStatus      String    @default("pending") @map("notification_status")
+  notificationSentAt      DateTime? @map("notification_sent_at")
+  notificationReadAt      DateTime? @map("notification_read_at")
+
+  // 異議申立状況
+  appealStatus            String    @default("none") @map("appeal_status")
+  appealId                String?   @map("appeal_id")
+  appealSubmittedAt       DateTime? @map("appeal_submitted_at")
+
+  // 医療システム連携
+  medicalSystemUrl        String?   @map("medical_system_url")
+  medicalSystemEventId    String?   @unique @map("medical_system_event_id")
+
+  // 通知配信情報
+  emailSent               Boolean   @default(false) @map("email_sent")
+  pushSent                Boolean   @default(false) @map("push_sent")
+  smsSent                 Boolean   @default(false) @map("sms_sent")
+  emailSentAt             DateTime? @map("email_sent_at")
+  pushSentAt              DateTime? @map("push_sent_at")
+  smsSentAt               DateTime? @map("sms_sent_at")
+
+  // 配信失敗情報
+  deliveryFailureCount    Int       @default(0) @map("delivery_failure_count")
+  lastDeliveryError       String?   @map("last_delivery_error")
+
+  // メタデータ
+  priority                String    @default("high") @map("priority")
+  additionalMessage       String?   @map("additional_message")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  employee                User      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([notificationStatus])
+  @@index([appealStatus])
+  @@index([disclosureDate])
+  @@index([appealDeadline])
+  @@index([daysUntilDeadline])
+  @@index([isUrgent])
+  @@index([evaluationPeriod])
+  @@index([employeeId, evaluationPeriod])
+  @@index([notificationStatus, disclosureDate])
+  @@map("evaluation_notifications")
+}
+```
+
+#### ✅ NotificationSettings テーブル（12フィールド）
+
+```prisma
+model NotificationSettings {
+  id                        String    @id @default(cuid())
+  userId                    String    @unique @map("user_id")
+
+  // 通知チャネル設定
+  enableEmailNotifications  Boolean   @default(true) @map("enable_email_notifications")
+  enablePushNotifications   Boolean   @default(true) @map("enable_push_notifications")
+  enableSmsNotifications    Boolean   @default(false) @map("enable_sms_notifications")
+
+  // リマインダー設定
+  reminderDaysBefore        Int       @default(3) @map("reminder_days_before")
+  enableDeadlineReminder    Boolean   @default(true) @map("enable_deadline_reminder")
+
+  // 自動既読設定
+  autoMarkAsRead            Boolean   @default(false) @map("auto_mark_as_read")
+
+  // 通知時間帯設定
+  quietHoursStart           String?   @map("quiet_hours_start")
+  quietHoursEnd             String?   @map("quiet_hours_end")
+  enableQuietHours          Boolean   @default(false) @map("enable_quiet_hours")
+
+  // メタデータ
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  user                      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_settings")
+}
+```
+
+#### ✅ User モデルへの関連追加
+
+```prisma
+// EvaluationNotificationPage統合実装（2025-10-13）
+evaluationNotifications       EvaluationNotification[]
+notificationSettings          NotificationSettings?
+```
+
+### 実装スケジュール
+
+| フェーズ | 期間 | 作業内容 | 担当 |
+|---------|------|---------|------|
+| **Phase 1: DB構築** | 2025-11-01～11-10 | Prisma Migration実行、テーブル作成 | VoiceDriveチーム |
+| **Phase 2: Webhook実装** | 2025-11-11～11-20 | API-11～API-15実装 | 医療システム＋VoiceDrive |
+| **Phase 3: UI実装** | 2025-11-21～12-11 | フロントエンド実装、テスト | VoiceDriveチーム |
+
+### 次回作業タイミング
+
+#### Phase 1開始時（2025-11-01）に実施
+```bash
+# 1. Prismaマイグレーション実行
+npx prisma migrate dev --name add_evaluation_notification_tables
+
+# 2. Prismaクライアント再生成
+npx prisma generate
+
+# 3. 初期データ投入（下記SQL参照）
+```
+
+---
+
 ## 📝 初期データ投入SQL
 
 ### 通知設定（デフォルト値）
+
+**実施タイミング**: Phase 1（DB構築時）
 
 ```sql
 -- 全ユーザーにデフォルト通知設定を作成
 INSERT INTO notification_settings (
   id, user_id, enable_email_notifications, enable_push_notifications,
-  enable_sms_notifications, reminder_days_before, auto_mark_as_read,
-  notification_start_time, notification_end_time, max_notifications_per_day,
-  created_at, updated_at
+  enable_sms_notifications, reminder_days_before, enable_deadline_reminder,
+  auto_mark_as_read, enable_quiet_hours, created_at, updated_at
 )
 SELECT
-  CONCAT('notif_settings_', id),
+  'notif_settings_' || id,
   id,
   true,   -- メール通知ON
   true,   -- プッシュ通知ON
   false,  -- SMS通知OFF
   3,      -- 締切3日前にリマインダー
+  true,   -- 締切リマインダーON
   false,  -- 自動既読OFF
-  '09:00',
-  '18:00',
-  10,
+  false,  -- サイレント時間OFF
   CURRENT_TIMESTAMP,
   CURRENT_TIMESTAMP
 FROM users

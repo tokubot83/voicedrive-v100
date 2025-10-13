@@ -121,6 +121,10 @@ model User {
   // ProjectParticipationRecommendation統合実装（2025-10-12）
   participationStats            StaffProjectParticipationStats?
   recommendationLogs            ProjectRecommendationLog[]
+
+  // EvaluationNotificationPage統合実装（2025-10-13）
+  evaluationNotifications       EvaluationNotification[]
+  notificationSettings          NotificationSettings?
 }
 
 model Notification {
@@ -2639,4 +2643,115 @@ model ProjectRecommendationLog {
   @@index([sentAt])
   @@index([acceptedAt])
   @@map("project_recommendation_logs")
+}
+
+// ===================================
+// EvaluationNotificationPage統合実装（2025-10-13）
+// ===================================
+
+// 評価通知テーブル - V3評価システム対応
+model EvaluationNotification {
+  id                      String    @id @default(cuid())
+
+  // 職員情報
+  employeeId              String    @map("employee_id")
+  employeeName            String    @map("employee_name")
+
+  // 評価情報
+  evaluationPeriod        String    @map("evaluation_period")        // 例: "2025年度上期"
+  evaluationScore         Int       @map("evaluation_score")         // 0-100点
+  evaluationGrade         String    @map("evaluation_grade")         // S, A+, A, B+, B, C, D
+
+  // 3軸評価対応（V3評価システム）
+  facilityGrade           String?   @map("facility_grade")           // 施設内評価 (S, A, B, C, D の5段階)
+  corporateGrade          String?   @map("corporate_grade")          // 法人内評価 (S, A, B, C, D の5段階)
+  overallGrade            String?   @map("overall_grade")            // 総合評価 (S, A+, A, B+, B, C, D の7段階)
+  overallScore            Int?      @map("overall_score")            // 総合評価点数 (0-100点)
+
+  // 開示・締切情報
+  disclosureDate          DateTime  @map("disclosure_date")          // 評価開示日
+  appealDeadline          DateTime  @map("appeal_deadline")          // 異議申立締切日（開示から14日）
+  daysUntilDeadline       Int?      @map("days_until_deadline")      // 締切までの残日数
+  isUrgent                Boolean   @default(false) @map("is_urgent") // 緊急フラグ（3日以内）
+
+  // 通知ステータス
+  notificationStatus      String    @default("pending") @map("notification_status")
+  // 'pending' | 'sent' | 'delivered' | 'read' | 'failed'
+  notificationSentAt      DateTime? @map("notification_sent_at")
+  notificationReadAt      DateTime? @map("notification_read_at")
+
+  // 異議申立状況
+  appealStatus            String    @default("none") @map("appeal_status")
+  // 'none' | 'submitted' | 'in_review' | 'resolved'
+  appealId                String?   @map("appeal_id")                // 異議申立ID（医療システムで管理）
+  appealSubmittedAt       DateTime? @map("appeal_submitted_at")
+
+  // 医療システム連携
+  medicalSystemUrl        String?   @map("medical_system_url")       // 医療システムの評価詳細URL
+  medicalSystemEventId    String?   @unique @map("medical_system_event_id")  // Webhook重複排除用ID
+
+  // 通知配信情報
+  emailSent               Boolean   @default(false) @map("email_sent")
+  pushSent                Boolean   @default(false) @map("push_sent")
+  smsSent                 Boolean   @default(false) @map("sms_sent")
+  emailSentAt             DateTime? @map("email_sent_at")
+  pushSentAt              DateTime? @map("push_sent_at")
+  smsSentAt               DateTime? @map("sms_sent_at")
+
+  // 配信失敗情報
+  deliveryFailureCount    Int       @default(0) @map("delivery_failure_count")
+  lastDeliveryError       String?   @map("last_delivery_error")
+
+  // メタデータ
+  priority                String    @default("high") @map("priority")  // 'low' | 'medium' | 'high' | 'urgent'
+  additionalMessage       String?   @map("additional_message")        // 追加メッセージ
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  employee                User      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([notificationStatus])
+  @@index([appealStatus])
+  @@index([disclosureDate])
+  @@index([appealDeadline])
+  @@index([daysUntilDeadline])
+  @@index([isUrgent])
+  @@index([evaluationPeriod])
+  @@index([employeeId, evaluationPeriod])  // 職員の評価期間別通知取得用
+  @@index([notificationStatus, disclosureDate])  // 未読通知リスト高速取得用
+  @@map("evaluation_notifications")
+}
+
+// 通知設定テーブル - 職員ごとの通知受信設定
+model NotificationSettings {
+  id                        String    @id @default(cuid())
+  userId                    String    @unique @map("user_id")
+
+  // 通知チャネル設定
+  enableEmailNotifications  Boolean   @default(true) @map("enable_email_notifications")
+  enablePushNotifications   Boolean   @default(true) @map("enable_push_notifications")
+  enableSmsNotifications    Boolean   @default(false) @map("enable_sms_notifications")
+
+  // リマインダー設定
+  reminderDaysBefore        Int       @default(3) @map("reminder_days_before")  // 異議申立締切の何日前にリマインダー
+  enableDeadlineReminder    Boolean   @default(true) @map("enable_deadline_reminder")
+
+  // 自動既読設定
+  autoMarkAsRead            Boolean   @default(false) @map("auto_mark_as_read")
+
+  // 通知時間帯設定
+  quietHoursStart           String?   @map("quiet_hours_start")      // 例: "22:00"
+  quietHoursEnd             String?   @map("quiet_hours_end")        // 例: "08:00"
+  enableQuietHours          Boolean   @default(false) @map("enable_quiet_hours")
+
+  // メタデータ
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+
+  // リレーション
+  user                      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_settings")
 }

@@ -44,13 +44,7 @@ import MedicalAPITestPanel from '../components/test/MedicalAPITestPanel';
 import TestSummaryReceiver from '../pages/TestSummaryReceiver';
 
 // Dashboard pages
-import DepartmentDashboardPage from '../pages/DepartmentDashboardPage';
-import FacilityDashboardPage from '../pages/FacilityDashboardPage';
-import HRManagementDashboardPage from '../pages/HRManagementDashboardPage';
-import StrategicDashboardPage from '../pages/StrategicDashboardPage';
-import CorporateDashboardPage from '../pages/CorporateDashboardPage';
 import ExecutiveDashboardPage from '../pages/ExecutiveDashboardPage';
-import IntegratedCorporateDashboardPage from '../pages/IntegratedCorporateDashboardPage';
 
 // Staff Dashboard pages
 import DepartmentStaffDashboardPage from '../pages/DepartmentStaffDashboardPage';
@@ -186,40 +180,9 @@ const AppRouter: React.FC = () => {
         
         {/* Role-based dashboard routes with exact level protection */}
         <Route path="dashboard">
-          <Route path="department" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3} exactLevel>
-              <DepartmentDashboardPage />
-            </ProtectedRoute>
-          } />
-          <Route path="facility" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_4} exactLevel>
-              <FacilityDashboardPage />
-            </ProtectedRoute>
-          } />
-          <Route path="hr-management" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5} exactLevel>
-              <HRManagementDashboardPage />
-            </ProtectedRoute>
-          } />
-          <Route path="strategic" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6} exactLevel>
-              <StrategicDashboardPage />
-            </ProtectedRoute>
-          } />
-          <Route path="corporate" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7} exactLevel>
-              <CorporateDashboardPage />
-            </ProtectedRoute>
-          } />
           <Route path="executive" element={
             <ProtectedRoute requiredLevel={12}>
               <ExecutiveDashboardPage />
-            </ProtectedRoute>
-          } />
-          {/* 統合ダッシュボード（レベル5以上） */}
-          <Route path="integrated-corporate" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-              <IntegratedCorporateDashboardPage />
             </ProtectedRoute>
           } />
         </Route>
