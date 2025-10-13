@@ -13,14 +13,6 @@ export const MENU_STRUCTURE: MenuStructure = {
       requiredLevel: 1,
       category: 'station'
     },
-    leader: {
-      id: 'leader_station',
-      label: 'リーダーステーション',
-      icon: '👥',
-      path: '/leader-station',
-      requiredLevel: 2,
-      category: 'station'
-    },
     department: {
       id: 'department_station',
       label: '部門ステーション',

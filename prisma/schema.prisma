@@ -117,6 +117,10 @@ model User {
 
   // OrganizationStructure統合実装（2025-10-12）
   votingGroupsAsPrimaryApprover VotingGroup[]                 @relation("VotingGroupPrimaryApprover")
+
+  // ProjectParticipationRecommendation統合実装（2025-10-12）
+  participationStats            StaffProjectParticipationStats?
+  recommendationLogs            ProjectRecommendationLog[]
 }
 
 model Notification {
@@ -533,6 +537,12 @@ model Post {
   projectLevel          String?   @map("project_level")         // 'team' | 'department' | 'facility' | 'organization'
   projectProgress       Int?      @default(0) @map("project_progress")  // 進捗率（0-100）
 
+  // ProjectParticipationRecommendation統合実装（2025-10-12）
+  requiredSkills        String?   @map("required_skills")       // JSON文字列: [{ skillId, skillName, minLevel }]
+  projectComplexity     String?   @map("project_complexity")    // 'simple' | 'moderate' | 'complex' | 'advanced'
+  targetProfession      String?   @map("target_profession")     // JSON文字列: ["看護師", "医師", "薬剤師"]
+  targetDepartment      String?   @map("target_department")     // JSON文字列: ["内科", "外科", "事務部"]
+
   // リレーション
   author                User      @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
   votes                 Vote[]
@@ -549,6 +559,10 @@ model Post {
   milestones            ProjectMilestone[]          @relation("ProjectMilestones")
   teamMembers           ProjectTeamMember[]         @relation("ProjectTeamMembers")
 
+  // ProjectParticipationRecommendation統合実装（2025-10-12）
+  diversityAnalysis     ProjectDiversityAnalysis?
+  recommendationLogs    ProjectRecommendationLog[]
+
   @@index([authorId])
   @@index([type])
   @@index([status])
@@ -562,6 +576,7 @@ model Post {
   @@index([type, status, createdAt])    // ProgressDashboard: プロジェクト一覧取得用（2025-10-11）
   @@index([projectDueDate])              // ProgressDashboard: 期限ソート・遅延判定用（2025-10-11）
   @@index([projectLevel])                // ProgressDashboard: レベル別フィルタリング用（2025-10-11）
+  @@index([projectComplexity])           // ProjectParticipationRecommendation: 難易度別フィルタ用（2025-10-12）
 }
 
 // 投票（Vote）- 投稿に対する5段階投票
@@ -2472,4 +2487,156 @@ model ProjectParticipationByProfession {
   @@index([periodType])
   @@index([professionCode])
   @@map("project_participation_by_profession")
+}
+
+// ===================================
+// プロジェクト参加推奨統合（2025-10-12）
+// ProjectParticipationRecommendationPage用テーブル
+// ===================================
+
+// 職員プロジェクト参加統計 - 個別職員のプロジェクト参加状況
+model StaffProjectParticipationStats {
+  id                    String    @id @default(cuid())
+  userId                String    @unique @map("user_id")
+
+  // 参加統計
+  totalProjectsJoined   Int       @default(0) @map("total_projects_joined")
+  activeProjects        Int       @default(0) @map("active_projects")
+  completedProjects     Int       @default(0) @map("completed_projects")
+
+  // 期間別統計
+  projectsLast6Months   Int       @default(0) @map("projects_last_6months")
+  projectsThisYear      Int       @default(0) @map("projects_this_year")
+
+  // 参加率指標
+  participationRate     Float     @default(0) @map("participation_rate")
+  departmentAvgRate     Float     @default(0) @map("department_avg_rate")
+  isBelowAverage        Boolean   @default(false) @map("is_below_average")
+
+  // 最終参加日
+  lastJoinedAt          DateTime? @map("last_joined_at")
+  daysSinceLastJoin     Int?      @map("days_since_last_join")
+
+  // 推奨送信履歴
+  recommendationsSent   Int       @default(0) @map("recommendations_sent")
+  lastRecommendedAt     DateTime? @map("last_recommended_at")
+
+  // 更新日時
+  calculatedAt          DateTime  @default(now()) @map("calculated_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([participationRate])
+  @@index([isBelowAverage])
+  @@index([departmentAvgRate])
+  @@index([lastJoinedAt])
+  @@map("staff_project_participation_stats")
+}
+
+// プロジェクト多様性分析 - プロジェクトチームの多様性スコア
+model ProjectDiversityAnalysis {
+  id                          String    @id @default(cuid())
+  projectId                   String    @unique @map("project_id")
+
+  // 職種別カウント
+  nursesCount                 Int       @default(0) @map("nurses_count")
+  doctorsCount                Int       @default(0) @map("doctors_count")
+  adminCount                  Int       @default(0) @map("admin_count")
+  rehabCount                  Int       @default(0) @map("rehab_count")
+  pharmacistCount             Int       @default(0) @map("pharmacist_count")
+  medicalTechCount            Int       @default(0) @map("medical_tech_count")
+  othersCount                 Int       @default(0) @map("others_count")
+
+  // 世代別カウント
+  gen20sCount                 Int       @default(0) @map("gen_20s_count")
+  gen30sCount                 Int       @default(0) @map("gen_30s_count")
+  gen40sCount                 Int       @default(0) @map("gen_40s_count")
+  gen50sCount                 Int       @default(0) @map("gen_50s_count")
+  gen60sCount                 Int       @default(0) @map("gen_60s_count")
+
+  // 部署別カウント
+  departmentsCount            Int       @default(0) @map("departments_count")
+  departmentList              String?   @map("department_list")  // JSON文字列: ["内科", "外科", "事務部"]
+
+  // 多様性スコア（0-100）
+  professionDiversityScore    Float     @default(0) @map("profession_diversity_score")
+  generationDiversityScore    Float     @default(0) @map("generation_diversity_score")
+  departmentDiversityScore    Float     @default(0) @map("department_diversity_score")
+  overallDiversityScore       Float     @default(0) @map("overall_diversity_score")
+
+  // 目標・推奨
+  targetDiversityScore        Float     @default(75) @map("target_diversity_score")
+  recommendedProfessions      String?   @map("recommended_professions")  // JSON文字列: ["薬剤師", "医療技術職"]
+
+  // 更新日時
+  calculatedAt                DateTime  @default(now()) @map("calculated_at")
+  updatedAt                   DateTime  @updatedAt @map("updated_at")
+
+  project                     Post      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([overallDiversityScore])
+  @@index([professionDiversityScore])
+  @@map("project_diversity_analysis")
+}
+
+// スキルサマリキャッシュ - 医療システムのスキルデータをキャッシュ
+model SkillSummaryCache {
+  id                String    @id @default(cuid())
+  skillId           String    @unique @map("skill_id")
+  skillName         String    @map("skill_name")
+  skillCategory     String    @map("skill_category")
+
+  // 保有者統計
+  totalStaff        Int       @default(0) @map("total_staff")
+  expertCount       Int       @default(0) @map("expert_count")
+  advancedCount     Int       @default(0) @map("advanced_count")
+  intermediateCount Int       @default(0) @map("intermediate_count")
+  basicCount        Int       @default(0) @map("basic_count")
+  averageLevel      Float     @default(0) @map("average_level")
+
+  // プロジェクト関連統計（VoiceDrive側で計算）
+  activeProjects    Int       @default(0) @map("active_projects")
+  recommendations   Int       @default(0) @map("recommendations")
+
+  // 更新日時
+  lastSyncedAt      DateTime  @default(now()) @map("last_synced_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  @@index([skillName])
+  @@index([skillCategory])
+  @@index([totalStaff])
+  @@map("skill_summary_cache")
+}
+
+// プロジェクト推奨履歴 - 推奨送信・閲覧・受諾履歴
+model ProjectRecommendationLog {
+  id                String    @id @default(cuid())
+  userId            String    @map("user_id")
+  projectId         String    @map("project_id")
+
+  // 推奨情報
+  matchScore        Int       @map("match_score")       // 0-100
+  reasons           String    @map("reasons")           // JSON文字列: ["スキルマッチ", "部署関連"]
+  recommendedBy     String    @map("recommended_by")    // 推奨者のemployeeId
+
+  // 送信・閲覧・反応
+  sentAt            DateTime  @default(now()) @map("sent_at")
+  viewedAt          DateTime? @map("viewed_at")
+  acceptedAt        DateTime? @map("accepted_at")
+  rejectedAt        DateTime? @map("rejected_at")
+  rejectionReason   String?   @map("rejection_reason")
+
+  // メタデータ
+  recommendationType String   @default("auto") @map("recommendation_type")  // "auto" | "manual"
+  priority           String   @default("medium") @map("priority")           // "high" | "medium" | "low"
+
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project           Post      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([sentAt])
+  @@index([acceptedAt])
+  @@map("project_recommendation_logs")
 }
