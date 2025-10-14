@@ -89,7 +89,6 @@ import CommitteeManagementPage from '../pages/CommitteeManagementPage';
 import ManagementCommitteePage from '../pages/ManagementCommitteePage';
 import FacilityGovernancePage from '../pages/FacilityGovernancePage';
 import DecisionMeetingPage from '../pages/DecisionMeetingPage';
-import FacilityProjectManagementPage from '../pages/FacilityProjectManagementPage';
 
 // Retirement Processing
 import RetirementProcessingPage from '../pages/RetirementProcessingPage';
@@ -545,13 +544,6 @@ const AppRouter: React.FC = () => {
       <Route path="project-portfolio-management" element={
         <ProtectedRoute requiredLevel={18}>
           {React.createElement(React.lazy(() => import('../pages/ProjectPortfolioManagementPage')))}
-        </ProtectedRoute>
-      } />
-
-      {/* Facility Project Management (Level 10+) */}
-      <Route path="facility-project-management" element={
-        <ProtectedRoute requiredLevel={10}>
-          <FacilityProjectManagementPage />
         </ProtectedRoute>
       } />
 
