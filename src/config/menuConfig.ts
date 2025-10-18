@@ -97,14 +97,6 @@ export const MENU_STRUCTURE: MenuStructure = {
 
   // 戦略的人事機能ページ
   strategic_hr: {
-    org_development: {
-      id: 'org_development',
-      label: '組織開発',
-      icon: '🏗️',
-      path: '/org-development',
-      requiredLevel: 10,
-      category: 'strategic_hr'
-    },
     performance: {
       id: 'performance_analytics',
       label: 'パフォーマンス分析',
