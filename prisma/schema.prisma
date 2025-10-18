@@ -8,9 +8,9 @@ datasource db {
 }
 
 model User {
-  id                   String         @id @default(cuid())
-  employeeId           String         @unique
-  email                String         @unique
+  id                   String               @id @default(cuid())
+  employeeId           String               @unique
+  email                String               @unique
   name                 String
   department           String?
   facilityId           String?
@@ -18,7 +18,7 @@ model User {
   avatar               String?
   accountType          String
   permissionLevel      Decimal
-  canPerformLeaderDuty Boolean        @default(false)
+  canPerformLeaderDuty Boolean              @default(false)
   professionCategory   String?
   parentId             String?
   budgetApprovalLimit  Float?
@@ -26,105 +26,105 @@ model User {
   position             String?
   expertise            Int?
   hierarchyLevel       Int?
-  isRetired            Boolean        @default(false)
+  isRetired            Boolean              @default(false)
   retirementDate       DateTime?
   anonymizedId         String?
   experienceYears      Float?
-  age                  Int?           // ProjectTalentAnalytics統合実装（2025-10-12）
-  generation           String?        // ProjectTalentAnalytics統合実装（2025-10-12）
-  ageUpdatedAt         DateTime?      @map("age_updated_at") // ProjectTalentAnalytics統合実装（2025-10-12）
-  createdAt            DateTime       @default(now())
-  updatedAt            DateTime       @updatedAt
+  age                  Int? // ProjectTalentAnalytics統合実装（2025-10-12）
+  generation           String? // ProjectTalentAnalytics統合実装（2025-10-12）
+  ageUpdatedAt         DateTime?            @map("age_updated_at") // ProjectTalentAnalytics統合実装（2025-10-12）
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
   lastLoginAt          DateTime?
-  loginCount           Int            @default(0)
+  loginCount           Int                  @default(0)
   auditLogs            AuditLog[]
   evaluations          Evaluation[]
-  feedbackReceived     Feedback[]     @relation("FeedbackReceiver")
-  feedbackSent         Feedback[]     @relation("FeedbackSender")
+  feedbackReceived     Feedback[]           @relation("FeedbackReceiver")
+  feedbackSent         Feedback[]           @relation("FeedbackSender")
   interviews           Interview[]
   notifications        Notification[]
   projects             Project[]
   surveys              Survey[]
-  reportsSent          PostReport[]   @relation("ReportSender")
-  reportsReviewed      PostReport[]   @relation("ReportReviewer")
-  alertsAcknowledged   PostReportAlert[] @relation("AlertAcknowledger")
+  reportsSent          PostReport[]         @relation("ReportSender")
+  reportsReviewed      PostReport[]         @relation("ReportReviewer")
+  alertsAcknowledged   PostReportAlert[]    @relation("AlertAcknowledger")
   voteHistory          VoteHistory[]
   activitySummary      UserActivitySummary?
-  parent               User?          @relation("UserHierarchy", fields: [parentId], references: [id])
-  children             User[]         @relation("UserHierarchy")
+  parent               User?                @relation("UserHierarchy", fields: [parentId], references: [id])
+  children             User[]               @relation("UserHierarchy")
 
   // ComposeForm統合実装（2025-10-09）
-  posts                Post[]         @relation("PostAuthor")
-  postVotes            Vote[]         @relation("PostVote")
-  comments             Comment[]      @relation("CommentAuthor")
-  pollsCreated         Poll[]         @relation("PollCreator")
-  pollVotes            PollVote[]     @relation("PollVoter")
-  eventsOrganized      Event[]        @relation("EventOrganizer")
-  dateVotes            DateVote[]     @relation("DateVoter")
-  eventParticipations  Participant[]  @relation("EventParticipant")
+  posts               Post[]        @relation("PostAuthor")
+  postVotes           Vote[]        @relation("PostVote")
+  comments            Comment[]     @relation("CommentAuthor")
+  pollsCreated        Poll[]        @relation("PollCreator")
+  pollVotes           PollVote[]    @relation("PollVoter")
+  eventsOrganized     Event[]       @relation("EventOrganizer")
+  dateVotes           DateVote[]    @relation("DateVoter")
+  eventParticipations Participant[] @relation("EventParticipant")
 
   // TeamLeaderDashboard統合実装（2025-10-09）
   approvalTasksRequested ApprovalTask[] @relation("ApprovalRequester")
   approvalTasksApproved  ApprovalTask[] @relation("ApprovalApprover")
 
   // CommitteeManagement統合実装（2025-10-09）
-  proposedAgendas         ManagementCommitteeAgenda[] @relation("AgendaProposer")
-  chairmanCommittees      CommitteeInfo[]             @relation("CommitteeChairperson")
-  committeeMemberships    CommitteeMember[]           @relation("CommitteeMemberUser")
-  submissionRequestsSent  CommitteeSubmissionRequest[] @relation("SubmissionRequester")
+  proposedAgendas            ManagementCommitteeAgenda[]  @relation("AgendaProposer")
+  chairmanCommittees         CommitteeInfo[]              @relation("CommitteeChairperson")
+  committeeMemberships       CommitteeMember[]            @relation("CommitteeMemberUser")
+  submissionRequestsSent     CommitteeSubmissionRequest[] @relation("SubmissionRequester")
   submissionRequestsApproved CommitteeSubmissionRequest[] @relation("SubmissionApprover")
 
   // DecisionMeeting統合実装（2025-10-10）
-  proposedDecisionAgendas DecisionMeetingAgenda[]     @relation("DecisionProposer")
-  decidedAgendas          DecisionMeetingAgenda[]     @relation("DecisionDecider")
+  proposedDecisionAgendas DecisionMeetingAgenda[] @relation("DecisionProposer")
+  decidedAgendas          DecisionMeetingAgenda[] @relation("DecisionDecider")
 
   // VoiceAnalytics統合実装（2025-10-10）
-  acknowledgedAlerts      AnalyticsAlert[]            @relation("AlertAcknowledger")
+  acknowledgedAlerts AnalyticsAlert[] @relation("AlertAcknowledger")
 
   // CultureDevelopment統合実装（2025-10-10）
-  ownedInitiatives        CultureInitiative[]         @relation("InitiativeOwner")
+  ownedInitiatives CultureInitiative[] @relation("InitiativeOwner")
 
   // ExecutiveReports統合実装（2025-10-10）
-  generatedReports        GeneratedReport[]           @relation("ReportGenerator")
-  reportCustomizations    ReportCustomization[]       @relation("ReportCustomizer")
-  reportAccessLogs        ReportAccessLog[]           @relation("ReportAccessUser")
-  boardPresentations      BoardMeetingAgenda[]        @relation("BoardPresenter")
-  approvedInsights        StrategicInsight[]          @relation("InsightApprover")
+  generatedReports     GeneratedReport[]     @relation("ReportGenerator")
+  reportCustomizations ReportCustomization[] @relation("ReportCustomizer")
+  reportAccessLogs     ReportAccessLog[]     @relation("ReportAccessUser")
+  boardPresentations   BoardMeetingAgenda[]  @relation("BoardPresenter")
+  approvedInsights     StrategicInsight[]    @relation("InsightApprover")
 
   // BoardPreparation統合実装（2025-10-10）
-  createdBoardMeetings        BoardMeeting[]                  @relation("BoardMeetingCreator")
-  selectedAgendaCandidates    BoardAgendaCandidateSelection[] @relation("AgendaSelector")
-  createdProposals            ChairmanProposal[]              @relation("ProposalCreator")
-  reviewedProposals           ChairmanProposal[]              @relation("ProposalReviewer")
+  createdBoardMeetings     BoardMeeting[]                  @relation("BoardMeetingCreator")
+  selectedAgendaCandidates BoardAgendaCandidateSelection[] @relation("AgendaSelector")
+  createdProposals         ChairmanProposal[]              @relation("ProposalCreator")
+  reviewedProposals        ChairmanProposal[]              @relation("ProposalReviewer")
 
   // CrossFacilityAnalysis統合実装（2025-10-11）
-  assignedCommonIssues        CrossFacilityCommonIssue[]      @relation("CommonIssueAssignee")
-  successCasesFromFacility    CrossFacilitySuccessCase[]      @relation("SuccessCaseFacility")
-  approvedSuccessCases        CrossFacilitySuccessCase[]      @relation("SuccessCaseApprover")
-  replicationsAtFacility      SuccessCaseReplication[]        @relation("ReplicationTargetFacility")
-  responsibleReplications     SuccessCaseReplication[]        @relation("ReplicationResponsible")
-  approvedOpportunities       StrategicOpportunity[]          @relation("OpportunityApprover")
+  assignedCommonIssues     CrossFacilityCommonIssue[] @relation("CommonIssueAssignee")
+  successCasesFromFacility CrossFacilitySuccessCase[] @relation("SuccessCaseFacility")
+  approvedSuccessCases     CrossFacilitySuccessCase[] @relation("SuccessCaseApprover")
+  replicationsAtFacility   SuccessCaseReplication[]   @relation("ReplicationTargetFacility")
+  responsibleReplications  SuccessCaseReplication[]   @relation("ReplicationResponsible")
+  approvedOpportunities    StrategicOpportunity[]     @relation("OpportunityApprover")
 
   // BoardAgendaReview統合実装（2025-10-11）
-  reviewedAgendas             BoardMeetingAgenda[]            @relation("AgendaChairmanReviewer")
+  reviewedAgendas BoardMeetingAgenda[] @relation("AgendaChairmanReviewer")
 
   // ProjectApproval統合実装（2025-10-11）
-  projectApprovals            ProjectApproval[]               @relation("ProjectApprover")
+  projectApprovals ProjectApproval[] @relation("ProjectApprover")
 
   // ProgressDashboard統合実装（2025-10-11）
-  projectMemberships          ProjectTeamMember[]             @relation("ProjectMemberships")
-  completedMilestones         ProjectMilestone[]              @relation("MilestoneCompletedBy")
+  projectMemberships  ProjectTeamMember[] @relation("ProjectMemberships")
+  completedMilestones ProjectMilestone[]  @relation("MilestoneCompletedBy")
 
   // OrganizationStructure統合実装（2025-10-12）
-  votingGroupsAsPrimaryApprover VotingGroup[]                 @relation("VotingGroupPrimaryApprover")
+  votingGroupsAsPrimaryApprover VotingGroup[] @relation("VotingGroupPrimaryApprover")
 
   // ProjectParticipationRecommendation統合実装（2025-10-12）
-  participationStats            StaffProjectParticipationStats?
-  recommendationLogs            ProjectRecommendationLog[]
+  participationStats StaffProjectParticipationStats?
+  recommendationLogs ProjectRecommendationLog[]
 
   // EvaluationNotificationPage統合実装（2025-10-13）
-  evaluationNotifications       EvaluationNotification[]
-  notificationSettings          NotificationSettings?
+  evaluationNotifications EvaluationNotification[]
+  notificationSettings    NotificationSettings?
 }
 
 model Notification {
@@ -290,13 +290,13 @@ model AuditLog {
   createdAt  DateTime @default(now())
 
   // 緊急停止専用フィールド（account-deactivation統合 2025-10-10）
-  executorLevel      Float?    @map("executor_level")
-  targetUserId       String?   @map("target_user_id")
-  reason             String?   
-  isEmergencyAction  Boolean   @default(false) @map("is_emergency_action")
-  syncPending        Boolean   @default(false) @map("sync_pending")
+  executorLevel     Float?  @map("executor_level")
+  targetUserId      String? @map("target_user_id")
+  reason            String?
+  isEmergencyAction Boolean @default(false) @map("is_emergency_action")
+  syncPending       Boolean @default(false) @map("sync_pending")
 
-  user       User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@index([action, isEmergencyAction])
   @@index([targetUserId])
@@ -366,24 +366,24 @@ model DataConsent {
 
 // 投稿通報システム
 model PostReport {
-  id              String           @id @default(cuid())
-  postId          String
-  alertId         String?
-  reporterId      String
-  reporterName    String?
-  reportType      String           // personal_attack, defamation, harassment, etc.
-  description     String?
-  status          String           @default("pending") // pending, reviewing, actioned, dismissed
-  reviewedBy      String?
-  reviewedAt      DateTime?
-  actionTaken     String?
-  reviewNotes     String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id           String    @id @default(cuid())
+  postId       String
+  alertId      String?
+  reporterId   String
+  reporterName String?
+  reportType   String // personal_attack, defamation, harassment, etc.
+  description  String?
+  status       String    @default("pending") // pending, reviewing, actioned, dismissed
+  reviewedBy   String?
+  reviewedAt   DateTime?
+  actionTaken  String?
+  reviewNotes  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  reporter        User             @relation("ReportSender", fields: [reporterId], references: [id])
-  reviewer        User?            @relation("ReportReviewer", fields: [reviewedBy], references: [id])
-  alert           PostReportAlert? @relation(fields: [alertId], references: [id])
+  reporter User             @relation("ReportSender", fields: [reporterId], references: [id])
+  reviewer User?            @relation("ReportReviewer", fields: [reviewedBy], references: [id])
+  alert    PostReportAlert? @relation(fields: [alertId], references: [id])
 
   @@index([postId])
   @@index([reporterId])
@@ -394,22 +394,22 @@ model PostReport {
 
 // 通報アラート（閾値超過時の管理者通知）
 model PostReportAlert {
-  id                   String    @id @default(cuid())
-  postId               String    @unique
-  severity             String    // low, medium, high, critical
-  reportCount          Int
-  dominantReportType   String
-  message              String
-  acknowledged         Boolean   @default(false)
-  acknowledgedBy       String?
-  acknowledgedAt       DateTime?
-  autoModerated        Boolean   @default(false)
-  autoModeratedAt      DateTime?
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  id                 String    @id @default(cuid())
+  postId             String    @unique
+  severity           String // low, medium, high, critical
+  reportCount        Int
+  dominantReportType String
+  message            String
+  acknowledged       Boolean   @default(false)
+  acknowledgedBy     String?
+  acknowledgedAt     DateTime?
+  autoModerated      Boolean   @default(false)
+  autoModeratedAt    DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  acknowledger         User?     @relation("AlertAcknowledger", fields: [acknowledgedBy], references: [id])
-  reports              PostReport[]
+  acknowledger User?        @relation("AlertAcknowledger", fields: [acknowledgedBy], references: [id])
+  reports      PostReport[]
 
   @@index([postId])
   @@index([severity])
@@ -420,12 +420,12 @@ model PostReportAlert {
 model WebhookNotification {
   id             String    @id @default(cuid())
   notificationId String    @unique // 職員カルテシステム側のID
-  type           String    // success, error, warning, info
+  type           String // success, error, warning, info
   title          String
   message        String
-  details        Json?     // SuccessDetails または ErrorDetails
+  details        Json? // SuccessDetails または ErrorDetails
   accountLevel   Int
-  timestamp      DateTime  // 通知発生時刻（職員カルテシステム側）
+  timestamp      DateTime // 通知発生時刻（職員カルテシステム側）
   read           Boolean   @default(false)
   readAt         DateTime?
   createdAt      DateTime  @default(now())
@@ -443,20 +443,20 @@ model WebhookNotification {
 
 // 投票履歴（パーソナルステーション用）
 model VoteHistory {
-  id            String    @id @default(cuid())
-  userId        String
-  postId        String
-  voteOption    String    // "agree", "disagree", "neutral"
-  voteWeight    Float     @default(1.0)  // 権限レベルによる重み
-  votedAt       DateTime  @default(now())
-  postCategory  String?   // "改善提案", "質問相談" etc.
-  postType      String?   // "personal", "department", "organization"
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id           String   @id @default(cuid())
+  userId       String
+  postId       String
+  voteOption   String // "agree", "disagree", "neutral"
+  voteWeight   Float    @default(1.0) // 権限レベルによる重み
+  votedAt      DateTime @default(now())
+  postCategory String? // "改善提案", "質問相談" etc.
+  postType     String? // "personal", "department", "organization"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, postId])  // 1人1投稿1回のみ投票可能
+  @@unique([userId, postId]) // 1人1投稿1回のみ投票可能
   @@index([userId])
   @@index([postId])
   @@index([votedAt])
@@ -464,22 +464,22 @@ model VoteHistory {
 
 // ユーザー活動サマリー（パフォーマンス最適化用）
 model UserActivitySummary {
-  id                    String    @id @default(cuid())
-  userId                String    @unique
-  totalPosts            Int       @default(0)
-  totalVotes            Int       @default(0)
-  thisMonthVotes        Int       @default(0)
-  impactScore           Float     @default(0)
-  feedbackReceived      Int       @default(0)
-  feedbackSent          Int       @default(0)
-  projectsProposed      Int       @default(0)
-  surveysCompleted      Int       @default(0)
-  loginDays             Int       @default(0)
-  lastCalculatedAt      DateTime  @default(now())
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  totalPosts       Int      @default(0)
+  totalVotes       Int      @default(0)
+  thisMonthVotes   Int      @default(0)
+  impactScore      Float    @default(0)
+  feedbackReceived Int      @default(0)
+  feedbackSent     Int      @default(0)
+  projectsProposed Int      @default(0)
+  surveysCompleted Int      @default(0)
+  loginDays        Int      @default(0)
+  lastCalculatedAt DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([impactScore])
@@ -491,81 +491,81 @@ model UserActivitySummary {
 
 // 投稿（Post）- VoiceDriveの中核テーブル
 model Post {
-  id                    String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 基本情報
-  type                  String    // 'improvement' | 'community' | 'report'
-  content               String
-  authorId              String
-  anonymityLevel        String    // AnonymityLevel enum
-  status                String    @default("active") // 'active' | 'archived' | 'deleted'
+  type           String // 'improvement' | 'community' | 'report'
+  content        String
+  authorId       String
+  anonymityLevel String // AnonymityLevel enum
+  status         String @default("active") // 'active' | 'archived' | 'deleted'
 
   // improvement投稿専用
-  proposalType          String?   // 'operational' | 'communication' | 'innovation' | 'strategic'
-  priority              String?   // 'low' | 'medium' | 'high' | 'urgent'
+  proposalType String? // 'operational' | 'communication' | 'innovation' | 'strategic'
+  priority     String? // 'low' | 'medium' | 'high' | 'urgent'
 
   // community投稿専用（フリースペース）
-  freespaceCategory     String?   // 'idea_sharing' | 'casual_discussion' | 'event_planning'
-  freespaceScope        String?   // 'team' | 'department' | 'facility' | 'organization'
-  expirationDate        DateTime?
-  isExpired             Boolean   @default(false)
-  extensionRequested    Boolean   @default(false)
-  extensionReason       String?
+  freespaceCategory  String? // 'idea_sharing' | 'casual_discussion' | 'event_planning'
+  freespaceScope     String? // 'team' | 'department' | 'facility' | 'organization'
+  expirationDate     DateTime?
+  isExpired          Boolean   @default(false)
+  extensionRequested Boolean   @default(false)
+  extensionReason    String?
 
   // メタデータ
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // 議題モード用（将来実装）
-  agendaScore           Int?      @default(0)
-  agendaLevel           String?   // 'PENDING' | 'DEPT_REVIEW' | 'DEPT_AGENDA' | 'FACILITY_AGENDA'
+  agendaScore Int?    @default(0)
+  agendaLevel String? // 'PENDING' | 'DEPT_REVIEW' | 'DEPT_AGENDA' | 'FACILITY_AGENDA'
 
   // 季節情報（キャパシティ管理用）
-  season                String?   // '春', '夏', '秋', '冬'
+  season String? // '春', '夏', '秋', '冬'
 
   // モデレーション情報
-  moderationStatus      String    @default("pending") // 'pending' | 'approved' | 'flagged'
-  moderationScore       Int?      // 建設性スコア (0-100)
+  moderationStatus String @default("pending") // 'pending' | 'approved' | 'flagged'
+  moderationScore  Int? // 建設性スコア (0-100)
 
   // ProjectApproval統合実装（2025-10-11）
-  approvalStatus        String?   @default("pending") @map("approval_status")
+  approvalStatus  String?   @default("pending") @map("approval_status")
   // 'pending' | 'approved' | 'rejected' | 'on_hold' | 'team_formation'
-  approvedAt            DateTime? @map("approved_at")
-  approvedBy            String?   @map("approved_by")
-  rejectedAt            DateTime? @map("rejected_at")
-  rejectedBy            String?   @map("rejected_by")
-  rejectionReason       String?   @map("rejection_reason")
+  approvedAt      DateTime? @map("approved_at")
+  approvedBy      String?   @map("approved_by")
+  rejectedAt      DateTime? @map("rejected_at")
+  rejectedBy      String?   @map("rejected_by")
+  rejectionReason String?   @map("rejection_reason")
 
   // ProgressDashboard統合実装（2025-10-11）
-  projectDueDate        DateTime? @map("project_due_date")      // プロジェクト期限
-  projectLevel          String?   @map("project_level")         // 'team' | 'department' | 'facility' | 'organization'
-  projectProgress       Int?      @default(0) @map("project_progress")  // 進捗率（0-100）
+  projectDueDate  DateTime? @map("project_due_date") // プロジェクト期限
+  projectLevel    String?   @map("project_level") // 'team' | 'department' | 'facility' | 'organization'
+  projectProgress Int?      @default(0) @map("project_progress") // 進捗率（0-100）
 
   // ProjectParticipationRecommendation統合実装（2025-10-12）
-  requiredSkills        String?   @map("required_skills")       // JSON文字列: [{ skillId, skillName, minLevel }]
-  projectComplexity     String?   @map("project_complexity")    // 'simple' | 'moderate' | 'complex' | 'advanced'
-  targetProfession      String?   @map("target_profession")     // JSON文字列: ["看護師", "医師", "薬剤師"]
-  targetDepartment      String?   @map("target_department")     // JSON文字列: ["内科", "外科", "事務部"]
+  requiredSkills    String? @map("required_skills") // JSON文字列: [{ skillId, skillName, minLevel }]
+  projectComplexity String? @map("project_complexity") // 'simple' | 'moderate' | 'complex' | 'advanced'
+  targetProfession  String? @map("target_profession") // JSON文字列: ["看護師", "医師", "薬剤師"]
+  targetDepartment  String? @map("target_department") // JSON文字列: ["内科", "外科", "事務部"]
 
   // リレーション
-  author                User      @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  votes                 Vote[]
-  comments              Comment[]
-  poll                  Poll?
-  event                 Event?
-  relatedAgendas        ManagementCommitteeAgenda[] @relation("AgendaRelatedPost")
-  approvals             ProjectApproval[]           @relation("PostApprovals")
+  author         User                        @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  votes          Vote[]
+  comments       Comment[]
+  poll           Poll?
+  event          Event?
+  relatedAgendas ManagementCommitteeAgenda[] @relation("AgendaRelatedPost")
+  approvals      ProjectApproval[]           @relation("PostApprovals")
 
   // CrossFacilityAnalysis統合実装（2025-10-11）
-  successCases          CrossFacilitySuccessCase[]  @relation("SuccessCaseSource")
+  successCases CrossFacilitySuccessCase[] @relation("SuccessCaseSource")
 
   // ProgressDashboard統合実装（2025-10-11）
-  milestones            ProjectMilestone[]          @relation("ProjectMilestones")
-  teamMembers           ProjectTeamMember[]         @relation("ProjectTeamMembers")
+  milestones  ProjectMilestone[]  @relation("ProjectMilestones")
+  teamMembers ProjectTeamMember[] @relation("ProjectTeamMembers")
 
   // ProjectParticipationRecommendation統合実装（2025-10-12）
-  diversityAnalysis     ProjectDiversityAnalysis?
-  recommendationLogs    ProjectRecommendationLog[]
+  diversityAnalysis  ProjectDiversityAnalysis?
+  recommendationLogs ProjectRecommendationLog[]
 
   @@index([authorId])
   @@index([type])
@@ -574,50 +574,50 @@ model Post {
   @@index([freespaceCategory])
   @@index([createdAt])
   @@index([expirationDate])
-  @@index([authorId, type, createdAt])  // ProjectTracking: 提案したプロジェクト高速取得用（2025-10-11）
-  @@index([approvalStatus, createdAt])  // ProjectApproval: 承認待ちプロジェクト高速取得用（2025-10-11）
-  @@index([approvalStatus])              // ProjectApproval: 承認ステータスフィルタ用（2025-10-11）
-  @@index([type, status, createdAt])    // ProgressDashboard: プロジェクト一覧取得用（2025-10-11）
-  @@index([projectDueDate])              // ProgressDashboard: 期限ソート・遅延判定用（2025-10-11）
-  @@index([projectLevel])                // ProgressDashboard: レベル別フィルタリング用（2025-10-11）
-  @@index([projectComplexity])           // ProjectParticipationRecommendation: 難易度別フィルタ用（2025-10-12）
+  @@index([authorId, type, createdAt]) // ProjectTracking: 提案したプロジェクト高速取得用（2025-10-11）
+  @@index([approvalStatus, createdAt]) // ProjectApproval: 承認待ちプロジェクト高速取得用（2025-10-11）
+  @@index([approvalStatus]) // ProjectApproval: 承認ステータスフィルタ用（2025-10-11）
+  @@index([type, status, createdAt]) // ProgressDashboard: プロジェクト一覧取得用（2025-10-11）
+  @@index([projectDueDate]) // ProgressDashboard: 期限ソート・遅延判定用（2025-10-11）
+  @@index([projectLevel]) // ProgressDashboard: レベル別フィルタリング用（2025-10-11）
+  @@index([projectComplexity]) // ProjectParticipationRecommendation: 難易度別フィルタ用（2025-10-12）
 }
 
 // 投票（Vote）- 投稿に対する5段階投票
 model Vote {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   postId    String
   userId    String
-  option    String    // 'strongly-oppose' | 'oppose' | 'neutral' | 'support' | 'strongly-support'
-  timestamp DateTime  @default(now())
+  option    String // 'strongly-oppose' | 'oppose' | 'neutral' | 'support' | 'strongly-support'
+  timestamp DateTime @default(now())
 
-  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      User      @relation("PostVote", fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation("PostVote", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
   @@index([postId])
   @@index([userId])
-  @@index([userId, timestamp])  // ProjectTracking: 投票したプロジェクト高速取得用（2025-10-11）
+  @@index([userId, timestamp]) // ProjectTracking: 投票したプロジェクト高速取得用（2025-10-11）
 }
 
 // コメント（Comment）- 投稿に対するコメント
 model Comment {
-  id              String    @id @default(cuid())
-  postId          String
-  parentId        String?   // 返信の場合、親コメントID
-  authorId        String
-  content         String
-  commentType     String    // 'proposal' | 'question' | 'support' | 'concern'
-  anonymityLevel  String
-  privacyLevel    String?
-  likes           Int       @default(0)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id             String   @id @default(cuid())
+  postId         String
+  parentId       String? // 返信の場合、親コメントID
+  authorId       String
+  content        String
+  commentType    String // 'proposal' | 'question' | 'support' | 'concern'
+  anonymityLevel String
+  privacyLevel   String?
+  likes          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  post            Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  parent          Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
-  replies         Comment[] @relation("CommentReplies")
-  author          User      @relation("CommentAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  post    Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies Comment[] @relation("CommentReplies")
+  author  User      @relation("CommentAuthor", fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([postId])
   @@index([parentId])
@@ -626,24 +626,24 @@ model Comment {
 
 // 投票（Poll）- フリースペース投票機能
 model Poll {
-  id              String        @id @default(cuid())
-  postId          String        @unique
-  question        String
-  description     String?
-  totalVotes      Int           @default(0)
-  deadline        DateTime
-  isActive        Boolean       @default(true)
-  allowMultiple   Boolean       @default(false)
-  showResults     String        // 'afterVote' | 'afterDeadline' | 'always'
-  category        String        // 'idea_sharing' | 'casual_discussion' | 'event_planning'
-  scope           String        // 'team' | 'department' | 'facility' | 'organization'
-  createdAt       DateTime      @default(now())
-  createdById     String
+  id            String   @id @default(cuid())
+  postId        String   @unique
+  question      String
+  description   String?
+  totalVotes    Int      @default(0)
+  deadline      DateTime
+  isActive      Boolean  @default(true)
+  allowMultiple Boolean  @default(false)
+  showResults   String // 'afterVote' | 'afterDeadline' | 'always'
+  category      String // 'idea_sharing' | 'casual_discussion' | 'event_planning'
+  scope         String // 'team' | 'department' | 'facility' | 'organization'
+  createdAt     DateTime @default(now())
+  createdById   String
 
-  post            Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
-  createdBy       User          @relation("PollCreator", fields: [createdById], references: [id])
-  options         PollOption[]
-  votes           PollVote[]
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdBy User         @relation("PollCreator", fields: [createdById], references: [id])
+  options   PollOption[]
+  votes     PollVote[]
 
   @@index([postId])
   @@index([deadline])
@@ -652,14 +652,14 @@ model Poll {
 
 // 投票選択肢（PollOption）
 model PollOption {
-  id        String      @id @default(cuid())
+  id        String  @id @default(cuid())
   pollId    String
   text      String
   emoji     String?
-  votes     Int         @default(0)
-  sortOrder Int         @default(0)
+  votes     Int     @default(0)
+  sortOrder Int     @default(0)
 
-  poll      Poll        @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
   pollVotes PollVote[]
 
   @@index([pollId])
@@ -667,16 +667,16 @@ model PollOption {
 
 // 投票記録（PollVote）
 model PollVote {
-  id           String    @id @default(cuid())
-  pollId       String
-  optionId     String
-  userId       String
-  isAnonymous  Boolean   @default(false)
-  timestamp    DateTime  @default(now())
+  id          String   @id @default(cuid())
+  pollId      String
+  optionId    String
+  userId      String
+  isAnonymous Boolean  @default(false)
+  timestamp   DateTime @default(now())
 
-  poll         Poll      @relation(fields: [pollId], references: [id], onDelete: Cascade)
-  option       PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
-  user         User      @relation("PollVoter", fields: [userId], references: [id], onDelete: Cascade)
+  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  user   User       @relation("PollVoter", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([pollId, userId, optionId])
   @@index([pollId])
@@ -685,46 +685,46 @@ model PollVote {
 
 // イベント（Event）- フリースペースイベント企画
 model Event {
-  id                    String          @id @default(cuid())
-  postId                String          @unique
-  title                 String
-  description           String
-  type                  String          // EventType enum
+  id          String @id @default(cuid())
+  postId      String @unique
+  title       String
+  description String
+  type        String // EventType enum
 
   // 日程情報
-  registrationDeadline  DateTime?
-  finalDate             DateTime?
-  finalStartTime        String?
-  finalEndTime          String?
+  registrationDeadline DateTime?
+  finalDate            DateTime?
+  finalStartTime       String?
+  finalEndTime         String?
 
   // 参加者情報
-  organizerId           String
-  maxParticipants       Int?
+  organizerId     String
+  maxParticipants Int?
 
   // 会場・詳細
-  venueName             String?
-  venueAddress          String?
-  cost                  Float?
-  requirements          Json?           // string[]
+  venueName    String?
+  venueAddress String?
+  cost         Float?
+  requirements Json? // string[]
 
   // ステータス
-  status                String          @default("planning") // EventStatus enum
-  visibility            String          // EventVisibility enum
+  status     String @default("planning") // EventStatus enum
+  visibility String // EventVisibility enum
 
   // 機能設定
-  allowDateVoting       Boolean         @default(true)
-  allowComments         Boolean         @default(true)
-  sendReminders         Boolean         @default(true)
+  allowDateVoting Boolean @default(true)
+  allowComments   Boolean @default(true)
+  sendReminders   Boolean @default(true)
 
   // メタデータ
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
-  tags                  Json?           // string[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tags      Json? // string[]
 
-  post                  Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
-  organizer             User            @relation("EventOrganizer", fields: [organizerId], references: [id])
-  proposedDates         ProposedDate[]
-  participants          Participant[]
+  post          Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  organizer     User           @relation("EventOrganizer", fields: [organizerId], references: [id])
+  proposedDates ProposedDate[]
+  participants  Participant[]
 
   @@index([postId])
   @@index([organizerId])
@@ -733,30 +733,30 @@ model Event {
 
 // 提案日程（ProposedDate）
 model ProposedDate {
-  id          String      @id @default(cuid())
-  eventId     String
-  date        DateTime
-  startTime   String
-  endTime     String
-  totalVotes  Int         @default(0)
-  sortOrder   Int         @default(0)
+  id         String   @id @default(cuid())
+  eventId    String
+  date       DateTime
+  startTime  String
+  endTime    String
+  totalVotes Int      @default(0)
+  sortOrder  Int      @default(0)
 
-  event       Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  votes       DateVote[]
+  event Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  votes DateVote[]
 
   @@index([eventId])
 }
 
 // 日程投票（DateVote）
 model DateVote {
-  id              String        @id @default(cuid())
-  proposedDateId  String
-  userId          String
-  response        String        // 'available' | 'maybe' | 'unavailable'
-  timestamp       DateTime      @default(now())
+  id             String   @id @default(cuid())
+  proposedDateId String
+  userId         String
+  response       String // 'available' | 'maybe' | 'unavailable'
+  timestamp      DateTime @default(now())
 
-  proposedDate    ProposedDate  @relation(fields: [proposedDateId], references: [id], onDelete: Cascade)
-  user            User          @relation("DateVoter", fields: [userId], references: [id])
+  proposedDate ProposedDate @relation(fields: [proposedDateId], references: [id], onDelete: Cascade)
+  user         User         @relation("DateVoter", fields: [userId], references: [id])
 
   @@unique([proposedDateId, userId])
   @@index([proposedDateId])
@@ -765,16 +765,16 @@ model DateVote {
 
 // イベント参加者（Participant）
 model Participant {
-  id                  String    @id @default(cuid())
+  id                  String   @id @default(cuid())
   eventId             String
   userId              String
-  status              String    // 'confirmed' | 'tentative' | 'declined' | 'waitlisted'
-  joinedAt            DateTime  @default(now())
+  status              String // 'confirmed' | 'tentative' | 'declined' | 'waitlisted'
+  joinedAt            DateTime @default(now())
   note                String?
-  dietaryRequirements Json?     // string[]
+  dietaryRequirements Json? // string[]
 
-  event               Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user                User      @relation("EventParticipant", fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation("EventParticipant", fields: [userId], references: [id])
 
   @@unique([eventId, userId])
   @@index([eventId])
@@ -787,61 +787,61 @@ model Participant {
 
 // 承認タスク（TeamLeaderDashboard専用）
 model ApprovalTask {
-  id              String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // タスク基本情報
-  title           String
-  description     String?
-  taskType        String    // purchase_request, training_request, leave_request, expense_report, etc.
-  amount          Float?    // 金額（該当する場合のみ）
+  title       String
+  description String?
+  taskType    String // purchase_request, training_request, leave_request, expense_report, etc.
+  amount      Float? // 金額（該当する場合のみ）
 
   // 申請者情報
-  requesterId     String    // User.id（VoiceDrive内部ID）
-  requesterName   String?   // キャッシュ用（表示高速化）
+  requesterId         String // User.id（VoiceDrive内部ID）
+  requesterName       String? // キャッシュ用（表示高速化）
   requesterEmployeeId String? // User.employeeId（医療システムID）
 
   // 承認者情報
-  approverId      String?   // User.id（承認後に設定）
-  approverName    String?   // キャッシュ用
+  approverId         String? // User.id（承認後に設定）
+  approverName       String? // キャッシュ用
   approverEmployeeId String? // User.employeeId（承認者の医療システムID）
 
   // ステータス
-  status          String    @default("pending") // pending, approved, rejected, cancelled
-  priority        String    @default("medium")  // low, medium, high
+  status   String @default("pending") // pending, approved, rejected, cancelled
+  priority String @default("medium") // low, medium, high
 
   // 組織情報（フィルタリング用）
-  department      String?   // 部門コード（例: "medical_care_ward"）
-  facilityId      String?   // 施設ID（例: "tategami_hospital"）
+  department String? // 部門コード（例: "medical_care_ward"）
+  facilityId String? // 施設ID（例: "tategami_hospital"）
 
   // タイムスタンプ
-  submittedAt     DateTime  @default(now())  // 申請日時
-  respondedAt     DateTime?                  // 承認/却下日時
+  submittedAt DateTime  @default(now()) // 申請日時
+  respondedAt DateTime? // 承認/却下日時
 
   // 承認コメント
-  approverComment String?   // 承認者のコメント（承認理由・却下理由）
+  approverComment String? // 承認者のコメント（承認理由・却下理由）
 
   // 追加情報（JSON形式で柔軟に拡張可能）
-  metadata        Json?     // タスクタイプごとの追加情報
+  metadata Json? // タスクタイプごとの追加情報
 
   // 監査情報
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  requester       User      @relation("ApprovalRequester", fields: [requesterId], references: [id], onDelete: Cascade)
-  approver        User?     @relation("ApprovalApprover", fields: [approverId], references: [id])
+  requester User  @relation("ApprovalRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  approver  User? @relation("ApprovalApprover", fields: [approverId], references: [id])
 
   // インデックス（パフォーマンス最適化）
-  @@index([requesterId])          // 申請者で検索
-  @@index([approverId])           // 承認者で検索
-  @@index([status])               // ステータスで検索（pending一覧など）
-  @@index([department])           // 部門で検索
-  @@index([facilityId])           // 施設で検索
-  @@index([taskType])             // タスクタイプで検索
-  @@index([priority])             // 優先度で検索
-  @@index([submittedAt])          // 申請日時でソート
-  @@index([status, department])   // 複合インデックス（部門×ステータス）
-  @@index([status, approverId])   // 複合インデックス（承認者×ステータス）
+  @@index([requesterId]) // 申請者で検索
+  @@index([approverId]) // 承認者で検索
+  @@index([status]) // ステータスで検索（pending一覧など）
+  @@index([department]) // 部門で検索
+  @@index([facilityId]) // 施設で検索
+  @@index([taskType]) // タスクタイプで検索
+  @@index([priority]) // 優先度で検索
+  @@index([submittedAt]) // 申請日時でソート
+  @@index([status, department]) // 複合インデックス（部門×ステータス）
+  @@index([status, approverId]) // 複合インデックス（承認者×ステータス）
 }
 
 // ===================================
@@ -850,65 +850,65 @@ model ApprovalTask {
 
 // 運営委員会議題
 model ManagementCommitteeAgenda {
-  id                   String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 基本情報
-  title                String
-  agendaType           String    // 'committee_proposal' | 'facility_policy' | 'personnel' | 'budget' | 'equipment' | 'other'
-  description          String
-  background           String
+  title       String
+  agendaType  String // 'committee_proposal' | 'facility_policy' | 'personnel' | 'budget' | 'equipment' | 'other'
+  description String
+  background  String
 
   // 提案元情報
-  proposedBy           String    // 提案者名（キャッシュ）
-  proposedDate         DateTime
-  proposerDepartment   String    // 提案者部署（キャッシュ）
-  proposerId           String?   // User.id
+  proposedBy         String // 提案者名（キャッシュ）
+  proposedDate       DateTime
+  proposerDepartment String // 提案者部署（キャッシュ）
+  proposerId         String? // User.id
 
   // 関連投稿
-  relatedPostId        String?   // Post.id
-  escalationSource     String?   // 'voting_system' | 'department_proposal' | 'direct_submission'
+  relatedPostId    String? // Post.id
+  escalationSource String? // 'voting_system' | 'department_proposal' | 'direct_submission'
 
   // ステータス
-  status               String    @default("pending") // 'pending' | 'in_review' | 'approved' | 'rejected' | 'deferred'
-  priority             String    @default("normal")  // 'urgent' | 'high' | 'normal' | 'low'
+  status   String @default("pending") // 'pending' | 'in_review' | 'approved' | 'rejected' | 'deferred'
+  priority String @default("normal") // 'urgent' | 'high' | 'normal' | 'low'
 
   // 審議情報
-  scheduledDate        DateTime?
-  actualReviewDate     DateTime?
-  decidedDate          DateTime?
-  decidedBy            String?   // 決定者名（キャッシュ）
-  decision             String?   // 'approved' | 'rejected' | 'deferred'
-  decisionNotes        String?
+  scheduledDate    DateTime?
+  actualReviewDate DateTime?
+  decidedDate      DateTime?
+  decidedBy        String? // 決定者名（キャッシュ）
+  decision         String? // 'approved' | 'rejected' | 'deferred'
+  decisionNotes    String?
 
   // 影響分析
-  impactDepartments    Json      // string[] - 部署リスト
+  impactDepartments    Json // string[] - 部署リスト
   estimatedCost        Float?
   implementationPeriod String?
   expectedEffect       String
 
   // 🆕 実装追跡（Organization Analytics用）
-  implementationStatus    String?    @default("not_started") @map("implementation_status")
+  implementationStatus    String?   @default("not_started") @map("implementation_status")
   // 'not_started' | 'in_progress' | 'completed' | 'on_hold' | 'cancelled'
-  implementationStartDate DateTime?  @map("implementation_start_date")
-  implementationEndDate   DateTime?  @map("implementation_end_date")
-  implementationProgress  Float?     @default(0) @map("implementation_progress") // 0-100
-  implementationNotes     String?    @map("implementation_notes")
+  implementationStartDate DateTime? @map("implementation_start_date")
+  implementationEndDate   DateTime? @map("implementation_end_date")
+  implementationProgress  Float?    @default(0) @map("implementation_progress") // 0-100
+  implementationNotes     String?   @map("implementation_notes")
 
   // 🆕 影響度評価（Executive Reports用 - 2025-10-10）
-  impactAssessment        String?     @map("impact_assessment")  // "採用目標達成率20%向上見込み"
-  impactCategory          String?    @map("impact_category")              // "cost_reduction", "efficiency", "satisfaction"
-  estimatedImpact         Float?     @map("estimated_impact")             // 数値化された影響度（%）
+  impactAssessment String? @map("impact_assessment") // "採用目標達成率20%向上見込み"
+  impactCategory   String? @map("impact_category") // "cost_reduction", "efficiency", "satisfaction"
+  estimatedImpact  Float?  @map("estimated_impact") // 数値化された影響度（%）
 
   // その他
-  tags                 Json?     // string[]
+  tags Json? // string[]
 
   // タイムスタンプ
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  proposer                  User?     @relation("AgendaProposer", fields: [proposerId], references: [id])
-  relatedPost               Post?     @relation("AgendaRelatedPost", fields: [relatedPostId], references: [id])
+  proposer                  User?                  @relation("AgendaProposer", fields: [proposerId], references: [id])
+  relatedPost               Post?                  @relation("AgendaRelatedPost", fields: [relatedPostId], references: [id])
   escalatedToDecision       DecisionMeetingAgenda? @relation("CommitteeToDecisionEscalation")
   relatedBoardMeetingAgenda BoardMeetingAgenda[]   @relation("BoardRelatedAgenda")
 
@@ -925,32 +925,32 @@ model ManagementCommitteeAgenda {
 
 // 委員会情報
 model CommitteeInfo {
-  id               String             @id @default(cuid())
+  id String @id @default(cuid())
 
   // 基本情報
-  name             String             @unique
-  description      String
+  name        String @unique
+  description String
 
   // 統計情報
-  memberCount      Int                @default(0)
-  totalMeetings    Int                @default(0)
-  activeAgendas    Int                @default(0)
+  memberCount   Int @default(0)
+  totalMeetings Int @default(0)
+  activeAgendas Int @default(0)
 
   // 委員長情報
-  chairperson      String?            // 委員長名（キャッシュ）
-  chairpersonId    String?            // User.id
+  chairperson   String? // 委員長名（キャッシュ）
+  chairpersonId String? // User.id
 
   // スケジュール
-  nextMeetingDate  DateTime?
+  nextMeetingDate DateTime?
 
   // タイムスタンプ
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  chairpersonUser  User?              @relation("CommitteeChairperson", fields: [chairpersonId], references: [id])
-  members          CommitteeMember[]
-  meetings         CommitteeMeeting[]
+  chairpersonUser User?              @relation("CommitteeChairperson", fields: [chairpersonId], references: [id])
+  members         CommitteeMember[]
+  meetings        CommitteeMeeting[]
 
   @@index([name])
   @@index([chairpersonId])
@@ -958,35 +958,35 @@ model CommitteeInfo {
 
 // 委員会メンバー
 model CommitteeMember {
-  id              String         @id @default(cuid())
+  id String @id @default(cuid())
 
   // 委員会情報
-  committeeId     String
+  committeeId String
 
   // 職員情報
-  userId          String         // User.id
-  name            String         // 職員名（キャッシュ）
-  department      String         // 部署（キャッシュ）
-  position        String         // 役職（キャッシュ）
+  userId     String // User.id
+  name       String // 職員名（キャッシュ）
+  department String // 部署（キャッシュ）
+  position   String // 役職（キャッシュ）
 
   // 委員会内役割
-  role            String         // 'chairman' | 'vice_chairman' | 'secretary' | 'member' | 'observer'
+  role String // 'chairman' | 'vice_chairman' | 'secretary' | 'member' | 'observer'
 
   // 任期
-  termStart       DateTime
-  termEnd         DateTime?
-  isActive        Boolean        @default(true)
+  termStart DateTime
+  termEnd   DateTime?
+  isActive  Boolean   @default(true)
 
   // 統計
-  attendanceRate  Float          @default(0)
+  attendanceRate Float @default(0)
 
   // タイムスタンプ
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  committee       CommitteeInfo  @relation(fields: [committeeId], references: [id], onDelete: Cascade)
-  user            User           @relation("CommitteeMemberUser", fields: [userId], references: [id])
+  committee CommitteeInfo @relation(fields: [committeeId], references: [id], onDelete: Cascade)
+  user      User          @relation("CommitteeMemberUser", fields: [userId], references: [id])
 
   @@unique([committeeId, userId])
   @@index([committeeId])
@@ -997,33 +997,33 @@ model CommitteeMember {
 
 // 会議スケジュール
 model CommitteeMeeting {
-  id              String         @id @default(cuid())
+  id String @id @default(cuid())
 
   // 委員会情報
-  committeeId     String
-  committeeName   String         // 委員会名（キャッシュ）
+  committeeId   String
+  committeeName String // 委員会名（キャッシュ）
 
   // 日時・会場
-  date            DateTime
-  venue           String
+  date  DateTime
+  venue String
 
   // 議題情報
-  agendaCount     Int            @default(0)
+  agendaCount Int @default(0)
 
   // ステータス
-  status          String         @default("scheduled") // 'scheduled' | 'in_progress' | 'completed' | 'cancelled'
+  status String @default("scheduled") // 'scheduled' | 'in_progress' | 'completed' | 'cancelled'
 
   // 拡張情報（将来実装）
-  chairperson     String?        // 委員長名（キャッシュ）
-  participants    Json?          // string[] - 参加者リスト
-  meetingMinutes  String?        // 議事録URL
+  chairperson    String? // 委員長名（キャッシュ）
+  participants   Json? // string[] - 参加者リスト
+  meetingMinutes String? // 議事録URL
 
   // タイムスタンプ
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  committee       CommitteeInfo  @relation(fields: [committeeId], references: [id], onDelete: Cascade)
+  committee CommitteeInfo @relation(fields: [committeeId], references: [id], onDelete: Cascade)
 
   @@index([committeeId])
   @@index([date])
@@ -1032,37 +1032,37 @@ model CommitteeMeeting {
 
 // 提出承認リクエスト
 model CommitteeSubmissionRequest {
-  id                String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 提案情報
-  proposalTitle     String
-  targetCommittee   String
+  proposalTitle   String
+  targetCommittee String
 
   // 申請者情報
-  requesterId       String    // User.id
-  requesterName     String    // 申請者名（キャッシュ）
-  requesterLevel    Float     // 権限レベル（キャッシュ）
+  requesterId    String // User.id
+  requesterName  String // 申請者名（キャッシュ）
+  requesterLevel Float // 権限レベル（キャッシュ）
 
   // ステータス
-  status            String    @default("pending") // 'pending' | 'approved' | 'rejected'
+  status String @default("pending") // 'pending' | 'approved' | 'rejected'
 
   // 承認情報
-  approvedBy        String?   // 承認者名（キャッシュ）
-  approverId        String?   // User.id
-  approvedAt        DateTime?
-  approvalNotes     String?
+  approvedBy    String? // 承認者名（キャッシュ）
+  approverId    String? // User.id
+  approvedAt    DateTime?
+  approvalNotes String?
 
   // 却下情報
-  rejectionReason   String?
+  rejectionReason String?
 
   // タイムスタンプ
-  requestedAt       DateTime  @default(now())
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  requestedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // リレーション
-  requester         User      @relation("SubmissionRequester", fields: [requesterId], references: [id])
-  approver          User?     @relation("SubmissionApprover", fields: [approverId], references: [id])
+  requester User  @relation("SubmissionRequester", fields: [requesterId], references: [id])
+  approver  User? @relation("SubmissionApprover", fields: [approverId], references: [id])
 
   @@index([requesterId])
   @@index([approverId])
@@ -1077,61 +1077,61 @@ model CommitteeSubmissionRequest {
 
 // 経営会議議題（院長・施設長専用）
 model DecisionMeetingAgenda {
-  id                      String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 基本情報
-  title                   String
-  type                    String    // 'committee_proposal' | 'facility_policy' | 'personnel' | 'budget' | 'equipment' | 'strategic' | 'other'
-  description             String
-  background              String
+  title       String
+  type        String // 'committee_proposal' | 'facility_policy' | 'personnel' | 'budget' | 'equipment' | 'strategic' | 'other'
+  description String
+  background  String
 
   // 提案元情報
-  proposedBy              String    // 提案者名（キャッシュ）
-  proposedDate            DateTime
-  proposerDepartment      String    // 提案者部署（キャッシュ）
-  proposerId              String?   // User.id
+  proposedBy         String // 提案者名（キャッシュ）
+  proposedDate       DateTime
+  proposerDepartment String // 提案者部署（キャッシュ）
+  proposerId         String? // User.id
 
   // ステータス
-  status                  String    @default("pending") // 'pending' | 'in_review' | 'approved' | 'rejected' | 'deferred'
-  priority                String    @default("normal")  // 'urgent' | 'high' | 'normal' | 'low'
+  status   String @default("pending") // 'pending' | 'in_review' | 'approved' | 'rejected' | 'deferred'
+  priority String @default("normal") // 'urgent' | 'high' | 'normal' | 'low'
 
   // 審議情報
-  scheduledDate           DateTime?
-  decidedDate             DateTime?
-  decidedBy               String?   // 決定者名（キャッシュ）
-  deciderId               String?   // User.id
-  decision                String?   // 'approved' | 'rejected' | 'deferred'
-  decisionNotes           String?
+  scheduledDate DateTime?
+  decidedDate   DateTime?
+  decidedBy     String? // 決定者名（キャッシュ）
+  deciderId     String? // User.id
+  decision      String? // 'approved' | 'rejected' | 'deferred'
+  decisionNotes String?
 
   // 影響分析
-  impactDepartments       Json      // string[] - 影響部署リスト
-  impactEstimatedCost     Float?    // 見積もり費用
+  impactDepartments          Json // string[] - 影響部署リスト
+  impactEstimatedCost        Float? // 見積もり費用
   impactImplementationPeriod String? // 実施期間
-  impactExpectedEffect    String    // 期待される効果
+  impactExpectedEffect       String // 期待される効果
 
   // 添付資料
-  attachments             Json?     // string[] - ファイルURL
+  attachments Json? // string[] - ファイルURL
 
   // 会議情報
-  meetingAttendeesRaw     Json?     // string[] - 参加者名（raw）
-  meetingAttendees        Json?     // { name, title }[] - 構造化参加者リスト
-  meetingDiscussion       String?   // 議論内容
-  meetingConcerns         Json?     // string[] - 懸念事項
-  meetingConditions       Json?     // string[] - 承認条件
+  meetingAttendeesRaw Json? // string[] - 参加者名（raw）
+  meetingAttendees    Json? // { name, title }[] - 構造化参加者リスト
+  meetingDiscussion   String? // 議論内容
+  meetingConcerns     Json? // string[] - 懸念事項
+  meetingConditions   Json? // string[] - 承認条件
 
   // その他
-  tags                    Json?     // string[] - タグ
+  tags Json? // string[] - タグ
 
   // タイムスタンプ
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  proposerUser            User?     @relation("DecisionProposer", fields: [proposerId], references: [id])
-  deciderUser             User?     @relation("DecisionDecider", fields: [deciderId], references: [id])
+  proposerUser User? @relation("DecisionProposer", fields: [proposerId], references: [id])
+  deciderUser  User? @relation("DecisionDecider", fields: [deciderId], references: [id])
 
   // 委員会議題からのエスカレーション
-  relatedCommitteeAgendaId String?  @unique
+  relatedCommitteeAgendaId String?                    @unique
   relatedCommitteeAgenda   ManagementCommitteeAgenda? @relation("CommitteeToDecisionEscalation", fields: [relatedCommitteeAgendaId], references: [id])
 
   @@index([proposerId])
@@ -1150,44 +1150,44 @@ model DecisionMeetingAgenda {
 
 // 集団分析データ（職員カルテシステムからバッチ受信）
 model GroupAnalytics {
-  id                        String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // メタデータ
-  analysisDate              DateTime  // 分析実施日
-  periodStartDate           DateTime  // 分析期間開始
-  periodEndDate             DateTime  // 分析期間終了
-  analysisType              String    @default("monthly") // 'weekly' | 'monthly' | 'quarterly' | 'yearly'
+  analysisDate    DateTime // 分析実施日
+  periodStartDate DateTime // 分析期間開始
+  periodEndDate   DateTime // 分析期間終了
+  analysisType    String   @default("monthly") // 'weekly' | 'monthly' | 'quarterly' | 'yearly'
 
   // 投稿動向（JSON: PostingTrends）
-  postingTrendsData         Json      // { totalPosts, totalUsers, participationRate, byCategory, byDepartment, byLevel, monthlyTrend }
+  postingTrendsData Json // { totalPosts, totalUsers, participationRate, byCategory, byDepartment, byLevel, monthlyTrend }
 
   // 感情分析（JSON: SentimentAnalysis）
-  sentimentAnalysisData     Json?     // { positive, neutral, negative, positiveRate, negativeRate, byDepartment }
+  sentimentAnalysisData Json? // { positive, neutral, negative, positiveRate, negativeRate, byDepartment }
 
   // トピック分析（JSON: TopicAnalysis）
-  topicAnalysisData         Json?     // { topKeywords, emergingTopics, byDepartment }
+  topicAnalysisData Json? // { topKeywords, emergingTopics, byDepartment }
 
   // エンゲージメント（JSON: EngagementMetrics）
-  engagementMetricsData     Json      // { averageCommentsPerPost, averageVotesPerIdea, activeUserRate, byDepartment }
+  engagementMetricsData Json // { averageCommentsPerPost, averageVotesPerIdea, activeUserRate, byDepartment }
 
   // プライバシー保護情報（JSON: PrivacyMetadata）
-  privacyMetadata           Json      // { totalConsentedUsers, minimumGroupSize, excludedSmallGroupsCount }
+  privacyMetadata Json // { totalConsentedUsers, minimumGroupSize, excludedSmallGroupsCount }
 
   // 受信情報
-  receivedAt                DateTime  @default(now())  // VoiceDriveが受信した日時
-  webhookNotificationId     String?   // WebhookNotification.id
+  receivedAt            DateTime @default(now()) // VoiceDriveが受信した日時
+  webhookNotificationId String? // WebhookNotification.id
 
   // ステータス
-  isProcessed               Boolean   @default(true)   // 処理完了フラグ
-  isActive                  Boolean   @default(true)   // 最新データフラグ（古いデータはfalse）
+  isProcessed Boolean @default(true) // 処理完了フラグ
+  isActive    Boolean @default(true) // 最新データフラグ（古いデータはfalse）
 
   // タイムスタンプ
-  createdAt                 DateTime  @default(now())
-  updatedAt                 DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  webhookNotification       WebhookNotification? @relation(fields: [webhookNotificationId], references: [id])
-  alerts                    AnalyticsAlert[]
+  webhookNotification WebhookNotification? @relation(fields: [webhookNotificationId], references: [id])
+  alerts              AnalyticsAlert[]
 
   @@index([analysisDate])
   @@index([analysisType])
@@ -1198,34 +1198,34 @@ model GroupAnalytics {
 
 // 分析アラート
 model AnalyticsAlert {
-  id                    String           @id @default(cuid())
+  id String @id @default(cuid())
 
   // 分析データとの関連
-  groupAnalyticsId      String           // GroupAnalytics.id
+  groupAnalyticsId String // GroupAnalytics.id
 
   // アラート情報
-  severity              String           // 'low' | 'medium' | 'high' | 'critical'
-  topic                 String           // トピック名
-  description           String           // 詳細説明
-  affectedDepartments   Json             // string[] - 影響部門リスト
-  recommendedAction     String           // 推奨アクション
+  severity            String // 'low' | 'medium' | 'high' | 'critical'
+  topic               String // トピック名
+  description         String // 詳細説明
+  affectedDepartments Json // string[] - 影響部門リスト
+  recommendedAction   String // 推奨アクション
 
   // 閾値情報（医療チーム提案）
-  thresholdValue        Float?           // 閾値
-  actualValue           Float?           // 実測値
+  thresholdValue Float? // 閾値
+  actualValue    Float? // 実測値
 
   // ステータス
-  isAcknowledged        Boolean          @default(false)  // 確認済みフラグ
-  acknowledgedBy        String?          // User.id（確認者）
-  acknowledgedAt        DateTime?        // 確認日時
+  isAcknowledged Boolean   @default(false) // 確認済みフラグ
+  acknowledgedBy String? // User.id（確認者）
+  acknowledgedAt DateTime? // 確認日時
 
   // タイムスタンプ
-  createdAt             DateTime         @default(now())
-  updatedAt             DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  groupAnalytics        GroupAnalytics   @relation(fields: [groupAnalyticsId], references: [id], onDelete: Cascade)
-  acknowledgedByUser    User?            @relation("AlertAcknowledger", fields: [acknowledgedBy], references: [id])
+  groupAnalytics     GroupAnalytics @relation(fields: [groupAnalyticsId], references: [id], onDelete: Cascade)
+  acknowledgedByUser User?          @relation("AlertAcknowledger", fields: [acknowledgedBy], references: [id])
 
   @@index([groupAnalyticsId])
   @@index([severity])
@@ -1240,39 +1240,39 @@ model AnalyticsAlert {
 
 // 文化診断
 model CultureAssessment {
-  id                    String                    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 診断期間（医療チーム回答: 四半期ごと年4回）
-  assessmentDate        DateTime                  // 診断実施日
-  quarter               String                    // 四半期識別子（例: 'Q3-2025'）
-  periodStartDate       DateTime                  // 対象期間開始
-  periodEndDate         DateTime                  // 対象期間終了
+  assessmentDate  DateTime // 診断実施日
+  quarter         String // 四半期識別子（例: 'Q3-2025'）
+  periodStartDate DateTime // 対象期間開始
+  periodEndDate   DateTime // 対象期間終了
 
   // スコア
-  overallScore          Int                       // 総合スコア（0-100）
-  previousScore         Int?                      // 前四半期スコア
-  previousYearScore     Int?                      // 前年同期スコア
-  trend                 String                    // 'improving' | 'stable' | 'declining'
+  overallScore      Int // 総合スコア（0-100）
+  previousScore     Int? // 前四半期スコア
+  previousYearScore Int? // 前年同期スコア
+  trend             String // 'improving' | 'stable' | 'declining'
 
   // SWOT分析
-  strengths             Json                      // string[] - 強み
-  weaknesses            Json                      // string[] - 弱み
-  opportunities         Json                      // string[] - 機会
+  strengths     Json // string[] - 強み
+  weaknesses    Json // string[] - 弱み
+  opportunities Json // string[] - 機会
 
   // 参加データ
-  participantCount      Int                       // 参加者数
-  responseRate          Float                     // 参加率（%）
+  participantCount Int // 参加者数
+  responseRate     Float // 参加率（%）
 
   // ステータス（医療チーム回答: 全期間保存、論理削除のみ）
-  isActive              Boolean                   @default(true)  // 論理削除フラグ
+  isActive Boolean @default(true) // 論理削除フラグ
 
   // タイムスタンプ
-  createdAt             DateTime                  @default(now())
-  updatedAt             DateTime                  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  dimensions            CultureDimension[]
-  departmentScores      DepartmentCultureScore[]
+  dimensions       CultureDimension[]
+  departmentScores DepartmentCultureScore[]
 
   @@index([assessmentDate])
   @@index([quarter])
@@ -1282,31 +1282,31 @@ model CultureAssessment {
 
 // 文化次元
 model CultureDimension {
-  id                    String                    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 診断との関連
-  assessmentId          String                    // CultureAssessment.id
+  assessmentId String // CultureAssessment.id
 
   // 次元情報
-  dimensionType         String                    // 'psychological_safety' | 'collaboration' | 'innovation' | 'learning' | 'work_life_balance' | ...
-  name                  String                    // 次元名（日本語）
-  description           String                    // 説明
+  dimensionType String // 'psychological_safety' | 'collaboration' | 'innovation' | 'learning' | 'work_life_balance' | ...
+  name          String // 次元名（日本語）
+  description   String // 説明
 
   // スコア
-  score                 Int                       // スコア（0-100）
-  previousScore         Int?                      // 前回スコア
-  change                Int                       // 変化（前回比）
+  score         Int // スコア（0-100）
+  previousScore Int? // 前回スコア
+  change        Int // 変化（前回比）
 
   // 推奨アクション
-  recommendedActions    Json                      // string[]
+  recommendedActions Json // string[]
 
   // タイムスタンプ
-  createdAt             DateTime                  @default(now())
-  updatedAt             DateTime                  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  assessment            CultureAssessment         @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-  indicators            CultureIndicator[]
+  assessment CultureAssessment  @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  indicators CultureIndicator[]
 
   @@index([assessmentId])
   @@index([dimensionType])
@@ -1314,51 +1314,51 @@ model CultureDimension {
 
 // 文化指標
 model CultureIndicator {
-  id                String                        @id @default(cuid())
+  id String @id @default(cuid())
 
   // 次元との関連
-  dimensionId       String                        // CultureDimension.id
+  dimensionId String // CultureDimension.id
 
   // 指標情報
-  name              String                        // 指標名
-  value             Int                           // 現在値（0-100）
-  target            Int                           // 目標値（0-100）
-  achievement       Float                         // 達成率（%）
-  trend             String                        // 'up' | 'down' | 'stable'
+  name        String // 指標名
+  value       Int // 現在値（0-100）
+  target      Int // 目標値（0-100）
+  achievement Float // 達成率（%）
+  trend       String // 'up' | 'down' | 'stable'
 
   // タイムスタンプ
-  createdAt         DateTime                      @default(now())
-  updatedAt         DateTime                      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  dimension         CultureDimension              @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
+  dimension CultureDimension @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
 
   @@index([dimensionId])
 }
 
 // 部門別文化スコア
 model DepartmentCultureScore {
-  id                    String                    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 診断との関連
-  assessmentId          String                    // CultureAssessment.id
+  assessmentId String // CultureAssessment.id
 
   // 部門情報
-  department            String                    // 部門名
-  departmentId          String?                   // 医療システムの部門ID（将来実装）
+  department   String // 部門名
+  departmentId String? // 医療システムの部門ID（将来実装）
 
   // スコア
-  overallScore          Int                       // 総合スコア（0-100）
-  dimensionScores       Json                      // { dimension: string, score: number }[]
-  rank                  Int                       // 部門ランキング
-  participationRate     Float                     // 参加率（%）
+  overallScore      Int // 総合スコア（0-100）
+  dimensionScores   Json // { dimension: string, score: number }[]
+  rank              Int // 部門ランキング
+  participationRate Float // 参加率（%）
 
   // タイムスタンプ
-  createdAt             DateTime                  @default(now())
-  updatedAt             DateTime                  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  assessment            CultureAssessment         @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  assessment CultureAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
 
   @@index([assessmentId])
   @@index([department])
@@ -1367,52 +1367,52 @@ model DepartmentCultureScore {
 
 // 文化改善施策
 model CultureInitiative {
-  id                    String                    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 基本情報
-  title                 String                    // タイトル
-  description           String                    // 説明
-  objective             String                    // 目標
+  title       String // タイトル
+  description String // 説明
+  objective   String // 目標
 
   // ステータス
-  status                String                    @default("planning") // 'planning' | 'active' | 'completed' | 'on_hold' | 'cancelled'
-  priority              String                    @default("medium")   // 'low' | 'medium' | 'high' | 'critical'
+  status   String @default("planning") // 'planning' | 'active' | 'completed' | 'on_hold' | 'cancelled'
+  priority String @default("medium") // 'low' | 'medium' | 'high' | 'critical'
 
   // ターゲット
-  targetDimensions      Json                      // string[] - 対象文化次元
-  targetDepartments     Json                      // string[] - 対象部門（空配列=全体）
-  targetAudience        String                    // 対象者（例: 「全職員」）
+  targetDimensions  Json // string[] - 対象文化次元
+  targetDepartments Json // string[] - 対象部門（空配列=全体）
+  targetAudience    String // 対象者（例: 「全職員」）
 
   // スケジュール
-  startDate             DateTime                  // 開始日
-  endDate               DateTime                  // 終了日
+  startDate DateTime // 開始日
+  endDate   DateTime // 終了日
 
   // 責任者（医療システムから取得）
-  ownerId               String?                   // User.id
-  ownerName             String                    // User.name（キャッシュ）
-  teamMembers           Json                      // string[] - User.id[]
+  ownerId     String? // User.id
+  ownerName   String // User.name（キャッシュ）
+  teamMembers Json // string[] - User.id[]
 
   // 進捗
-  progress              Int                       @default(0) // 0-100
-  currentPhase          String?                   // 現在のフェーズ
+  progress     Int     @default(0) // 0-100
+  currentPhase String? // 現在のフェーズ
 
   // 予算
-  budget                Float?                    // 予算
-  actualSpending        Float?                    // 実支出
+  budget         Float? // 予算
+  actualSpending Float? // 実支出
 
   // 成果（完了時のみ）
-  outcomesDescription   String?                   // 成果説明
-  outcomesMetrics       Json?                     // { name, before, after, improvement }[]
+  outcomesDescription String? // 成果説明
+  outcomesMetrics     Json? // { name, before, after, improvement }[]
 
   // タイムスタンプ
-  createdAt             DateTime                  @default(now())
-  updatedAt             DateTime                  @updatedAt
-  completedAt           DateTime?                 // 完了日時
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime? // 完了日時
 
   // リレーション
-  owner                 User?                     @relation("InitiativeOwner", fields: [ownerId], references: [id])
-  kpis                  InitiativeKPI[]
-  milestones            InitiativeMilestone[]
+  owner      User?                 @relation("InitiativeOwner", fields: [ownerId], references: [id])
+  kpis       InitiativeKPI[]
+  milestones InitiativeMilestone[]
 
   @@index([ownerId])
   @@index([status])
@@ -1422,49 +1422,49 @@ model CultureInitiative {
 
 // 施策KPI
 model InitiativeKPI {
-  id                String                        @id @default(cuid())
+  id String @id @default(cuid())
 
   // 施策との関連
-  initiativeId      String                        // CultureInitiative.id
+  initiativeId String // CultureInitiative.id
 
   // KPI情報
-  name              String                        // KPI名
-  baseline          Float                         // ベースライン値
-  target            Float                         // 目標値
-  current           Float                         // 現在値
-  unit              String                        // 単位
-  achievement       Float                         // 達成率（%）
+  name        String // KPI名
+  baseline    Float // ベースライン値
+  target      Float // 目標値
+  current     Float // 現在値
+  unit        String // 単位
+  achievement Float // 達成率（%）
 
   // タイムスタンプ
-  createdAt         DateTime                      @default(now())
-  updatedAt         DateTime                      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  initiative        CultureInitiative             @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  initiative CultureInitiative @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
 
   @@index([initiativeId])
 }
 
 // 施策マイルストーン
 model InitiativeMilestone {
-  id                String                        @id @default(cuid())
+  id String @id @default(cuid())
 
   // 施策との関連
-  initiativeId      String                        // CultureInitiative.id
+  initiativeId String // CultureInitiative.id
 
   // マイルストーン情報
-  name              String                        // マイルストーン名
-  targetDate        DateTime                      // 目標日
-  completedDate     DateTime?                     // 完了日
-  status            String                        @default("pending") // 'pending' | 'in_progress' | 'completed' | 'delayed'
-  deliverables      Json                          // string[] - 成果物リスト
+  name          String // マイルストーン名
+  targetDate    DateTime // 目標日
+  completedDate DateTime? // 完了日
+  status        String    @default("pending") // 'pending' | 'in_progress' | 'completed' | 'delayed'
+  deliverables  Json // string[] - 成果物リスト
 
   // タイムスタンプ
-  createdAt         DateTime                      @default(now())
-  updatedAt         DateTime                      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // リレーション
-  initiative        CultureInitiative             @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  initiative CultureInitiative @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
 
   @@index([initiativeId])
   @@index([targetDate])
@@ -1477,73 +1477,90 @@ model InitiativeMilestone {
 
 // 緊急アカウント停止記録
 model EmergencyDeactivation {
-  id                  String    @id @default(cuid())
-  targetUserId        String    @map("target_user_id")
-  targetEmployeeId    String?   @map("target_employee_id")
-  executedBy          String    @map("executed_by")
-  executorEmployeeId  String?   @map("executor_employee_id")
-  executorName        String?   @map("executor_name")
-  executorLevel       Float     @map("executor_level")
-  reason              String    
-  timestamp           DateTime  @default(now())
-  isEmergency         Boolean   @default(true) @map("is_emergency")
-  syncToStaffSystem   Boolean   @default(false) @map("sync_to_staff_system")
-  syncedAt            DateTime? @map("synced_at")
+  id                 String    @id @default(cuid())
+  targetUserId       String    @map("target_user_id")
+  targetEmployeeId   String?   @map("target_employee_id")
+  targetUserName     String?   @map("target_user_name") // User.name（キャッシュ）
+  executedBy         String    @map("executed_by")
+  executorEmployeeId String?   @map("executor_employee_id")
+  executorName       String?   @map("executor_name")
+  executorLevel      Float     @map("executor_level")
+  reason             String
+  timestamp          DateTime  @default(now())
+  isEmergency        Boolean   @default(true) @map("is_emergency")
+  syncToStaffSystem  Boolean   @default(false) @map("sync_to_staff_system")
+  syncedAt           DateTime? @map("synced_at")
 
-  // ステータス
-  status              String    @default("pending") // 'pending' | 'synced' | 'failed'
-  errorMessage        String?   @map("error_message")
+  // ステータス（拡張）
+  status               String    @default("pending") // 'pending' | 'completed' | 'synced' | 'failed' | 'upgraded_to_formal_retirement'
+  deactivationType     String    @default("emergency") @map("deactivation_type") // 'emergency' | 'retirement'
+  formalRetirementDate DateTime? @map("formal_retirement_date") // 正式退職日（アップグレード時）
+  errorMessage         String?   @map("error_message")
+  retryCount           Int       @default(0) @map("retry_count") // リトライ回数
 
   // 監査情報
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([targetUserId])
   @@index([executedBy])
   @@index([timestamp])
   @@index([status])
   @@index([syncToStaffSystem])
+  @@index([deactivationType])
   @@map("emergency_deactivations")
 }
 
 // 医療システム同期キュー
 model StaffSystemSyncQueue {
-  id                    String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 同期タイプ
-  type                  String    // 'ACCOUNT_DEACTIVATION' | 'ACCOUNT_REACTIVATION' | 'USER_UPDATE'
+  type      String // 'ACCOUNT_DEACTIVATION' | 'ACCOUNT_REACTIVATION' | 'USER_UPDATE' | 'RETIREMENT_PROCESS'
+  eventType String? @map("event_type") // 'emergency_deactivation' | 'retirement_process' | 'account_update'
+  eventId   String? @map("event_id") // EmergencyDeactivation.id または RetirementProcess.id
 
   // 対象
-  targetUserId          String?   @map("target_user_id")
-  targetEmployeeId      String?   @map("target_employee_id")
+  targetUserId     String? @map("target_user_id")
+  targetEmployeeId String? @map("target_employee_id")
 
   // ペイロード
-  payload               Json      // 同期データ（type別に内容が異なる）
+  payload        Json // 同期データ（type別に内容が異なる）
+  targetEndpoint String? @map("target_endpoint") // 職員カルテシステムのエンドポイント
+  httpMethod     String  @default("POST") @map("http_method") // 'POST' | 'PUT' | 'PATCH'
 
   // ステータス
-  status                String    @default("queued") // 'queued' | 'processing' | 'completed' | 'failed'
-  retryCount            Int       @default(0) @map("retry_count")
-  maxRetries            Int       @default(3) @map("max_retries")
+  status     String @default("queued") // 'queued' | 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled'
+  priority   Int    @default(5) @map("priority") // 1-10（高いほど優先）
+  retryCount Int    @default(0) @map("retry_count")
+  maxRetries Int    @default(3) @map("max_retries")
 
   // 実行情報
-  queuedAt              DateTime  @default(now()) @map("queued_at")
-  processedAt           DateTime? @map("processed_at")
-  completedAt           DateTime? @map("completed_at")
-  nextRetryAt           DateTime? @map("next_retry_at")
+  queuedAt        DateTime  @default(now()) @map("queued_at")
+  processedAt     DateTime? @map("processed_at")
+  lastAttemptedAt DateTime? @map("last_attempted_at")
+  completedAt     DateTime? @map("completed_at")
+  nextRetryAt     DateTime? @map("next_retry_at")
+  cancelledAt     DateTime? @map("cancelled_at")
+  cancelReason    String?   @map("cancel_reason")
 
-  // エラー情報
-  errorMessage          String?   @map("error_message")
-  errorStack            String?    @map("error_stack")
+  // エラー情報・レスポンス
+  responseStatus Int?    @map("response_status") // HTTPステータスコード
+  responseBody   String? @map("response_body") // レスポンス内容
+  errorMessage   String? @map("error_message")
+  errorStack     String? @map("error_stack")
 
   // 関連レコード
-  relatedDeactivationId String?   @map("related_deactivation_id")
+  relatedDeactivationId String? @map("related_deactivation_id")
 
   // タイムスタンプ
-  createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([status])
   @@index([type])
+  @@index([eventType])
+  @@index([priority, status])
   @@index([queuedAt])
   @@index([nextRetryAt])
   @@index([targetUserId])
@@ -1556,29 +1573,29 @@ model StaffSystemSyncQueue {
 
 // レポートテンプレート定義
 model ReportTemplate {
-  id                  String    @id @default(cuid())
-  templateKey         String    @unique @map("template_key")   // "monthly_summary", "quarterly_hr"
-  title               String
-  description         String    
-  category            String                                    // "monthly", "quarterly", "board"
-  icon                String?                                   // アイコン名
+  id          String  @id @default(cuid())
+  templateKey String  @unique @map("template_key") // "monthly_summary", "quarterly_hr"
+  title       String
+  description String
+  category    String // "monthly", "quarterly", "board"
+  icon        String? // アイコン名
 
   // テンプレート設定
-  defaultPages        Int       @default(10) @map("default_pages")
-  requiredDataSources Json      @map("required_data_sources")   // ["posts", "agendas", "employees"]
-  outputFormats       Json      @map("output_formats")          // ["pdf", "excel", "pptx"]
+  defaultPages        Int  @default(10) @map("default_pages")
+  requiredDataSources Json @map("required_data_sources") // ["posts", "agendas", "employees"]
+  outputFormats       Json @map("output_formats") // ["pdf", "excel", "pptx"]
 
   // 生成設定
-  isActive            Boolean   @default(true) @map("is_active")
-  permissionLevel     Decimal   @map("permission_level")        // Level 16+のみ
-  generationSchedule  String?   @map("generation_schedule")     // "monthly", "quarterly", "on_demand"
+  isActive           Boolean @default(true) @map("is_active")
+  permissionLevel    Decimal @map("permission_level") // Level 16+のみ
+  generationSchedule String? @map("generation_schedule") // "monthly", "quarterly", "on_demand"
 
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // リレーション
-  reports             GeneratedReport[]
-  customizations      ReportCustomization[]
+  reports        GeneratedReport[]
+  customizations ReportCustomization[]
 
   @@index([category])
   @@index([permissionLevel])
@@ -1587,43 +1604,43 @@ model ReportTemplate {
 
 // 生成済みレポート
 model GeneratedReport {
-  id                  String    @id @default(cuid())
-  templateId          String    @map("template_id")
-  reportKey           String    @unique @map("report_key")      // "monthly_2025_10"
+  id         String @id @default(cuid())
+  templateId String @map("template_id")
+  reportKey  String @unique @map("report_key") // "monthly_2025_10"
 
   // レポート情報
-  title               String
-  period              String                                    // "2025-10", "2025-Q3", "2025"
-  periodStart         DateTime  @map("period_start")
-  periodEnd           DateTime  @map("period_end")
+  title       String
+  period      String // "2025-10", "2025-Q3", "2025"
+  periodStart DateTime @map("period_start")
+  periodEnd   DateTime @map("period_end")
 
   // 生成情報
-  generatedBy         String    @map("generated_by")            // User ID
-  generatedAt         DateTime  @default(now()) @map("generated_at")
-  status              String    @default("generating")          // "generating", "ready", "failed"
+  generatedBy String   @map("generated_by") // User ID
+  generatedAt DateTime @default(now()) @map("generated_at")
+  status      String   @default("generating") // "generating", "ready", "failed"
 
   // ファイル情報
-  fileUrl             String?   @map("file_url")                // S3 URL
-  fileSize            Int?      @map("file_size")               // bytes
-  fileFormat          String?   @map("file_format")             // "pdf", "excel", "pptx"
-  pageCount           Int?      @map("page_count")
+  fileUrl    String? @map("file_url") // S3 URL
+  fileSize   Int?    @map("file_size") // bytes
+  fileFormat String? @map("file_format") // "pdf", "excel", "pptx"
+  pageCount  Int?    @map("page_count")
 
   // 統計情報
-  downloadCount       Int       @default(0) @map("download_count")
-  viewCount           Int       @default(0) @map("view_count")
-  lastAccessedAt      DateTime? @map("last_accessed_at")
+  downloadCount  Int       @default(0) @map("download_count")
+  viewCount      Int       @default(0) @map("view_count")
+  lastAccessedAt DateTime? @map("last_accessed_at")
 
   // エラー情報
-  errorMessage        String?    @map("error_message")
+  errorMessage String? @map("error_message")
 
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // リレーション
-  template            ReportTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  generator           User           @relation("ReportGenerator", fields: [generatedBy], references: [id])
-  accessLogs          ReportAccessLog[]
-  sourceAgendas       BoardMeetingAgenda[] @relation("AgendaSourceReport")
+  template      ReportTemplate       @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  generator     User                 @relation("ReportGenerator", fields: [generatedBy], references: [id])
+  accessLogs    ReportAccessLog[]
+  sourceAgendas BoardMeetingAgenda[] @relation("AgendaSourceReport")
 
   @@index([templateId])
   @@index([generatedBy])
@@ -1634,28 +1651,28 @@ model GeneratedReport {
 
 // レポートカスタマイズ設定
 model ReportCustomization {
-  id                  String    @id @default(cuid())
-  templateId          String    @map("template_id")
-  userId              String    @map("user_id")
+  id         String @id @default(cuid())
+  templateId String @map("template_id")
+  userId     String @map("user_id")
 
   // カスタマイズ内容
-  customTitle         String?   @map("custom_title")
-  includedSections    Json      @map("included_sections")       // ["kpi", "topics", "insights"]
-  excludedSections    Json?     @map("excluded_sections")
-  customFilters       Json?     @map("custom_filters")          // { department: "看護部" }
+  customTitle      String? @map("custom_title")
+  includedSections Json    @map("included_sections") // ["kpi", "topics", "insights"]
+  excludedSections Json?   @map("excluded_sections")
+  customFilters    Json?   @map("custom_filters") // { department: "看護部" }
 
   // 表示設定
-  chartTypes          Json?     @map("chart_types")             // { "trend": "line", "distribution": "pie" }
-  colorScheme         String?   @map("color_scheme")            // "default", "colorblind"
+  chartTypes  Json?   @map("chart_types") // { "trend": "line", "distribution": "pie" }
+  colorScheme String? @map("color_scheme") // "default", "colorblind"
 
-  isDefault           Boolean   @default(false) @map("is_default")
+  isDefault Boolean @default(false) @map("is_default")
 
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // リレーション
-  template            ReportTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  user                User           @relation("ReportCustomizer", fields: [userId], references: [id])
+  template ReportTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  user     User           @relation("ReportCustomizer", fields: [userId], references: [id])
 
   @@unique([templateId, userId])
   @@index([userId])
@@ -1664,21 +1681,21 @@ model ReportCustomization {
 
 // レポートアクセスログ
 model ReportAccessLog {
-  id                  String    @id @default(cuid())
-  reportId            String    @map("report_id")
-  userId              String    @map("user_id")
+  id       String @id @default(cuid())
+  reportId String @map("report_id")
+  userId   String @map("user_id")
 
   // アクセス情報
-  action              String                                    // "view", "download", "preview"
-  accessedAt          DateTime  @default(now()) @map("accessed_at")
+  action     String // "view", "download", "preview"
+  accessedAt DateTime @default(now()) @map("accessed_at")
 
   // デバイス情報
-  ipAddress           String?   @map("ip_address")
-  userAgent           String?    @map("user_agent")
+  ipAddress String? @map("ip_address")
+  userAgent String? @map("user_agent")
 
   // リレーション
-  report              GeneratedReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  user                User            @relation("ReportAccessUser", fields: [userId], references: [id])
+  report GeneratedReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  user   User            @relation("ReportAccessUser", fields: [userId], references: [id])
 
   @@index([reportId])
   @@index([userId])
@@ -1688,56 +1705,56 @@ model ReportAccessLog {
 
 // 理事会アジェンダ
 model BoardMeetingAgenda {
-  id                  String    @id @default(cuid())
-  meetingDate         DateTime  @map("meeting_date")
-  agendaOrder         Int       @map("agenda_order")              // 議題順序
+  id          String   @id @default(cuid())
+  meetingDate DateTime @map("meeting_date")
+  agendaOrder Int      @map("agenda_order") // 議題順序
 
   // 議題情報
-  item                String
-  description         String?   
-  category            String                                      // "hr_strategy", "financial", "operational"
+  item        String
+  description String?
+  category    String // "hr_strategy", "financial", "operational"
 
   // 発表情報
-  duration            Int                                         // 分
-  presenterId         String    @map("presenter_id")              // 発表者（User ID）
-  presenterTitle      String    @map("presenter_title")           // "人事部門長"
+  duration       Int // 分
+  presenterId    String @map("presenter_id") // 発表者（User ID）
+  presenterTitle String @map("presenter_title") // "人事部門長"
 
   // 関連データ
-  relatedAgendaId     String?   @map("related_agenda_id")         // 委員会議題ID
-  attachments         Json?                                       // 添付資料URL配列
+  relatedAgendaId String? @map("related_agenda_id") // 委員会議題ID
+  attachments     Json? // 添付資料URL配列
 
   // ステータス
-  status              String    @default("scheduled")             // "scheduled", "presented", "postponed"
-  actualDuration      Int?      @map("actual_duration")           // 実際の所要時間
+  status         String @default("scheduled") // "scheduled", "presented", "postponed"
+  actualDuration Int?   @map("actual_duration") // 実際の所要時間
 
   // 🆕 理事会準備用フィールド（2025-10-10）
-  priority            String?   @default("medium")                // "high", "medium", "low"
-  sourceReport        String?   @map("source_report")             // "月次議題化プロセスレポート"
-  sourceReportId      String?   @map("source_report_id")          // GeneratedReport ID
-  preparedBy          String?   @map("prepared_by")               // "戦略企画部"
-  preparationStatus   String?   @default("draft") @map("preparation_status")  // "draft", "reviewing", "approved", "finalized"
-  documentsReady      Boolean   @default(false) @map("documents_ready")
-  presentationReady   Boolean   @default(false) @map("presentation_ready")
-  documentUrls        Json?     @map("document_urls")             // { report: "url", presentation: "url" }
+  priority          String? @default("medium") // "high", "medium", "low"
+  sourceReport      String? @map("source_report") // "月次議題化プロセスレポート"
+  sourceReportId    String? @map("source_report_id") // GeneratedReport ID
+  preparedBy        String? @map("prepared_by") // "戦略企画部"
+  preparationStatus String? @default("draft") @map("preparation_status") // "draft", "reviewing", "approved", "finalized"
+  documentsReady    Boolean @default(false) @map("documents_ready")
+  presentationReady Boolean @default(false) @map("presentation_ready")
+  documentUrls      Json?   @map("document_urls") // { report: "url", presentation: "url" }
 
   // 🆕 理事長レビュー用フィールド（2025-10-11）
-  keyPoints           String?   @map("key_points")                // JSON配列: 主要ポイント
-  expectedDiscussion  String?   @map("expected_discussion")       // 想定される議論
-  requiredDecision    String?   @map("required_decision")         // 求められる決定
-  chairmanReview      String?   @default("pending") @map("chairman_review")  // "pending", "approved", "needs_revision", "rejected"
-  chairmanComment     String?   @map("chairman_comment")          // 理事長コメント
-  chairmanReviewedBy  String?   @map("chairman_reviewed_by")      // レビュー実施者（User ID）
-  chairmanReviewedAt  DateTime? @map("chairman_reviewed_at")      // レビュー日時
+  keyPoints          String?   @map("key_points") // JSON配列: 主要ポイント
+  expectedDiscussion String?   @map("expected_discussion") // 想定される議論
+  requiredDecision   String?   @map("required_decision") // 求められる決定
+  chairmanReview     String?   @default("pending") @map("chairman_review") // "pending", "approved", "needs_revision", "rejected"
+  chairmanComment    String?   @map("chairman_comment") // 理事長コメント
+  chairmanReviewedBy String?   @map("chairman_reviewed_by") // レビュー実施者（User ID）
+  chairmanReviewedAt DateTime? @map("chairman_reviewed_at") // レビュー日時
 
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // リレーション
-  presenter           User                         @relation("BoardPresenter", fields: [presenterId], references: [id])
-  relatedAgenda       ManagementCommitteeAgenda?   @relation("BoardRelatedAgenda", fields: [relatedAgendaId], references: [id])
-  sourceReportRef     GeneratedReport?             @relation("AgendaSourceReport", fields: [sourceReportId], references: [id])
+  presenter           User                            @relation("BoardPresenter", fields: [presenterId], references: [id])
+  relatedAgenda       ManagementCommitteeAgenda?      @relation("BoardRelatedAgenda", fields: [relatedAgendaId], references: [id])
+  sourceReportRef     GeneratedReport?                @relation("AgendaSourceReport", fields: [sourceReportId], references: [id])
   candidateSelections BoardAgendaCandidateSelection[]
-  chairmanReviewer    User?                        @relation("AgendaChairmanReviewer", fields: [chairmanReviewedBy], references: [id])
+  chairmanReviewer    User?                           @relation("AgendaChairmanReviewer", fields: [chairmanReviewedBy], references: [id])
 
   @@unique([meetingDate, agendaOrder])
   @@index([meetingDate])
@@ -1749,43 +1766,43 @@ model BoardMeetingAgenda {
 
 // 戦略的インサイト
 model StrategicInsight {
-  id                  String    @id @default(cuid())
-  insightType         String    @map("insight_type")              // "success_story", "improvement_suggestion"
-  category            String                                      // "department", "process", "engagement"
+  id          String @id @default(cuid())
+  insightType String @map("insight_type") // "success_story", "improvement_suggestion"
+  category    String // "department", "process", "engagement"
 
   // インサイト内容
-  title               String
-  summary             String    
-  details             String?   
+  title   String
+  summary String
+  details String?
 
   // 根拠データ
-  evidenceData        Json      @map("evidence_data")             // { avgDays: 35, department: "医療療養病棟" }
-  relatedPostIds      Json?     @map("related_post_ids")          // 関連投稿ID配列
-  relatedDepartments  Json?     @map("related_departments")       // 関連部門配列
+  evidenceData       Json  @map("evidence_data") // { avgDays: 35, department: "医療療養病棟" }
+  relatedPostIds     Json? @map("related_post_ids") // 関連投稿ID配列
+  relatedDepartments Json? @map("related_departments") // 関連部門配列
 
   // 優先度
-  priority            String    @default("medium")                // "high", "medium", "low"
-  confidence          Float     @default(0.8) @map("confidence")  // AI信頼度（0-1）
+  priority   String @default("medium") // "high", "medium", "low"
+  confidence Float  @default(0.8) @map("confidence") // AI信頼度（0-1）
 
   // ステータス
-  status              String    @default("pending")               // "pending", "approved", "implemented", "dismissed"
-  approvedBy          String?   @map("approved_by")               // 承認者ID
-  approvedAt          DateTime? @map("approved_at")
+  status     String    @default("pending") // "pending", "approved", "implemented", "dismissed"
+  approvedBy String?   @map("approved_by") // 承認者ID
+  approvedAt DateTime? @map("approved_at")
 
   // 実装追跡
-  actionTaken         String?    @map("action_taken")
-  implementedAt       DateTime? @map("implemented_at")
+  actionTaken   String?   @map("action_taken")
+  implementedAt DateTime? @map("implemented_at")
 
   // AI分析情報
-  generatedBy         String    @default("ai") @map("generated_by") // "ai", "manual"
-  generationModel     String?   @map("generation_model")          // "gpt-4", "llama-3.2"
-  generatedAt         DateTime  @default(now()) @map("generated_at")
+  generatedBy     String   @default("ai") @map("generated_by") // "ai", "manual"
+  generationModel String?  @map("generation_model") // "gpt-4", "llama-3.2"
+  generatedAt     DateTime @default(now()) @map("generated_at")
 
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // リレーション
-  approver            User?     @relation("InsightApprover", fields: [approvedBy], references: [id])
+  approver User? @relation("InsightApprover", fields: [approvedBy], references: [id])
 
   @@index([insightType])
   @@index([priority])
@@ -1796,38 +1813,38 @@ model StrategicInsight {
 
 // 理事会マスタ（BoardPreparation統合 - 2025-10-10）
 model BoardMeeting {
-  id                  String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 開催情報
-  meetingDate         DateTime  @map("meeting_date")
-  startTime           String    @map("start_time")                // "14:00"
-  location            String                                      // "本部会議室A"
-  expectedDuration    Int       @map("expected_duration")         // 予定時間（分）
-  actualDuration      Int?      @map("actual_duration")           // 実際の時間
+  meetingDate      DateTime @map("meeting_date")
+  startTime        String   @map("start_time") // "14:00"
+  location         String // "本部会議室A"
+  expectedDuration Int      @map("expected_duration") // 予定時間（分）
+  actualDuration   Int?     @map("actual_duration") // 実際の時間
 
   // 参加者
-  expectedAttendees   Int       @map("expected_attendees")        // 出席予定者数
-  actualAttendees     Int?      @map("actual_attendees")          // 実際の出席者数
-  attendeeList        Json?     @map("attendee_list")             // 出席者リスト
+  expectedAttendees Int   @map("expected_attendees") // 出席予定者数
+  actualAttendees   Int?  @map("actual_attendees") // 実際の出席者数
+  attendeeList      Json? @map("attendee_list") // 出席者リスト
 
   // ステータス
-  status              String    @default("planning")              // "planning", "agenda_draft", "materials_ready", "confirmed", "completed"
-  preparationProgress Int       @default(0) @map("preparation_progress")  // 0-100%
+  status              String @default("planning") // "planning", "agenda_draft", "materials_ready", "confirmed", "completed"
+  preparationProgress Int    @default(0) @map("preparation_progress") // 0-100%
 
   // 資料
-  agendaDocumentUrl   String?   @map("agenda_document_url")       // 議事次第PDF
-  minutesDocumentUrl  String?   @map("minutes_document_url")      // 議事録PDF
+  agendaDocumentUrl  String? @map("agenda_document_url") // 議事次第PDF
+  minutesDocumentUrl String? @map("minutes_document_url") // 議事録PDF
 
   // メタ
-  createdBy           String    @map("created_by")                // User ID
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdBy String   @map("created_by") // User ID
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // リレーション
-  creator             User                    @relation("BoardMeetingCreator", fields: [createdBy], references: [id])
+  creator             User                            @relation("BoardMeetingCreator", fields: [createdBy], references: [id])
   candidateSelections BoardAgendaCandidateSelection[]
   proposals           ChairmanProposal[]
-  decisions           BoardDecision[]         @relation("BoardDecisions")
+  decisions           BoardDecision[]                 @relation("BoardDecisions")
 
   @@index([meetingDate])
   @@map("board_meetings")
@@ -1835,26 +1852,26 @@ model BoardMeeting {
 
 // 議題候補選定履歴（BoardPreparation統合 - 2025-10-10）
 model BoardAgendaCandidateSelection {
-  id                  String    @id @default(cuid())
-  boardMeetingId      String    @map("board_meeting_id")
-  agendaId            String    @map("agenda_id")
+  id             String @id @default(cuid())
+  boardMeetingId String @map("board_meeting_id")
+  agendaId       String @map("agenda_id")
 
   // 選定情報
-  selectedAt          DateTime  @default(now()) @map("selected_at")
-  selectedBy          String    @map("selected_by")                // User ID
-  selectionReason     String?    @map("selection_reason")
-  isFinalized         Boolean   @default(false) @map("is_finalized")
+  selectedAt      DateTime @default(now()) @map("selected_at")
+  selectedBy      String   @map("selected_by") // User ID
+  selectionReason String?  @map("selection_reason")
+  isFinalized     Boolean  @default(false) @map("is_finalized")
 
   // ステータス変更履歴
-  statusHistory       Json?     @map("status_history")            // { timestamp, from, to, by }[]
+  statusHistory Json? @map("status_history") // { timestamp, from, to, by }[]
 
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // リレーション
-  boardMeeting        BoardMeeting            @relation(fields: [boardMeetingId], references: [id], onDelete: Cascade)
-  agenda              BoardMeetingAgenda      @relation(fields: [agendaId], references: [id], onDelete: Cascade)
-  selector            User                    @relation("AgendaSelector", fields: [selectedBy], references: [id])
+  boardMeeting BoardMeeting       @relation(fields: [boardMeetingId], references: [id], onDelete: Cascade)
+  agenda       BoardMeetingAgenda @relation(fields: [agendaId], references: [id], onDelete: Cascade)
+  selector     User               @relation("AgendaSelector", fields: [selectedBy], references: [id])
 
   @@unique([boardMeetingId, agendaId])
   @@index([boardMeetingId])
@@ -1864,31 +1881,31 @@ model BoardAgendaCandidateSelection {
 
 // 理事長への提案（BoardPreparation統合 - 2025-10-10）
 model ChairmanProposal {
-  id                  String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 提案情報
-  title               String
-  description         String    
-  impact              String                              // 期待効果
-  requiredBudget      String                                      // "約800万円"
-  budgetAmount        Decimal?                 // 数値（集計用）
-  timeline            String                              // "2026年1月準備開始、4月本格運用"
+  title          String
+  description    String
+  impact         String // 期待効果
+  requiredBudget String // "約800万円"
+  budgetAmount   Decimal? // 数値（集計用）
+  timeline       String // "2026年1月準備開始、4月本格運用"
 
   // ステータス
-  status              String    @default("draft")                 // "draft", "pending_review", "approved", "rejected", "implemented"
-  submittedAt         DateTime? @map("submitted_at")
-  reviewedAt          DateTime? @map("reviewed_at")
-  reviewedBy          String?   @map("reviewed_by")               // User ID（理事長）
-  reviewComments      String?    @map("review_comments")
+  status         String    @default("draft") // "draft", "pending_review", "approved", "rejected", "implemented"
+  submittedAt    DateTime? @map("submitted_at")
+  reviewedAt     DateTime? @map("reviewed_at")
+  reviewedBy     String?   @map("reviewed_by") // User ID（理事長）
+  reviewComments String?   @map("review_comments")
 
   // 関連
   relatedBoardMeetingId String? @map("related_board_meeting_id")
-  documentUrl         String?   @map("document_url")              // 提案書PDF
+  documentUrl           String? @map("document_url") // 提案書PDF
 
   // メタ
-  createdBy           String    @map("created_by")                // User ID
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdBy String   @map("created_by") // User ID
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // リレーション
   creator             User          @relation("ProposalCreator", fields: [createdBy], references: [id])
@@ -1907,24 +1924,24 @@ model ChairmanProposal {
 
 // 施設横断共通課題
 model CrossFacilityCommonIssue {
-  id                    String    @id @default(cuid())
-  title                 String                          // "夜勤時の人手不足"
-  category              String                          // "人材配置"
-  description           String                          // 詳細説明
-  affectedFacilities    String                          // JSON配列: ["FAC001", "FAC002", ...]
-  affectedFacilityCount Int       @map("affected_facility_count")
-  totalVoices           Int       @map("total_voices")  // 関連投稿数
-  severity              String    @default("medium")    // "high", "medium", "low"
-  trend                 String    @default("stable")    // "increasing", "stable", "decreasing"
-  suggestedAction       String                          // 推奨アクション
-  sourcePostIds         String    @map("source_post_ids")  // JSON配列: ["POST123", "POST456", ...]
-  detectedAt            DateTime  @default(now()) @map("detected_at")
-  lastUpdatedAt         DateTime  @updatedAt @map("last_updated_at")
-  status                String    @default("active")    // "active", "addressing", "resolved", "archived"
-  assignedTo            String?   @map("assigned_to")   // 担当者（Level 18ユーザー）
+  id                    String   @id @default(cuid())
+  title                 String // "夜勤時の人手不足"
+  category              String // "人材配置"
+  description           String // 詳細説明
+  affectedFacilities    String // JSON配列: ["FAC001", "FAC002", ...]
+  affectedFacilityCount Int      @map("affected_facility_count")
+  totalVoices           Int      @map("total_voices") // 関連投稿数
+  severity              String   @default("medium") // "high", "medium", "low"
+  trend                 String   @default("stable") // "increasing", "stable", "decreasing"
+  suggestedAction       String // 推奨アクション
+  sourcePostIds         String   @map("source_post_ids") // JSON配列: ["POST123", "POST456", ...]
+  detectedAt            DateTime @default(now()) @map("detected_at")
+  lastUpdatedAt         DateTime @updatedAt @map("last_updated_at")
+  status                String   @default("active") // "active", "addressing", "resolved", "archived"
+  assignedTo            String?  @map("assigned_to") // 担当者（Level 18ユーザー）
 
   // リレーション
-  assignee              User?     @relation("CommonIssueAssignee", fields: [assignedTo], references: [id])
+  assignee User? @relation("CommonIssueAssignee", fields: [assignedTo], references: [id])
 
   @@index([category])
   @@index([severity])
@@ -1934,28 +1951,28 @@ model CrossFacilityCommonIssue {
 
 // 横展開可能な成功事例
 model CrossFacilitySuccessCase {
-  id                    String    @id @default(cuid())
-  facilityId            String    @map("facility_id")   // 成功事例の発生施設
-  title                 String                          // "メンター制度による新人定着率向上"
-  category              String                          // "人材育成"
-  description           String                          // 詳細説明
-  impact                String                          // "新人離職率 35% → 8%（-27pt）"
-  impactMetrics         String?   @map("impact_metrics")  // JSON: { before: 35, after: 8, unit: "%" }
-  replicability         Int       @default(50)          // 横展開可能性スコア（0-100）
-  implementationCost    String?   @map("implementation_cost")  // "約50万円"
-  implementationPeriod  String?   @map("implementation_period") // "3ヶ月"
-  interestedFacilities  String?   @map("interested_facilities") // JSON配列: ["FAC002", "FAC003", ...]
-  sourcePostId          String    @map("source_post_id")  // 元となったPost ID
-  identifiedAt          DateTime  @default(now()) @map("identified_at")
-  status                String    @default("proposed")  // "proposed", "approved", "replicating", "replicated"
-  approvedBy            String?   @map("approved_by")   // 承認者（Level 18）
-  approvedAt            DateTime? @map("approved_at")
+  id                   String    @id @default(cuid())
+  facilityId           String    @map("facility_id") // 成功事例の発生施設
+  title                String // "メンター制度による新人定着率向上"
+  category             String // "人材育成"
+  description          String // 詳細説明
+  impact               String // "新人離職率 35% → 8%（-27pt）"
+  impactMetrics        String?   @map("impact_metrics") // JSON: { before: 35, after: 8, unit: "%" }
+  replicability        Int       @default(50) // 横展開可能性スコア（0-100）
+  implementationCost   String?   @map("implementation_cost") // "約50万円"
+  implementationPeriod String?   @map("implementation_period") // "3ヶ月"
+  interestedFacilities String?   @map("interested_facilities") // JSON配列: ["FAC002", "FAC003", ...]
+  sourcePostId         String    @map("source_post_id") // 元となったPost ID
+  identifiedAt         DateTime  @default(now()) @map("identified_at")
+  status               String    @default("proposed") // "proposed", "approved", "replicating", "replicated"
+  approvedBy           String?   @map("approved_by") // 承認者（Level 18）
+  approvedAt           DateTime? @map("approved_at")
 
   // リレーション
-  facility              User      @relation("SuccessCaseFacility", fields: [facilityId], references: [id])
-  sourcePost            Post      @relation("SuccessCaseSource", fields: [sourcePostId], references: [id])
-  approver              User?     @relation("SuccessCaseApprover", fields: [approvedBy], references: [id])
-  replications          SuccessCaseReplication[]
+  facility     User                     @relation("SuccessCaseFacility", fields: [facilityId], references: [id])
+  sourcePost   Post                     @relation("SuccessCaseSource", fields: [sourcePostId], references: [id])
+  approver     User?                    @relation("SuccessCaseApprover", fields: [approvedBy], references: [id])
+  replications SuccessCaseReplication[]
 
   @@index([facilityId])
   @@index([category])
@@ -1965,22 +1982,22 @@ model CrossFacilitySuccessCase {
 
 // 成功事例の横展開状況
 model SuccessCaseReplication {
-  id                    String    @id @default(cuid())
-  successCaseId         String    @map("success_case_id")
-  targetFacilityId      String    @map("target_facility_id")
-  status                String    @default("planning")  // "planning", "implementing", "completed", "failed"
-  startedAt             DateTime? @map("started_at")
-  completedAt           DateTime? @map("completed_at")
-  progress              Int       @default(0)           // 進捗率（0-100）
-  results               String?                         // 実施結果
-  resultMetrics         String?   @map("result_metrics")  // JSON: 成果指標
-  responsiblePerson     String    @map("responsible_person")  // 実施責任者
-  notes                 String?                         // 備考
+  id                String    @id @default(cuid())
+  successCaseId     String    @map("success_case_id")
+  targetFacilityId  String    @map("target_facility_id")
+  status            String    @default("planning") // "planning", "implementing", "completed", "failed"
+  startedAt         DateTime? @map("started_at")
+  completedAt       DateTime? @map("completed_at")
+  progress          Int       @default(0) // 進捗率（0-100）
+  results           String? // 実施結果
+  resultMetrics     String?   @map("result_metrics") // JSON: 成果指標
+  responsiblePerson String    @map("responsible_person") // 実施責任者
+  notes             String? // 備考
 
   // リレーション
-  successCase           CrossFacilitySuccessCase @relation(fields: [successCaseId], references: [id], onDelete: Cascade)
-  targetFacility        User      @relation("ReplicationTargetFacility", fields: [targetFacilityId], references: [id])
-  responsible           User      @relation("ReplicationResponsible", fields: [responsiblePerson], references: [id])
+  successCase    CrossFacilitySuccessCase @relation(fields: [successCaseId], references: [id], onDelete: Cascade)
+  targetFacility User                     @relation("ReplicationTargetFacility", fields: [targetFacilityId], references: [id])
+  responsible    User                     @relation("ReplicationResponsible", fields: [responsiblePerson], references: [id])
 
   @@unique([successCaseId, targetFacilityId])
   @@index([targetFacilityId])
@@ -1990,26 +2007,26 @@ model SuccessCaseReplication {
 
 // 法人全体での戦略的機会
 model StrategicOpportunity {
-  id                    String    @id @default(cuid())
-  title                 String                          // "施設間人材ローテーション制度"
-  opportunity           String                          // 機会の詳細
-  expectedImpact        String    @map("expected_impact")  // 期待効果
-  requiredInvestment    String    @map("required_investment")  // "約500万円"
-  investmentAmount      Float?    @map("investment_amount")
-  timeline              String                          // 実施スケジュール
-  priority              String    @default("medium")    // "high", "medium", "low"
-  status                String    @default("proposed")  // "proposed", "approved", "implementing", "completed", "rejected"
-  proposedAt            DateTime  @default(now()) @map("proposed_at")
-  approvedAt            DateTime? @map("approved_at")
-  approvedBy            String?   @map("approved_by")   // 承認者（理事長等）
-  relatedIssueIds       String?   @map("related_issue_ids")  // JSON配列: 関連する共通課題ID
-  targetFacilities      String?   @map("target_facilities")  // JSON配列: 対象施設
-  kpiTargets            String?   @map("kpi_targets")   // JSON: KPI目標値
-  actualResults         String?   @map("actual_results")  // JSON: 実績値
-  documentUrl           String?   @map("document_url")  // 企画書URL
+  id                 String    @id @default(cuid())
+  title              String // "施設間人材ローテーション制度"
+  opportunity        String // 機会の詳細
+  expectedImpact     String    @map("expected_impact") // 期待効果
+  requiredInvestment String    @map("required_investment") // "約500万円"
+  investmentAmount   Float?    @map("investment_amount")
+  timeline           String // 実施スケジュール
+  priority           String    @default("medium") // "high", "medium", "low"
+  status             String    @default("proposed") // "proposed", "approved", "implementing", "completed", "rejected"
+  proposedAt         DateTime  @default(now()) @map("proposed_at")
+  approvedAt         DateTime? @map("approved_at")
+  approvedBy         String?   @map("approved_by") // 承認者（理事長等）
+  relatedIssueIds    String?   @map("related_issue_ids") // JSON配列: 関連する共通課題ID
+  targetFacilities   String?   @map("target_facilities") // JSON配列: 対象施設
+  kpiTargets         String?   @map("kpi_targets") // JSON: KPI目標値
+  actualResults      String?   @map("actual_results") // JSON: 実績値
+  documentUrl        String?   @map("document_url") // 企画書URL
 
   // リレーション
-  approver              User?     @relation("OpportunityApprover", fields: [approvedBy], references: [id])
+  approver User? @relation("OpportunityApprover", fields: [approvedBy], references: [id])
 
   @@index([priority])
   @@index([status])
@@ -2023,37 +2040,37 @@ model StrategicOpportunity {
 
 // プロジェクト承認履歴
 model ProjectApproval {
-  id                  String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 対象プロジェクト
-  postId              String    @map("post_id")
+  postId String @map("post_id")
 
   // 承認者情報
-  approverId          String    @map("approver_id")          // User.id
-  approverName        String    @map("approver_name")        // キャッシュ（表示用）
-  approverLevel       Float     @map("approver_level")       // 承認時の権限レベル
+  approverId    String @map("approver_id") // User.id
+  approverName  String @map("approver_name") // キャッシュ（表示用）
+  approverLevel Float  @map("approver_level") // 承認時の権限レベル
 
   // 承認情報
-  action              String                                  // 'approved' | 'rejected' | 'held' | 'emergency_override'
-  reason              String?                                 // 理由（却下・保留時）
-  comment             String?                                 // コメント
+  action  String // 'approved' | 'rejected' | 'held' | 'emergency_override'
+  reason  String? // 理由（却下・保留時）
+  comment String? // コメント
 
   // プロジェクト情報（承認時点のスナップショット）
-  projectLevel        String    @map("project_level")         // 'PENDING' | 'TEAM' | 'DEPARTMENT' | 'FACILITY' | 'ORGANIZATION'
-  projectScore        Int       @map("project_score")         // 承認時のスコア
-  totalVotes          Int       @map("total_votes")           // 承認時の総投票数
-  supportRate         Float     @map("support_rate")          // 承認時の支持率（%）
+  projectLevel String @map("project_level") // 'PENDING' | 'TEAM' | 'DEPARTMENT' | 'FACILITY' | 'ORGANIZATION'
+  projectScore Int    @map("project_score") // 承認時のスコア
+  totalVotes   Int    @map("total_votes") // 承認時の総投票数
+  supportRate  Float  @map("support_rate") // 承認時の支持率（%）
 
   // 緊急介入フラグ
-  isEmergencyOverride Boolean   @default(false) @map("is_emergency_override")
+  isEmergencyOverride Boolean @default(false) @map("is_emergency_override")
 
   // タイムスタンプ
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // リレーション
-  post                Post      @relation("PostApprovals", fields: [postId], references: [id], onDelete: Cascade)
-  approver            User      @relation("ProjectApprover", fields: [approverId], references: [id])
+  post     Post @relation("PostApprovals", fields: [postId], references: [id], onDelete: Cascade)
+  approver User @relation("ProjectApprover", fields: [approverId], references: [id])
 
   // インデックス
   @@index([postId])
@@ -2061,8 +2078,8 @@ model ProjectApproval {
   @@index([action])
   @@index([projectLevel])
   @@index([createdAt])
-  @@index([postId, createdAt])            // 承認履歴を時系列で取得
-  @@index([approverId, projectLevel])     // 承認者別レベル別統計取得用
+  @@index([postId, createdAt]) // 承認履歴を時系列で取得
+  @@index([approverId, projectLevel]) // 承認者別レベル別統計取得用
   @@map("project_approvals")
 }
 
@@ -2072,35 +2089,35 @@ model ProjectApproval {
 
 // 理事会決定事項
 model BoardDecision {
-  id                      String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 理事会情報
-  boardMeetingId          String    @map("board_meeting_id")
-  meetingDate             DateTime  @map("meeting_date")
+  boardMeetingId String   @map("board_meeting_id")
+  meetingDate    DateTime @map("meeting_date")
 
   // 決定事項情報
-  title                   String
-  category                String    // "システム導入", "人事制度", "IT・システム", "人材育成"
-  description             String    
-  decision                String      // 理事会決定内容
+  title       String
+  category    String // "システム導入", "人事制度", "IT・システム", "人材育成"
+  description String
+  decision    String // 理事会決定内容
 
   // 実施情報
-  implementationDeadline  DateTime  @map("implementation_deadline")
-  responsibleDept         String    @map("responsible_dept")  // 担当部門名（キャッシュ）
-  responsibleDeptId       String?   @map("responsible_dept_id")  // 医療システム部門ID
-  affectedFacilities      Json      @map("affected_facilities")  // 影響施設ID配列
+  implementationDeadline DateTime @map("implementation_deadline")
+  responsibleDept        String   @map("responsible_dept") // 担当部門名（キャッシュ）
+  responsibleDeptId      String?  @map("responsible_dept_id") // 医療システム部門ID
+  affectedFacilities     Json     @map("affected_facilities") // 影響施設ID配列
 
   // 進捗管理
-  status                  String    @default("on_track")  // "completed", "on_track", "at_risk", "delayed"
-  progress                Int       @default(0)  // 0-100
-  lastUpdate              DateTime  @default(now()) @map("last_update")
+  status     String   @default("on_track") // "completed", "on_track", "at_risk", "delayed"
+  progress   Int      @default(0) // 0-100
+  lastUpdate DateTime @default(now()) @map("last_update")
 
   // メタデータ
-  createdAt               DateTime  @default(now()) @map("created_at")
-  updatedAt               DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // リレーション
-  boardMeeting            BoardMeeting @relation("BoardDecisions", fields: [boardMeetingId], references: [id], onDelete: Cascade)
+  boardMeeting            BoardMeeting                          @relation("BoardDecisions", fields: [boardMeetingId], references: [id], onDelete: Cascade)
   milestones              BoardDecisionMilestone[]
   facilityImplementations BoardDecisionFacilityImplementation[]
 
@@ -2113,24 +2130,24 @@ model BoardDecision {
 
 // 理事会決定事項マイルストーン
 model BoardDecisionMilestone {
-  id                String        @id @default(cuid())
-  boardDecisionId   String        @map("board_decision_id")
+  id              String @id @default(cuid())
+  boardDecisionId String @map("board_decision_id")
 
   // マイルストーン情報
-  title             String
-  deadline          DateTime
-  status            String        @default("pending")  // "completed", "in_progress", "pending", "delayed"
-  assignee          String        // 担当者名（キャッシュ）
-  assigneeId        String?       @map("assignee_id")  // User ID
-  sortOrder         Int           @default(0) @map("sort_order")  // 表示順
+  title      String
+  deadline   DateTime
+  status     String   @default("pending") // "completed", "in_progress", "pending", "delayed"
+  assignee   String // 担当者名（キャッシュ）
+  assigneeId String?  @map("assignee_id") // User ID
+  sortOrder  Int      @default(0) @map("sort_order") // 表示順
 
   // メタデータ
-  createdAt         DateTime      @default(now()) @map("created_at")
-  updatedAt         DateTime      @updatedAt @map("updated_at")
-  completedAt       DateTime?     @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  completedAt DateTime? @map("completed_at")
 
   // リレーション
-  boardDecision     BoardDecision @relation(fields: [boardDecisionId], references: [id], onDelete: Cascade)
+  boardDecision BoardDecision @relation(fields: [boardDecisionId], references: [id], onDelete: Cascade)
 
   @@index([boardDecisionId])
   @@index([status])
@@ -2141,28 +2158,28 @@ model BoardDecisionMilestone {
 
 // 理事会決定事項の施設別実施状況
 model BoardDecisionFacilityImplementation {
-  id                String        @id @default(cuid())
-  boardDecisionId   String        @map("board_decision_id")
+  id              String @id @default(cuid())
+  boardDecisionId String @map("board_decision_id")
 
   // 施設情報
-  facilityId        String        @map("facility_id")  // 医療システム施設ID
-  facilityName      String        @map("facility_name")  // 施設名（キャッシュ）
+  facilityId   String @map("facility_id") // 医療システム施設ID
+  facilityName String @map("facility_name") // 施設名（キャッシュ）
 
   // 実施状況
-  status            String        @default("not_started")  // "completed", "in_progress", "not_started"
-  progress          Int           @default(0)  // 0-100
-  note              String?       // 備考
+  status   String  @default("not_started") // "completed", "in_progress", "not_started"
+  progress Int     @default(0) // 0-100
+  note     String? // 備考
 
   // スケジュール
-  startedAt         DateTime?     @map("started_at")
-  completedAt       DateTime?     @map("completed_at")
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
 
   // メタデータ
-  createdAt         DateTime      @default(now()) @map("created_at")
-  updatedAt         DateTime      @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // リレーション
-  boardDecision     BoardDecision @relation(fields: [boardDecisionId], references: [id], onDelete: Cascade)
+  boardDecision BoardDecision @relation(fields: [boardDecisionId], references: [id], onDelete: Cascade)
 
   @@unique([boardDecisionId, facilityId])
   @@index([boardDecisionId])
@@ -2177,22 +2194,22 @@ model BoardDecisionFacilityImplementation {
 
 // プロジェクトマイルストーン - プロジェクトの中間目標管理
 model ProjectMilestone {
-  id                String    @id @default(cuid())
-  projectId         String    @map("project_id")
-  title             String
-  description       String?   
-  dueDate           DateTime  @map("due_date")
-  completedAt       DateTime? @map("completed_at")
-  completedBy       String?   @map("completed_by")
-  status            String    @default("pending") // 'pending' | 'in_progress' | 'completed' | 'cancelled'
-  order             Int       @default(0)
+  id          String    @id @default(cuid())
+  projectId   String    @map("project_id")
+  title       String
+  description String?
+  dueDate     DateTime  @map("due_date")
+  completedAt DateTime? @map("completed_at")
+  completedBy String?   @map("completed_by")
+  status      String    @default("pending") // 'pending' | 'in_progress' | 'completed' | 'cancelled'
+  order       Int       @default(0)
 
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  project           Post      @relation("ProjectMilestones", fields: [projectId], references: [id], onDelete: Cascade)
-  completedByUser   User?     @relation("MilestoneCompletedBy", fields: [completedBy], references: [id], onDelete: SetNull)
+  project         Post  @relation("ProjectMilestones", fields: [projectId], references: [id], onDelete: Cascade)
+  completedByUser User? @relation("MilestoneCompletedBy", fields: [completedBy], references: [id], onDelete: SetNull)
 
   @@index([projectId])
   @@index([status])
@@ -2202,19 +2219,19 @@ model ProjectMilestone {
 
 // プロジェクトチームメンバー - プロジェクト参加者管理
 model ProjectTeamMember {
-  id                String    @id @default(cuid())
-  projectId         String    @map("project_id")
-  userId            String    @map("user_id")
-  role              String    @default("member") // 'leader' | 'sub_leader' | 'member' | 'observer'
-  joinedAt          DateTime  @default(now()) @map("joined_at")
-  leftAt            DateTime? @map("left_at")
+  id        String    @id @default(cuid())
+  projectId String    @map("project_id")
+  userId    String    @map("user_id")
+  role      String    @default("member") // 'leader' | 'sub_leader' | 'member' | 'observer'
+  joinedAt  DateTime  @default(now()) @map("joined_at")
+  leftAt    DateTime? @map("left_at")
 
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  project           Post      @relation("ProjectTeamMembers", fields: [projectId], references: [id], onDelete: Cascade)
-  user              User      @relation("ProjectMemberships", fields: [userId], references: [id], onDelete: Cascade)
+  project Post @relation("ProjectTeamMembers", fields: [projectId], references: [id], onDelete: Cascade)
+  user    User @relation("ProjectMemberships", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, userId])
   @@index([projectId])
@@ -2230,23 +2247,23 @@ model ProjectTeamMember {
 
 // 施設マスター - 病院・施設の基本情報管理
 model Facility {
-  id                String   @id @default(cuid())
-  facilityCode      String   @unique
-  facilityName      String
-  facilityType      String
-  totalStaffCount   Int      @default(0)
-  totalBedCount     Int?
-  address           String?
-  establishedYear   Int?
-  corporationId     String
-  isActive          Boolean  @default(true)
-  metadata          Json?
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  id              String   @id @default(cuid())
+  facilityCode    String   @unique
+  facilityName    String
+  facilityType    String
+  totalStaffCount Int      @default(0)
+  totalBedCount   Int?
+  address         String?
+  establishedYear Int?
+  corporationId   String
+  isActive        Boolean  @default(true)
+  metadata        Json?
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   // Relations
-  organizations     OrganizationStructure[]
-  votingGroups      VotingGroup[]
+  organizations OrganizationStructure[]
+  votingGroups  VotingGroup[]
 
   @@index([facilityCode])
   @@index([corporationId])
@@ -2255,23 +2272,23 @@ model Facility {
 
 // 組織構造マスター - 部門・セクションの階層構造管理
 model OrganizationStructure {
-  id                String   @id @default(cuid())
-  facilityCode      String
-  departmentId      String   @unique
-  departmentName    String
-  departmentType    String
-  sectionId         String?
-  sectionName       String?
-  votingGroupId     String?
-  isActive          Boolean  @default(true)
-  sortOrder         Int      @default(0)
-  metadata          Json?
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(cuid())
+  facilityCode   String
+  departmentId   String   @unique
+  departmentName String
+  departmentType String
+  sectionId      String?
+  sectionName    String?
+  votingGroupId  String?
+  isActive       Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  metadata       Json?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   // Relations
-  facility          Facility @relation(fields: [facilityCode], references: [facilityCode], onDelete: Cascade)
-  votingGroup       VotingGroup? @relation("GroupMembers", fields: [votingGroupId], references: [groupId], onDelete: SetNull)
+  facility          Facility           @relation(fields: [facilityCode], references: [facilityCode], onDelete: Cascade)
+  votingGroup       VotingGroup?       @relation("GroupMembers", fields: [votingGroupId], references: [groupId], onDelete: SetNull)
   agendaModeConfig  AgendaModeConfig?
   projectModeConfig ProjectModeConfig?
 
@@ -2283,29 +2300,29 @@ model OrganizationStructure {
 
 // 投票グループ - 小規模部門の統合投票単位
 model VotingGroup {
-  id                String   @id @default(cuid())
-  groupId           String   @unique
-  groupName         String
+  id                  String  @id @default(cuid())
+  groupId             String  @unique
+  groupName           String
   memberDepartmentIds Json
-  agendaModeEnabled Boolean  @default(true)
-  projectModeEnabled Boolean @default(true)
-  isActive          Boolean  @default(true)
+  agendaModeEnabled   Boolean @default(true)
+  projectModeEnabled  Boolean @default(true)
+  isActive            Boolean @default(true)
 
   // 承認者管理（投票グループ統合時の承認者指定）
-  primaryApproverId String?  @map("primary_approver_id")  // 代表承認者のユーザーID
-  approverRotation  Json?    @map("approver_rotation")    // ローテーション設定
+  primaryApproverId String? @map("primary_approver_id") // 代表承認者のユーザーID
+  approverRotation  Json?   @map("approver_rotation") // ローテーション設定
 
-  metadata          Json?
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  metadata  Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  facility          Facility @relation(fields: [facilityCode], references: [facilityCode], onDelete: Cascade)
-  facilityCode      String
-  members           OrganizationStructure[] @relation("GroupMembers")
-  agendaModeGroupConfig AgendaModeGroupConfig?
+  facility               Facility                @relation(fields: [facilityCode], references: [facilityCode], onDelete: Cascade)
+  facilityCode           String
+  members                OrganizationStructure[] @relation("GroupMembers")
+  agendaModeGroupConfig  AgendaModeGroupConfig?
   projectModeGroupConfig ProjectModeGroupConfig?
-  primaryApprover   User?    @relation("VotingGroupPrimaryApprover", fields: [primaryApproverId], references: [id], onDelete: SetNull)
+  primaryApprover        User?                   @relation("VotingGroupPrimaryApprover", fields: [primaryApproverId], references: [id], onDelete: SetNull)
 
   @@index([groupId])
   @@index([facilityCode])
@@ -2315,24 +2332,24 @@ model VotingGroup {
 
 // 議題モード設定 - 部門別の議題システム設定
 model AgendaModeConfig {
-  id                String   @id @default(cuid())
-  departmentId      String   @unique
-  pending           Int      @default(30)
-  deptReview        Int      @default(50)
-  deptAgenda        Int      @default(100)
-  facilityAgenda    Int      @default(300)
-  corpReview        Int      @default(600)
-  corpAgenda        Int      @default(1000)
-  votingScopeRules  Json
-  committeeSubmissionEnabled Boolean @default(true)
-  committeeSubmissionThreshold Int @default(100)
-  isActive          Boolean  @default(true)
-  metadata          Json?
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  id                           String   @id @default(cuid())
+  departmentId                 String   @unique
+  pending                      Int      @default(30)
+  deptReview                   Int      @default(50)
+  deptAgenda                   Int      @default(100)
+  facilityAgenda               Int      @default(300)
+  corpReview                   Int      @default(600)
+  corpAgenda                   Int      @default(1000)
+  votingScopeRules             Json
+  committeeSubmissionEnabled   Boolean  @default(true)
+  committeeSubmissionThreshold Int      @default(100)
+  isActive                     Boolean  @default(true)
+  metadata                     Json?
+  createdAt                    DateTime @default(now()) @map("created_at")
+  updatedAt                    DateTime @updatedAt @map("updated_at")
 
   // Relations
-  department        OrganizationStructure @relation(fields: [departmentId], references: [departmentId], onDelete: Cascade)
+  department OrganizationStructure @relation(fields: [departmentId], references: [departmentId], onDelete: Cascade)
 
   @@index([departmentId])
   @@map("agenda_mode_configs")
@@ -2340,24 +2357,24 @@ model AgendaModeConfig {
 
 // 議題モードグループ設定 - 投票グループ用の議題設定
 model AgendaModeGroupConfig {
-  id                String   @id @default(cuid())
-  groupId           String   @unique
-  pending           Int      @default(30)
-  deptReview        Int      @default(50)
-  deptAgenda        Int      @default(100)
-  facilityAgenda    Int      @default(300)
-  corpReview        Int      @default(600)
-  corpAgenda        Int      @default(1000)
-  votingScopeRules  Json
-  committeeSubmissionEnabled Boolean @default(true)
-  committeeSubmissionThreshold Int @default(100)
-  isActive          Boolean  @default(true)
-  metadata          Json?
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  id                           String   @id @default(cuid())
+  groupId                      String   @unique
+  pending                      Int      @default(30)
+  deptReview                   Int      @default(50)
+  deptAgenda                   Int      @default(100)
+  facilityAgenda               Int      @default(300)
+  corpReview                   Int      @default(600)
+  corpAgenda                   Int      @default(1000)
+  votingScopeRules             Json
+  committeeSubmissionEnabled   Boolean  @default(true)
+  committeeSubmissionThreshold Int      @default(100)
+  isActive                     Boolean  @default(true)
+  metadata                     Json?
+  createdAt                    DateTime @default(now()) @map("created_at")
+  updatedAt                    DateTime @updatedAt @map("updated_at")
 
   // Relations
-  votingGroup       VotingGroup @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+  votingGroup VotingGroup @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
 
   @@index([groupId])
   @@map("agenda_mode_group_configs")
@@ -2365,19 +2382,19 @@ model AgendaModeGroupConfig {
 
 // プロジェクトモード設定 - 部門別のプロジェクト化設定
 model ProjectModeConfig {
-  id                String   @id @default(cuid())
-  departmentId      String   @unique
-  projectUpgradeThreshold Int @default(400)
-  teamFormationRules Json
-  milestoneRequired Boolean  @default(true)
-  progressReportFrequency String @default("weekly")
-  isActive          Boolean  @default(true)
-  metadata          Json?
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  id                      String   @id @default(cuid())
+  departmentId            String   @unique
+  projectUpgradeThreshold Int      @default(400)
+  teamFormationRules      Json
+  milestoneRequired       Boolean  @default(true)
+  progressReportFrequency String   @default("weekly")
+  isActive                Boolean  @default(true)
+  metadata                Json?
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
 
   // Relations
-  department        OrganizationStructure @relation(fields: [departmentId], references: [departmentId], onDelete: Cascade)
+  department OrganizationStructure @relation(fields: [departmentId], references: [departmentId], onDelete: Cascade)
 
   @@index([departmentId])
   @@map("project_mode_configs")
@@ -2385,19 +2402,19 @@ model ProjectModeConfig {
 
 // プロジェクトモードグループ設定 - 投票グループ用のプロジェクト設定
 model ProjectModeGroupConfig {
-  id                String   @id @default(cuid())
-  groupId           String   @unique
-  projectUpgradeThreshold Int @default(400)
-  teamFormationRules Json
-  milestoneRequired Boolean  @default(true)
-  progressReportFrequency String @default("weekly")
-  isActive          Boolean  @default(true)
-  metadata          Json?
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  id                      String   @id @default(cuid())
+  groupId                 String   @unique
+  projectUpgradeThreshold Int      @default(400)
+  teamFormationRules      Json
+  milestoneRequired       Boolean  @default(true)
+  progressReportFrequency String   @default("weekly")
+  isActive                Boolean  @default(true)
+  metadata                Json?
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
 
   // Relations
-  votingGroup       VotingGroup @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+  votingGroup VotingGroup @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
 
   @@index([groupId])
   @@map("project_mode_group_configs")
@@ -2405,16 +2422,16 @@ model ProjectModeGroupConfig {
 
 // 職種マスター - 職種・資格情報管理
 model JobCategory {
-  id                String   @id @default(cuid())
-  jobCategoryCode   String   @unique
-  jobCategoryName   String
-  jobCategoryGroup  String
-  requiresLicense   Boolean  @default(false)
-  sortOrder         Int      @default(0)
-  isActive          Boolean  @default(true)
-  metadata          Json?
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(cuid())
+  jobCategoryCode  String   @unique
+  jobCategoryName  String
+  jobCategoryGroup String
+  requiresLicense  Boolean  @default(false)
+  sortOrder        Int      @default(0)
+  isActive         Boolean  @default(true)
+  metadata         Json?
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   @@index([jobCategoryCode])
   @@index([jobCategoryGroup])
@@ -2428,33 +2445,33 @@ model JobCategory {
 
 // プロジェクト参加統計 - 全体統計（総参加者数、多様性スコア等）
 model ProjectParticipationStats {
-  id                      String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 集計期間
-  periodType              String                                // 'month' | 'quarter' | 'year'
-  periodStart             DateTime  @map("period_start")
-  periodEnd               DateTime  @map("period_end")
+  periodType  String // 'month' | 'quarter' | 'year'
+  periodStart DateTime @map("period_start")
+  periodEnd   DateTime @map("period_end")
 
   // 全体統計
-  totalParticipants       Int       @default(0) @map("total_participants")
-  totalProjects           Int       @default(0) @map("total_projects")
-  averageProjectsPerPerson Float    @default(0) @map("avg_projects_per_person")
+  totalParticipants        Int   @default(0) @map("total_participants")
+  totalProjects            Int   @default(0) @map("total_projects")
+  averageProjectsPerPerson Float @default(0) @map("avg_projects_per_person")
 
   // 多様性スコア（0-100）
-  diversityScore          Float     @default(0) @map("diversity_score")
-  professionDiversityScore Float    @default(0) @map("profession_diversity_score")
-  generationDiversityScore Float    @default(0) @map("generation_diversity_score")
-  hierarchyDiversityScore Float    @default(0) @map("hierarchy_diversity_score")
+  diversityScore           Float @default(0) @map("diversity_score")
+  professionDiversityScore Float @default(0) @map("profession_diversity_score")
+  generationDiversityScore Float @default(0) @map("generation_diversity_score")
+  hierarchyDiversityScore  Float @default(0) @map("hierarchy_diversity_score")
 
   // 成長率（前期比%）
-  growthRate              Float?    @map("growth_rate")
-  participantGrowthRate   Float?    @map("participant_growth_rate")
-  projectGrowthRate       Float?    @map("project_growth_rate")
+  growthRate            Float? @map("growth_rate")
+  participantGrowthRate Float? @map("participant_growth_rate")
+  projectGrowthRate     Float? @map("project_growth_rate")
 
   // 集計タイムスタンプ
-  calculatedAt            DateTime  @default(now()) @map("calculated_at")
-  createdAt               DateTime  @default(now()) @map("created_at")
-  updatedAt               DateTime  @updatedAt @map("updated_at")
+  calculatedAt DateTime @default(now()) @map("calculated_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@unique([periodType, periodStart, periodEnd])
   @@index([periodType])
@@ -2464,28 +2481,28 @@ model ProjectParticipationStats {
 
 // プロジェクト参加統計（職種別） - 職種別プロジェクト参加状況
 model ProjectParticipationByProfession {
-  id                String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 集計期間
-  periodType        String                                // 'month' | 'quarter' | 'year'
-  periodStart       DateTime  @map("period_start")
-  periodEnd         DateTime  @map("period_end")
+  periodType  String // 'month' | 'quarter' | 'year'
+  periodStart DateTime @map("period_start")
+  periodEnd   DateTime @map("period_end")
 
   // 職種情報（医療システムから取得してキャッシュ）
-  professionCode    String    @map("profession_code")      // 'nurse' | 'doctor' | ...
-  professionName    String    @map("profession_name")      // '看護師' | '医師' | ...
-  professionGroup   String    @map("profession_group")     // 'medical' | 'nursing' | 'allied' | 'admin'
+  professionCode  String @map("profession_code") // 'nurse' | 'doctor' | ...
+  professionName  String @map("profession_name") // '看護師' | '医師' | ...
+  professionGroup String @map("profession_group") // 'medical' | 'nursing' | 'allied' | 'admin'
 
   // 統計データ
-  participantCount  Int       @default(0) @map("participant_count")
-  projectCount      Int       @default(0) @map("project_count")
-  averageProjects   Float     @default(0) @map("average_projects")
-  percentage        Float     @default(0) @map("percentage")
+  participantCount Int   @default(0) @map("participant_count")
+  projectCount     Int   @default(0) @map("project_count")
+  averageProjects  Float @default(0) @map("average_projects")
+  percentage       Float @default(0) @map("percentage")
 
   // タイムスタンプ
-  calculatedAt      DateTime  @default(now()) @map("calculated_at")
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
+  calculatedAt DateTime @default(now()) @map("calculated_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@unique([periodType, periodStart, periodEnd, professionCode])
   @@index([periodType])
@@ -2500,36 +2517,36 @@ model ProjectParticipationByProfession {
 
 // 職員プロジェクト参加統計 - 個別職員のプロジェクト参加状況
 model StaffProjectParticipationStats {
-  id                    String    @id @default(cuid())
-  userId                String    @unique @map("user_id")
+  id     String @id @default(cuid())
+  userId String @unique @map("user_id")
 
   // 参加統計
-  totalProjectsJoined   Int       @default(0) @map("total_projects_joined")
-  activeProjects        Int       @default(0) @map("active_projects")
-  completedProjects     Int       @default(0) @map("completed_projects")
+  totalProjectsJoined Int @default(0) @map("total_projects_joined")
+  activeProjects      Int @default(0) @map("active_projects")
+  completedProjects   Int @default(0) @map("completed_projects")
 
   // 期間別統計
-  projectsLast6Months   Int       @default(0) @map("projects_last_6months")
-  projectsThisYear      Int       @default(0) @map("projects_this_year")
+  projectsLast6Months Int @default(0) @map("projects_last_6months")
+  projectsThisYear    Int @default(0) @map("projects_this_year")
 
   // 参加率指標
-  participationRate     Float     @default(0) @map("participation_rate")
-  departmentAvgRate     Float     @default(0) @map("department_avg_rate")
-  isBelowAverage        Boolean   @default(false) @map("is_below_average")
+  participationRate Float   @default(0) @map("participation_rate")
+  departmentAvgRate Float   @default(0) @map("department_avg_rate")
+  isBelowAverage    Boolean @default(false) @map("is_below_average")
 
   // 最終参加日
-  lastJoinedAt          DateTime? @map("last_joined_at")
-  daysSinceLastJoin     Int?      @map("days_since_last_join")
+  lastJoinedAt      DateTime? @map("last_joined_at")
+  daysSinceLastJoin Int?      @map("days_since_last_join")
 
   // 推奨送信履歴
-  recommendationsSent   Int       @default(0) @map("recommendations_sent")
-  lastRecommendedAt     DateTime? @map("last_recommended_at")
+  recommendationsSent Int       @default(0) @map("recommendations_sent")
+  lastRecommendedAt   DateTime? @map("last_recommended_at")
 
   // 更新日時
-  calculatedAt          DateTime  @default(now()) @map("calculated_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
+  calculatedAt DateTime @default(now()) @map("calculated_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([participationRate])
   @@index([isBelowAverage])
@@ -2540,44 +2557,44 @@ model StaffProjectParticipationStats {
 
 // プロジェクト多様性分析 - プロジェクトチームの多様性スコア
 model ProjectDiversityAnalysis {
-  id                          String    @id @default(cuid())
-  projectId                   String    @unique @map("project_id")
+  id        String @id @default(cuid())
+  projectId String @unique @map("project_id")
 
   // 職種別カウント
-  nursesCount                 Int       @default(0) @map("nurses_count")
-  doctorsCount                Int       @default(0) @map("doctors_count")
-  adminCount                  Int       @default(0) @map("admin_count")
-  rehabCount                  Int       @default(0) @map("rehab_count")
-  pharmacistCount             Int       @default(0) @map("pharmacist_count")
-  medicalTechCount            Int       @default(0) @map("medical_tech_count")
-  othersCount                 Int       @default(0) @map("others_count")
+  nursesCount      Int @default(0) @map("nurses_count")
+  doctorsCount     Int @default(0) @map("doctors_count")
+  adminCount       Int @default(0) @map("admin_count")
+  rehabCount       Int @default(0) @map("rehab_count")
+  pharmacistCount  Int @default(0) @map("pharmacist_count")
+  medicalTechCount Int @default(0) @map("medical_tech_count")
+  othersCount      Int @default(0) @map("others_count")
 
   // 世代別カウント
-  gen20sCount                 Int       @default(0) @map("gen_20s_count")
-  gen30sCount                 Int       @default(0) @map("gen_30s_count")
-  gen40sCount                 Int       @default(0) @map("gen_40s_count")
-  gen50sCount                 Int       @default(0) @map("gen_50s_count")
-  gen60sCount                 Int       @default(0) @map("gen_60s_count")
+  gen20sCount Int @default(0) @map("gen_20s_count")
+  gen30sCount Int @default(0) @map("gen_30s_count")
+  gen40sCount Int @default(0) @map("gen_40s_count")
+  gen50sCount Int @default(0) @map("gen_50s_count")
+  gen60sCount Int @default(0) @map("gen_60s_count")
 
   // 部署別カウント
-  departmentsCount            Int       @default(0) @map("departments_count")
-  departmentList              String?   @map("department_list")  // JSON文字列: ["内科", "外科", "事務部"]
+  departmentsCount Int     @default(0) @map("departments_count")
+  departmentList   String? @map("department_list") // JSON文字列: ["内科", "外科", "事務部"]
 
   // 多様性スコア（0-100）
-  professionDiversityScore    Float     @default(0) @map("profession_diversity_score")
-  generationDiversityScore    Float     @default(0) @map("generation_diversity_score")
-  departmentDiversityScore    Float     @default(0) @map("department_diversity_score")
-  overallDiversityScore       Float     @default(0) @map("overall_diversity_score")
+  professionDiversityScore Float @default(0) @map("profession_diversity_score")
+  generationDiversityScore Float @default(0) @map("generation_diversity_score")
+  departmentDiversityScore Float @default(0) @map("department_diversity_score")
+  overallDiversityScore    Float @default(0) @map("overall_diversity_score")
 
   // 目標・推奨
-  targetDiversityScore        Float     @default(75) @map("target_diversity_score")
-  recommendedProfessions      String?   @map("recommended_professions")  // JSON文字列: ["薬剤師", "医療技術職"]
+  targetDiversityScore   Float   @default(75) @map("target_diversity_score")
+  recommendedProfessions String? @map("recommended_professions") // JSON文字列: ["薬剤師", "医療技術職"]
 
   // 更新日時
-  calculatedAt                DateTime  @default(now()) @map("calculated_at")
-  updatedAt                   DateTime  @updatedAt @map("updated_at")
+  calculatedAt DateTime @default(now()) @map("calculated_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  project                     Post      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project Post @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([overallDiversityScore])
   @@index([professionDiversityScore])
@@ -2586,26 +2603,26 @@ model ProjectDiversityAnalysis {
 
 // スキルサマリキャッシュ - 医療システムのスキルデータをキャッシュ
 model SkillSummaryCache {
-  id                String    @id @default(cuid())
-  skillId           String    @unique @map("skill_id")
-  skillName         String    @map("skill_name")
-  skillCategory     String    @map("skill_category")
+  id            String @id @default(cuid())
+  skillId       String @unique @map("skill_id")
+  skillName     String @map("skill_name")
+  skillCategory String @map("skill_category")
 
   // 保有者統計
-  totalStaff        Int       @default(0) @map("total_staff")
-  expertCount       Int       @default(0) @map("expert_count")
-  advancedCount     Int       @default(0) @map("advanced_count")
-  intermediateCount Int       @default(0) @map("intermediate_count")
-  basicCount        Int       @default(0) @map("basic_count")
-  averageLevel      Float     @default(0) @map("average_level")
+  totalStaff        Int   @default(0) @map("total_staff")
+  expertCount       Int   @default(0) @map("expert_count")
+  advancedCount     Int   @default(0) @map("advanced_count")
+  intermediateCount Int   @default(0) @map("intermediate_count")
+  basicCount        Int   @default(0) @map("basic_count")
+  averageLevel      Float @default(0) @map("average_level")
 
   // プロジェクト関連統計（VoiceDrive側で計算）
-  activeProjects    Int       @default(0) @map("active_projects")
-  recommendations   Int       @default(0) @map("recommendations")
+  activeProjects  Int @default(0) @map("active_projects")
+  recommendations Int @default(0) @map("recommendations")
 
   // 更新日時
-  lastSyncedAt      DateTime  @default(now()) @map("last_synced_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
+  lastSyncedAt DateTime @default(now()) @map("last_synced_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@index([skillName])
   @@index([skillCategory])
@@ -2615,28 +2632,28 @@ model SkillSummaryCache {
 
 // プロジェクト推奨履歴 - 推奨送信・閲覧・受諾履歴
 model ProjectRecommendationLog {
-  id                String    @id @default(cuid())
-  userId            String    @map("user_id")
-  projectId         String    @map("project_id")
+  id        String @id @default(cuid())
+  userId    String @map("user_id")
+  projectId String @map("project_id")
 
   // 推奨情報
-  matchScore        Int       @map("match_score")       // 0-100
-  reasons           String    @map("reasons")           // JSON文字列: ["スキルマッチ", "部署関連"]
-  recommendedBy     String    @map("recommended_by")    // 推奨者のemployeeId
+  matchScore    Int    @map("match_score") // 0-100
+  reasons       String @map("reasons") // JSON文字列: ["スキルマッチ", "部署関連"]
+  recommendedBy String @map("recommended_by") // 推奨者のemployeeId
 
   // 送信・閲覧・反応
-  sentAt            DateTime  @default(now()) @map("sent_at")
-  viewedAt          DateTime? @map("viewed_at")
-  acceptedAt        DateTime? @map("accepted_at")
-  rejectedAt        DateTime? @map("rejected_at")
-  rejectionReason   String?   @map("rejection_reason")
+  sentAt          DateTime  @default(now()) @map("sent_at")
+  viewedAt        DateTime? @map("viewed_at")
+  acceptedAt      DateTime? @map("accepted_at")
+  rejectedAt      DateTime? @map("rejected_at")
+  rejectionReason String?   @map("rejection_reason")
 
   // メタデータ
-  recommendationType String   @default("auto") @map("recommendation_type")  // "auto" | "manual"
-  priority           String   @default("medium") @map("priority")           // "high" | "medium" | "low"
+  recommendationType String @default("auto") @map("recommendation_type") // "auto" | "manual"
+  priority           String @default("medium") @map("priority") // "high" | "medium" | "low"
 
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  project           Post      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Post @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([projectId])
@@ -2651,65 +2668,65 @@ model ProjectRecommendationLog {
 
 // 評価通知テーブル - V3評価システム対応
 model EvaluationNotification {
-  id                      String    @id @default(cuid())
+  id String @id @default(cuid())
 
   // 職員情報
-  employeeId              String    @map("employee_id")
-  employeeName            String    @map("employee_name")
+  employeeId   String @map("employee_id")
+  employeeName String @map("employee_name")
 
   // 評価情報
-  evaluationPeriod        String    @map("evaluation_period")        // 例: "2025年度上期"
-  evaluationScore         Int       @map("evaluation_score")         // 0-100点
-  evaluationGrade         String    @map("evaluation_grade")         // S, A+, A, B+, B, C, D
+  evaluationPeriod String @map("evaluation_period") // 例: "2025年度上期"
+  evaluationScore  Int    @map("evaluation_score") // 0-100点
+  evaluationGrade  String @map("evaluation_grade") // S, A+, A, B+, B, C, D
 
   // 3軸評価対応（V3評価システム）
-  facilityGrade           String?   @map("facility_grade")           // 施設内評価 (S, A, B, C, D の5段階)
-  corporateGrade          String?   @map("corporate_grade")          // 法人内評価 (S, A, B, C, D の5段階)
-  overallGrade            String?   @map("overall_grade")            // 総合評価 (S, A+, A, B+, B, C, D の7段階)
-  overallScore            Int?      @map("overall_score")            // 総合評価点数 (0-100点)
+  facilityGrade  String? @map("facility_grade") // 施設内評価 (S, A, B, C, D の5段階)
+  corporateGrade String? @map("corporate_grade") // 法人内評価 (S, A, B, C, D の5段階)
+  overallGrade   String? @map("overall_grade") // 総合評価 (S, A+, A, B+, B, C, D の7段階)
+  overallScore   Int?    @map("overall_score") // 総合評価点数 (0-100点)
 
   // 開示・締切情報
-  disclosureDate          DateTime  @map("disclosure_date")          // 評価開示日
-  appealDeadline          DateTime  @map("appeal_deadline")          // 異議申立締切日（開示から14日）
-  daysUntilDeadline       Int?      @map("days_until_deadline")      // 締切までの残日数
-  isUrgent                Boolean   @default(false) @map("is_urgent") // 緊急フラグ（3日以内）
+  disclosureDate    DateTime @map("disclosure_date") // 評価開示日
+  appealDeadline    DateTime @map("appeal_deadline") // 異議申立締切日（開示から14日）
+  daysUntilDeadline Int?     @map("days_until_deadline") // 締切までの残日数
+  isUrgent          Boolean  @default(false) @map("is_urgent") // 緊急フラグ（3日以内）
 
   // 通知ステータス
-  notificationStatus      String    @default("pending") @map("notification_status")
+  notificationStatus String    @default("pending") @map("notification_status")
   // 'pending' | 'sent' | 'delivered' | 'read' | 'failed'
-  notificationSentAt      DateTime? @map("notification_sent_at")
-  notificationReadAt      DateTime? @map("notification_read_at")
+  notificationSentAt DateTime? @map("notification_sent_at")
+  notificationReadAt DateTime? @map("notification_read_at")
 
   // 異議申立状況
-  appealStatus            String    @default("none") @map("appeal_status")
+  appealStatus      String    @default("none") @map("appeal_status")
   // 'none' | 'submitted' | 'in_review' | 'resolved'
-  appealId                String?   @map("appeal_id")                // 異議申立ID（医療システムで管理）
-  appealSubmittedAt       DateTime? @map("appeal_submitted_at")
+  appealId          String?   @map("appeal_id") // 異議申立ID（医療システムで管理）
+  appealSubmittedAt DateTime? @map("appeal_submitted_at")
 
   // 医療システム連携
-  medicalSystemUrl        String?   @map("medical_system_url")       // 医療システムの評価詳細URL
-  medicalSystemEventId    String?   @unique @map("medical_system_event_id")  // Webhook重複排除用ID
+  medicalSystemUrl     String? @map("medical_system_url") // 医療システムの評価詳細URL
+  medicalSystemEventId String? @unique @map("medical_system_event_id") // Webhook重複排除用ID
 
   // 通知配信情報
-  emailSent               Boolean   @default(false) @map("email_sent")
-  pushSent                Boolean   @default(false) @map("push_sent")
-  smsSent                 Boolean   @default(false) @map("sms_sent")
-  emailSentAt             DateTime? @map("email_sent_at")
-  pushSentAt              DateTime? @map("push_sent_at")
-  smsSentAt               DateTime? @map("sms_sent_at")
+  emailSent   Boolean   @default(false) @map("email_sent")
+  pushSent    Boolean   @default(false) @map("push_sent")
+  smsSent     Boolean   @default(false) @map("sms_sent")
+  emailSentAt DateTime? @map("email_sent_at")
+  pushSentAt  DateTime? @map("push_sent_at")
+  smsSentAt   DateTime? @map("sms_sent_at")
 
   // 配信失敗情報
-  deliveryFailureCount    Int       @default(0) @map("delivery_failure_count")
-  lastDeliveryError       String?   @map("last_delivery_error")
+  deliveryFailureCount Int     @default(0) @map("delivery_failure_count")
+  lastDeliveryError    String? @map("last_delivery_error")
 
   // メタデータ
-  priority                String    @default("high") @map("priority")  // 'low' | 'medium' | 'high' | 'urgent'
-  additionalMessage       String?   @map("additional_message")        // 追加メッセージ
-  createdAt               DateTime  @default(now()) @map("created_at")
-  updatedAt               DateTime  @updatedAt @map("updated_at")
+  priority          String   @default("high") @map("priority") // 'low' | 'medium' | 'high' | 'urgent'
+  additionalMessage String?  @map("additional_message") // 追加メッセージ
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
   // リレーション
-  employee                User      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employee User @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@index([employeeId])
   @@index([notificationStatus])
@@ -2719,39 +2736,94 @@ model EvaluationNotification {
   @@index([daysUntilDeadline])
   @@index([isUrgent])
   @@index([evaluationPeriod])
-  @@index([employeeId, evaluationPeriod])  // 職員の評価期間別通知取得用
-  @@index([notificationStatus, disclosureDate])  // 未読通知リスト高速取得用
+  @@index([employeeId, evaluationPeriod]) // 職員の評価期間別通知取得用
+  @@index([notificationStatus, disclosureDate]) // 未読通知リスト高速取得用
   @@map("evaluation_notifications")
 }
 
 // 通知設定テーブル - 職員ごとの通知受信設定
 model NotificationSettings {
-  id                        String    @id @default(cuid())
-  userId                    String    @unique @map("user_id")
+  id     String @id @default(cuid())
+  userId String @unique @map("user_id")
 
   // 通知チャネル設定
-  enableEmailNotifications  Boolean   @default(true) @map("enable_email_notifications")
-  enablePushNotifications   Boolean   @default(true) @map("enable_push_notifications")
-  enableSmsNotifications    Boolean   @default(false) @map("enable_sms_notifications")
+  enableEmailNotifications Boolean @default(true) @map("enable_email_notifications")
+  enablePushNotifications  Boolean @default(true) @map("enable_push_notifications")
+  enableSmsNotifications   Boolean @default(false) @map("enable_sms_notifications")
 
   // リマインダー設定
-  reminderDaysBefore        Int       @default(3) @map("reminder_days_before")  // 異議申立締切の何日前にリマインダー
-  enableDeadlineReminder    Boolean   @default(true) @map("enable_deadline_reminder")
+  reminderDaysBefore     Int     @default(3) @map("reminder_days_before") // 異議申立締切の何日前にリマインダー
+  enableDeadlineReminder Boolean @default(true) @map("enable_deadline_reminder")
 
   // 自動既読設定
-  autoMarkAsRead            Boolean   @default(false) @map("auto_mark_as_read")
+  autoMarkAsRead Boolean @default(false) @map("auto_mark_as_read")
 
   // 通知時間帯設定
-  quietHoursStart           String?   @map("quiet_hours_start")      // 例: "22:00"
-  quietHoursEnd             String?   @map("quiet_hours_end")        // 例: "08:00"
-  enableQuietHours          Boolean   @default(false) @map("enable_quiet_hours")
+  quietHoursStart  String? @map("quiet_hours_start") // 例: "22:00"
+  quietHoursEnd    String? @map("quiet_hours_end") // 例: "08:00"
+  enableQuietHours Boolean @default(false) @map("enable_quiet_hours")
 
   // メタデータ
-  createdAt                 DateTime  @default(now()) @map("created_at")
-  updatedAt                 DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // リレーション
-  user                      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notification_settings")
+}
+
+// ===================================================================
+// 緊急退職処理関連モデル（2025-10-18追加）
+// ===================================================================
+
+/// 退職処理記録テーブル
+/// 緊急退職処理の4ステップフローを記録
+model RetirementProcess {
+  id String @id @default(cuid())
+
+  // 対象職員情報
+  targetUserId     String  @map("target_user_id")
+  targetEmployeeId String? @map("target_employee_id")
+  targetUserName   String? @map("target_user_name")
+
+  // 実行者情報
+  initiatedBy         String  @map("initiated_by") // User.id
+  initiatorEmployeeId String? @map("initiator_employee_id")
+  initiatorName       String? @map("initiator_name")
+  initiatorLevel      Float   @map("initiator_level")
+
+  // 処理設定
+  preserveAnonymousContent Boolean @default(true) @map("preserve_anonymous_content")
+  anonymizationLevel       String  @default("department") @map("anonymization_level") // 'full' | 'department' | 'partial'
+  retentionPeriod          Int     @default(24) @map("retention_period") // 月単位
+
+  // プロセス状態
+  currentStep Int    @default(1) @map("current_step") // 1-4
+  status      String @default("in_progress") @map("status") // 'in_progress' | 'completed' | 'failed' | 'cancelled'
+
+  // ステップ完了状況
+  step1CompletedAt DateTime? @map("step1_completed_at") // アカウント無効化
+  step2CompletedAt DateTime? @map("step2_completed_at") // 権限剥奪
+  step3CompletedAt DateTime? @map("step3_completed_at") // 投稿匿名化
+  step4CompletedAt DateTime? @map("step4_completed_at") // 完了通知
+
+  // 同期情報
+  syncToStaffSystem Boolean   @default(false) @map("sync_to_staff_system")
+  syncedAt          DateTime? @map("synced_at")
+
+  // 処理結果
+  completedAt  DateTime? @map("completed_at")
+  errorMessage String?   @map("error_message")
+
+  // メタデータ
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([targetUserId])
+  @@index([initiatedBy])
+  @@index([status])
+  @@index([currentStep])
+  @@index([syncToStaffSystem])
+  @@map("retirement_processes")
 }
