@@ -1,8 +1,8 @@
 /**
- * Webhook署名検証サービス
+ * Webhook署名検証・生成サービス
  *
- * HMAC-SHA256署名とタイムスタンプの検証を行います。
- * 医療システムからのWebhookリクエストの真正性を確保します。
+ * HMAC-SHA256署名の生成と検証、タイムスタンプの検証を行います。
+ * VoiceDrive ⇔ 医療システム間のWebhook通信の真正性を確保します。
  */
 
 import * as crypto from 'crypto';
@@ -100,4 +100,54 @@ export function validateWebhookPayload(payload: any): string[] {
   }
 
   return missingFields;
+}
+
+/**
+ * Webhook送信用の署名を生成
+ *
+ * @param payload - リクエストボディ（JSON）
+ * @param secret - 共有シークレットキー
+ * @returns HMAC-SHA256署名（hex形式）
+ */
+export function generateWebhookSignature(
+  payload: any,
+  secret: string
+): string {
+  try {
+    // ペイロードをJSON文字列に変換
+    const payloadString = JSON.stringify(payload);
+
+    // HMAC-SHA256署名を生成
+    const signature = crypto
+      .createHmac('sha256', secret)
+      .update(payloadString)
+      .digest('hex');
+
+    return signature;
+  } catch (error) {
+    console.error('Signature generation error:', error);
+    throw new Error('Failed to generate webhook signature');
+  }
+}
+
+/**
+ * Webhook送信用のヘッダーを生成
+ *
+ * @param payload - リクエストボディ
+ * @param secret - 共有シークレットキー
+ * @returns Webhookリクエスト用ヘッダー
+ */
+export function generateWebhookHeaders(
+  payload: any,
+  secret: string
+): Record<string, string> {
+  const timestamp = new Date().toISOString();
+  const signature = generateWebhookSignature(payload, secret);
+
+  return {
+    'Content-Type': 'application/json',
+    'X-VoiceDrive-Signature': signature,
+    'X-VoiceDrive-Timestamp': timestamp,
+    'X-VoiceDrive-Source': 'voicedrive-system'
+  };
 }

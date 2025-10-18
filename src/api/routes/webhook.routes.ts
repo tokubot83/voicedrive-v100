@@ -828,4 +828,220 @@ router.post('/employee-reinstated', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * POST /api/webhook/staff-system/retirement
+ *
+ * 医療システムからの正式退職通知を受信
+ * Phase 2: 退職処理統合 - Webhook受信
+ *
+ * 緊急処理の「格上げ」ロジック:
+ * 1. VoiceDrive側で既に緊急退職処理済みの場合、重複処理を避ける
+ * 2. EmergencyDeactivationレコードを「upgraded_to_formal_retirement」に更新
+ * 3. RetirementProcessを新規作成せず、既存の緊急処理を正式化
+ */
+router.post('/staff-system/retirement', async (req: Request, res: Response) => {
+  try {
+    console.log('📨 医療システムから正式退職通知受信:', req.body);
+
+    // HMAC署名検証
+    const signature = req.headers['x-voicedrive-signature'] as string;
+    const timestamp = req.headers['x-voicedrive-timestamp'] as string;
+    const payload = JSON.stringify(req.body);
+    const HMAC_SECRET = process.env.MEDICAL_SYSTEM_WEBHOOK_SECRET || '';
+
+    if (!signature || !timestamp) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_HEADERS',
+          message: 'X-VoiceDrive-SignatureまたはX-VoiceDrive-Timestampヘッダーが必要です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    if (!verifyHmacSignature(payload, signature, timestamp, HMAC_SECRET)) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'INVALID_SIGNATURE',
+          message: 'HMAC署名が無効です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // リクエストボディ
+    const {
+      event,
+      data: {
+        employeeId,
+        retirementDate,
+        voicedriveDeactivationId
+      }
+    } = req.body;
+
+    if (!employeeId) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_EMPLOYEE_ID',
+          message: 'employeeIdが必要です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // 緊急処理の格上げロジック
+    if (voicedriveDeactivationId) {
+      console.log('🔄 緊急処理を正式退職に格上げ:', voicedriveDeactivationId);
+
+      const emergencyDeactivation = await prisma.emergencyDeactivation.findUnique({
+        where: { id: voicedriveDeactivationId }
+      });
+
+      if (emergencyDeactivation) {
+        // 緊急処理を正式化
+        await prisma.emergencyDeactivation.update({
+          where: { id: voicedriveDeactivationId },
+          data: {
+            status: 'upgraded_to_formal_retirement',
+            formalRetirementDate: retirementDate ? new Date(retirementDate) : new Date(),
+            syncedAt: new Date(),
+            updatedAt: new Date()
+          }
+        });
+
+        console.log('✅ 緊急処理を正式退職に格上げ完了:', {
+          deactivationId: voicedriveDeactivationId,
+          employeeId
+        });
+
+        return res.status(200).json({
+          success: true,
+          message: '緊急処理を正式退職に格上げしました',
+          employeeId,
+          deactivationId: voicedriveDeactivationId,
+          receivedAt: new Date().toISOString()
+        });
+      }
+    }
+
+    // 通常の退職処理（緊急処理なし）
+    const user = await prisma.user.findFirst({
+      where: { employeeId }
+    });
+
+    if (user) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          isRetired: true,
+          retirementDate: retirementDate ? new Date(retirementDate) : new Date(),
+          updatedAt: new Date()
+        }
+      });
+
+      console.log('✅ 正式退職処理完了:', { employeeId });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: '正式退職通知を受信しました',
+      employeeId,
+      receivedAt: new Date().toISOString()
+    });
+
+  } catch (error: any) {
+    console.error('正式退職通知処理エラー:', error);
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: '内部エラーが発生しました',
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+});
+
+/**
+ * POST /api/webhook/staff-system/status-change
+ *
+ * 医療システムからのアカウントステータス変更通知を受信
+ * Phase 2: 退職処理統合 - Webhook受信
+ */
+router.post('/staff-system/status-change', async (req: Request, res: Response) => {
+  try {
+    console.log('📨 医療システムからステータス変更通知受信:', req.body);
+
+    // HMAC署名検証
+    const signature = req.headers['x-voicedrive-signature'] as string;
+    const timestamp = req.headers['x-voicedrive-timestamp'] as string;
+    const payload = JSON.stringify(req.body);
+    const HMAC_SECRET = process.env.MEDICAL_SYSTEM_WEBHOOK_SECRET || '';
+
+    if (!signature || !timestamp || !verifyHmacSignature(payload, signature, timestamp, HMAC_SECRET)) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'INVALID_SIGNATURE',
+          message: 'HMAC署名が無効です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // リクエストボディ
+    const {
+      event,
+      data: {
+        employeeId,
+        previousStatus,
+        newStatus,
+        changedAt
+      }
+    } = req.body;
+
+    if (!employeeId || !newStatus) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_FIELDS',
+          message: 'employeeIdまたはnewStatusが必要です',
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    // ステータス変更をログに記録（将来的にStaffSystemSyncQueueで管理）
+    console.log('📝 ステータス変更記録:', {
+      employeeId,
+      previousStatus,
+      newStatus,
+      changedAt
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'ステータス変更通知を受信しました',
+      employeeId,
+      receivedAt: new Date().toISOString()
+    });
+
+  } catch (error: any) {
+    console.error('ステータス変更通知処理エラー:', error);
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: '内部エラーが発生しました',
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+});
+
 export default router;
