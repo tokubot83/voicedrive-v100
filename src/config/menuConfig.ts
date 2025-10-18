@@ -85,32 +85,6 @@ export const MENU_STRUCTURE: MenuStructure = {
 
   // 人事機能ページ
   hr: {
-    interview: {
-      id: 'interview_management',
-      label: '面談管理',
-      icon: '🗣️',
-      path: '/interview-management',
-      requiredLevel: 14,
-      category: 'hr',
-      children: [
-        {
-          id: 'interview_booking',
-          label: '面談予約',
-          icon: '📅',
-          path: '/interview-booking',
-          requiredLevel: 8,
-          category: 'hr'
-        },
-        {
-          id: 'interview_calendar',
-          label: '面談カレンダー',
-          icon: '📆',
-          path: '/interview-calendar',
-          requiredLevel: 8,
-          category: 'hr'
-        }
-      ]
-    },
     policy: {
       id: 'policy_management',
       label: 'ポリシー管理',

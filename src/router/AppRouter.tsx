@@ -75,7 +75,6 @@ import ComposePage from '../pages/ComposePage';
 // Interview Booking
 import InterviewStation from '../pages/InterviewStation';
 import InterviewBookingPage from '../pages/InterviewBookingPage';
-import InterviewManagementPage from '../pages/InterviewManagementPage';
 
 // HR Announcements
 import HRAnnouncementsPage from '../components/hr-announcements/HRAnnouncementsPage';
@@ -560,11 +559,6 @@ const AppRouter: React.FC = () => {
       
       {/* Interview and Project Management - Full width */}
       <Route path="interview-booking" element={<InterviewBookingPage />} />
-      <Route path="interview-management" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-          <InterviewManagementPage />
-        </ProtectedRoute>
-      } />
       <Route path="projects" element={<EnhancedProjectListPage />} />
       <Route path="my-projects" element={
         <React.Suspense fallback={<div>Loading...</div>}>

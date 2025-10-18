@@ -35,7 +35,6 @@ export interface ManagementMenu {
 }
 
 export interface HRMenu {
-  interview: MenuItem;     // 面談管理（レベル8〜）
   policy: MenuItem;        // ポリシー管理（レベル8〜）
   talent: MenuItem;        // タレント分析（レベル8〜）
   dashboard: MenuItem;     // 人事ダッシュボード（レベル9〜）
