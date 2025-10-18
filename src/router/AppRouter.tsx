@@ -195,15 +195,15 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
 
-        {/* Retirement Processing (Level 6+) */}
+        {/* Retirement Processing (Level 14+) - Emergency Use Only */}
         <Route path="retirement-processing">
           <Route index element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
+            <ProtectedRoute requiredLevel={14}>
               <RetirementProcessingPage />
             </ProtectedRoute>
           } />
           <Route path="step1/:processId" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
+            <ProtectedRoute requiredLevel={14}>
               <Step1AccountDeactivation
                 onStepComplete={() => Promise.resolve()}
                 onStepError={() => {}}
@@ -212,7 +212,7 @@ const AppRouter: React.FC = () => {
             </ProtectedRoute>
           } />
           <Route path="step2/:processId" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
+            <ProtectedRoute requiredLevel={14}>
               <Step2PermissionRevocation
                 onStepComplete={() => Promise.resolve()}
                 onStepError={() => {}}
@@ -221,7 +221,7 @@ const AppRouter: React.FC = () => {
             </ProtectedRoute>
           } />
           <Route path="step4/:processId" element={
-            <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
+            <ProtectedRoute requiredLevel={14}>
               <Step4CompletionNotification
                 onStepComplete={() => Promise.resolve()}
                 onStepError={() => {}}

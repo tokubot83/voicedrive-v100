@@ -9,14 +9,14 @@ const RetirementProcessingPage = () => {
   const { currentUser } = useDemoMode();
   const { hasPermission } = usePermissions();
 
-  // レベル6権限チェック
-  if (!currentUser || currentUser.permissionLevel < 6) {
+  // レベル14権限チェック（人事部門員以上）
+  if (!currentUser || currentUser.permissionLevel < 14) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-red-900/20 border border-red-500/30 rounded-3xl p-8 text-center max-w-md">
           <h1 className="text-2xl font-bold text-red-400 mb-4">アクセス権限がありません</h1>
           <p className="text-gray-300 mb-6">
-            退職処理管理にはレベル6以上の権限が必要です。
+            緊急退職処理にはレベル14以上（人事部門員）の権限が必要です。
           </p>
           <button
             onClick={() => navigate('/')}
@@ -44,11 +44,11 @@ const RetirementProcessingPage = () => {
             </button>
             <div>
               <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                <span className="text-3xl">👤</span>
-                退職処理管理
+                <span className="text-3xl">⚠️</span>
+                緊急退職処理
               </h1>
               <p className="text-gray-400 text-sm">
-                職員の退職に伴うアカウント処理と権限管理を行います
+                職員カルテシステムの自動処理が使えない場合の緊急対応用
               </p>
             </div>
           </div>
@@ -64,6 +64,20 @@ const RetirementProcessingPage = () => {
       {/* メインコンテンツ */}
       <div className="p-4 md:p-8">
         <div className="max-w-7xl mx-auto space-y-8">
+          {/* 緊急処理の警告 */}
+          <div className="bg-red-900/30 border-2 border-red-500/50 rounded-2xl p-6">
+            <h3 className="text-red-400 font-bold text-xl mb-3 flex items-center gap-2">
+              <span className="text-3xl">🚨</span>
+              緊急処理専用機能
+            </h3>
+            <div className="space-y-2 text-gray-200">
+              <p className="font-semibold">この機能は通常使用しないでください。</p>
+              <p>• 通常の退職処理は職員カルテシステムで自動処理されます</p>
+              <p>• この機能は職員カルテシステムが使用できない緊急時のみ使用してください</p>
+              <p>• 処理実行前に必ず上長の承認を得てください</p>
+            </div>
+          </div>
+
           <RetirementProcessingPanel currentUser={currentUser} />
 
           {/* 注意事項 */}

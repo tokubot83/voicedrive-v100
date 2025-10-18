@@ -209,6 +209,17 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     path: '/emergency/account-deactivation',
     requiredLevel: 14,
     category: 'agenda'
+  },
+
+  // 緊急退職処理（レベル14-17専用）
+  emergency_retirement_processing: {
+    id: 'emergency_retirement_processing',
+    title: '緊急退職処理',
+    label: '緊急退職処理',
+    icon: '⚠️',
+    path: '/retirement-processing',
+    requiredLevel: 14,
+    category: 'agenda'
   }
 };
 
@@ -284,24 +295,24 @@ export const AGENDA_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
 
   // レベル14：人事部門員
   14: [
-    'post_tracking', 'voice_analytics', 'culture_development', 'emergency_account_deactivation'
+    'post_tracking', 'voice_analytics', 'culture_development', 'emergency_account_deactivation', 'emergency_retirement_processing'
   ],
 
   // レベル15：人事各部門長
   15: [
-    'post_tracking', 'voice_analytics', 'culture_development', 'organization_insight', 'emergency_account_deactivation'
+    'post_tracking', 'voice_analytics', 'culture_development', 'organization_insight', 'emergency_account_deactivation', 'emergency_retirement_processing'
   ],
 
   // レベル16：戦略企画・統括管理部門員
   16: [
     'post_tracking', 'voice_analytics', 'culture_development', 'organization_insight',
-    'strategic_hr_plan', 'executive_report', 'emergency_account_deactivation'
+    'strategic_hr_plan', 'executive_report', 'emergency_account_deactivation', 'emergency_retirement_processing'
   ],
 
   // レベル17：戦略企画・統括管理部門長
   17: [
     'post_tracking', 'voice_analytics', 'culture_development', 'organization_insight',
-    'strategic_hr_plan', 'executive_report', 'board_preparation', 'emergency_account_deactivation'
+    'strategic_hr_plan', 'executive_report', 'board_preparation', 'emergency_account_deactivation', 'emergency_retirement_processing'
   ],
 
   // レベル18：理事長・法人事務局長
