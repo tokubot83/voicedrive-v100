@@ -17,8 +17,6 @@ const pathNameMap: Record<string, string> = {
   '/budget': '予算管理',
   '/authority': '権限管理',
   '/hr-dashboard': '人事ダッシュボード',
-  '/policy': 'ポリシー管理',
-  '/talent': 'タレント分析',
   '/strategic-planning': '戦略的人事計画',
   '/org-development': '組織開発',
   '/performance': 'パフォーマンス分析',

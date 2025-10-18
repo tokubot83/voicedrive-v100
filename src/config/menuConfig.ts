@@ -85,22 +85,6 @@ export const MENU_STRUCTURE: MenuStructure = {
 
   // 人事機能ページ
   hr: {
-    policy: {
-      id: 'policy_management',
-      label: 'ポリシー管理',
-      icon: '📋',
-      path: '/policy',
-      requiredLevel: 5,
-      category: 'hr'
-    },
-    talent: {
-      id: 'talent_analytics',
-      label: 'タレント分析',
-      icon: '📊',
-      path: '/talent-analytics',
-      requiredLevel: 8,
-      category: 'hr'
-    },
     dashboard: {
       id: 'hr_dashboard',
       label: '人事ダッシュボード',
@@ -113,14 +97,6 @@ export const MENU_STRUCTURE: MenuStructure = {
 
   // 戦略的人事機能ページ
   strategic_hr: {
-    planning: {
-      id: 'strategic_hr_planning',
-      label: '戦略的人事計画',
-      icon: '🎯',
-      path: '/strategic-planning',
-      requiredLevel: 10,
-      category: 'strategic_hr'
-    },
     org_development: {
       id: 'org_development',
       label: '組織開発',

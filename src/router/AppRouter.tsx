@@ -15,9 +15,6 @@ import { ProjectDetailPage } from '../pages/ProjectDetailPage';
 import { PersonalStationPage } from '../pages/PersonalStationPage';
 import { DepartmentStationPage } from '../pages/DepartmentStationPage';
 import BudgetPage from '../pages/BudgetPage';
-import PolicyManagementPage from '../pages/PolicyManagementPage';
-import TalentAnalyticsPage from '../pages/TalentAnalyticsPage';
-import StrategicPlanningPage from '../pages/StrategicPlanningPage';
 import OrgDevelopmentPage from '../pages/OrgDevelopmentPage';
 import PerformanceAnalyticsPage from '../pages/PerformanceAnalyticsPage';
 import FacilityManagementPage from '../pages/FacilityManagementPage';
@@ -194,32 +191,12 @@ const AppRouter: React.FC = () => {
             <HRFunctionsPage />
           </ProtectedRoute>
         } />
-        <Route path="policy-management" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8}>
-            <HRFunctionsPage />
-          </ProtectedRoute>
-        } />
         <Route path="talent-analytics" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8}>
             <HRFunctionsPage />
           </ProtectedRoute>
         } />
-        
-        
-        {/* Talent Analytics (Level 5+) */}
-        <Route path="talent" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-            <TalentAnalyticsPage />
-          </ProtectedRoute>
-        } />
-        
-        {/* Strategic Planning (Level 6+) */}
-        <Route path="strategic-planning" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
-            <StrategicPlanningPage />
-          </ProtectedRoute>
-        } />
-        
+
         {/* Organization Development (Level 6+) */}
         <Route path="org-development" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
@@ -622,12 +599,6 @@ const AppRouter: React.FC = () => {
         </ProtectedRoute>
       } />
       
-      {/* Policy Management - Full width without sidebar */}
-      <Route path="policy" element={
-        <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_5}>
-          <PolicyManagementPage />
-        </ProtectedRoute>
-      } />
       
       {/* V3 Appeal Page - Accessible to all authenticated users */}
       <Route path="appeal-v3" element={<AppealV3Page />} />
