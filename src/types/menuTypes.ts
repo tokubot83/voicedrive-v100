@@ -39,7 +39,6 @@ export interface HRMenu {
 }
 
 export interface StrategicHRMenu {
-  planning: MenuItem;      // 戦略的人事計画（レベル10〜）
   org_development: MenuItem;  // 組織開発（レベル10〜）
   performance: MenuItem;   // パフォーマンス分析（レベル10〜）
   retirement: MenuItem;    // 退職管理（レベル10〜）
