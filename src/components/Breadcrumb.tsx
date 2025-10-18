@@ -19,7 +19,6 @@ const pathNameMap: Record<string, string> = {
   '/hr-dashboard': '人事ダッシュボード',
   '/strategic-planning': '戦略的人事計画',
   '/org-development': '組織開発',
-  '/performance': 'パフォーマンス分析',
   '/facility-management': '施設管理',
   '/strategic-overview': '戦略概要',
   '/budget-planning': '予算計画',

@@ -15,7 +15,6 @@ import { ProjectDetailPage } from '../pages/ProjectDetailPage';
 import { PersonalStationPage } from '../pages/PersonalStationPage';
 import { DepartmentStationPage } from '../pages/DepartmentStationPage';
 import BudgetPage from '../pages/BudgetPage';
-import PerformanceAnalyticsPage from '../pages/PerformanceAnalyticsPage';
 import FacilityManagementPage from '../pages/FacilityManagementPage';
 import StrategicOverviewPage from '../pages/StrategicOverviewPage';
 import BudgetPlanningPage from '../pages/BudgetPlanningPage';
@@ -196,13 +195,6 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
 
-        {/* Performance Analytics (Level 6+) */}
-        <Route path="performance" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_6}>
-            <PerformanceAnalyticsPage />
-          </ProtectedRoute>
-        } />
-        
         {/* Retirement Processing (Level 6+) */}
         <Route path="retirement-processing">
           <Route index element={

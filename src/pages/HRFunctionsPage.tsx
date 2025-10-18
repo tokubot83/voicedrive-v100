@@ -3,12 +3,12 @@ import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { useLocation } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
-import { UserCheck, Calendar, Users, FileText, BarChart3 } from 'lucide-react';
+import { UserCheck, Calendar, Users, BarChart3 } from 'lucide-react';
 import { demoUsers } from '../data/demo/users';
 
 export const HRFunctionsPage: React.FC = () => {
   const { user } = useAuth();
-  const { userPermissionLevel } = usePermissions();
+  const { userLevel } = usePermissions();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('interview_management');
 
@@ -17,8 +17,6 @@ export const HRFunctionsPage: React.FC = () => {
     const path = location.pathname;
     if (path.includes('interview-management')) {
       setActiveTab('interview_management');
-    } else if (path.includes('policy-management')) {
-      setActiveTab('policy_management');
     } else if (path.includes('talent-analytics')) {
       setActiveTab('talent_analytics');
     }
@@ -26,9 +24,8 @@ export const HRFunctionsPage: React.FC = () => {
 
   const hrTabs = [
     { id: 'interview_management', label: '面談管理', icon: Calendar },
-    { id: 'policy_management', label: 'ポリシー管理', icon: FileText },
     { id: 'talent_analytics', label: 'タレント分析', icon: BarChart3 },
-    ...(userPermissionLevel >= 9 ? [{ id: 'hr_dashboard', label: '人事ダッシュボード', icon: Users }] : [])
+    ...(userLevel >= 9 ? [{ id: 'hr_dashboard', label: '人事ダッシュボード', icon: Users }] : [])
   ];
 
   const renderInterviewManagement = () => (
@@ -107,75 +104,6 @@ export const HRFunctionsPage: React.FC = () => {
             </div>
             <p className="text-sm text-gray-700 mb-2">業務内容と今後のキャリア希望について相談。スキルアップ研修の参加を希望。</p>
             <div className="text-xs text-gray-500">面談者: {user?.name}</div>
-          </div>
-        </div>
-      </Card>
-    </div>
-  );
-
-  const renderPolicyManagement = () => (
-    <div className="space-y-6">
-      <Card className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">人事ポリシー管理</h3>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            新規ポリシー作成
-          </button>
-        </div>
-        
-        <div className="space-y-4">
-          <div className="border rounded-lg p-4">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h4 className="font-medium text-gray-900">勤務時間・休暇に関する規定</h4>
-                <p className="text-sm text-gray-600">職員の勤務時間、休暇取得に関する詳細規定</p>
-              </div>
-              <div className="flex gap-2">
-                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">有効</span>
-                <button className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
-                  編集
-                </button>
-              </div>
-            </div>
-            <div className="text-xs text-gray-500">
-              最終更新: 2024年4月1日 • 更新者: 人事部長
-            </div>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h4 className="font-medium text-gray-900">研修・教育制度規程</h4>
-                <p className="text-sm text-gray-600">職員の継続教育と研修参加に関する規定</p>
-              </div>
-              <div className="flex gap-2">
-                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">有効</span>
-                <button className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
-                  編集
-                </button>
-              </div>
-            </div>
-            <div className="text-xs text-gray-500">
-              最終更新: 2024年3月15日 • 更新者: 教育担当者
-            </div>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h4 className="font-medium text-gray-900">評価制度ガイドライン</h4>
-                <p className="text-sm text-gray-600">職員評価の基準と手順に関するガイドライン</p>
-              </div>
-              <div className="flex gap-2">
-                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">改訂中</span>
-                <button className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
-                  編集
-                </button>
-              </div>
-            </div>
-            <div className="text-xs text-gray-500">
-              最終更新: 2024年2月20日 • 更新者: 人事担当者
-            </div>
           </div>
         </div>
       </Card>
@@ -375,7 +303,6 @@ export const HRFunctionsPage: React.FC = () => {
         {/* コンテンツ */}
         <div>
           {activeTab === 'interview_management' && renderInterviewManagement()}
-          {activeTab === 'policy_management' && renderPolicyManagement()}
           {activeTab === 'talent_analytics' && renderTalentAnalytics()}
           {activeTab === 'hr_dashboard' && renderHRDashboard()}
         </div>
