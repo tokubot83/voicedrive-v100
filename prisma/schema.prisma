@@ -475,6 +475,14 @@ model Post {
   rejectedAt                   DateTime? @map("rejected_at")
   rejectedBy                   String?   @map("rejected_by")
   rejectionReason              String?   @map("rejection_reason")
+
+  // 🆕 議題モード管理フィールド
+  agendaStatus                 String?   @default("pending") @map("agenda_status")
+  agendaDecisionBy             String?   @map("agenda_decision_by")
+  agendaDecisionAt             DateTime? @map("agenda_decision_at")
+  agendaDecisionReason         String?   @map("agenda_decision_reason")
+  agendaRescueLevel            Int?      @map("agenda_rescue_level")
+  agendaVotingDeadline         DateTime? @map("agenda_voting_deadline")
   projectDueDate               DateTime? @map("project_due_date")
   projectLevel                 String?   @map("project_level")
   projectScore                 Int?      @default(0) @map("project_score")
@@ -547,7 +555,6 @@ model Post {
   // 🆕 Projects (Enhanced) 検索最適化インデックス
   @@index([projectBudget])
   @@index([projectStage])
-  @@index([isEmergencyEscalated, projectLevel])
 }
 
 model Vote {

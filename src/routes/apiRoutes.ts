@@ -11,6 +11,7 @@ import myInterviewRoutes from './myInterviewRoutes';
 import consentRoutes from '../api/routes/consent.routes';
 import analyticsRoutes from '../api/routes/analytics.routes';
 import sidebarMenuRoutes from '../api/routes/sidebar-menu.routes';
+import agendaRoutes from './agendaRoutes';
 import { handleSummaryReceived } from '../api/medicalSystemReceiver';
 import {
   verifyWebhookSignature,
@@ -49,6 +50,17 @@ router.use('/v1/analytics', analyticsRoutes);
 
 // サイドバーメニュー管理API
 router.use('/sidebar-menu', sidebarMenuRoutes);
+
+// 議題モードAPI（server.tsで直接登録するため、ここではコメントアウト）
+// console.log('📋 Registering Agenda API routes at /api/agenda');
+// console.log('   AgendaRoutes type:', typeof agendaRoutes);
+// console.log('   AgendaRoutes value:', agendaRoutes);
+// console.log('   AgendaRoutes.default:', agendaRoutes?.default);
+// if (agendaRoutes) {
+//   router.use('/agenda', agendaRoutes);
+// } else {
+//   console.error('❌ AgendaRoutes is undefined!');
+// }
 
 // 面談サマリ受信API
 router.post('/summaries/receive', standardRateLimit, handleSummaryReceived);

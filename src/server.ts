@@ -1,7 +1,8 @@
 // VoiceDrive APIサーバー
 import express from 'express';
 import cors from 'cors';
-import apiRoutes from './routes/apiRoutes';
+import apiRoutes from './routes/apiRoutes.js';
+import agendaRoutes from './routes/agendaRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -11,7 +12,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// API ルート
+// 議題モードAPI（より具体的なパスを先に登録）
+console.log('📋 Registering Agenda API routes at /api/agenda');
+app.use('/api/agenda', agendaRoutes);
+
+// API ルート（より一般的なパスは後に登録）
 app.use('/api', apiRoutes);
 
 // ヘルスチェック

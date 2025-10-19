@@ -190,6 +190,8 @@ class NotificationService {
 
   // ブラウザ通知
   private async sendBrowserNotification(config: MedicalNotificationConfig): Promise<void> {
+    // サーバー環境チェック: windowが存在する場合のみ処理
+    if (typeof window === 'undefined') return;
     if (!this.preferences.enableBrowserNotifications) return;
     if (!('Notification' in window)) return;
 
@@ -392,7 +394,8 @@ class NotificationService {
   }
 
   private async initializeBrowserNotifications(): Promise<void> {
-    if (this.preferences.enableBrowserNotifications) {
+    // サーバー環境チェック: windowが存在する場合のみ初期化
+    if (typeof window !== 'undefined' && this.preferences.enableBrowserNotifications) {
       await this.requestNotificationPermission();
     }
   }
@@ -569,9 +572,12 @@ VoiceDrive 医療システム統合
 
   private loadPreferences(): NotificationPreferences {
     try {
-      const stored = localStorage.getItem('notification_preferences');
-      if (stored) {
-        return JSON.parse(stored);
+      // サーバー環境チェック: localStorageが存在する場合のみアクセス
+      if (typeof localStorage !== 'undefined') {
+        const stored = localStorage.getItem('notification_preferences');
+        if (stored) {
+          return JSON.parse(stored);
+        }
       }
     } catch (error) {
       console.error('設定読み込みエラー:', error);
@@ -588,7 +594,10 @@ VoiceDrive 医療システム統合
 
   private savePreferences(): void {
     try {
-      localStorage.setItem('notification_preferences', JSON.stringify(this.preferences));
+      // サーバー環境チェック: localStorageが存在する場合のみ保存
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('notification_preferences', JSON.stringify(this.preferences));
+      }
     } catch (error) {
       console.error('設定保存エラー:', error);
     }
