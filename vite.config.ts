@@ -229,5 +229,8 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     host: true
+  },
+  define: {
+    __DEFINES__: {}
   }
 })

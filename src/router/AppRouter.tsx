@@ -56,9 +56,6 @@ import ProgressiveVisibilityDemo from '../components/demo/ProgressiveVisibilityD
 // Analytics
 import ExecutiveDashboard from '../components/analytics/ExecutiveDashboard';
 
-// HR Functions
-import HRFunctionsPage from '../pages/HRFunctionsPage';
-
 // Whistleblowing
 import WhistleblowingPage from '../pages/WhistleblowingPage';
 import MyReportsPage from '../pages/MyReportsPage';
@@ -181,18 +178,6 @@ const AppRouter: React.FC = () => {
         <Route path="authority" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
             <AuthorityDashboard />
-          </ProtectedRoute>
-        } />
-
-        {/* HR Functions (Level 8+) */}
-        <Route path="interview-management" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8}>
-            <HRFunctionsPage />
-          </ProtectedRoute>
-        } />
-        <Route path="talent-analytics" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_8}>
-            <HRFunctionsPage />
           </ProtectedRoute>
         } />
 

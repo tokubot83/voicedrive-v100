@@ -102,10 +102,6 @@ VoiceDriveは医療職員の声を集め、組織改善につなげるシステ�
 - **権限**: Level 5+
 - **説明**: 人事部門メインダッシュボード
 
-### 人事機能 (`/interview-management`, `/policy-management`, `/talent-analytics`)
-- **権限**: Level 8+
-- **説明**: 面談管理、方針管理、タレント分析
-
 ### タレント分析 (`/talent`)
 - **権限**: Level 5+
 - **説明**: 人材データ分析
@@ -121,10 +117,6 @@ VoiceDriveは医療職員の声を集め、組織改善につなげるシステ�
 ### 面談ステーション (`/interview-station`)
 - **権限**: 全ユーザー
 - **説明**: 面談予約・管理
-
-### 面談管理 (`/interview-management`)
-- **権限**: Level 5+
-- **説明**: 面談全体の管理（人事向け）
 
 ### 退職処理 (`/retirement-processing`)
 - **権限**: Level 6+

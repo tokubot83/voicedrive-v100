@@ -181,6 +181,7 @@ export async function seedSidebarMenuConfigs() {
       showOnTablet: true,
       visibleForLevels: JSON.stringify(['12', '13', '14', '15', '16', '17', '18', 'X']),
       isSystem: true,
+      adminNotes: 'レベル12（部長）以上のみ表示',
     },
     {
       menuItemId: 'system_operations',
@@ -195,8 +196,9 @@ export async function seedSidebarMenuConfigs() {
       showOnDesktop: true,
       showOnMobile: true,
       showOnTablet: true,
-      visibleForLevels: JSON.stringify(['X']),
+      visibleForLevels: JSON.stringify(['X', '99']),
       isSystem: true,
+      adminNotes: 'レベルX（システム管理者）のみ表示',
     },
   ];
 

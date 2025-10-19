@@ -1,0 +1,16 @@
+{
+  "menuItemId": "personal_station",
+  "menuCategory": "common",
+  "menuSubcategory": "station",
+  "icon": "🏠",
+  "label": "パーソナルステーション",
+  "path": "/personal-station",
+  "description": "面談予約、評価、キャリア情報を確認できます",
+  "isVisible": true,
+  "displayOrder": 1,
+  "showOnDesktop": true,
+  "showOnMobile": true,
+  "showOnTablet": true,
+  "isSystem": true,
+  "adminNotes": "システム標準項目"
+}
