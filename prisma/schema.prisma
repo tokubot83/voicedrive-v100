@@ -469,25 +469,35 @@ model Post {
   rejectedAt         DateTime?                   @map("rejected_at")
   rejectedBy         String?                     @map("rejected_by")
   rejectionReason    String?                     @map("rejection_reason")
-  projectDueDate     DateTime?                   @map("project_due_date")
-  projectLevel       String?                     @map("project_level")
-  projectProgress    Int?                        @default(0) @map("project_progress")
-  requiredSkills     String?                     @map("required_skills")
-  projectComplexity  String?                     @map("project_complexity")
-  targetProfession   String?                     @map("target_profession")
-  targetDepartment   String?                     @map("target_department")
-  comments           Comment[]
+  projectDueDate                    DateTime?                   @map("project_due_date")
+  projectLevel                      String?                     @map("project_level")
+  projectScore                      Int?                        @default(0) @map("project_score")
+  currentProjectLevelStartedAt      DateTime?                   @map("current_project_level_started_at")
+  lastProjectLevelUpgrade           DateTime?                   @map("last_project_level_upgrade")
+  projectProgress                   Int?                        @default(0) @map("project_progress")
+  totalEngagements                  Int                         @default(0) @map("total_engagements")
+  stronglySupportCount              Int                         @default(0) @map("strongly_support_count")
+  supportCount                      Int                         @default(0) @map("support_count")
+  neutralCount                      Int                         @default(0) @map("neutral_count")
+  opposeCount                       Int                         @default(0) @map("oppose_count")
+  stronglyOpposeCount               Int                         @default(0) @map("strongly_oppose_count")
+  requiredSkills                    String?                     @map("required_skills")
+  projectComplexity                 String?                     @map("project_complexity")
+  targetProfession                  String?                     @map("target_profession")
+  targetDepartment                  String?                     @map("target_department")
+  comments                          Comment[]
   event              Event?
   relatedAgendas     ManagementCommitteeAgenda[] @relation("AgendaRelatedPost")
   poll               Poll?
   author             User                        @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
   votes              Vote[]
-  successCases       CrossFacilitySuccessCase[]  @relation("SuccessCaseSource")
-  approvals          ProjectApproval[]           @relation("PostApprovals")
-  diversityAnalysis  ProjectDiversityAnalysis?
-  milestones         ProjectMilestone[]          @relation("ProjectMilestones")
-  recommendationLogs ProjectRecommendationLog[]
-  teamMembers        ProjectTeamMember[]         @relation("ProjectTeamMembers")
+  successCases         CrossFacilitySuccessCase[]  @relation("SuccessCaseSource")
+  approvals            ProjectApproval[]           @relation("PostApprovals")
+  diversityAnalysis    ProjectDiversityAnalysis?
+  milestones           ProjectMilestone[]          @relation("ProjectMilestones")
+  recommendationLogs   ProjectRecommendationLog[]
+  teamMembers          ProjectTeamMember[]         @relation("ProjectTeamMembers")
+  projectLevelHistory  ProjectLevelHistory[]       @relation("PostProjectLevelHistory")
 
   @@index([authorId])
   @@index([type])
@@ -502,6 +512,8 @@ model Post {
   @@index([type, status, createdAt])
   @@index([projectDueDate])
   @@index([projectLevel])
+  @@index([projectScore])
+  @@index([currentProjectLevelStartedAt])
   @@index([projectComplexity])
 }
 
@@ -1607,6 +1619,30 @@ model BoardDecisionFacilityImplementation {
   @@index([facilityId])
   @@index([status])
   @@map("board_decision_facility_implementations")
+}
+
+/// プロジェクトレベル履歴テーブル
+/// プロジェクトモードにおけるレベル昇格履歴を記録
+model ProjectLevelHistory {
+  id                String    @id @default(cuid())
+  postId            String    @map("post_id")
+  fromLevel         String?   @map("from_level")
+  toLevel           String    @map("to_level")
+  fromScore         Int?      @map("from_score")
+  toScore           Int       @map("to_score")
+  triggeredBy       String?   @map("triggered_by")
+  triggeringUserId  String?   @map("triggering_user_id")
+  upgradedAt        DateTime  @default(now()) @map("upgraded_at")
+  notes             String?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  post              Post      @relation("PostProjectLevelHistory", fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([toLevel])
+  @@index([upgradedAt])
+  @@index([triggeredBy])
+  @@map("project_level_history")
 }
 
 model ProjectMilestone {
