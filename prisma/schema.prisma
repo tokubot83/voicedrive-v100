@@ -225,7 +225,13 @@ model Project {
   updatedAt        DateTime  @updatedAt
   startedAt        DateTime?
   completedAt      DateTime?
-  proposer         User      @relation(fields: [proposerId], references: [id])
+
+  // 🆕 Post変換用フィールド
+  convertedToPostId String?   @unique @map("converted_to_post_id")
+  conversionDate    DateTime? @map("conversion_date")
+
+  proposer      User  @relation(fields: [proposerId], references: [id])
+  convertedPost Post? @relation("ConvertedFromProject", fields: [convertedToPostId], references: [id])
 }
 
 model Feedback {
@@ -442,55 +448,72 @@ model UserActivitySummary {
 }
 
 model Post {
-  id                 String                      @id @default(cuid())
-  type               String
-  content            String
-  authorId           String
-  anonymityLevel     String
-  status             String                      @default("active")
-  proposalType       String?
-  priority           String?
-  freespaceCategory  String?
-  freespaceScope     String?
-  expirationDate     DateTime?
-  isExpired          Boolean                     @default(false)
-  extensionRequested Boolean                     @default(false)
-  extensionReason    String?
-  createdAt          DateTime                    @default(now())
-  updatedAt          DateTime                    @updatedAt
-  agendaScore        Int?                        @default(0)
-  agendaLevel        String?
-  season             String?
-  moderationStatus   String                      @default("pending")
-  moderationScore    Int?
-  approvalStatus     String?                     @default("pending") @map("approval_status")
-  approvedAt         DateTime?                   @map("approved_at")
-  approvedBy         String?                     @map("approved_by")
-  rejectedAt         DateTime?                   @map("rejected_at")
-  rejectedBy         String?                     @map("rejected_by")
-  rejectionReason    String?                     @map("rejection_reason")
-  projectDueDate                    DateTime?                   @map("project_due_date")
-  projectLevel                      String?                     @map("project_level")
-  projectScore                      Int?                        @default(0) @map("project_score")
-  currentProjectLevelStartedAt      DateTime?                   @map("current_project_level_started_at")
-  lastProjectLevelUpgrade           DateTime?                   @map("last_project_level_upgrade")
-  projectProgress                   Int?                        @default(0) @map("project_progress")
-  totalEngagements                  Int                         @default(0) @map("total_engagements")
-  stronglySupportCount              Int                         @default(0) @map("strongly_support_count")
-  supportCount                      Int                         @default(0) @map("support_count")
-  neutralCount                      Int                         @default(0) @map("neutral_count")
-  opposeCount                       Int                         @default(0) @map("oppose_count")
-  stronglyOpposeCount               Int                         @default(0) @map("strongly_oppose_count")
-  requiredSkills                    String?                     @map("required_skills")
-  projectComplexity                 String?                     @map("project_complexity")
-  targetProfession                  String?                     @map("target_profession")
-  targetDepartment                  String?                     @map("target_department")
-  comments                          Comment[]
-  event              Event?
-  relatedAgendas     ManagementCommitteeAgenda[] @relation("AgendaRelatedPost")
-  poll               Poll?
-  author             User                        @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  votes              Vote[]
+  id                           String    @id @default(cuid())
+  type                         String
+  content                      String
+  authorId                     String
+  anonymityLevel               String
+  status                       String    @default("active")
+  proposalType                 String?
+  priority                     String?
+  freespaceCategory            String?
+  freespaceScope               String?
+  expirationDate               DateTime?
+  isExpired                    Boolean   @default(false)
+  extensionRequested           Boolean   @default(false)
+  extensionReason              String?
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+  agendaScore                  Int?      @default(0)
+  agendaLevel                  String?
+  season                       String?
+  moderationStatus             String    @default("pending")
+  moderationScore              Int?
+  approvalStatus               String?   @default("pending") @map("approval_status")
+  approvedAt                   DateTime? @map("approved_at")
+  approvedBy                   String?   @map("approved_by")
+  rejectedAt                   DateTime? @map("rejected_at")
+  rejectedBy                   String?   @map("rejected_by")
+  rejectionReason              String?   @map("rejection_reason")
+  projectDueDate               DateTime? @map("project_due_date")
+  projectLevel                 String?   @map("project_level")
+  projectScore                 Int?      @default(0) @map("project_score")
+  currentProjectLevelStartedAt DateTime? @map("current_project_level_started_at")
+  lastProjectLevelUpgrade      DateTime? @map("last_project_level_upgrade")
+  projectProgress              Int?      @default(0) @map("project_progress")
+  totalEngagements             Int       @default(0) @map("total_engagements")
+  stronglySupportCount         Int       @default(0) @map("strongly_support_count")
+  supportCount                 Int       @default(0) @map("support_count")
+  neutralCount                 Int       @default(0) @map("neutral_count")
+  opposeCount                  Int       @default(0) @map("oppose_count")
+  stronglyOpposeCount          Int       @default(0) @map("strongly_oppose_count")
+  requiredSkills               String?   @map("required_skills")
+  projectComplexity            String?   @map("project_complexity")
+  targetProfession             String?   @map("target_profession")
+  targetDepartment             String?   @map("target_department")
+
+  // 🆕 Projects Legacy (ProjectListPage) 用フィールド
+  projectStatus       String?   @map("project_status") // 'active' | 'completed' | 'paused'
+  projectStartDate    DateTime? @map("project_start_date")
+  projectEndDate      DateTime? @map("project_end_date")
+  projectDepartment   String?   @map("project_department")
+  projectFacilityId   String?   @map("project_facility_id")
+  projectFacilityName String?   @map("project_facility_name")
+  projectParticipants Int?      @default(0) @map("project_participants")
+
+  // 🆕 Projects (EnhancedProjectListPage) 用フィールド
+  projectBudget        Float?  @map("project_budget")          // 予算総額
+  projectBudgetUsed    Float?  @map("project_budget_used")     // 予算使用額
+  projectTimeline      String? @map("project_timeline")        // タイムライン説明
+  projectStage         String? @map("project_stage")           // プロジェクトステージ
+  projectApprovalLevel String? @map("project_approval_level")  // 承認レベル
+
+  comments             Comment[]
+  event                Event?
+  relatedAgendas       ManagementCommitteeAgenda[] @relation("AgendaRelatedPost")
+  poll                 Poll?
+  author               User                        @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  votes                Vote[]
   successCases         CrossFacilitySuccessCase[]  @relation("SuccessCaseSource")
   approvals            ProjectApproval[]           @relation("PostApprovals")
   diversityAnalysis    ProjectDiversityAnalysis?
@@ -498,6 +521,7 @@ model Post {
   recommendationLogs   ProjectRecommendationLog[]
   teamMembers          ProjectTeamMember[]         @relation("ProjectTeamMembers")
   projectLevelHistory  ProjectLevelHistory[]       @relation("PostProjectLevelHistory")
+  convertedFromProject Project?                    @relation("ConvertedFromProject")
 
   @@index([authorId])
   @@index([type])
@@ -515,6 +539,15 @@ model Post {
   @@index([projectScore])
   @@index([currentProjectLevelStartedAt])
   @@index([projectComplexity])
+  // 🆕 Projects Legacy 検索最適化インデックス
+  @@index([projectLevel, projectStatus])
+  @@index([projectFacilityId, projectStatus])
+  @@index([projectDepartment, projectStatus])
+  @@index([projectScore, projectLevel])
+  // 🆕 Projects (Enhanced) 検索最適化インデックス
+  @@index([projectBudget])
+  @@index([projectStage])
+  @@index([isEmergencyEscalated, projectLevel])
 }
 
 model Vote {
@@ -1624,19 +1657,19 @@ model BoardDecisionFacilityImplementation {
 /// プロジェクトレベル履歴テーブル
 /// プロジェクトモードにおけるレベル昇格履歴を記録
 model ProjectLevelHistory {
-  id                String    @id @default(cuid())
-  postId            String    @map("post_id")
-  fromLevel         String?   @map("from_level")
-  toLevel           String    @map("to_level")
-  fromScore         Int?      @map("from_score")
-  toScore           Int       @map("to_score")
-  triggeredBy       String?   @map("triggered_by")
-  triggeringUserId  String?   @map("triggering_user_id")
-  upgradedAt        DateTime  @default(now()) @map("upgraded_at")
-  notes             String?
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
-  post              Post      @relation("PostProjectLevelHistory", fields: [postId], references: [id], onDelete: Cascade)
+  id               String   @id @default(cuid())
+  postId           String   @map("post_id")
+  fromLevel        String?  @map("from_level")
+  toLevel          String   @map("to_level")
+  fromScore        Int?     @map("from_score")
+  toScore          Int      @map("to_score")
+  triggeredBy      String?  @map("triggered_by")
+  triggeringUserId String?  @map("triggering_user_id")
+  upgradedAt       DateTime @default(now()) @map("upgraded_at")
+  notes            String?
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  post             Post     @relation("PostProjectLevelHistory", fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([postId])
   @@index([toLevel])
@@ -1655,6 +1688,7 @@ model ProjectMilestone {
   completedBy     String?   @map("completed_by")
   status          String    @default("pending")
   order           Int       @default(0)
+  progress        Int?      @default(0)  // 🆕 マイルストーン進捗率（Projects用）
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
   completedByUser User?     @relation("MilestoneCompletedBy", fields: [completedBy], references: [id])
@@ -2140,4 +2174,33 @@ model SidebarMenuConfig {
   @@index([isVisible])
   @@index([displayOrder])
   @@map("sidebar_menu_configs")
+}
+
+/// エグゼクティブ戦略分析結果テーブル
+/// 医療システムのLlama 3.2 8Bから受信した戦略分析結果を保存
+/// Phase 18.5（2026年1月）で本格稼働予定
+model ExecutiveStrategicInsight {
+  id                 String    @id @default(cuid())
+  analysisDate       DateTime  @map("analysis_date")
+  insightType        String    @map("insight_type") // "priority_action" | "success_case" | "prediction" | "strategic_recommendation"
+  severity           String?   @map("severity") // "low" | "medium" | "high"
+  title              String    @map("title")
+  analysis           String    @map("analysis")
+  rootCause          String?   @map("root_cause")
+  recommendedActions Json      @map("recommended_actions") // string[]
+  bestPractice       Json?     @map("best_practice") // { source: string, method: string, result: string }
+  predictions        Json?     @map("predictions") // { metric: string, currentValue: number, predictedValue: number, timeframe: string, confidence: number, condition: string }
+  strategicData      Json?     @map("strategic_data") // 追加の戦略データ（カテゴリ、アクション、期待効果等）
+  isAcknowledged     Boolean   @default(false) @map("is_acknowledged")
+  acknowledgedBy     String?   @map("acknowledged_by")
+  acknowledgedAt     DateTime? @map("acknowledged_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  @@index([analysisDate])
+  @@index([insightType])
+  @@index([severity])
+  @@index([isAcknowledged])
+  @@index([analysisDate, insightType])
+  @@map("executive_strategic_insights")
 }
