@@ -418,6 +418,13 @@ const AppRouter: React.FC = () => {
         </ProtectedRoute>
       } />
 
+      {/* Proposal Review Page (Level 5+: 主任以上) */}
+      <Route path="proposal-management/review/:postId" element={
+        <ProtectedRoute requiredLevel={5}>
+          {React.createElement(React.lazy(() => import('../pages/ProposalReviewPage')))}
+        </ProtectedRoute>
+      } />
+
       {/* Proposal Document Editor */}
       <Route path="proposal-document/:documentId" element={
         <ProtectedRoute requiredLevel={3.5}>

@@ -7,6 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// 投稿ステータスのEnum
+enum PostStatus {
+  // 既存ステータス
+  ACTIVE                                      // 通常（アクティブ）
+  UNDER_REVIEW                                // レビュー中
+  ARCHIVED                                    // アーカイブ済み
+
+  // 部署議題フロー（30-50点）
+  UNDER_DEPT_REVIEW                           // 部署検討中（30点到達）
+  PENDING_SUPERVISOR_REVIEW                   // 主任の判断待ち（50点到達）
+  RECOMMENDED_TO_MANAGER                      // 師長に推薦済み
+  APPROVED_AS_DEPT_AGENDA                     // 部署議題として承認済み
+  REJECTED_BY_SUPERVISOR                      // 主任が却下
+  REJECTED_BY_MANAGER                         // 師長が却下
+
+  // 施設議題フロー（100点）
+  PENDING_DEPUTY_DIRECTOR_REVIEW              // 副看護部長の判断待ち（100点到達）
+  APPROVED_FOR_COMMITTEE                      // 委員会提出承認済み
+  REJECTED_BY_DEPUTY_DIRECTOR                 // 副看護部長が却下
+
+  // 期限到達フロー
+  FACILITY_VOTE_EXPIRED_PENDING_DECISION      // 施設投票期限終了・判断待ち
+  DOWNGRADED_TO_DEPT_AGENDA                   // 施設→部署に降格
+  REJECTED_AFTER_FACILITY_VOTE                // 施設投票後に却下
+
+  // その他
+  CLOSED                                      // 終了
+}
+
 model User {
   id                            String                          @id @default(cuid())
   employeeId                    String                          @unique
@@ -478,7 +507,7 @@ model Post {
   rejectionReason              String?   @map("rejection_reason")
 
   // 🆕 議題モード管理フィールド
-  agendaStatus                 String?   @default("pending") @map("agenda_status")
+  agendaStatus                 PostStatus? @default(ACTIVE) @map("agenda_status")
   agendaDecisionBy             String?   @map("agenda_decision_by")
   agendaDecisionAt             DateTime? @map("agenda_decision_at")
   agendaDecisionReason         String?   @map("agenda_decision_reason")
