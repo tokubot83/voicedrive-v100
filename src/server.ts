@@ -6,6 +6,7 @@ import agendaRoutes from './routes/agendaRoutes';
 import postVoteRoutes from './routes/postVoteRoutes';
 import agendaEscalationRoutes from './routes/agendaEscalationRoutes';
 import agendaExpiredEscalationRoutes from './routes/agendaExpiredEscalationRoutes';
+import { startExpiredEscalationJob } from './jobs/expiredEscalationCheckJob';
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -74,6 +75,9 @@ app.listen(PORT, () => {
 │ • GET  /api/health                          │
 └─────────────────────────────────────────────┘
   `);
+
+  // Cron Job起動
+  startExpiredEscalationJob();
 });
 
 export default app;
