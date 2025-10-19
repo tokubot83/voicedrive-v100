@@ -5,6 +5,7 @@ import apiRoutes from './routes/apiRoutes.js';
 import agendaRoutes from './routes/agendaRoutes';
 import postVoteRoutes from './routes/postVoteRoutes';
 import agendaEscalationRoutes from './routes/agendaEscalationRoutes';
+import agendaExpiredEscalationRoutes from './routes/agendaExpiredEscalationRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -18,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 console.log('📋 Registering Agenda API routes at /api/agenda');
 app.use('/api/agenda', agendaRoutes);
 app.use('/api/agenda', agendaEscalationRoutes);
+app.use('/api/agenda', agendaExpiredEscalationRoutes);
 
 // 投票API（より具体的なパスを先に登録）
 console.log('🗳️  Registering Vote API routes at /api/posts');
