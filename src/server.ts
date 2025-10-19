@@ -6,6 +6,7 @@ import agendaRoutes from './routes/agendaRoutes';
 import postVoteRoutes from './routes/postVoteRoutes';
 import agendaEscalationRoutes from './routes/agendaEscalationRoutes';
 import agendaExpiredEscalationRoutes from './routes/agendaExpiredEscalationRoutes';
+import proposalReviewRoutes from './routes/proposalReviewRoutes';
 import { startExpiredEscalationJob } from './jobs/expiredEscalationCheckJob';
 
 const app = express();
@@ -21,6 +22,10 @@ console.log('📋 Registering Agenda API routes at /api/agenda');
 app.use('/api/agenda', agendaRoutes);
 app.use('/api/agenda', agendaEscalationRoutes);
 app.use('/api/agenda', agendaExpiredEscalationRoutes);
+
+// 提案レビューAPI
+console.log('📝 Registering Proposal Review API routes at /api/proposal-review');
+app.use('/api/proposal-review', proposalReviewRoutes);
 
 // 投票API（より具体的なパスを先に登録）
 console.log('🗳️  Registering Vote API routes at /api/posts');
