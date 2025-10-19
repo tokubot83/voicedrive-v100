@@ -7,6 +7,7 @@ import Breadcrumb from '../Breadcrumb';
 import Header from '../Header';
 import { MobileFooter } from './MobileFooter';
 import { DesktopFooter } from './DesktopFooter';
+import { SystemAdminFloatingButton } from '../admin/SystemAdminFloatingButton';
 import useSwipe from '../../hooks/useSwipe';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 import { UserRole } from '../../types';
@@ -212,6 +213,9 @@ const Layout: React.FC = () => {
       
       {/* PC用フッター（管理画面またはステーション系ページで表示） */}
       {shouldShowDesktopFooter && <DesktopFooter />}
+
+      {/* Level 99専用フローティングボタン */}
+      <SystemAdminFloatingButton />
     </div>
   );
 };

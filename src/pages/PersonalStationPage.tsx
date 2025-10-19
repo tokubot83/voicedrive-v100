@@ -177,6 +177,78 @@ export const PersonalStationPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Level 99専用：システム運用アクセス */}
+      {permission.calculatedLevel >= 99 && (
+        <div className="bg-gradient-to-br from-red-900/30 to-purple-900/30 rounded-xl p-6 backdrop-blur border-2 border-red-500/50 shadow-lg shadow-red-500/20">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">🔧</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  システム管理者専用
+                  <span className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded border border-red-500/30">
+                    Level 99
+                  </span>
+                </h3>
+                <p className="text-sm text-gray-400 mt-1">
+                  全システム機能へのアクセス権限があります
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* システム運用ボタン */}
+            <button
+              onClick={() => window.location.href = '/admin/system-operations'}
+              className="group relative overflow-hidden bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-500 hover:to-purple-500 text-white p-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">🔧</span>
+                  <div className="text-left">
+                    <div className="font-bold text-lg">システム運用</div>
+                    <div className="text-xs opacity-90">全システム管理機能</div>
+                  </div>
+                </div>
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </button>
+
+            {/* サイドバーメニュー管理ボタン */}
+            <button
+              onClick={() => window.location.href = '/admin/sidebar-menu-management'}
+              className="group relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white p-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">🎛️</span>
+                  <div className="text-left">
+                    <div className="font-bold text-lg">メニュー管理</div>
+                    <div className="text-xs opacity-90">サイドバー設定</div>
+                  </div>
+                </div>
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </button>
+          </div>
+
+          {/* 注意事項 */}
+          <div className="mt-4 p-3 bg-red-500/10 rounded-lg border border-red-500/30">
+            <p className="text-xs text-red-400 flex items-center gap-2">
+              <span>⚠️</span>
+              <span>システム管理機能は慎重に使用してください。変更内容は全ユーザーに影響します。</span>
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* 管理職向け注目リスト（レベル5以上） */}
       {permission.calculatedLevel >= 5 && (
         <AttentionList />
