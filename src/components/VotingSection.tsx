@@ -42,6 +42,8 @@ const VotingSection: React.FC<VotingSectionProps> = ({
 
   // Phase 4: 議題モード投票フック
   const currentMode = systemModeManager.getCurrentMode();
+  console.log('🎯 VotingSection currentMode:', currentMode, 'SystemMode.AGENDA:', SystemMode.AGENDA, 'SystemMode.PROJECT:', SystemMode.PROJECT);
+
   const {
     currentVote: agendaCurrentVote,
     voteSummary,
@@ -164,46 +166,11 @@ const VotingSection: React.FC<VotingSectionProps> = ({
                 showThresholds={true}
               />
             ) : (
-              /* プロジェクトモード: 既存の表示 */
-              <>
-                {/* 現在のレベル表示 */}
-                <div className={`bg-gradient-to-r ${levelConfig.gradient} rounded-lg p-3 mb-3`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{levelConfig.emoji}</span>
-                      <div>
-                        <div className={`font-bold text-${levelConfig.color}-800`}>{levelConfig.label}</div>
-                        <div className={`text-xs opacity-75 text-${levelConfig.color}-800`}>
-                          {Math.round(currentScore)}点
-                        </div>
-                      </div>
-                    </div>
-                    {levelConfig.badge && (
-                      <span className={`px-2 py-1 text-xs font-medium bg-white rounded-full text-${levelConfig.color}-800 border border-${levelConfig.color}-300`}>
-                        {levelConfig.badge}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* 次のレベルまでの進捗（ゲーミフィケーション） */}
-                {nextLevel && (
-                  <div className="bg-blue-50 rounded-lg p-3 mb-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-gray-600">次のレベル</span>
-                      <span className="text-xs font-bold text-blue-700">
-                        {nextLevel.label}まであと{Math.round(nextLevel.remaining)}点
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${Math.min(nextLevel.progress, 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </>
+              /* プロジェクトモード: シンプルなスコア表示のみ */
+              <div className="text-center py-4">
+                <div className="text-3xl font-bold text-gray-800">{Math.round(currentScore)}点</div>
+                <div className="text-sm text-gray-600 mt-1">プロジェクトスコア</div>
+              </div>
             )}
 
             {/* 投票範囲 + 支持率 */}
