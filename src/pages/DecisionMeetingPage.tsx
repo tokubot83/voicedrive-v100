@@ -1,0 +1,565 @@
+/**
+ * 決定会議ページ（レベル13：院長・施設長専用）
+ * 運営委員会からの議題を最終決定
+ */
+
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { useDemoMode } from '../components/demo/DemoModeController';
+import { decisionMeetingService } from '../services/DecisionMeetingService';
+import { DecisionAgenda, DecisionMeetingStats } from '../types/decisionMeeting';
+import { MobileFooter } from '../components/layout/MobileFooter';
+import { DesktopFooter } from '../components/layout/DesktopFooter';
+import { Card } from '../components/ui/Card';
+import {
+  Gavel, TrendingUp, AlertTriangle, Clock, CheckCircle, XCircle,
+  Pause, Calendar, DollarSign, Users, FileText, Building2, Award,
+  Zap, ArrowRight
+} from 'lucide-react';
+
+type TabType = 'all' | 'pending' | 'in_review' | 'this_month';
+
+const DecisionMeetingPage: React.FC = () => {
+  const { currentUser: authUser } = useAuth();
+  const { currentUser: demoUser, isDemoMode } = useDemoMode();
+  const activeUser = demoUser || authUser;
+
+  const [activeTab, setActiveTab] = useState<TabType>('pending');
+  const [agendas, setAgendas] = useState<DecisionAgenda[]>([]);
+  const [stats, setStats] = useState<DecisionMeetingStats | null>(null);
+  const [selectedAgenda, setSelectedAgenda] = useState<DecisionAgenda | null>(null);
+
+  useEffect(() => {
+    // デモデータ初期化
+    decisionMeetingService.initializeDemoData();
+    loadData();
+  }, []);
+
+  const loadData = () => {
+    setAgendas(decisionMeetingService.getAllAgendas());
+    setStats(decisionMeetingService.getStats());
+  };
+
+  const getTypeLabel = (type: DecisionAgenda['type']) => {
+    const labels = {
+      committee_proposal: '委員会提案',
+      facility_policy: '施設方針',
+      personnel: '重要人事',
+      budget: '予算承認',
+      equipment: '設備投資',
+      other: 'その他'
+    };
+    return labels[type];
+  };
+
+  const getTypeIcon = (type: DecisionAgenda['type']) => {
+    const icons = {
+      committee_proposal: <FileText className="w-4 h-4" />,
+      facility_policy: <Building2 className="w-4 h-4" />,
+      personnel: <Users className="w-4 h-4" />,
+      budget: <DollarSign className="w-4 h-4" />,
+      equipment: <Award className="w-4 h-4" />,
+      other: <FileText className="w-4 h-4" />
+    };
+    return icons[type];
+  };
+
+  const getStatusColor = (status: DecisionAgenda['status']) => {
+    const colors = {
+      pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+      in_review: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+      approved: 'bg-green-500/20 text-green-400 border-green-500/30',
+      rejected: 'bg-red-500/20 text-red-400 border-red-500/30',
+      deferred: 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+    };
+    return colors[status];
+  };
+
+  const getStatusLabel = (status: DecisionAgenda['status']) => {
+    const labels = {
+      pending: '審議待ち',
+      in_review: '審議中',
+      approved: '承認',
+      rejected: '却下',
+      deferred: '保留'
+    };
+    return labels[status];
+  };
+
+  const getPriorityIcon = (priority: DecisionAgenda['priority']) => {
+    const icons = {
+      urgent: <Zap className="w-4 h-4 text-red-400" />,
+      high: <ArrowRight className="w-4 h-4 text-orange-400" />,
+      normal: <ArrowRight className="w-4 h-4 text-gray-400" />,
+      low: <ArrowRight className="w-4 h-4 text-gray-600" />
+    };
+    return icons[priority];
+  };
+
+  const formatCurrency = (amount: number) => {
+    return `¥${(amount / 1000000).toFixed(1)}M`;
+  };
+
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getFilteredAgendas = () => {
+    switch (activeTab) {
+      case 'pending':
+        return agendas.filter(a => a.status === 'pending');
+      case 'in_review':
+        return agendas.filter(a => a.status === 'in_review');
+      case 'this_month':
+        return decisionMeetingService.getThisMonthDecisions();
+      default:
+        return agendas;
+    }
+  };
+
+  const handleApprove = () => {
+    if (!selectedAgenda || !activeUser) return;
+
+    const notes = prompt('承認コメント（任意）');
+    if (notes === null) return; // キャンセル
+
+    const success = decisionMeetingService.approveAgenda(
+      selectedAgenda.id,
+      activeUser,
+      notes || undefined
+    );
+
+    if (success) {
+      alert(`✅ 議題を承認しました\n\n${selectedAgenda.title}`);
+      loadData();
+      setSelectedAgenda(null);
+    }
+  };
+
+  const handleReject = () => {
+    if (!selectedAgenda || !activeUser) return;
+
+    const reason = prompt('却下理由を入力してください（必須）');
+    if (!reason) return;
+
+    const success = decisionMeetingService.rejectAgenda(
+      selectedAgenda.id,
+      activeUser,
+      reason
+    );
+
+    if (success) {
+      alert(`❌ 議題を却下しました\n\n${selectedAgenda.title}`);
+      loadData();
+      setSelectedAgenda(null);
+    }
+  };
+
+  const handleDefer = () => {
+    if (!selectedAgenda || !activeUser) return;
+
+    const reason = prompt('保留理由を入力してください（必須）');
+    if (!reason) return;
+
+    const success = decisionMeetingService.deferAgenda(
+      selectedAgenda.id,
+      activeUser,
+      reason
+    );
+
+    if (success) {
+      alert(`⏸️ 議題を保留しました\n\n${selectedAgenda.title}`);
+      loadData();
+      setSelectedAgenda(null);
+    }
+  };
+
+  const handleStartReview = (id: string) => {
+    const success = decisionMeetingService.startReview(id);
+    if (success) {
+      alert('審議を開始しました');
+      loadData();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 pb-32">
+      {/* ヘッダー */}
+      <div className="bg-gradient-to-r from-purple-900/50 to-indigo-900/50 rounded-2xl p-6 backdrop-blur-xl border border-purple-500/20 mb-6 m-6">
+        <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+          <span className="text-4xl">🏛️</span>
+          決定会議
+        </h1>
+        <p className="text-gray-300">
+          院長専用 - 運営委員会からの議題を最終決定
+        </p>
+      </div>
+
+      {/* 統計サマリー */}
+      {stats && (
+        <div className="mx-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <Card className="bg-gray-800/50 p-4 border border-gray-700/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Gavel className="w-5 h-5 text-purple-400" />
+                <h3 className="text-sm font-semibold text-white">総議題数</h3>
+              </div>
+              <div className="text-3xl font-bold text-white">{stats.totalAgendas}</div>
+              <div className="text-xs text-gray-400 mt-1">
+                今月: {stats.thisMonthDecisions}件決定
+              </div>
+            </Card>
+
+            <Card className="bg-gray-800/50 p-4 border border-gray-700/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="w-5 h-5 text-yellow-400" />
+                <h3 className="text-sm font-semibold text-white">審議待ち</h3>
+              </div>
+              <div className="text-3xl font-bold text-white">{stats.pendingCount}</div>
+              <div className="text-xs text-red-400 mt-1">
+                緊急: {stats.urgentCount}件
+              </div>
+            </Card>
+
+            <Card className="bg-gray-800/50 p-4 border border-gray-700/50">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="w-5 h-5 text-green-400" />
+                <h3 className="text-sm font-semibold text-white">承認済み</h3>
+              </div>
+              <div className="text-3xl font-bold text-white">{stats.approvedCount}</div>
+              <div className="text-xs text-green-400 mt-1">
+                承認率: {Math.round(stats.approvalRate)}%
+              </div>
+            </Card>
+
+            <Card className="bg-gray-800/50 p-4 border border-gray-700/50">
+              <div className="flex items-center gap-2 mb-2">
+                <XCircle className="w-5 h-5 text-red-400" />
+                <h3 className="text-sm font-semibold text-white">却下</h3>
+              </div>
+              <div className="text-3xl font-bold text-white">{stats.rejectedCount}</div>
+              <div className="text-xs text-gray-400 mt-1">
+                保留: {stats.deferredCount}件
+              </div>
+            </Card>
+
+            <Card className="bg-gray-800/50 p-4 border border-gray-700/50">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="w-5 h-5 text-blue-400" />
+                <h3 className="text-sm font-semibold text-white">平均決定日数</h3>
+              </div>
+              <div className="text-3xl font-bold text-white">{stats.averageDecisionDays}</div>
+              <div className="text-xs text-gray-400 mt-1">日</div>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* タブ */}
+      <div className="mx-6 mb-6">
+        <div className="flex gap-2 border-b border-gray-700/50">
+          {[
+            { id: 'pending', label: '審議待ち', count: stats?.pendingCount || 0 },
+            { id: 'in_review', label: '審議中', count: agendas.filter(a => a.status === 'in_review').length },
+            { id: 'this_month', label: '今月決定', count: stats?.thisMonthDecisions || 0 },
+            { id: 'all', label: '全議題', count: stats?.totalAgendas || 0 }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as TabType)}
+              className={`
+                px-4 py-2 text-sm font-medium transition-colors border-b-2
+                ${activeTab === tab.id
+                  ? 'text-purple-400 border-purple-400'
+                  : 'text-gray-400 border-transparent hover:text-white hover:border-gray-600'
+                }
+              `}
+            >
+              {tab.label} ({tab.count})
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 議題一覧 */}
+      <div className="mx-6 mb-6 space-y-4">
+        {getFilteredAgendas().map(agenda => (
+          <Card
+            key={agenda.id}
+            className="bg-gray-800/50 p-6 border border-gray-700/50 hover:border-purple-500/50 transition-all cursor-pointer"
+            onClick={() => setSelectedAgenda(agenda)}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  {getPriorityIcon(agenda.priority)}
+                  <h3 className="text-xl font-bold text-white">{agenda.title}</h3>
+                  <span className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(agenda.status)}`}>
+                    {getStatusLabel(agenda.status)}
+                  </span>
+                </div>
+                <p className="text-gray-400 text-sm mb-3">{agenda.description}</p>
+                <div className="flex items-center gap-4 text-xs text-gray-500">
+                  <span className="flex items-center gap-1">
+                    {getTypeIcon(agenda.type)}
+                    {getTypeLabel(agenda.type)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    提案: {formatDate(agenda.proposedDate)}
+                  </span>
+                  {agenda.scheduledDate && (
+                    <span className="flex items-center gap-1 text-yellow-400">
+                      <Clock className="w-4 h-4" />
+                      審議予定: {formatDate(agenda.scheduledDate)}
+                    </span>
+                  )}
+                  {agenda.impact.estimatedCost && (
+                    <span className="flex items-center gap-1">
+                      <DollarSign className="w-4 h-4" />
+                      {formatCurrency(agenda.impact.estimatedCost)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 提案元 */}
+            <div className="mb-3 text-sm">
+              <span className="text-gray-500">提案元: </span>
+              <span className="text-white font-medium">{agenda.proposedBy}</span>
+              <span className="text-gray-500 ml-2">（{agenda.proposerDepartment}）</span>
+            </div>
+
+            {/* 影響範囲 */}
+            <div className="bg-gray-900/50 p-3 rounded-lg">
+              <div className="text-xs text-gray-400 mb-1">期待される効果</div>
+              <div className="text-sm text-white">{agenda.impact.expectedEffect}</div>
+            </div>
+
+            {/* アクションボタン（審議待ちの場合のみ） */}
+            {agenda.status === 'pending' && (
+              <div className="mt-4">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStartReview(agenda.id);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                >
+                  審議を開始
+                </button>
+              </div>
+            )}
+          </Card>
+        ))}
+
+        {getFilteredAgendas().length === 0 && (
+          <Card className="bg-gray-800/50 p-12 border border-gray-700/50 text-center">
+            <Gavel className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-gray-400 mb-2">議題がありません</h3>
+            <p className="text-gray-500">該当する議題はありません</p>
+          </Card>
+        )}
+      </div>
+
+      {/* 詳細モーダル */}
+      {selectedAgenda && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedAgenda(null)}
+        >
+          <Card
+            className="bg-gray-800 p-6 border border-gray-700 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-white mb-2">{selectedAgenda.title}</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className={`px-3 py-1 rounded text-sm font-medium border ${getStatusColor(selectedAgenda.status)}`}>
+                    {getStatusLabel(selectedAgenda.status)}
+                  </span>
+                  <span className="text-sm text-gray-400">
+                    {getTypeLabel(selectedAgenda.type)}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedAgenda(null)}
+                className="text-gray-400 hover:text-white text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* 概要 */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-white mb-2">概要</h3>
+              <p className="text-gray-300">{selectedAgenda.description}</p>
+            </div>
+
+            {/* 背景 */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-white mb-2">背景・経緯</h3>
+              <p className="text-gray-300 bg-gray-900/50 p-4 rounded-lg">{selectedAgenda.background}</p>
+            </div>
+
+            {/* 提案元情報 */}
+            <div className="mb-6 grid grid-cols-2 gap-4">
+              <div className="bg-gray-900/50 p-4 rounded-lg">
+                <div className="text-sm text-gray-400 mb-1">提案元</div>
+                <div className="text-white font-medium">{selectedAgenda.proposedBy}</div>
+                <div className="text-sm text-gray-500">{selectedAgenda.proposerDepartment}</div>
+              </div>
+              <div className="bg-gray-900/50 p-4 rounded-lg">
+                <div className="text-sm text-gray-400 mb-1">提案日</div>
+                <div className="text-white font-medium">{formatDate(selectedAgenda.proposedDate)}</div>
+                {selectedAgenda.scheduledDate && (
+                  <div className="text-sm text-yellow-400 mt-1">
+                    審議予定: {formatDate(selectedAgenda.scheduledDate)}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 影響分析 */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-white mb-3">影響分析</h3>
+              <div className="bg-gray-900/50 p-4 rounded-lg space-y-3">
+                <div>
+                  <div className="text-sm text-gray-400 mb-1">影響を受ける部署</div>
+                  <div className="flex gap-2 flex-wrap">
+                    {selectedAgenda.impact.departments.map(dept => (
+                      <span key={dept} className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs">
+                        {dept}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                {selectedAgenda.impact.estimatedCost && (
+                  <div>
+                    <div className="text-sm text-gray-400 mb-1">予算影響</div>
+                    <div className="text-xl font-bold text-yellow-400">
+                      {formatCurrency(selectedAgenda.impact.estimatedCost)}
+                    </div>
+                  </div>
+                )}
+                {selectedAgenda.impact.implementationPeriod && (
+                  <div>
+                    <div className="text-sm text-gray-400 mb-1">実施期間</div>
+                    <div className="text-white">{selectedAgenda.impact.implementationPeriod}</div>
+                  </div>
+                )}
+                <div>
+                  <div className="text-sm text-gray-400 mb-1">期待される効果</div>
+                  <div className="text-white">{selectedAgenda.impact.expectedEffect}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 議事録 */}
+            {selectedAgenda.meetingMinutes && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-white mb-3">審議内容</h3>
+                <div className="bg-gray-900/50 p-4 rounded-lg space-y-3">
+                  <div>
+                    <div className="text-sm text-gray-400 mb-1">出席者</div>
+                    <div className="text-white text-sm">
+                      {selectedAgenda.meetingMinutes.attendees.join('、')}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-400 mb-1">議論内容</div>
+                    <div className="text-white text-sm">{selectedAgenda.meetingMinutes.discussion}</div>
+                  </div>
+                  {selectedAgenda.meetingMinutes.concerns.length > 0 && (
+                    <div>
+                      <div className="text-sm text-gray-400 mb-1">懸念事項</div>
+                      <ul className="space-y-1">
+                        {selectedAgenda.meetingMinutes.concerns.map((concern, idx) => (
+                          <li key={idx} className="text-sm text-yellow-300">• {concern}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {selectedAgenda.meetingMinutes.conditions && selectedAgenda.meetingMinutes.conditions.length > 0 && (
+                    <div>
+                      <div className="text-sm text-gray-400 mb-1">承認条件</div>
+                      <ul className="space-y-1">
+                        {selectedAgenda.meetingMinutes.conditions.map((condition, idx) => (
+                          <li key={idx} className="text-sm text-green-300">✓ {condition}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 決定情報 */}
+            {selectedAgenda.decidedDate && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-white mb-3">決定内容</h3>
+                <div className="bg-gray-900/50 p-4 rounded-lg">
+                  <div className="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                      <div className="text-sm text-gray-400 mb-1">決定者</div>
+                      <div className="text-white">{selectedAgenda.decidedBy}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-400 mb-1">決定日</div>
+                      <div className="text-white">{formatDate(selectedAgenda.decidedDate)}</div>
+                    </div>
+                  </div>
+                  {selectedAgenda.decisionNotes && (
+                    <div>
+                      <div className="text-sm text-gray-400 mb-1">決定理由・コメント</div>
+                      <div className="text-white">{selectedAgenda.decisionNotes}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* アクションボタン */}
+            {(selectedAgenda.status === 'pending' || selectedAgenda.status === 'in_review') && (
+              <div className="flex gap-3 pt-6 border-t border-gray-700">
+                <button
+                  onClick={handleApprove}
+                  className="flex-1 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-semibold"
+                >
+                  <CheckCircle className="w-5 h-5" />
+                  承認
+                </button>
+                <button
+                  onClick={handleDefer}
+                  className="flex-1 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 font-semibold"
+                >
+                  <Pause className="w-5 h-5" />
+                  保留
+                </button>
+                <button
+                  onClick={handleReject}
+                  className="flex-1 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 font-semibold"
+                >
+                  <XCircle className="w-5 h-5" />
+                  却下
+                </button>
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
+
+      <MobileFooter />
+      <DesktopFooter />
+    </div>
+  );
+};
+
+export default DecisionMeetingPage;
