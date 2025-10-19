@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   FileText,
   Users,
@@ -9,10 +10,13 @@ import {
   Zap,
   Gavel,
   Clock,
-  BarChart3
+  BarChart3,
+  History
 } from 'lucide-react';
 
 const AgendaModeSidebar = () => {
+  const navigate = useNavigate();
+
   // 議題提出状況
   const [agendaSubmissions, setAgendaSubmissions] = useState({
     newToday: 5,
@@ -253,6 +257,28 @@ const AgendaModeSidebar = () => {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* 判断履歴ボタン */}
+      <div className="bg-gradient-to-br from-white/5 to-white/2 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-xl shadow-lg">
+        <div className="p-4 border-b border-white/10 bg-gradient-to-r from-cyan-500/10 to-blue-500/10">
+          <div className="flex items-center gap-2">
+            <History className="w-5 h-5 text-cyan-400" />
+            <span className="font-bold text-white">期限到達判断</span>
+          </div>
+        </div>
+        <div className="p-3">
+          <button
+            onClick={() => navigate('/expired-escalation-history')}
+            className="w-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 text-cyan-300 text-sm py-3 px-4 rounded-lg transition-all border border-cyan-500/30 hover:border-cyan-400/50 flex items-center justify-center gap-2"
+          >
+            <BarChart3 className="w-4 h-4" />
+            <span>判断履歴を見る</span>
+          </button>
+          <p className="text-xs text-gray-400 mt-2 text-center">
+            期限到達提案の判断履歴とレポート
+          </p>
         </div>
       </div>
 
