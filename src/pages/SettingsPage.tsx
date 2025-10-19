@@ -1,12 +1,18 @@
 import { useState } from 'react';
-import { User, Bell, Shield, Palette, Smartphone } from 'lucide-react';
+import { User, Bell, Shield, Palette, Smartphone, Sun, Moon, Monitor } from 'lucide-react';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { NotificationSettings } from '../components/settings/NotificationSettings';
 import { PWAInstallSettings } from '../components/settings/PWAInstallSettings';
 import { ConsentSettings } from '../components/settings/ConsentSettings';
+import { useTheme } from '../contexts/ThemeContext';
+import { useFontSize } from '../hooks/useFontSize';
+import { useAnimation } from '../hooks/useAnimation';
 
 const SettingsPage = () => {
   const { currentUser } = useDemoMode();
+  const { theme, setTheme } = useTheme();
+  const { fontSize, setFontSize } = useFontSize();
+  const { transitionsEnabled, reducedMotion, setTransitionsEnabled, setReducedMotion } = useAnimation();
   const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'privacy' | 'display' | 'app'>('notifications');
   
   return (
@@ -150,13 +156,37 @@ const SettingsPage = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-3">テーマ</label>
                     <div className="grid grid-cols-3 gap-2">
-                      <button className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm font-medium">
+                      <button
+                        onClick={() => setTheme('dark')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                          theme === 'dark'
+                            ? 'bg-indigo-500 text-white'
+                            : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                        }`}
+                      >
+                        <Moon className="w-4 h-4" />
                         ダーク
                       </button>
-                      <button className="px-4 py-2 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition-colors text-sm font-medium">
+                      <button
+                        onClick={() => setTheme('light')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                          theme === 'light'
+                            ? 'bg-indigo-500 text-white'
+                            : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                        }`}
+                      >
+                        <Sun className="w-4 h-4" />
                         ライト
                       </button>
-                      <button className="px-4 py-2 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition-colors text-sm font-medium">
+                      <button
+                        onClick={() => setTheme('auto')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                          theme === 'auto'
+                            ? 'bg-indigo-500 text-white'
+                            : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                        }`}
+                      >
+                        <Monitor className="w-4 h-4" />
                         自動
                       </button>
                     </div>
@@ -165,13 +195,34 @@ const SettingsPage = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-3">文字サイズ</label>
                     <div className="grid grid-cols-3 gap-2">
-                      <button className="px-4 py-2 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition-colors text-sm font-medium">
+                      <button
+                        onClick={() => setFontSize('small')}
+                        className={`px-4 py-2 rounded-lg transition-colors font-medium ${
+                          fontSize === 'small'
+                            ? 'bg-indigo-500 text-white text-sm'
+                            : 'bg-slate-700 text-gray-300 hover:bg-slate-600 text-sm'
+                        }`}
+                      >
                         小
                       </button>
-                      <button className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm font-medium">
+                      <button
+                        onClick={() => setFontSize('medium')}
+                        className={`px-4 py-2 rounded-lg transition-colors font-medium ${
+                          fontSize === 'medium'
+                            ? 'bg-indigo-500 text-white text-base'
+                            : 'bg-slate-700 text-gray-300 hover:bg-slate-600 text-base'
+                        }`}
+                      >
                         中
                       </button>
-                      <button className="px-4 py-2 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition-colors text-sm font-medium">
+                      <button
+                        onClick={() => setFontSize('large')}
+                        className={`px-4 py-2 rounded-lg transition-colors font-medium ${
+                          fontSize === 'large'
+                            ? 'bg-indigo-500 text-white text-lg'
+                            : 'bg-slate-700 text-gray-300 hover:bg-slate-600 text-lg'
+                        }`}
+                      >
                         大
                       </button>
                     </div>
@@ -179,13 +230,23 @@ const SettingsPage = () => {
 
                   <div className="pt-4 border-t border-slate-700">
                     <h3 className="text-sm font-medium text-gray-400 mb-3">アニメーション設定</h3>
-                    <label className="flex items-center justify-between">
+                    <label className="flex items-center justify-between py-2 cursor-pointer">
                       <span className="text-gray-300">画面遷移アニメーション</span>
-                      <input type="checkbox" defaultChecked className="toggle" />
+                      <input
+                        type="checkbox"
+                        checked={transitionsEnabled}
+                        onChange={(e) => setTransitionsEnabled(e.target.checked)}
+                        className="w-4 h-4 text-indigo-600 bg-gray-700 border-gray-600 rounded focus:ring-indigo-500 focus:ring-2"
+                      />
                     </label>
-                    <label className="flex items-center justify-between">
+                    <label className="flex items-center justify-between py-2 cursor-pointer">
                       <span className="text-gray-300">低スペックモード</span>
-                      <input type="checkbox" className="toggle" />
+                      <input
+                        type="checkbox"
+                        checked={reducedMotion}
+                        onChange={(e) => setReducedMotion(e.target.checked)}
+                        className="w-4 h-4 text-indigo-600 bg-gray-700 border-gray-600 rounded focus:ring-indigo-500 focus:ring-2"
+                      />
                     </label>
                   </div>
                 </div>

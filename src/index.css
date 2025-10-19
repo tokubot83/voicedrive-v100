@@ -26,8 +26,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom CSS Variables */
-:root {
+/* Custom CSS Variables - ダークテーマ（デフォルト） */
+:root,
+:root.dark-theme {
   --primary-color: #1d9bf0;
   --secondary-color: #7856ff;
   --tertiary-color: #f91880;
@@ -40,6 +41,22 @@
   --text-primary: #e7e9ea;
   --text-secondary: #71767b;
   --border-color: rgba(47, 51, 54, 0.5);
+}
+
+/* ライトテーマ - 見やすさ重視の配色 */
+:root.light-theme {
+  --primary-color: #0284c7;
+  --secondary-color: #6366f1;
+  --tertiary-color: #db2777;
+  --success-color: #059669;
+  --warning-color: #ea580c;
+  --danger-color: #dc2626;
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-tertiary: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --border-color: rgba(148, 163, 184, 0.3);
 }
 
 /* Base Styles */
@@ -57,10 +74,38 @@ body {
   min-height: 100vh;
 }
 
-/* モバイルデバイスでのベースフォントサイズ調整 */
+/* 文字サイズ設定 - 小 */
+html.font-small {
+  font-size: 14px;
+}
+
 @media (max-width: 767px) {
-  html {
-    font-size: 14px; /* デフォルトの16pxから2px小さく */
+  html.font-small {
+    font-size: 12px;
+  }
+}
+
+/* 文字サイズ設定 - 中（デフォルト） */
+html,
+html.font-medium {
+  font-size: 16px;
+}
+
+@media (max-width: 767px) {
+  html,
+  html.font-medium {
+    font-size: 14px;
+  }
+}
+
+/* 文字サイズ設定 - 大 */
+html.font-large {
+  font-size: 18px;
+}
+
+@media (max-width: 767px) {
+  html.font-large {
+    font-size: 16px;
   }
 }
 
@@ -194,4 +239,27 @@ body {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Chrome, Safari and Opera */
+}
+
+/* アニメーション制御 - 画面遷移アニメーション無効化 */
+html.no-transitions *,
+html.no-transitions *::before,
+html.no-transitions *::after {
+  transition: none !important;
+  animation-duration: 0s !important;
+}
+
+/* アニメーション制御 - 低スペックモード（アニメーション削減） */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+html.reduce-motion .animate-shimmer,
+html.reduce-motion .animate-float,
+html.reduce-motion .animate-pulse-green {
+  animation: none !important;
 }

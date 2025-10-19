@@ -5,6 +5,7 @@ import { DemoModeProvider, DemoModeController } from './components/demo/DemoMode
 import { TabProvider } from './components/tabs/TabContext';
 import { AuthProvider } from './hooks/useAuth';
 import { UserProvider } from './contexts/UserContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import NotificationService from './services/NotificationService';
 import AppBadgeService from './services/AppBadgeService';
 import ErrorDebugger from './components/debug/ErrorDebugger';
@@ -62,17 +63,19 @@ function App() {
   return (
     <ErrorDebugger>
       <BrowserRouter>
-        <AuthProvider>
-          <UserProvider>
-            <DemoModeProvider>
-              <TabProvider>
-                <DemoModeController />
-                <AppRouter />
-                <PWAInstallPrompt />
-              </TabProvider>
-            </DemoModeProvider>
-          </UserProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <UserProvider>
+              <DemoModeProvider>
+                <TabProvider>
+                  <DemoModeController />
+                  <AppRouter />
+                  <PWAInstallPrompt />
+                </TabProvider>
+              </DemoModeProvider>
+            </UserProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </BrowserRouter>
     </ErrorDebugger>
   );
