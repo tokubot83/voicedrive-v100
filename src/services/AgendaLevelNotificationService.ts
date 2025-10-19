@@ -931,6 +931,377 @@ export class AgendaLevelNotificationService {
       return [];
     }
   }
+
+  // ========== Phase 3: スコア閾値到達時の自動通知 ==========
+
+  /**
+   * 30点到達時の通知
+   *
+   * 通知先:
+   * - 投稿者
+   * - 主任（Level 3.5）
+   * - 師長（Level 7）
+   *
+   * 内容: 事前確認依頼（情報共有のみ）
+   */
+  async notifyScoreThreshold30(post: any): Promise<number> {
+    let count = 0;
+
+    console.log(`[AgendaLevelNotification] 30点到達通知: ${post.id}`);
+
+    // 投稿者に通知
+    await this.sendSimpleNotification({
+      userId: post.authorId,
+      title: '📊 30点に到達しました',
+      message: `あなたの投稿「${post.content.substring(0, 30)}...」が30点に到達しました。\n\n主任と師長に通知されました。50点到達で主任の判断が必要になります。`,
+      urgency: 'normal',
+      postId: post.id,
+    });
+    count++;
+
+    // 主任（Level 3.5）に通知
+    const supervisors = await this.getManagersByDepartment(post.author?.department);
+    for (const supervisor of supervisors) {
+      await this.sendSimpleNotification({
+        userId: supervisor.id,
+        title: '📋 部署検討案件（30点到達）',
+        message: `「${post.content.substring(0, 30)}...」が30点に到達しました。\n\n内容を確認してください。50点到達時に判断が必要になります。`,
+        urgency: 'normal',
+        postId: post.id,
+      });
+      count++;
+    }
+
+    // 師長（Level 7）に通知（情報共有）
+    const managers = await this.getManagersByDepartment(post.author?.department);
+    for (const manager of managers) {
+      if (manager.permissionLevel !== 7) continue; // Level 7のみ
+
+      await this.sendSimpleNotification({
+        userId: manager.id,
+        title: '📊 部署検討案件（30点到達）',
+        message: `「${post.content.substring(0, 30)}...」が30点に到達しました（情報共有）。`,
+        urgency: 'normal',
+        postId: post.id,
+      });
+      count++;
+    }
+
+    console.log(`[AgendaLevelNotification] 30点到達通知完了: ${count}件`);
+    return count;
+  }
+
+  /**
+   * 50点到達時の通知
+   *
+   * 通知先:
+   * - 投稿者
+   * - 主任（Level 3.5）- 判断要求
+   *
+   * 主任の判断:
+   * - 却下 → 投稿終了
+   * - 師長に推薦 → 師長に通知
+   */
+  async notifyScoreThreshold50(post: any): Promise<number> {
+    let count = 0;
+
+    console.log(`[AgendaLevelNotification] 50点到達通知: ${post.id}`);
+
+    // 投稿者に通知
+    await this.sendSimpleNotification({
+      userId: post.authorId,
+      title: '🎉 50点に到達しました！',
+      message: `あなたの投稿「${post.content.substring(0, 30)}...」が50点（部署議題）に到達しました。\n\n主任の判断を待っています。`,
+      urgency: 'high',
+      postId: post.id,
+    });
+    count++;
+
+    // 主任（Level 3.5）に判断要求通知
+    const supervisors = await this.getManagersByDepartment(post.author?.department);
+    for (const supervisor of supervisors) {
+      await this.sendSimpleNotification({
+        userId: supervisor.id,
+        title: '⚠️ 部署議題の判断が必要です（50点到達）',
+        message: `「${post.content.substring(0, 30)}...」が50点に到達しました。\n\n師長に推薦するか、却下するかの判断をお願いします。`,
+        urgency: 'high',
+        postId: post.id,
+        actionUrl: `/proposal-management/review/${post.id}`,
+        actionRequired: true,
+      });
+      count++;
+    }
+
+    console.log(`[AgendaLevelNotification] 50点到達通知完了: ${count}件`);
+    return count;
+  }
+
+  /**
+   * 100点到達時の通知
+   *
+   * 通知先:
+   * - 副看護部長/看護部長（Level 8）- 判断要求
+   * - 師長（Level 7）- 情報共有
+   * - 主任（Level 3.5）- 情報共有
+   * - 投稿者 - 進捗報告
+   * - 施設内全職員 - 施設議題到達のお知らせ
+   */
+  async notifyScoreThreshold100(post: any): Promise<number> {
+    let count = 0;
+
+    console.log(`[AgendaLevelNotification] 100点到達通知: ${post.id}`);
+
+    // 投稿者に通知
+    await this.sendSimpleNotification({
+      userId: post.authorId,
+      title: '🎉 100点に到達しました！',
+      message: `あなたの投稿「${post.content.substring(0, 30)}...」が100点（施設議題）に到達しました。\n\n副看護部長/看護部長の判断を待っています。`,
+      urgency: 'high',
+      postId: post.id,
+    });
+    count++;
+
+    // 副看護部長（Level 8）に判断要求通知
+    const deputyDirectors = await this.getDeputyDirectorsByFacility(post.author?.facilityId);
+    for (const dd of deputyDirectors) {
+      await this.sendSimpleNotification({
+        userId: dd.id,
+        title: '⚠️ 施設議題の判断が必要です（100点到達）',
+        message: `「${post.content.substring(0, 30)}...」が100点に到達しました。\n\n委員会提出承認、法人検討への昇格、または却下の判断をお願いします。`,
+        urgency: 'high',
+        postId: post.id,
+        actionUrl: `/proposal-management/review/${post.id}`,
+        actionRequired: true,
+      });
+      count++;
+    }
+
+    // 師長（Level 7）に情報共有通知
+    const managers = await this.getManagersByDepartment(post.author?.department);
+    for (const manager of managers) {
+      if (manager.permissionLevel !== 7) continue;
+
+      await this.sendSimpleNotification({
+        userId: manager.id,
+        title: '📊 施設議題到達（100点）',
+        message: `推薦した投稿「${post.content.substring(0, 30)}...」が施設議題（100点）に到達しました。`,
+        urgency: 'normal',
+        postId: post.id,
+      });
+      count++;
+    }
+
+    // 主任（Level 3.5）に情報共有通知
+    const supervisors = await this.getManagersByDepartment(post.author?.department);
+    for (const supervisor of supervisors) {
+      await this.sendSimpleNotification({
+        userId: supervisor.id,
+        title: '📊 施設議題到達（100点）',
+        message: `推薦した投稿「${post.content.substring(0, 30)}...」が施設議題（100点）に到達しました。`,
+        urgency: 'normal',
+        postId: post.id,
+      });
+      count++;
+    }
+
+    // 施設内全職員に通知
+    const facilityMembers = await this.getFacilityMembers(post.author?.facilityId);
+    for (const member of facilityMembers) {
+      if (member.id === post.authorId) continue; // 投稿者は既に通知済み
+
+      await this.sendSimpleNotification({
+        userId: member.id,
+        title: '🔔 新しい施設議題（100点到達）',
+        message: `「${post.content.substring(0, 30)}...」が施設議題（100点）に到達しました。`,
+        urgency: 'normal',
+        postId: post.id,
+      });
+      count++;
+    }
+
+    console.log(`[AgendaLevelNotification] 100点到達通知完了: ${count}件`);
+    return count;
+  }
+
+  /**
+   * 300点到達時の通知
+   *
+   * 通知先:
+   * - 事務長（Level 11）- 判断要求
+   * - 副看護部長（Level 8）- 情報共有
+   * - 師長（Level 7）- 情報共有
+   * - 主任（Level 3.5）- 情報共有
+   * - 投稿者 - 進捗報告
+   * - 施設内全職員 - 法人検討到達のお知らせ
+   */
+  async notifyScoreThreshold300(post: any): Promise<number> {
+    let count = 0;
+
+    console.log(`[AgendaLevelNotification] 300点到達通知: ${post.id}`);
+
+    // 投稿者に通知
+    await this.sendSimpleNotification({
+      userId: post.authorId,
+      title: '🎉 300点に到達しました！',
+      message: `あなたの投稿「${post.content.substring(0, 30)}...」が300点（法人検討）に到達しました。\n\n事務長の判断を待っています。`,
+      urgency: 'high',
+      postId: post.id,
+    });
+    count++;
+
+    // 事務長（Level 11）に判断要求通知
+    const generalAffairs = await this.getGeneralAffairsByFacility(post.author?.facilityId);
+    for (const ga of generalAffairs) {
+      await this.sendSimpleNotification({
+        userId: ga.id,
+        title: '⚠️ 法人検討案件の判断が必要です（300点到達）',
+        message: `「${post.content.substring(0, 30)}...」が300点に到達しました。\n\n法人議題として承認、法人議題への昇格（600点目標）、または却下の判断をお願いします。`,
+        urgency: 'high',
+        postId: post.id,
+        actionUrl: `/proposal-management/review/${post.id}`,
+        actionRequired: true,
+      });
+      count++;
+    }
+
+    // 副看護部長（Level 8）に情報共有通知
+    const deputyDirectors = await this.getDeputyDirectorsByFacility(post.author?.facilityId);
+    for (const dd of deputyDirectors) {
+      await this.sendSimpleNotification({
+        userId: dd.id,
+        title: '📊 法人検討到達（300点）',
+        message: `推薦した投稿「${post.content.substring(0, 30)}...」が法人検討（300点）に到達しました。`,
+        urgency: 'normal',
+        postId: post.id,
+      });
+      count++;
+    }
+
+    // 師長（Level 7）+ 主任（Level 3.5）に情報共有通知
+    const deptLeaders = await this.getManagersByDepartment(post.author?.department);
+    for (const leader of deptLeaders) {
+      await this.sendSimpleNotification({
+        userId: leader.id,
+        title: '📊 法人検討到達（300点）',
+        message: `推薦した投稿「${post.content.substring(0, 30)}...」が法人検討（300点）に到達しました。`,
+        urgency: 'normal',
+        postId: post.id,
+      });
+      count++;
+    }
+
+    // 施設内全職員に通知
+    const facilityMembers = await this.getFacilityMembers(post.author?.facilityId);
+    for (const member of facilityMembers) {
+      if (member.id === post.authorId) continue;
+
+      await this.sendSimpleNotification({
+        userId: member.id,
+        title: '🔔 法人検討案件到達（300点）',
+        message: `「${post.content.substring(0, 30)}...」が法人検討案件（300点）に到達しました。`,
+        urgency: 'normal',
+        postId: post.id,
+      });
+      count++;
+    }
+
+    console.log(`[AgendaLevelNotification] 300点到達通知完了: ${count}件`);
+    return count;
+  }
+
+  /**
+   * 600点到達時の通知
+   *
+   * 通知先:
+   * - 法人統括事務局長（Level 18）- 判断要求
+   * - 全施設の事務長（Level 11）- 情報共有
+   * - 副看護部長（Level 8）- 情報共有
+   * - 師長（Level 7）- 情報共有
+   * - 主任（Level 3.5）- 情報共有
+   * - 投稿者 - 進捗報告
+   * - 法人内全職員 - 法人議題到達のお知らせ
+   */
+  async notifyScoreThreshold600(post: any): Promise<number> {
+    let count = 0;
+
+    console.log(`[AgendaLevelNotification] 600点到達通知: ${post.id}`);
+
+    // 投稿者に通知
+    await this.sendSimpleNotification({
+      userId: post.authorId,
+      title: '🎉🎉 600点に到達しました！',
+      message: `あなたの投稿「${post.content.substring(0, 30)}...」が600点（法人議題）に到達しました。\n\n法人統括事務局長の判断を待っています。`,
+      urgency: 'urgent',
+      postId: post.id,
+    });
+    count++;
+
+    // 法人統括事務局長（Level 18）に判断要求通知
+    const executives = await this.getCorporationMembers();
+    const executiveDirector = executives.find(u => u.permissionLevel === 18);
+    if (executiveDirector) {
+      await this.sendSimpleNotification({
+        userId: executiveDirector.id,
+        title: '⚠️ 法人議題の判断が必要です（600点到達）',
+        message: `「${post.content.substring(0, 30)}...」が600点に到達しました。\n\n法人運営会議への提出承認、または却下の判断をお願いします。`,
+        urgency: 'urgent',
+        postId: post.id,
+        actionUrl: `/proposal-management/review/${post.id}`,
+        actionRequired: true,
+      });
+      count++;
+    }
+
+    // 全施設の事務長（Level 11）に情報共有通知
+    const allGeneralAffairs = await this.getCorporationMembers();
+    for (const member of allGeneralAffairs) {
+      if (member.permissionLevel !== 11) continue;
+
+      await this.sendSimpleNotification({
+        userId: member.id,
+        title: '📊 法人議題到達（600点）',
+        message: `【${post.author?.facilityId}】からの提案「${post.content.substring(0, 30)}...」が法人議題（600点）に到達しました。`,
+        urgency: 'normal',
+        postId: post.id,
+      });
+      count++;
+    }
+
+    // 副看護部長（Level 8）・師長（Level 7）・主任（Level 3.5）に情報共有通知
+    const facilityLeaders = await this.getFacilityMembers(post.author?.facilityId);
+    for (const member of facilityLeaders) {
+      if (![3.5, 7, 8].includes(member.permissionLevel as number)) continue;
+      if (member.id === post.authorId) continue;
+
+      await this.sendSimpleNotification({
+        userId: member.id,
+        title: '📊 法人議題到達（600点）',
+        message: `推薦した投稿「${post.content.substring(0, 30)}...」が法人議題（600点）に到達しました。`,
+        urgency: 'normal',
+        postId: post.id,
+      });
+      count++;
+    }
+
+    // 法人内全職員に通知
+    const corpMembers = await this.getCorporationMembers();
+    for (const member of corpMembers) {
+      if (member.id === post.authorId) continue;
+      if ([3.5, 7, 8, 11, 18].includes(member.permissionLevel as number)) continue; // 既に通知済み
+
+      await this.sendSimpleNotification({
+        userId: member.id,
+        title: '🔔 法人議題到達（600点）',
+        message: `【${post.author?.facilityId}】${post.author?.name}さんの提案「${post.content.substring(0, 30)}...」が法人議題（600点）に到達しました。`,
+        urgency: 'normal',
+        postId: post.id,
+      });
+      count++;
+    }
+
+    console.log(`[AgendaLevelNotification] 600点到達通知完了: ${count}件`);
+    return count;
+  }
 }
 
 // シングルトンインスタンスはブラウザ環境でのみ作成可能

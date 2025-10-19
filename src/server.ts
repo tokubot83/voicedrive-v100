@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import apiRoutes from './routes/apiRoutes.js';
 import agendaRoutes from './routes/agendaRoutes';
+import postVoteRoutes from './routes/postVoteRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -15,6 +16,10 @@ app.use(express.urlencoded({ extended: true }));
 // 議題モードAPI（より具体的なパスを先に登録）
 console.log('📋 Registering Agenda API routes at /api/agenda');
 app.use('/api/agenda', agendaRoutes);
+
+// 投票API（より具体的なパスを先に登録）
+console.log('🗳️  Registering Vote API routes at /api/posts');
+app.use('/api/posts', postVoteRoutes);
 
 // API ルート（より一般的なパスは後に登録）
 app.use('/api', apiRoutes);

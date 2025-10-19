@@ -1,0 +1,848 @@
+openapi: 3.0.3
+info:
+  title: VoiceDrive Executive Dashboard API
+  description: |
+    エグゼクティブダッシュボード用API仕様書
+
+    医療職員管理システムとVoiceDriveの統合用エンドポイント。
+
+    ## 認証方式
+
+    ### データ提供API (GET /api/v1/executive/dashboard-data)
+    - **Bearer Token認証**
+    - Header: `Authorization: Bearer {token}`
+    - トークンは環境変数 `MCP_API_KEY` または `MEDICAL_SYSTEM_API_KEY` で設定
+
+    ### 分析結果受信API (POST /api/v1/executive/strategic-insights)
+    - **HMAC-SHA256署名認証**
+    - Header: `X-HMAC-Signature: {signature}`
+    - Header: `X-Timestamp: {unix_timestamp}`
+    - 署名計算: `HMAC-SHA256(secret, "{timestamp}.{body}")`
+    - タイムスタンプ有効期限: 5分以内
+
+    ## データフロー
+
+    ```
+    医療システム → GET /api/v1/executive/dashboard-data → VoiceDrive
+    医療システム → Llama 3.2 8B 分析 → POST /api/v1/executive/strategic-insights → VoiceDrive
+    ```
+
+    ## 実装スケジュール
+
+    - **Phase 1** (2025年10月-11月): データ提供API実装
+    - **Phase 2** (2025年11月-12月): 分析結果受信API実装（モック版）
+    - **Phase 3** (2026年1月): Llama 3.2 8B連携（本格実装）
+
+  version: 1.0.0
+  contact:
+    name: VoiceDriveチーム
+    email: support@voicedrive.example.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://voicedrive.example.com/api/v1
+    description: 本番環境
+  - url: https://staging.voicedrive.example.com/api/v1
+    description: ステージング環境
+  - url: http://localhost:3001/api/v1
+    description: ローカル開発環境
+
+tags:
+  - name: executive
+    description: エグゼクティブダッシュボード関連API
+
+paths:
+  /executive/dashboard-data:
+    get:
+      summary: エグゼクティブダッシュボードデータ取得
+      description: |
+        指定期間のVoiceDrive投稿データから、エグゼクティブダッシュボード表示用の統計データを取得します。
+
+        ## 取得データ
+
+        - 月次KPI（投稿数、アジェンダ化、委員会提出、解決済み、参加率、解決率、平均解決日数）
+        - 部署別パフォーマンス（TOP10）
+        - 重要アラート（K-匿名性チェック済み）
+        - プロジェクト進捗状況
+        - 月次トレンド（過去6ヶ月）
+
+        ## K-匿名性チェック
+
+        - 5名未満の部門データは「その他」に統合
+        - アラートは影響人数5名未満の場合は非表示
+
+        ## 送信頻度
+
+        - 毎週月曜日 02:00 JST に医療システムから呼び出し
+
+      operationId: getExecutiveDashboardData
+      tags:
+        - executive
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          description: 取得対象期間（YYYY-MM形式）
+          required: false
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+            example: '2025-10'
+          example: '2025-10'
+        - name: facilities
+          in: query
+          description: 対象施設コード（複数指定可）。省略時は全施設
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - obara-hospital
+                - tategami-rehabilitation
+                - espoir-tategami
+          style: form
+          explode: true
+          examples:
+            single:
+              value: obara-hospital
+              summary: 単一施設
+            multiple:
+              value:
+                - obara-hospital
+                - tategami-rehabilitation
+              summary: 複数施設
+      responses:
+        '200':
+          description: データ取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardDataResponse'
+              examples:
+                success:
+                  $ref: '#/components/examples/DashboardDataSuccess'
+        '400':
+          description: リクエストパラメータ不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: 'Bad Request'
+                details: 'Invalid period format. Expected YYYY-MM format (e.g., 2025-10)'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: 'Unauthorized'
+                details: 'Authentication required'
+        '500':
+          description: サーバー内部エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: 'Internal server error'
+                details: 'Database connection failed'
+
+  /executive/strategic-insights:
+    post:
+      summary: 戦略分析結果受信
+      description: |
+        医療システムのLlama 3.2 8Bから生成された戦略分析結果を受信します。
+
+        ## 認証方式
+
+        HMAC-SHA256署名認証を使用します。
+
+        ### 署名計算方法
+
+        ```
+        signature = HMAC-SHA256(secret, "{timestamp}.{json_body}")
+        ```
+
+        ### リクエストヘッダー
+
+        - `X-HMAC-Signature`: 計算した署名（16進数文字列）
+        - `X-Timestamp`: Unixタイムスタンプ（秒）
+        - `Content-Type`: application/json
+
+        ### タイムスタンプ有効期限
+
+        - リクエスト送信時刻から **5分以内** のタイムスタンプのみ有効
+        - リプレイ攻撃防止のため
+
+        ## 送信頻度
+
+        - 毎週月曜日 02:00 JST に医療システムから送信
+        - リトライ: 3回、30分間隔
+
+        ## 分析結果タイプ
+
+        - `priority_action`: 優先対応すべき課題
+        - `success_case`: 成功事例・ベストプラクティス
+        - `prediction`: 予測分析
+        - `strategic_recommendation`: 戦略的提言
+
+      operationId: receiveStrategicInsights
+      tags:
+        - executive
+      security:
+        - HmacAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StrategicInsightsRequest'
+            examples:
+              fullExample:
+                $ref: '#/components/examples/StrategicInsightsRequest'
+      responses:
+        '200':
+          description: 分析結果受信成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrategicInsightsResponse'
+              example:
+                success: true
+                message: '戦略分析結果を正常に受信しました'
+                receivedAt: '2025-10-19T10:30:00Z'
+                data:
+                  insightIds:
+                    - 'insight-cuid-001'
+                    - 'insight-cuid-002'
+                    - 'insight-cuid-003'
+                  count: 3
+        '400':
+          description: リクエストボディ不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: 'Bad Request'
+                details: 'insights must be a non-empty array'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missingHeader:
+                  value:
+                    success: false
+                    error: 'Unauthorized'
+                    details: 'Missing X-HMAC-Signature or X-Timestamp header'
+                invalidSignature:
+                  value:
+                    success: false
+                    error: 'Unauthorized'
+                    details: 'Invalid HMAC signature'
+                expiredTimestamp:
+                  value:
+                    success: false
+                    error: 'Unauthorized'
+                    details: 'Request timestamp is too old or invalid'
+        '500':
+          description: サーバー内部エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: 'Internal server error'
+                details: 'Failed to save insights to database'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Bearer Token認証。
+        環境変数 `MCP_API_KEY` または `MEDICAL_SYSTEM_API_KEY` で設定されたトークンを使用。
+
+        例: `Authorization: Bearer your-secret-token-here`
+
+    HmacAuth:
+      type: apiKey
+      in: header
+      name: X-HMAC-Signature
+      description: |
+        HMAC-SHA256署名認証。
+
+        **リクエストヘッダー:**
+        - `X-HMAC-Signature`: HMAC-SHA256署名（16進数）
+        - `X-Timestamp`: Unixタイムスタンプ（秒）
+
+        **署名計算:**
+        ```python
+        import hmac
+        import hashlib
+        import time
+        import json
+
+        secret = "your-hmac-secret"
+        timestamp = str(int(time.time()))
+        body = json.dumps(request_data)
+        message = f"{timestamp}.{body}"
+        signature = hmac.new(
+            secret.encode(),
+            message.encode(),
+            hashlib.sha256
+        ).hexdigest()
+        ```
+
+  schemas:
+    DashboardDataResponse:
+      type: object
+      required:
+        - period
+        - generatedAt
+        - facilities
+        - trends
+      properties:
+        period:
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+          description: 対象期間（YYYY-MM形式）
+          example: '2025-10'
+        generatedAt:
+          type: string
+          format: date-time
+          description: データ生成日時
+          example: '2025-10-19T10:30:00Z'
+        facilities:
+          type: array
+          description: 施設別データ
+          items:
+            $ref: '#/components/schemas/FacilityData'
+        trends:
+          type: object
+          required:
+            - monthly
+          properties:
+            monthly:
+              type: array
+              description: 月次トレンド（過去6ヶ月）
+              items:
+                $ref: '#/components/schemas/MonthlyTrend'
+
+    FacilityData:
+      type: object
+      required:
+        - facilityCode
+        - facilityName
+        - stats
+        - departments
+        - alerts
+        - projects
+      properties:
+        facilityCode:
+          type: string
+          description: 医療システムの施設コード
+          enum:
+            - obara-hospital
+            - tategami-rehabilitation
+            - espoir-tategami
+          example: 'obara-hospital'
+        facilityName:
+          type: string
+          description: 施設名
+          example: '小原病院'
+        stats:
+          $ref: '#/components/schemas/FacilityStats'
+        departments:
+          type: array
+          description: 部署別データ（TOP10、K-匿名性チェック済み）
+          items:
+            $ref: '#/components/schemas/DepartmentData'
+        alerts:
+          type: array
+          description: 重要アラート（影響人数5名以上のみ）
+          items:
+            $ref: '#/components/schemas/AlertData'
+        projects:
+          $ref: '#/components/schemas/ProjectData'
+
+    FacilityStats:
+      type: object
+      required:
+        - totalPosts
+        - agendaCreated
+        - committeeSubmitted
+        - resolved
+        - participationRate
+        - resolutionRate
+        - avgResolutionDays
+      properties:
+        totalPosts:
+          type: integer
+          description: 総投稿数
+          example: 342
+        agendaCreated:
+          type: integer
+          description: アジェンダ化件数
+          example: 85
+        committeeSubmitted:
+          type: integer
+          description: 委員会提出件数
+          example: 28
+        resolved:
+          type: integer
+          description: 解決済み件数
+          example: 45
+        participationRate:
+          type: integer
+          description: 参加率（%）
+          example: 68
+        resolutionRate:
+          type: integer
+          description: 解決率（%）
+          example: 55
+        avgResolutionDays:
+          type: integer
+          description: 平均解決日数
+          example: 42
+
+    DepartmentData:
+      type: object
+      required:
+        - name
+        - posts
+        - agendas
+        - activeScore
+        - trend
+      properties:
+        name:
+          type: string
+          description: 部署名
+          example: '看護部'
+        posts:
+          type: integer
+          description: 投稿数
+          example: 128
+        agendas:
+          type: integer
+          description: アジェンダ化件数
+          example: 32
+        activeScore:
+          type: integer
+          description: アクティブスコア（%）
+          example: 85
+        trend:
+          type: string
+          enum:
+            - up
+            - down
+            - stable
+          description: トレンド
+          example: 'up'
+
+    AlertData:
+      type: object
+      required:
+        - type
+        - severity
+        - title
+        - description
+        - department
+        - affectedCount
+      properties:
+        type:
+          type: string
+          enum:
+            - risk
+            - engagement
+            - delay
+          description: アラートタイプ
+          example: 'risk'
+        severity:
+          type: string
+          enum:
+            - high
+            - medium
+            - low
+          description: 重要度
+          example: 'high'
+        title:
+          type: string
+          description: アラートタイトル
+          example: '看護部でアジェンダ化率が低下'
+        description:
+          type: string
+          description: アラート詳細
+          example: '128件の投稿に対し、アジェンダ化は32件のみ'
+        department:
+          type: string
+          description: 対象部署
+          example: '看護部'
+        affectedCount:
+          type: integer
+          description: 影響人数（5名以上のみ）
+          minimum: 5
+          example: 12
+
+    ProjectData:
+      type: object
+      required:
+        - inProgress
+        - completed
+        - delayed
+        - avgProgress
+      properties:
+        inProgress:
+          type: integer
+          description: 進行中プロジェクト数
+          example: 12
+        completed:
+          type: integer
+          description: 完了プロジェクト数
+          example: 8
+        delayed:
+          type: integer
+          description: 遅延プロジェクト数
+          example: 3
+        avgProgress:
+          type: integer
+          description: 平均進捗率（%）
+          example: 65
+
+    MonthlyTrend:
+      type: object
+      required:
+        - month
+        - totalPosts
+        - participationRate
+        - resolutionRate
+      properties:
+        month:
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+          description: 対象月（YYYY-MM形式）
+          example: '2025-10'
+        totalPosts:
+          type: integer
+          description: 総投稿数
+          example: 342
+        participationRate:
+          type: integer
+          description: 参加率（%）
+          example: 68
+        resolutionRate:
+          type: integer
+          description: 解決率（%）
+          example: 55
+
+    StrategicInsightsRequest:
+      type: object
+      required:
+        - period
+        - generatedAt
+        - insights
+      properties:
+        period:
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+          description: 分析対象期間（YYYY-MM形式）
+          example: '2025-10'
+        generatedAt:
+          type: string
+          format: date-time
+          description: 分析生成日時
+          example: '2025-10-19T10:30:00Z'
+        insights:
+          type: array
+          description: 戦略分析結果リスト
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/StrategicInsight'
+
+    StrategicInsight:
+      type: object
+      required:
+        - insightType
+        - title
+        - analysis
+        - recommendedActions
+      properties:
+        insightType:
+          type: string
+          enum:
+            - priority_action
+            - success_case
+            - prediction
+            - strategic_recommendation
+          description: 分析結果タイプ
+          example: 'priority_action'
+        severity:
+          type: string
+          enum:
+            - low
+            - medium
+            - high
+          description: 重要度（priority_actionの場合のみ）
+          example: 'high'
+        title:
+          type: string
+          description: タイトル
+          example: '看護部の早急な対応が必要'
+        analysis:
+          type: string
+          description: 詳細分析内容
+          example: '看護部でシフト調整に関する不満が連続して投稿されています。放置すると離職リスクが高まる可能性があります。'
+        rootCause:
+          type: string
+          description: 根本原因分析
+          example: '夜勤シフトの偏りと休暇取得の難しさが主な原因と推定されます。'
+        recommendedActions:
+          type: array
+          description: 推奨アクション
+          items:
+            type: string
+          example:
+            - '看護部長との緊急面談を実施'
+            - 'シフト調整の柔軟化を検討'
+            - '休暇取得促進キャンペーンの実施'
+        bestPractice:
+          type: object
+          description: ベストプラクティス（success_caseの場合）
+          properties:
+            source:
+              type: string
+              description: 参考元
+              example: 'リハビリテーション部'
+            method:
+              type: string
+              description: 手法
+              example: '部署内ミーティングの定期開催'
+            result:
+              type: string
+              description: 成果
+              example: '投稿数30%増加、アジェンダ化率85%達成'
+        predictions:
+          type: object
+          description: 予測データ（predictionの場合）
+          properties:
+            metric:
+              type: string
+              description: 指標名
+              example: '離職率'
+            currentValue:
+              type: number
+              description: 現在値
+              example: 8.5
+            predictedValue:
+              type: number
+              description: 予測値
+              example: 12.3
+            timeframe:
+              type: string
+              description: 予測期間
+              example: '3ヶ月後'
+            confidence:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 1
+              description: 信頼度（0-1）
+              example: 0.78
+            condition:
+              type: string
+              description: 予測条件
+              example: '現状のまま推移した場合'
+        strategicData:
+          type: object
+          description: 追加の戦略データ
+          additionalProperties: true
+          example:
+            category: '人材定着'
+            targetDepartment: '看護部'
+            expectedCost: 500000
+
+    StrategicInsightsResponse:
+      type: object
+      required:
+        - success
+        - message
+        - receivedAt
+        - data
+      properties:
+        success:
+          type: boolean
+          description: 処理成功フラグ
+          example: true
+        message:
+          type: string
+          description: メッセージ
+          example: '戦略分析結果を正常に受信しました'
+        receivedAt:
+          type: string
+          format: date-time
+          description: 受信日時
+          example: '2025-10-19T10:30:00Z'
+        data:
+          type: object
+          required:
+            - insightIds
+            - count
+          properties:
+            insightIds:
+              type: array
+              description: 保存されたインサイトIDリスト
+              items:
+                type: string
+              example:
+                - 'insight-cuid-001'
+                - 'insight-cuid-002'
+            count:
+              type: integer
+              description: 保存件数
+              example: 2
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          description: 処理成功フラグ（常にfalse）
+          example: false
+        error:
+          type: string
+          description: エラータイプ
+          example: 'Bad Request'
+        details:
+          type: string
+          description: エラー詳細
+          example: 'Invalid period format'
+
+  examples:
+    DashboardDataSuccess:
+      summary: データ取得成功例
+      value:
+        period: '2025-10'
+        generatedAt: '2025-10-19T10:30:00Z'
+        facilities:
+          - facilityCode: 'obara-hospital'
+            facilityName: '小原病院'
+            stats:
+              totalPosts: 342
+              agendaCreated: 85
+              committeeSubmitted: 28
+              resolved: 45
+              participationRate: 68
+              resolutionRate: 55
+              avgResolutionDays: 42
+            departments:
+              - name: '看護部'
+                posts: 128
+                agendas: 32
+                activeScore: 85
+                trend: 'up'
+              - name: 'リハビリテーション部'
+                posts: 98
+                agendas: 45
+                activeScore: 92
+                trend: 'up'
+            alerts:
+              - type: 'risk'
+                severity: 'high'
+                title: '看護部でアジェンダ化率が低下'
+                description: '128件の投稿に対し、アジェンダ化は32件のみ'
+                department: '看護部'
+                affectedCount: 12
+            projects:
+              inProgress: 12
+              completed: 8
+              delayed: 3
+              avgProgress: 65
+        trends:
+          monthly:
+            - month: '2025-05'
+              totalPosts: 298
+              participationRate: 62
+              resolutionRate: 51
+            - month: '2025-06'
+              totalPosts: 315
+              participationRate: 65
+              resolutionRate: 53
+            - month: '2025-07'
+              totalPosts: 325
+              participationRate: 66
+              resolutionRate: 54
+            - month: '2025-08'
+              totalPosts: 330
+              participationRate: 67
+              resolutionRate: 54
+            - month: '2025-09'
+              totalPosts: 338
+              participationRate: 68
+              resolutionRate: 55
+            - month: '2025-10'
+              totalPosts: 342
+              participationRate: 68
+              resolutionRate: 55
+
+    StrategicInsightsRequest:
+      summary: 戦略分析結果送信例
+      value:
+        period: '2025-10'
+        generatedAt: '2025-10-19T10:30:00Z'
+        insights:
+          - insightType: 'priority_action'
+            severity: 'high'
+            title: '看護部の早急な対応が必要'
+            analysis: '看護部でシフト調整に関する不満が連続して投稿されています。放置すると離職リスクが高まる可能性があります。'
+            rootCause: '夜勤シフトの偏りと休暇取得の難しさが主な原因と推定されます。'
+            recommendedActions:
+              - '看護部長との緊急面談を実施'
+              - 'シフト調整の柔軟化を検討'
+              - '休暇取得促進キャンペーンの実施'
+            strategicData:
+              category: '人材定着'
+              targetDepartment: '看護部'
+              expectedCost: 500000
+          - insightType: 'success_case'
+            title: 'リハビリ部の取り組みが成功'
+            analysis: 'リハビリテーション部での部署内ミーティング定期開催が、投稿数とアジェンダ化率の大幅向上に寄与しています。'
+            rootCause: '定期的なコミュニケーションの場が職員の声を引き出し、迅速な問題解決につながっています。'
+            recommendedActions:
+              - '他部署への横展開を検討'
+              - 'ベストプラクティスとして共有'
+            bestPractice:
+              source: 'リハビリテーション部'
+              method: '部署内ミーティングの定期開催'
+              result: '投稿数30%増加、アジェンダ化率85%達成'
+          - insightType: 'prediction'
+            title: '看護部の離職率上昇リスク'
+            analysis: '現在の投稿パターンと過去データから、看護部の離職率が3ヶ月後に上昇する可能性が高いと予測されます。'
+            rootCause: 'シフト調整、休暇取得、業務負荷に関する不満の増加傾向が見られます。'
+            recommendedActions:
+              - '早期介入により離職を防止'
+              - '看護部の働き方改革を最優先で実施'
+            predictions:
+              metric: '離職率'
+              currentValue: 8.5
+              predictedValue: 12.3
+              timeframe: '3ヶ月後'
+              confidence: 0.78
+              condition: '現状のまま推移した場合'

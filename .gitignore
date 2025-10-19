@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 /src/generated/prisma
+
+# Secrets
+mcp-shared/secrets/
