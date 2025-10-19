@@ -171,22 +171,24 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
         </div>
       </div>
 
-      {/* メニューセクション */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-0">
-        {/* モード別メニュー */}
-        {modeMenuItems.map(item => (
-          <EnhancedSidebarMenuItem
-            key={item.id}
-            item={item}
-            depth={0}
-            currentPath={currentPath}
-            onNavigate={onNavigate}
-          />
-        ))}
-      </div>
+      {/* スクロール可能エリア全体 */}
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        {/* メニューセクション（モード別）*/}
+        <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-0">
+          {/* モード別メニュー */}
+          {modeMenuItems.map(item => (
+            <EnhancedSidebarMenuItem
+              key={item.id}
+              item={item}
+              depth={0}
+              currentPath={currentPath}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </div>
 
-      {/* 共通メニュー（下部） - DB駆動 */}
-      <div className="border-t border-slate-700/50 bg-slate-800/95 backdrop-blur-xl flex-shrink-0 max-h-[50vh] overflow-y-auto">
+        {/* 共通メニュー（下部） - DB駆動 */}
+        <div className="border-t border-slate-700/50 bg-slate-800/95 backdrop-blur-xl flex-shrink-0 overflow-y-auto" style={{ maxHeight: '45vh' }}>
         <div className="p-4 space-y-1">
           {!commonMenuLoading && filteredCommonMenus.map((config) => (
           <button
@@ -214,6 +216,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
             )}
           </button>
         ))}
+        </div>
         </div>
       </div>
 
