@@ -10,6 +10,50 @@ import { AgendaLevelNotificationService } from '../services/AgendaLevelNotificat
 const router = Router();
 
 /**
+ * 全投稿を取得する
+ * GET /api/posts
+ */
+router.get(
+  '/',
+  standardRateLimit,
+  authenticateToken,
+  async (req, res) => {
+    // @ts-ignore - req.userはミドルウェアで追加
+    const userId = req.user?.id;
+
+    try {
+      const posts = await prisma.post.findMany({
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              department: true,
+              permissionLevel: true,
+            },
+          },
+        },
+      });
+
+      return res.json({
+        success: true,
+        posts,
+      });
+    } catch (error) {
+      console.error('[PostAPI] Error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal Server Error',
+        message: 'Failed to fetch posts',
+      });
+    }
+  }
+);
+
+/**
  * 投票を記録する
  * POST /api/posts/:postId/vote
  */

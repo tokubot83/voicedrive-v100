@@ -55,9 +55,26 @@ export const ProposalManagementPage: React.FC = () => {
     }
   }, [activeUser]);
 
-  const loadProposals = () => {
-    // TODO: 実際のAPI実装
-    setPosts(getDemoPosts());
+  const loadProposals = async () => {
+    try {
+      // 実際のAPIからデータを取得
+      const response = await fetch('/api/posts', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken') || 'demo-token'}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setPosts(data.posts || []);
+      } else {
+        console.warn('投稿取得失敗、デモデータを使用');
+        setPosts(getDemoPosts());
+      }
+    } catch (error) {
+      console.error('投稿取得エラー:', error);
+      setPosts(getDemoPosts());
+    }
   };
 
   const loadDocuments = () => {
@@ -78,11 +95,12 @@ export const ProposalManagementPage: React.FC = () => {
 
   // フィルタリングされた投稿
   const filteredPosts = posts.filter(post => {
-    const currentScore = calculateScore(
+    // データベースから取得したデータは agendaScore と agendaLevel を持っている
+    const currentScore = (post as any).agendaScore ?? calculateScore(
       convertVotesToEngagements(post.votes || {}),
       post.proposalType
     );
-    const agendaLevel = getAgendaLevel(currentScore);
+    const agendaLevel = (post as any).agendaLevel ?? getAgendaLevel(currentScore);
 
     // レベルフィルター
     if (selectedLevel !== 'all' && agendaLevel !== selectedLevel) {
@@ -105,11 +123,12 @@ export const ProposalManagementPage: React.FC = () => {
 
   // 投稿データの計算
   const getPostData = (post: Post) => {
-    const currentScore = calculateScore(
+    // データベースから取得したデータは agendaScore と agendaLevel を持っている
+    const currentScore = (post as any).agendaScore ?? calculateScore(
       convertVotesToEngagements(post.votes || {}),
       post.proposalType
     );
-    const agendaLevel = getAgendaLevel(currentScore);
+    const agendaLevel = (post as any).agendaLevel ?? getAgendaLevel(currentScore);
 
     return {
       currentScore,
@@ -151,17 +170,65 @@ export const ProposalManagementPage: React.FC = () => {
   };
 
   // 責任者判断アクション
-  const handleApprovalLevelUp = (post: Post) => {
+  const handleApprovalLevelUp = async (post: Post) => {
     if (!activeUser) return;
 
+    const postData = getPostData(post);
     console.log('🔼 [ProposalManagement] レベルアップ承認:', {
       postId: post.id,
-      currentLevel: getPostData(post).agendaLevel,
+      currentLevel: postData.agendaLevel,
       userId: activeUser.id
     });
 
-    // TODO: 実際のAPI実装
-    alert('レベルアップ承認機能は実装中です。実際の実装では次のレベルに昇格します。');
+    // 昇格先レベルを決定
+    const targetLevel = getNextLevel(postData.agendaLevel);
+    if (!targetLevel) {
+      alert('すでに最高レベルに到達しています。');
+      return;
+    }
+
+    // 昇格理由の入力を求める
+    const reason = prompt(`${targetLevel}への昇格理由を入力してください：\n\n例: 複数部署から高い支持を得ており、施設全体の業務改善につながる重要な提案のため`);
+
+    if (!reason || reason.trim().length === 0) {
+      return; // キャンセルまたは理由未入力
+    }
+
+    try {
+      const response = await fetch(`/api/agenda/${post.id}/escalate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken') || 'demo-token'}`,
+        },
+        body: JSON.stringify({
+          targetLevel,
+          reason: reason.trim(),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(`✅ ${data.message}\n\n昇格先: ${data.data.newLevel}\n新しいスコア: ${data.data.newScore}点\n通知送信: ${data.data.notificationsSent}件`);
+        loadProposals(); // 投稿一覧を再読み込み
+      } else {
+        alert(`❌ 昇格に失敗しました\n\n${data.error}`);
+      }
+    } catch (error) {
+      console.error('昇格エラー:', error);
+      alert('昇格処理中にエラーが発生しました。');
+    }
+  };
+
+  // 次のレベルを取得
+  const getNextLevel = (currentLevel: AgendaLevel): AgendaLevel | null => {
+    const levelOrder: AgendaLevel[] = ['PENDING', 'DEPT_REVIEW', 'DEPT_AGENDA', 'FACILITY_AGENDA', 'CORP_REVIEW', 'CORP_AGENDA'];
+    const currentIndex = levelOrder.indexOf(currentLevel);
+    if (currentIndex >= 0 && currentIndex < levelOrder.length - 1) {
+      return levelOrder[currentIndex + 1];
+    }
+    return null;
   };
 
   const handleReject = (post: Post, feedback: string) => {

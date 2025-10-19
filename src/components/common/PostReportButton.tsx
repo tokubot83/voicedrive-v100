@@ -2,6 +2,7 @@
 // 投稿通報ボタンとモーダル
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { PostReportService } from '../../services/PostReportService';
 import { ReportType } from '../../types/report';
 
@@ -23,6 +24,8 @@ const PostReportButton: React.FC<PostReportButtonProps> = ({
   const [alreadyReported, setAlreadyReported] = useState(false);
 
   const reportService = PostReportService.getInstance();
+
+  console.log('[PostReportButton] マウントされました', { postId, currentUserId, compact });
 
   // 既に通報済みかチェック（非同期）
   React.useEffect(() => {
@@ -79,7 +82,12 @@ const PostReportButton: React.FC<PostReportButtonProps> = ({
     <>
       {/* 通報ボタン */}
       <button
-        onClick={() => setShowModal(true)}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('[PostReportButton] クリックされました', { postId, currentUserId, alreadyReported });
+          setShowModal(true);
+        }}
         disabled={alreadyReported}
         className={`
           ${
@@ -87,9 +95,10 @@ const PostReportButton: React.FC<PostReportButtonProps> = ({
               ? 'text-xs text-gray-500 hover:text-red-400'
               : 'text-sm text-gray-400 hover:text-red-400'
           }
-          flex items-center gap-1 transition-colors
-          ${alreadyReported ? 'opacity-50 cursor-not-allowed' : ''}
+          flex items-center gap-1 transition-colors px-3 py-2 rounded
+          ${alreadyReported ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-50 cursor-pointer'}
         `}
+        style={{ zIndex: 10, pointerEvents: 'auto' }}
         title={alreadyReported ? '通報済み' : '不適切な内容を通報'}
       >
         <span className="text-base">🚩</span>
@@ -97,9 +106,9 @@ const PostReportButton: React.FC<PostReportButtonProps> = ({
       </button>
 
       {/* 通報モーダル */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      {showModal && createPortal(
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4" style={{ zIndex: 999999 }}>
+          <div className="bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative" style={{ zIndex: 1000000 }}>
             {/* ヘッダー */}
             <div className="sticky top-0 bg-gray-800 border-b border-gray-700 p-6 flex items-center justify-between">
               <h3 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -238,7 +247,8 @@ const PostReportButton: React.FC<PostReportButtonProps> = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

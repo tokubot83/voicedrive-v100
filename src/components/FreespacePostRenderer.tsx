@@ -5,6 +5,7 @@ import EventPost from './EventPost';
 import RegularPost from './Post';
 import { Poll, PollVote } from '../types/poll';
 import { Event } from '../types/event';
+import PostReportButton from './common/PostReportButton';
 
 interface FreespacePostRendererProps {
   post: Post;
@@ -112,7 +113,7 @@ const FreespacePostRenderer = ({
 
       {/* アクションボタン */}
       <div className="flex items-center space-x-6 pt-3 border-t border-gray-200">
-        <button 
+        <button
           onClick={() => console.log('Comment button clicked for post:', post.id)}
           className="flex items-center space-x-2 text-gray-500 hover:text-blue-600 transition-colors"
         >
@@ -121,6 +122,15 @@ const FreespacePostRenderer = ({
           </svg>
           <span>{post.comments?.length || 0}</span>
         </button>
+
+        {/* 通報ボタン */}
+        <div className="inline-flex items-center">
+          <PostReportButton
+            postId={post.id}
+            currentUserId={currentUserId}
+            compact={false}
+          />
+        </div>
       </div>
     </div>
   );
