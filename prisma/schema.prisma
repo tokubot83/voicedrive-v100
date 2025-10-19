@@ -2827,3 +2827,56 @@ model RetirementProcess {
   @@index([syncToStaffSystem])
   @@map("retirement_processes")
 }
+
+/// サイドバーメニュー設定テーブル
+/// 議題モード・プロジェクト化モード・共通メニューの表示設定を管理
+model SidebarMenuConfig {
+  id String @id @default(cuid())
+
+  // メニュー識別
+  menuItemId      String  @map("menu_item_id") // 'personal_station', 'evaluation_station'等
+  menuCategory    String  @map("menu_category") // 'agenda', 'project', 'common'
+  menuSubcategory String? @map("menu_subcategory") // 'station', 'info', 'management'等
+
+  // 基本情報
+  icon        String  @map("icon") // Emoji
+  label       String  @map("label")
+  path        String  @map("path")
+  description String? @map("description") // ツールチップ用
+
+  // 表示設定
+  isVisible    Boolean @default(true) @map("is_visible")
+  displayOrder Int     @default(0) @map("display_order")
+
+  // デバイス別表示
+  showOnDesktop Boolean @default(true) @map("show_on_desktop")
+  showOnMobile  Boolean @default(true) @map("show_on_mobile")
+  showOnTablet  Boolean @default(true) @map("show_on_tablet")
+
+  // 権限レベル別表示 (JSON形式: ["1", "2", "14", "X"] 等)
+  visibleForLevels String? @map("visible_for_levels")
+
+  // 新機能マーク
+  showNewBadge  Boolean   @default(false) @map("show_new_badge")
+  newBadgeUntil DateTime? @map("new_badge_until")
+
+  // バッジ設定
+  showBadge Boolean @default(false) @map("show_badge")
+  badgeType String? @map("badge_type") // 'count', 'dot', 'custom'
+
+  // 管理者メモ
+  adminNotes String? @map("admin_notes")
+
+  // その他
+  isCustom Boolean @default(false) @map("is_custom")
+  isSystem Boolean @default(false) @map("is_system") // システム項目（削除不可）
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([menuItemId, menuCategory], name: "unique_menu_config")
+  @@index([menuCategory])
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("sidebar_menu_configs")
+}

@@ -69,6 +69,16 @@ export const SystemOperationsPage: React.FC = () => {
       stats: '本日のログ: 127件',
       color: 'slate',
       badge: null
+    },
+    {
+      id: 'sidebar-menu-management',
+      icon: '🎛️',
+      title: 'サイドバーメニュー管理',
+      description: '議題/プロジェクト/共通メニューの表示設定',
+      path: '/admin/sidebar-menu-management',
+      stats: '管理項目: 11件',
+      color: 'pink',
+      badge: 'NEW'
     }
   ];
 
@@ -110,6 +120,12 @@ export const SystemOperationsPage: React.FC = () => {
         border: 'border-slate-500/30',
         text: 'text-slate-400',
         hover: 'hover:bg-slate-600/20 hover:border-slate-500/50'
+      },
+      pink: {
+        bg: 'bg-pink-600/10',
+        border: 'border-pink-500/30',
+        text: 'text-pink-400',
+        hover: 'hover:bg-pink-600/20 hover:border-pink-500/50'
       }
     };
     return colorMap[color] || colorMap.slate;

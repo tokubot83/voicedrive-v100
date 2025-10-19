@@ -1,23 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { usePermissions } from '../../hooks/usePermissions';
 import { useDemoMode } from '../demo/DemoModeController';
 import { useUserPermission } from '../../hooks/useUserPermission';
 import { MenuItem } from '../../types/sidebar';
-import { PermissionLevel, SpecialPermissionLevel } from '../../permissions/types/PermissionTypes';
 import { EnhancedSidebarMenuItem } from './EnhancedSidebarMenuItem';
 import Avatar from '../common/Avatar';
 import { generatePersonalAvatar } from '../../utils/avatarGenerator';
 import { systemModeManager, SystemMode } from '../../config/systemMode';
 import { getAgendaMenuItems } from '../../config/agendaMenuConfig';
 import { getProjectMenuItems } from '../../config/projectMenuConfig';
-import { getCommonMenuItems } from '../../config/commonMenuConfig';
-import {
-  ChevronDown,
-  ChevronRight,
-  Bell,
-  Settings as SettingsIcon
-} from 'lucide-react';
+import { useSidebarMenuConfigs, useDeviceType, filterConfigsByDevice } from '../../hooks/useSidebarMenuConfigs';
+import { ChevronRight } from 'lucide-react';
 
 interface EnhancedSidebarProps {
   currentPath: string;
@@ -25,12 +17,9 @@ interface EnhancedSidebarProps {
 }
 
 export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, onNavigate }) => {
-  const { userLevel: oldPermissionLevel } = usePermissions();
   const { isDemoMode, currentUser } = useDemoMode();
   const [currentMode, setCurrentMode] = useState<SystemMode>(systemModeManager.getCurrentMode());
   const [modeMenuItems, setModeMenuItems] = useState<MenuItem[]>([]);
-  const [commonMenuItems, setCommonMenuItems] = useState<MenuItem[]>([]);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   // UserPermissionフックを安全に使用
   let permission = {
@@ -49,20 +38,22 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
   // ユーザーの権限レベルを決定
   const userPermissionLevel = permission.calculatedLevel || currentUser?.permissionLevel || 1;
 
-  // モバイル検出
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+  // デバイスタイプ取得
+  const deviceType = useDeviceType();
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // 共通メニュー設定をDBから取得
+  const { configs: commonMenuConfigs, loading: commonMenuLoading } = useSidebarMenuConfigs({
+    category: 'common',
+    permissionLevel: userPermissionLevel,
+  });
+
+  // デバイスタイプでフィルタリング
+  const filteredCommonMenus = filterConfigsByDevice(commonMenuConfigs, deviceType);
 
   // モード変更を監視してメニュー項目を更新
   useEffect(() => {
     const updateMenuItems = (mode: SystemMode) => {
-      console.log('[EnhancedSidebar] メニュー更新: mode=', mode, 'isMobile=', isMobile);
+      console.log('[EnhancedSidebar] メニュー更新: mode=', mode);
 
       // モード別メニュー項目を取得
       const modeItems = mode === SystemMode.AGENDA
@@ -70,10 +61,6 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
         : getProjectMenuItems(userPermissionLevel);
 
       setModeMenuItems(modeItems);
-
-      // 共通メニュー項目を取得（モバイル判定を渡す）
-      const commonItems = getCommonMenuItems(userPermissionLevel, isMobile);
-      setCommonMenuItems(commonItems);
     };
 
     // 初回実行
@@ -94,7 +81,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
     return () => {
       systemModeManager.removeModeChangeListener(handleModeChange);
     };
-  }, [userPermissionLevel, isMobile]);
+  }, [userPermissionLevel, currentMode]);
 
   // モード表示名
   const getModeLabel = () => {
@@ -134,6 +121,9 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
 
     return levelNames[userPermissionLevel as keyof typeof levelNames] || `レベル${userPermissionLevel}`;
   };
+
+  // モバイル判定
+  const isMobile = deviceType === 'mobile';
 
   return (
     <div className={`
@@ -195,23 +185,32 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
         ))}
       </div>
 
-      {/* 共通メニュー（下部） */}
+      {/* 共通メニュー（下部） - DB駆動 */}
       <div className="p-4 space-y-1 border-t border-slate-700/50 bg-slate-800/95 backdrop-blur-xl flex-shrink-0">
-        {commonMenuItems.map(item => (
+        {!commonMenuLoading && filteredCommonMenus.map((config) => (
           <button
-            key={item.id}
-            onClick={() => onNavigate(item.path || '/')}
+            key={config.id}
+            onClick={() => onNavigate(config.path)}
             className={`
               w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm
               transition-all duration-150
-              ${currentPath === item.path
+              ${currentPath === config.path
                 ? 'bg-blue-600 text-white shadow-lg'
                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
               }
             `}
+            title={config.description || config.label}
           >
-            <span className="text-base">{item.icon}</span>
-            <span>{item.title || item.label}</span>
+            <span className="text-base">{config.icon}</span>
+            <span className="flex-1 text-left">{config.label}</span>
+            {config.showNewBadge && (
+              <span className="text-xs bg-red-500 text-white px-1.5 py-0.5 rounded">NEW</span>
+            )}
+            {config.showBadge && config.badgeType === 'count' && (
+              <span className="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                3
+              </span>
+            )}
           </button>
         ))}
       </div>

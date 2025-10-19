@@ -121,6 +121,7 @@ import { AgendaModeSettingsPage } from '../pages/admin/AgendaModeSettingsPage';
 import { ProjectModeSettingsPage } from '../pages/admin/ProjectModeSettingsPage';
 import { VotingHistoryPage } from '../pages/admin/VotingHistoryPage';
 import { SystemOperationsPage } from '../pages/admin/SystemOperationsPage';
+import { SidebarMenuManagementPage } from '../pages/admin/SidebarMenuManagementPage';
 
 // Appeal pages
 import AppealV3Page from '../pages/AppealV3Page';
@@ -570,6 +571,11 @@ const AppRouter: React.FC = () => {
         <Route path="project" element={<ProjectModeSettingsPage />} />
         <Route path="history" element={<VotingHistoryPage />} />
       </Route>
+      <Route path="admin/sidebar-menu-management" element={
+        <ProtectedRoute requiredLevel={99}>
+          <SidebarMenuManagementPage />
+        </ProtectedRoute>
+      } />
 
       {/* その他管理ページ */}
       <Route path="admin/users" element={

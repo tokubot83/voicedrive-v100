@@ -10,6 +10,7 @@ import syncRoutes from './syncRoutes';
 import myInterviewRoutes from './myInterviewRoutes';
 import consentRoutes from '../api/routes/consent.routes';
 import analyticsRoutes from '../api/routes/analytics.routes';
+import sidebarMenuRoutes from '../api/routes/sidebar-menu.routes';
 import { handleSummaryReceived } from '../api/medicalSystemReceiver';
 import {
   verifyWebhookSignature,
@@ -45,6 +46,9 @@ router.use('/consent', consentRoutes);
 console.log('📊 Registering Analytics API routes at /v1/analytics');
 console.log('   Analytics routes type:', typeof analyticsRoutes);
 router.use('/v1/analytics', analyticsRoutes);
+
+// サイドバーメニュー管理API
+router.use('/sidebar-menu', sidebarMenuRoutes);
 
 // 面談サマリ受信API
 router.post('/summaries/receive', standardRateLimit, handleSummaryReceived);
