@@ -50,6 +50,14 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
   // デバイスタイプでフィルタリング
   const filteredCommonMenus = filterConfigsByDevice(commonMenuConfigs, deviceType);
 
+  // デバッグ: メニュー数を確認
+  console.log('[EnhancedSidebar] 共通メニュー数:', {
+    permissionLevel: userPermissionLevel,
+    total: commonMenuConfigs.length,
+    filtered: filteredCommonMenus.length,
+    items: filteredCommonMenus.map(c => c.label)
+  });
+
   // モード変更を監視してメニュー項目を更新
   useEffect(() => {
     const updateMenuItems = (mode: SystemMode) => {
@@ -188,7 +196,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
         </div>
 
         {/* 共通メニュー（下部） - DB駆動 */}
-        <div className="border-t border-slate-700/50 bg-slate-800/95 backdrop-blur-xl flex-shrink-0 overflow-y-auto" style={{ maxHeight: '45vh' }}>
+        <div className="border-t border-slate-700/50 bg-slate-800/95 backdrop-blur-xl overflow-y-auto" style={{ flex: '0 0 auto', maxHeight: '70vh' }}>
         <div className="p-4 space-y-1">
           {!commonMenuLoading && filteredCommonMenus.map((config) => (
           <button
