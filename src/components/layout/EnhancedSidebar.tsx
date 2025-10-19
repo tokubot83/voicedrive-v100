@@ -186,8 +186,9 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       </div>
 
       {/* 共通メニュー（下部） - DB駆動 */}
-      <div className="p-4 space-y-1 border-t border-slate-700/50 bg-slate-800/95 backdrop-blur-xl flex-shrink-0">
-        {!commonMenuLoading && filteredCommonMenus.map((config) => (
+      <div className="border-t border-slate-700/50 bg-slate-800/95 backdrop-blur-xl flex-shrink-0 max-h-[40vh] overflow-y-auto">
+        <div className="p-4 space-y-1">
+          {!commonMenuLoading && filteredCommonMenus.map((config) => (
           <button
             key={config.id}
             onClick={() => onNavigate(config.path)}
@@ -213,6 +214,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
             )}
           </button>
         ))}
+        </div>
       </div>
 
     </div>
