@@ -191,6 +191,28 @@ function getDefaultCommonMenus(): SidebarMenuConfig[] {
       createdAt: new Date(),
       updatedAt: new Date(),
     },
+    {
+      id: 'default-system-operations',
+      menuItemId: 'system_operations',
+      menuCategory: 'common',
+      menuSubcategory: 'management',
+      icon: '🔧',
+      label: 'システム運用',
+      path: '/admin/system-operations',
+      description: 'システム管理・設定',
+      isVisible: true,
+      displayOrder: 21,
+      showOnDesktop: true,
+      showOnMobile: true,
+      showOnTablet: true,
+      visibleForLevels: JSON.stringify(['X', '99']),
+      showNewBadge: false,
+      showBadge: false,
+      isCustom: false,
+      isSystem: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
   ];
 }
 
