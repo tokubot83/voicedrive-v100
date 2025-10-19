@@ -6,6 +6,9 @@ interface User {
   id: string;
   email: string;
   role: string;
+  permissionLevel?: number;
+  facilityId?: string;
+  department?: string;
 }
 
 // リクエストの拡張型

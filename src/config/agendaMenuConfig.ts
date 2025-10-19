@@ -33,6 +33,17 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'agenda'
   },
 
+  // 期限到達提案判断（レベル7+：副師長以上）
+  expired_escalation_proposals: {
+    id: 'expired_escalation_proposals',
+    title: '期限到達提案判断',
+    label: '期限到達提案判断',
+    icon: '⏰',
+    path: '/expired-escalation-proposals',
+    requiredLevel: 7,
+    category: 'agenda'
+  },
+
   // 委員会管理（レベル7+：副師長以上）
   committee_management: {
     id: 'committee_management',
@@ -259,38 +270,38 @@ export const AGENDA_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
 
   // レベル7：副師長・副科長・副課長
   7: [
-    'post_tracking', 'proposal_management', 'committee_management'
+    'post_tracking', 'proposal_management', 'expired_escalation_proposals', 'committee_management'
   ],
 
   // レベル8：師長・科長・課長・室長
   8: [
-    'post_tracking', 'proposal_management', 'committee_management'
+    'post_tracking', 'proposal_management', 'expired_escalation_proposals', 'committee_management'
   ],
 
   // レベル9：副部長
   9: [
-    'post_tracking', 'proposal_management', 'committee_management'
+    'post_tracking', 'proposal_management', 'expired_escalation_proposals', 'committee_management'
   ],
 
   // レベル10：部長・医局長
   10: [
-    'post_tracking', 'proposal_management', 'committee_management', 'management_committee', 'facility_governance'
+    'post_tracking', 'proposal_management', 'expired_escalation_proposals', 'committee_management', 'management_committee', 'facility_governance'
   ],
 
   // レベル11：事務長
   11: [
-    'post_tracking', 'proposal_management', 'committee_management', 'management_committee',
+    'post_tracking', 'proposal_management', 'expired_escalation_proposals', 'committee_management', 'management_committee',
     'facility_governance', 'facility_management'
   ],
 
   // レベル12：副院長
   12: [
-    'post_tracking', 'management_committee', 'facility_governance'
+    'post_tracking', 'expired_escalation_proposals', 'management_committee', 'facility_governance'
   ],
 
   // レベル13：院長・施設長
   13: [
-    'post_tracking', 'management_committee', 'facility_governance', 'decision_meeting'
+    'post_tracking', 'expired_escalation_proposals', 'management_committee', 'facility_governance', 'decision_meeting'
   ],
 
   // レベル14：人事部門員

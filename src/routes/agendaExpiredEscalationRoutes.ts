@@ -5,8 +5,13 @@
 
 import express, { Request, Response } from 'express';
 import { agendaExpiredEscalationService, ExpiredEscalationRequest } from '../services/AgendaExpiredEscalationService';
-import { authenticateToken } from '../middleware/authMiddleware';
+import { authenticateToken } from '../api/middleware/auth';
 import { standardRateLimit } from '../middleware/rateLimitMiddleware';
+import {
+  recordExpiredEscalationDecision,
+  getExpiredEscalationHistory,
+  getExpiredEscalationProposals
+} from '../api/expiredEscalationDecision';
 
 const router = express.Router();
 
@@ -20,8 +25,7 @@ router.get(
   authenticateToken,
   async (req: Request, res: Response) => {
     try {
-      // @ts-ignore - req.userはミドルウェアで追加
-      const userId = req.user?.id;
+      const userId = req.user?.staffId;
 
       if (!userId) {
         return res.status(401).json({
@@ -145,6 +149,188 @@ router.post(
       return res.status(500).json({
         success: false,
         error: '判断処理に失敗しました',
+        details: error.message,
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/agenda/expired-escalation-decisions
+ * 期限到達判断を記録する
+ */
+router.post(
+  '/expired-escalation-decisions',
+  standardRateLimit,
+  authenticateToken,
+  async (req: Request, res: Response) => {
+    try {
+      const {
+        postId,
+        decision,
+        decisionReason,
+        currentScore,
+        targetScore,
+        agendaLevel,
+        proposalType,
+        department,
+        facilityId
+      } = req.body;
+
+      // @ts-ignore - req.userはミドルウェアで追加
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          error: '認証が必要です',
+        });
+      }
+
+      // バリデーション
+      if (!postId || !decision || !decisionReason || !currentScore || !targetScore || !agendaLevel) {
+        return res.status(400).json({
+          success: false,
+          error: '必須パラメータが不足しています',
+        });
+      }
+
+      const result = await recordExpiredEscalationDecision({
+        postId,
+        decision,
+        deciderId: userId,
+        decisionReason,
+        currentScore,
+        targetScore,
+        agendaLevel,
+        proposalType,
+        department,
+        facilityId
+      });
+
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          error: result.error,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        decisionId: result.decisionId,
+      });
+    } catch (error: any) {
+      console.error('[API] 期限到達判断記録エラー:', error);
+      return res.status(500).json({
+        success: false,
+        error: '判断の記録に失敗しました',
+        details: error.message,
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/agenda/expired-escalation-decisions/history
+ * 期限到達判断履歴を取得する
+ */
+router.get(
+  '/expired-escalation-decisions/history',
+  standardRateLimit,
+  authenticateToken,
+  async (req: Request, res: Response) => {
+    try {
+      // @ts-ignore - req.userはミドルウェアで追加
+      const userId = req.user?.id;
+      // @ts-ignore - req.userはミドルウェアで追加
+      const permissionLevel = req.user?.permissionLevel || 1;
+      // @ts-ignore - req.userはミドルウェアで追加
+      const facilityId = req.user?.facilityId;
+      // @ts-ignore - req.userはミドルウェアで追加
+      const departmentId = req.user?.department;
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          error: '認証が必要です',
+        });
+      }
+
+      const { startDate, endDate, limit, offset } = req.query;
+
+      const history = await getExpiredEscalationHistory({
+        userId,
+        permissionLevel,
+        facilityId,
+        departmentId,
+        startDate: startDate as string,
+        endDate: endDate as string,
+        limit: limit ? parseInt(limit as string) : undefined,
+        offset: offset ? parseInt(offset as string) : undefined,
+      });
+
+      return res.status(200).json({
+        success: true,
+        ...history,
+      });
+    } catch (error: any) {
+      console.error('[API] 判断履歴取得エラー:', error);
+      return res.status(500).json({
+        success: false,
+        error: '判断履歴の取得に失敗しました',
+        details: error.message,
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/agenda/expired-escalation-proposals
+ * 期限到達提案一覧を取得する（判断待ち）
+ */
+router.get(
+  '/expired-escalation-proposals',
+  standardRateLimit,
+  authenticateToken,
+  async (req: Request, res: Response) => {
+    try {
+      // @ts-ignore - req.userはミドルウェアで追加
+      const userId = req.user?.id;
+      // @ts-ignore - req.userはミドルウェアで追加
+      const permissionLevel = req.user?.permissionLevel || 1;
+      // @ts-ignore - req.userはミドルウェアで追加
+      const facilityId = req.user?.facilityId;
+      // @ts-ignore - req.userはミドルウェアで追加
+      const department = req.user?.department;
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          error: '認証が必要です',
+        });
+      }
+
+      const { limit, offset } = req.query;
+
+      const result = await getExpiredEscalationProposals({
+        userId,
+        permissionLevel,
+        facilityId,
+        department,
+        limit: limit ? parseInt(limit as string) : undefined,
+        offset: offset ? parseInt(offset as string) : undefined,
+      });
+
+      return res.status(200).json({
+        success: true,
+        proposals: result.proposals,
+        total: result.total,
+      });
+    } catch (error: any) {
+      console.error('[API] 期限到達提案取得エラー:', error);
+      return res.status(500).json({
+        success: false,
+        error: '期限到達提案の取得に失敗しました',
         details: error.message,
       });
     }

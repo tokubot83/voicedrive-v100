@@ -13,7 +13,8 @@ export type NotificationType =
   | 'selection_deadline_warning'    // 選択期限警告通知
   | 'processing_timeout'            // AI処理タイムアウト通知
   | 'system_notification'           // システムメッセージ通知
-  | 'connection_status';
+  | 'connection_status'
+  | 'expired_escalation_detected';  // 期限到達提案通知
 
 export interface MedicalNotificationConfig {
   type: NotificationType;
@@ -415,7 +416,8 @@ class NotificationService {
       'selection_deadline_warning': '⚠️ 選択期限警告',
       'processing_timeout': '⏰ AI処理タイムアウト',
       'system_notification': '📢 システム通知',
-      'connection_status': '🔗 接続状況'
+      'connection_status': '🔗 接続状況',
+      'expired_escalation_detected': '⏰ 期限到達提案の判断が必要です'
     };
 
     return titleMap[type] || '📨 医療システム通知';
@@ -461,7 +463,8 @@ class NotificationService {
       'selection_deadline_warning': '⚠️',
       'processing_timeout': '⏰',
       'system_notification': '📢',
-      'connection_status': '🔗'
+      'connection_status': '🔗',
+      'expired_escalation_detected': '⏰'
     };
 
     return iconMap[type] || '📨';
@@ -528,6 +531,10 @@ VoiceDrive 医療システム統合
         if (config.data?.bookingId) {
           window.location.href = `/interview/booking/${config.data.bookingId}`;
         }
+        break;
+      case 'expired_escalation_detected':
+        // 期限到達提案一覧ページに遷移
+        window.location.href = '/expired-escalation-proposals';
         break;
       default:
         // 面談ステーション画面に遷移
@@ -848,6 +855,31 @@ VoiceDrive 医療システム統合
         remainingHours: 12,
         proposalCount: 3,
         action: 'view_proposals'
+      }
+    };
+
+    this.send(config);
+  }
+
+  // 期限到達提案通知を送信
+  public sendExpiredEscalationNotification(data: {
+    userId: string;
+    proposalCount: number;
+    daysOverdue: number;
+  }): void {
+    const config: MedicalNotificationConfig = {
+      type: 'expired_escalation_detected',
+      title: '⏰ 期限到達提案の判断が必要です',
+      message: `${data.proposalCount}件の提案が期限に到達しました。判断が必要です。`,
+      urgency: 'high',
+      channels: ['browser', 'sound', 'storage'],
+      timestamp: new Date().toISOString(),
+      actionRequired: true,
+      data: {
+        userId: data.userId,
+        proposalCount: data.proposalCount,
+        daysOverdue: data.daysOverdue,
+        action: 'review_expired_proposals'
       }
     };
 

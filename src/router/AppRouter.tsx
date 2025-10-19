@@ -98,6 +98,7 @@ import CultureDevelopmentPage from '../pages/CultureDevelopmentPage';
 
 // Agenda Mode - Expired Escalation History
 import ExpiredEscalationHistoryPage from '../components/agenda-mode/ExpiredEscalationHistoryPage';
+import { ExpiredEscalationProposalsPage } from '../pages/ExpiredEscalationProposalsPage';
 
 // Board Preparation
 import { BoardPreparationPage } from '../pages/BoardPreparationPage';
@@ -245,6 +246,13 @@ const AppRouter: React.FC = () => {
         <Route path="expired-escalation-history" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_1}>
             <ExpiredEscalationHistoryPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Expired Escalation Proposals (Level 7+) */}
+        <Route path="expired-escalation-proposals" element={
+          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
+            <ExpiredEscalationProposalsPage />
           </ProtectedRoute>
         } />
 

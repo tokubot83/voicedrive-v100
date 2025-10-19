@@ -95,6 +95,7 @@ model User {
   responsibleReplications       SuccessCaseReplication[]        @relation("ReplicationResponsible")
   replicationsAtFacility        SuccessCaseReplication[]        @relation("ReplicationTargetFacility")
   votingGroupsAsPrimaryApprover VotingGroup[]                   @relation("VotingGroupPrimaryApprover")
+  expiredDecisions              ExpiredEscalationDecision[]     @relation("ExpiredDecisions")
 }
 
 model Notification {
@@ -527,9 +528,10 @@ model Post {
   diversityAnalysis    ProjectDiversityAnalysis?
   milestones           ProjectMilestone[]          @relation("ProjectMilestones")
   recommendationLogs   ProjectRecommendationLog[]
-  teamMembers          ProjectTeamMember[]         @relation("ProjectTeamMembers")
-  projectLevelHistory  ProjectLevelHistory[]       @relation("PostProjectLevelHistory")
-  convertedFromProject Project?                    @relation("ConvertedFromProject")
+  teamMembers                 ProjectTeamMember[]            @relation("ProjectTeamMembers")
+  projectLevelHistory         ProjectLevelHistory[]          @relation("PostProjectLevelHistory")
+  convertedFromProject        Project?                       @relation("ConvertedFromProject")
+  expiredEscalationDecisions  ExpiredEscalationDecision[]    @relation("ExpiredEscalationDecisions")
 
   @@index([authorId])
   @@index([type])
@@ -2210,4 +2212,34 @@ model ExecutiveStrategicInsight {
   @@index([isAcknowledged])
   @@index([analysisDate, insightType])
   @@map("executive_strategic_insights")
+}
+
+/// 期限到達判断履歴テーブル
+/// Phase 6: 期限到達提案の判断記録を管理
+model ExpiredEscalationDecision {
+  id               String   @id @default(cuid())
+  postId           String   @map("post_id")
+  deciderId        String   @map("decider_id")
+  decision         String   @map("decision") // 'approve_at_current_level' | 'downgrade' | 'reject'
+  decisionReason   String   @map("decision_reason")
+  currentScore     Int      @map("current_score")
+  targetScore      Int      @map("target_score")
+  achievementRate  Float    @map("achievement_rate")
+  daysOverdue      Int      @map("days_overdue")
+  agendaLevel      String   @map("agenda_level")
+  proposalType     String?  @map("proposal_type")
+  department       String?  @map("department")
+  facilityId       String?  @map("facility_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  post    Post @relation("ExpiredEscalationDecisions", fields: [postId], references: [id], onDelete: Cascade)
+  decider User @relation("ExpiredDecisions", fields: [deciderId], references: [id])
+
+  @@index([postId])
+  @@index([deciderId])
+  @@index([facilityId])
+  @@index([createdAt])
+  @@index([decision])
+  @@map("expired_escalation_decisions")
 }
