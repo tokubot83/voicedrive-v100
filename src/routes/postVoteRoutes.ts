@@ -6,6 +6,7 @@ import { authenticateToken } from '../middleware/authMiddleware';
 import { standardRateLimit } from '../middleware/rateLimitMiddleware';
 import { prisma } from '../lib/prisma.js';
 import { AgendaLevelNotificationService } from '../services/AgendaLevelNotificationService';
+import { ProjectLevelNotificationService } from '../services/ProjectLevelNotificationService';
 
 const router = Router();
 
@@ -134,18 +135,34 @@ router.post(
 
         // スコア計算
         const newScore = calculateAgendaScore(votes);
-        const previousScore = post.agendaScore || 0;
+
+        // 🆕 投稿タイプに応じて前回スコアを取得
+        const previousScore = post.type === 'project'
+          ? (post.projectScore || 0)
+          : (post.agendaScore || 0);
 
         // スコアが変わった場合のみ更新
         if (newScore !== previousScore) {
-          await tx.post.update({
-            where: { id: postId },
-            data: {
-              agendaScore: newScore,
-            },
-          });
-
-          console.log(`[VoteAPI] スコア更新: ${postId} → ${previousScore}点 から ${newScore}点`);
+          // 🆕 投稿タイプに応じてスコアフィールドを分岐
+          if (post.type === 'project') {
+            // プロジェクトモード: projectScore を更新
+            await tx.post.update({
+              where: { id: postId },
+              data: {
+                projectScore: newScore,
+              },
+            });
+            console.log(`[VoteAPI] プロジェクトスコア更新: ${postId} → ${previousScore}点 から ${newScore}点`);
+          } else {
+            // 議題モード: agendaScore を更新（デフォルト）
+            await tx.post.update({
+              where: { id: postId },
+              data: {
+                agendaScore: newScore,
+              },
+            });
+            console.log(`[VoteAPI] 議題スコア更新: ${postId} → ${previousScore}点 から ${newScore}点`);
+          }
         }
 
         return {
@@ -156,8 +173,12 @@ router.post(
         };
       });
 
-      // トランザクション外でスコア閾値チェック
-      await checkScoreThresholds(result.post, result.previousScore, result.newScore);
+      // 🆕 トランザクション外でスコア閾値チェック（モード別）
+      if (result.post.type === 'project') {
+        await checkProjectScoreThresholds(result.post, result.previousScore, result.newScore);
+      } else {
+        await checkScoreThresholds(result.post, result.previousScore, result.newScore);
+      }
 
       return res.json({
         success: true,
@@ -299,7 +320,7 @@ function calculateAgendaScore(votes: any[]): number {
 }
 
 /**
- * スコア閾値チェックと通知送信
+ * 議題モード: スコア閾値チェックと通知送信
  *
  * 閾値:
  * - 30点: 部署検討開始（主任・師長に通知）
@@ -326,7 +347,7 @@ async function checkScoreThresholds(
   for (const threshold of thresholds) {
     // 閾値を跨いだ場合のみ通知
     if (previousScore < threshold.score && newScore >= threshold.score) {
-      console.log(`[VoteAPI] 閾値到達: ${threshold.score}点 → 通知送信`);
+      console.log(`[VoteAPI] 議題モード閾値到達: ${threshold.score}点 → 通知送信`);
 
       // 通知送信
       const method = notificationService[threshold.method as keyof AgendaLevelNotificationService] as any;
@@ -345,6 +366,50 @@ async function checkScoreThresholds(
         });
         console.log(`[VoteAPI] agendaStatus更新: ${post.id} → ${threshold.status}`);
       }
+    }
+  }
+}
+
+/**
+ * 🆕 プロジェクトモード: スコア閾値チェックと通知送信
+ *
+ * 閾値:
+ * - 100点: チームプロジェクト化
+ * - 200点: 部署プロジェクト化
+ * - 400点: 施設プロジェクト化
+ * - 800点: 法人プロジェクト化
+ */
+async function checkProjectScoreThresholds(
+  post: any,
+  previousScore: number,
+  newScore: number
+): Promise<void> {
+  const thresholds = [
+    { score: 100, level: 'TEAM', name: 'チームプロジェクト' },
+    { score: 200, level: 'DEPARTMENT', name: '部署プロジェクト' },
+    { score: 400, level: 'FACILITY', name: '施設プロジェクト' },
+    { score: 800, level: 'ORGANIZATION', name: '法人プロジェクト' },
+  ];
+
+  for (const threshold of thresholds) {
+    // 閾値を跨いだ場合のみ通知
+    if (previousScore < threshold.score && newScore >= threshold.score) {
+      console.log(`[VoteAPI] プロジェクトモード閾値到達: ${threshold.score}点 → ${threshold.name}に昇格`);
+
+      // projectLevel と lastProjectLevelUpgrade を更新
+      await prisma.post.update({
+        where: { id: post.id },
+        data: {
+          projectLevel: threshold.level,
+          lastProjectLevelUpgrade: new Date(),
+        },
+      });
+      console.log(`[VoteAPI] projectLevel更新: ${post.id} → ${threshold.level} (${threshold.name})`);
+
+      // 🎉 レベルアップ通知を送信
+      const notificationService = ProjectLevelNotificationService.getInstance();
+      const notificationCount = await notificationService.notifyLevelUp(post, threshold.level, newScore);
+      console.log(`[VoteAPI] プロジェクト通知送信完了: ${notificationCount}件`);
     }
   }
 }
