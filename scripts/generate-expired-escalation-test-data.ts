@@ -97,9 +97,10 @@ async function generateDecisions(managers: any[], proposals: any[]) {
       decisionTypes[2];
 
     const currentScore = proposal.agendaScore || Math.floor(Math.random() * 100);
+    const agendaLevel = (proposal.agendaLevel || '').toUpperCase();
     const targetScore =
-      proposal.agendaLevel?.includes('CORP') ? 600 :
-      proposal.agendaLevel?.includes('FACILITY') ? 300 :
+      agendaLevel.includes('CORP') ? 600 :
+      agendaLevel.includes('FACILITY') ? 300 :
       100;
 
     const achievementRate = (currentScore / targetScore) * 100;

@@ -21,6 +21,7 @@ import {
 import type { AcknowledgementNotification } from '../types/whistleblowing';
 import { ComplianceAcknowledgementService } from '../api/db/complianceAcknowledgementService';
 import * as postReportsAPI from '../api/postReports';
+import * as expiredEscalationAPI from '../api/expiredEscalationDecision';
 
 const router = Router();
 
@@ -321,6 +322,171 @@ router.get('/admin/reports/statistics',
   authenticateToken,
   // TODO: 管理者権限チェック (Level 14以上)
   postReportsAPI.getReportStatistics
+);
+
+// ====================
+// 期限到達判断API（Phase 6）
+// ====================
+
+// 期限到達提案一覧取得（判断待ち）
+router.get('/agenda/expired-escalation-proposals',
+  authenticateToken,
+  async (req, res) => {
+    try {
+      // @ts-ignore - req.userはミドルウェアで追加
+      const userId = req.user?.id;
+      // @ts-ignore
+      const permissionLevel = req.user?.permissionLevel || 1;
+      // @ts-ignore
+      const facilityId = req.user?.facilityId;
+      // @ts-ignore
+      const department = req.user?.department;
+
+      const { limit, offset } = req.query;
+
+      const result = await expiredEscalationAPI.getExpiredEscalationProposals({
+        userId,
+        permissionLevel,
+        facilityId,
+        department,
+        limit: limit ? parseInt(limit as string) : 20,
+        offset: offset ? parseInt(offset as string) : 0
+      });
+
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('[API] 期限到達提案取得エラー:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : '期限到達提案の取得に失敗しました'
+      });
+    }
+  }
+);
+
+// 期限到達判断を記録
+router.post('/agenda/expired-escalation-decisions',
+  authenticateToken,
+  async (req, res) => {
+    try {
+      // @ts-ignore
+      const deciderId = req.user?.id;
+
+      if (!deciderId) {
+        return res.status(401).json({
+          success: false,
+          error: '認証情報が不正です'
+        });
+      }
+
+      const {
+        postId,
+        decision,
+        decisionReason,
+        currentScore,
+        targetScore,
+        agendaLevel,
+        proposalType,
+        department
+      } = req.body;
+
+      // バリデーション
+      if (!postId || !decision || !decisionReason) {
+        return res.status(400).json({
+          success: false,
+          error: '必須パラメータが不足しています'
+        });
+      }
+
+      const validDecisions = ['approve_at_current_level', 'downgrade', 'reject'];
+      if (!validDecisions.includes(decision)) {
+        return res.status(400).json({
+          success: false,
+          error: '不正な判断タイプです'
+        });
+      }
+
+      // @ts-ignore
+      const facilityId = req.user?.facilityId;
+
+      const result = await expiredEscalationAPI.recordExpiredEscalationDecision({
+        postId,
+        decision,
+        deciderId,
+        decisionReason,
+        currentScore: currentScore || 0,
+        targetScore: targetScore || 100,
+        agendaLevel: agendaLevel || 'unknown',
+        proposalType,
+        department,
+        facilityId
+      });
+
+      if (!result.success) {
+        return res.status(500).json({
+          success: false,
+          error: result.error || '判断の記録に失敗しました'
+        });
+      }
+
+      res.json({
+        success: true,
+        data: {
+          decisionId: result.decisionId
+        }
+      });
+    } catch (error) {
+      console.error('[API] 判断記録エラー:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : '判断の記録に失敗しました'
+      });
+    }
+  }
+);
+
+// 期限到達判断履歴を取得
+router.get('/agenda/expired-escalation-history',
+  authenticateToken,
+  async (req, res) => {
+    try {
+      // @ts-ignore
+      const userId = req.user?.id;
+      // @ts-ignore
+      const permissionLevel = req.user?.permissionLevel || 1;
+      // @ts-ignore
+      const facilityId = req.user?.facilityId;
+      // @ts-ignore
+      const departmentId = req.user?.department;
+
+      const { startDate, endDate, limit, offset } = req.query;
+
+      const result = await expiredEscalationAPI.getExpiredEscalationHistory({
+        userId,
+        permissionLevel,
+        facilityId,
+        departmentId,
+        startDate: startDate as string,
+        endDate: endDate as string,
+        limit: limit ? parseInt(limit as string) : 50,
+        offset: offset ? parseInt(offset as string) : 0
+      });
+
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('[API] 判断履歴取得エラー:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : '判断履歴の取得に失敗しました'
+      });
+    }
+  }
 );
 
 // ====================

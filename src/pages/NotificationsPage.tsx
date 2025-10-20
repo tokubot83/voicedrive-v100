@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { NotificationCategory } from '../types/notification';
 import AppBadgeService from '../services/AppBadgeService';
 import { InterviewResultModal } from '../components/interview-results/InterviewResultModal';
@@ -7,12 +8,14 @@ import { InterviewResultModal } from '../components/interview-results/InterviewR
 interface Notification {
   id: string;
   category: NotificationCategory;
+  subcategory?: string;
   title: string;
   content: string;
   timestamp: Date;
   isRead: boolean;
   icon: string;
   priority?: 'critical' | 'high' | 'medium' | 'low';
+  actionUrl?: string;
 }
 
 // カテゴリー設定
@@ -29,6 +32,7 @@ const categoryConfigs = [
 ];
 
 const NotificationsPage = () => {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [summaryModalOpen, setSummaryModalOpen] = useState(false);
   const [selectedInterviewId, setSelectedInterviewId] = useState<string | null>(null);
@@ -182,6 +186,27 @@ const NotificationsPage = () => {
     setSummaryModalOpen(true);
   };
 
+  // 通知クリック時のナビゲーション処理
+  const handleNotificationClick = (notification: Notification) => {
+    // 既読にする
+    markAsRead(notification.id);
+
+    // subcategoryに基づいてナビゲーション
+    if (notification.subcategory === 'expired_escalation') {
+      // 期限到達判断ページへ遷移
+      navigate('/expired-escalation-proposals');
+      return;
+    }
+
+    // actionUrlが設定されている場合はそちらへ遷移
+    if (notification.actionUrl) {
+      navigate(notification.actionUrl);
+      return;
+    }
+
+    // デフォルトの処理（何もしない）
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-20">
       {/* 固定ヘッダーコンテナ */}
@@ -242,7 +267,11 @@ const NotificationsPage = () => {
                 const categoryConfig = categoryConfigs.find(c => c.key === notification.category) || categoryConfigs[0];
 
                 return (
-                  <div key={notification.id} className="hr-message">
+                  <div
+                    key={notification.id}
+                    className="hr-message cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => handleNotificationClick(notification)}
+                  >
                     <div
                       className="hr-message-icon"
                       style={{
