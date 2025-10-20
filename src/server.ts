@@ -18,6 +18,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// デバッグ：全リクエストをログ出力
+app.use((req, res, next) => {
+  console.log(`🔍 [Request] ${req.method} ${req.path}`);
+  next();
+});
+
 // 議題モードAPI（より具体的なパスを先に登録）
 console.log('📋 Registering Agenda API routes at /api/agenda');
 app.use('/api/agenda', agendaRoutes);

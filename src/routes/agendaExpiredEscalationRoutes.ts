@@ -15,6 +15,8 @@ import {
 
 const router = express.Router();
 
+console.log('📋 [AgendaExpiredEscalationRoutes] Loading routes...');
+
 /**
  * GET /api/agenda/expired-escalations
  * 期限到達・未達成の昇格提案を取得
@@ -336,5 +338,132 @@ router.get(
     }
   }
 );
+
+/**
+ * GET /api/agenda/expired-escalation-history
+ * 期限到達判断履歴取得（医療システム連携用）
+ *
+ * このエンドポイントは医療システムからのAPI呼び出し専用です。
+ * Bearer Token認証のみで、クエリパラメータでuserId/permissionLevelを受け取ります。
+ * VoiceDrive内部では /expired-escalation-decisions/history を使用してください。
+ */
+router.get('/expired-escalation-history', async (req: Request, res: Response) => {
+  console.log('[MedicalSystemAPI] 🔵 エンドポイント呼び出し: /expired-escalation-history');
+  try {
+    // Bearer Token認証
+    const authHeader = req.headers.authorization;
+    const expectedToken = 'ce89550c2e57e5057402f0dd0c6061a9bc3d5f2835e1f3d67dcce99551c2dcb9';
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: '認証情報が不正です',
+          details: {
+            reason: 'Authorization header missing or invalid format',
+            timestamp: new Date().toISOString()
+          }
+        }
+      });
+    }
+
+    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    if (token !== expectedToken) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: '認証情報が不正です',
+          details: {
+            reason: 'Invalid or expired token',
+            timestamp: new Date().toISOString()
+          }
+        }
+      });
+    }
+
+    // クエリパラメータから取得
+    const { userId, permissionLevel, page, limit } = req.query;
+
+    // パラメータバリデーション
+    if (!userId || !permissionLevel) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'BAD_REQUEST',
+          message: '必須パラメータが不足しています',
+          details: {
+            missing: {
+              userId: !userId,
+              permissionLevel: !permissionLevel
+            },
+            timestamp: new Date().toISOString()
+          }
+        }
+      });
+    }
+
+    const parsedPermissionLevel = parseInt(permissionLevel as string, 10);
+    if (isNaN(parsedPermissionLevel) || parsedPermissionLevel < 1 || parsedPermissionLevel > 99) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'BAD_REQUEST',
+          message: 'permissionLevelが不正です（1-99の範囲で指定してください）',
+          details: {
+            providedValue: permissionLevel,
+            timestamp: new Date().toISOString()
+          }
+        }
+      });
+    }
+
+    // ページネーション設定
+    const itemsPerPage = limit ? parseInt(limit as string, 10) : 50;
+    const currentPage = page ? parseInt(page as string, 10) : 1;
+    const offset = (currentPage - 1) * itemsPerPage;
+
+    console.log('[MedicalSystemAPI] 期限到達判断履歴リクエスト:', {
+      userId,
+      permissionLevel: parsedPermissionLevel,
+      page: currentPage,
+      limit: itemsPerPage
+    });
+
+    // 期限到達判断履歴APIを呼び出し
+    const result = await getExpiredEscalationHistory({
+      userId: userId as string,
+      permissionLevel: parsedPermissionLevel,
+      limit: itemsPerPage,
+      offset
+    });
+
+    console.log('[MedicalSystemAPI] 期限到達判断履歴取得成功:', {
+      totalCount: result.metadata.totalCount,
+      returnedCount: result.decisions.length
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: result
+    });
+  } catch (error: any) {
+    console.error('[MedicalSystemAPI] 期限到達判断履歴取得エラー:', error);
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'サーバー内部エラーが発生しました',
+        details: {
+          error: error.message,
+          timestamp: new Date().toISOString()
+        }
+      }
+    });
+  }
+});
+
+console.log('✅ [AgendaExpiredEscalationRoutes] /expired-escalation-history エンドポイント登録完了');
 
 export default router;

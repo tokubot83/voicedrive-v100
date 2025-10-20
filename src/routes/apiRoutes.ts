@@ -22,6 +22,9 @@ import type { AcknowledgementNotification } from '../types/whistleblowing';
 import { ComplianceAcknowledgementService } from '../api/db/complianceAcknowledgementService';
 import * as postReportsAPI from '../api/postReports';
 import * as expiredEscalationAPI from '../api/expiredEscalationDecision';
+// Phase 2: 顔写真統合
+import { validateWebhookSignature } from '../middleware/webhookAuth';
+import { handleEmployeeWebhook } from '../controllers/webhookController';
 
 const router = Router();
 
@@ -69,6 +72,12 @@ router.post('/summaries/receive', standardRateLimit, handleSummaryReceived);
 // ====================
 // Webhook API（医療システムからの通知）
 // ====================
+
+// Phase 2: 職員顔写真データ連携Webhook
+router.post('/webhooks/medical-system/employee',
+  validateWebhookSignature,
+  handleEmployeeWebhook
+);
 
 // コンプライアンス通報 受付確認通知
 router.post('/webhook/compliance/acknowledgement', async (req, res) => {
@@ -448,46 +457,9 @@ router.post('/agenda/expired-escalation-decisions',
   }
 );
 
-// 期限到達判断履歴を取得
-router.get('/agenda/expired-escalation-history',
-  authenticateToken,
-  async (req, res) => {
-    try {
-      // @ts-ignore
-      const userId = req.user?.id;
-      // @ts-ignore
-      const permissionLevel = req.user?.permissionLevel || 1;
-      // @ts-ignore
-      const facilityId = req.user?.facilityId;
-      // @ts-ignore
-      const departmentId = req.user?.department;
-
-      const { startDate, endDate, limit, offset } = req.query;
-
-      const result = await expiredEscalationAPI.getExpiredEscalationHistory({
-        userId,
-        permissionLevel,
-        facilityId,
-        departmentId,
-        startDate: startDate as string,
-        endDate: endDate as string,
-        limit: limit ? parseInt(limit as string) : 50,
-        offset: offset ? parseInt(offset as string) : 0
-      });
-
-      res.json({
-        success: true,
-        data: result
-      });
-    } catch (error) {
-      console.error('[API] 判断履歴取得エラー:', error);
-      res.status(500).json({
-        success: false,
-        error: error instanceof Error ? error.message : '判断履歴の取得に失敗しました'
-      });
-    }
-  }
-);
+// 期限到達判断履歴を取得（VoiceDrive内部用）
+// 医療システム連携は /api/agenda/expired-escalation-history を使用
+// （agendaExpiredEscalationRoutes.tsで定義）
 
 // ====================
 // 通知API（DB接続）

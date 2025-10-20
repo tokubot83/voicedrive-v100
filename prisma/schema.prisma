@@ -66,6 +66,11 @@ model User {
   ageUpdatedAt                  DateTime?                       @map("age_updated_at")
   experienceYears               Float?
   generation                    String?
+
+  // Phase 2: 顔写真統合（医療システムからのWebhook連携）
+  profilePhotoUrl               String?                         // CloudFront CDN URL
+  profilePhotoUpdatedAt         DateTime?                       // 写真更新日時
+
   acknowledgedAlerts            AnalyticsAlert[]                @relation("AlertAcknowledger")
   approvalTasksApproved         ApprovalTask[]                  @relation("ApprovalApprover")
   approvalTasksRequested        ApprovalTask[]                  @relation("ApprovalRequester")

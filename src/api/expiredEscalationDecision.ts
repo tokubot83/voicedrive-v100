@@ -211,6 +211,17 @@ export async function getExpiredEscalationHistory(
       offset = 0
     } = params;
 
+    console.log('[ExpiredEscalationAPI] パラメータ:', {
+      userId,
+      permissionLevel,
+      facilityId,
+      departmentId,
+      startDate,
+      endDate,
+      limit,
+      offset
+    });
+
     // 権限レベルに応じたフィルタ条件を構築
     const whereCondition = buildWhereCondition(
       userId,
@@ -220,6 +231,8 @@ export async function getExpiredEscalationHistory(
       startDate,
       endDate
     );
+
+    console.log('[ExpiredEscalationAPI] WHERE条件:', JSON.stringify(whereCondition, null, 2));
 
     // 判断履歴を取得
     const decisions = await prisma.expiredEscalationDecision.findMany({
