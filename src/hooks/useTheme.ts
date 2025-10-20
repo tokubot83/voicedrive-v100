@@ -57,13 +57,14 @@ export const useTheme = (): UseThemeReturn => {
     const root = document.documentElement;
 
     // すべてのテーマクラスを削除
-    root.classList.remove('light-theme', 'dark-theme');
+    root.classList.remove('light-theme', 'dark-theme', 'dark');
 
     // 適用するテーマのクラスを追加
     if (resolvedTheme === 'light') {
       root.classList.add('light-theme');
     } else {
       root.classList.add('dark-theme');
+      root.classList.add('dark'); // Tailwindの標準darkクラスも追加
     }
 
     // localStorageに保存

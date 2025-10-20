@@ -38,13 +38,17 @@ app.use(helmet({
 // CORS設定
 app.use(cors({
   origin: [
-    'http://localhost:3000',
-    'http://localhost:3001',
+    'http://localhost:3000',        // 医療職員カルテシステム開発環境
+    'http://localhost:3001',        // VoiceDrive開発環境
+    'http://localhost:3003',        // VoiceDrive API開発環境
     'https://voicedrive.ohara-hospital.jp',
-    'https://staging.voicedrive.ohara-hospital.jp'
+    'https://staging.voicedrive.ohara-hospital.jp',
+    'https://medical-system.example.com',  // 医療職員カルテシステム本番環境（要置換）
+    'https://staging.medical-system.example.com'  // 医療職員カルテシステムステージング環境（要置換）
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Authorization', 'Content-Type']
 }));
 
 // ボディパーサー

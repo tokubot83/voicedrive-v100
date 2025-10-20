@@ -68,8 +68,11 @@ export interface DecisionHistoryItem {
 }
 
 export interface GetHistoryResponse {
-  decisions: DecisionHistoryItem[];
-  total: number;
+  metadata: {
+    requestedAt: string;       // ISO 8601形式
+    totalCount: number;
+    apiVersion: string;
+  };
   summary: {
     totalDecisions: number;
     approvalCount: number;
@@ -77,6 +80,15 @@ export interface GetHistoryResponse {
     rejectCount: number;
     averageAchievementRate: number;
     averageDaysOverdue: number;
+  };
+  decisions: DecisionHistoryItem[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
   };
 }
 
@@ -274,10 +286,26 @@ export async function getExpiredEscalationHistory(
       createdAt: d.createdAt
     }));
 
+    // ページネーション情報を計算
+    const currentPage = Math.floor(offset / limit) + 1;
+    const totalPages = Math.ceil(total / limit);
+
     return {
+      metadata: {
+        requestedAt: new Date().toISOString(),
+        totalCount: total,
+        apiVersion: '1.0.0'
+      },
+      summary,
       decisions: formattedDecisions,
-      total,
-      summary
+      pagination: {
+        currentPage,
+        totalPages,
+        totalItems: total,
+        itemsPerPage: limit,
+        hasNextPage: currentPage < totalPages,
+        hasPreviousPage: currentPage > 1
+      }
     };
   } catch (error) {
     console.error('[ExpiredEscalationAPI] 履歴取得エラー:', error);
