@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { useVotingHistory } from '../../hooks/useVotingHistory';
+import { exportChangeLogs } from '../../services/votingHistoryService';
+import { Download } from 'lucide-react';
 
 /**
  * 投票設定変更履歴ページ
@@ -8,81 +11,27 @@ import React, { useState } from 'react';
  */
 export const VotingHistoryPage: React.FC = () => {
   const [filterMode, setFilterMode] = useState<'all' | 'agenda' | 'project'>('all');
+  const [page, setPage] = useState(1);
 
-  // ダミーデータ
-  const historyItems = [
-    {
-      id: 1,
-      date: '2025-10-13 14:30',
-      mode: 'agenda' as const,
-      category: '投票スコープ設定',
-      user: '山田 太郎',
-      userLevel: 99,
-      action: '看護部-看護科の投票パターンをパターンCからパターンAに変更',
-      impact: '約80名に影響',
-      status: 'active' as const
-    },
-    {
-      id: 2,
-      date: '2025-10-12 16:15',
-      mode: 'project' as const,
-      category: 'チーム編成ルール',
-      user: '山田 太郎',
-      userLevel: 99,
-      action: '推奨チームサイズを7名から5名に変更',
-      impact: '今後のプロジェクト編成に影響',
-      status: 'active' as const
-    },
-    {
-      id: 3,
-      date: '2025-10-11 10:20',
-      mode: 'agenda' as const,
-      category: '投票グループ管理',
-      user: '山田 太郎',
-      userLevel: 99,
-      action: '「小規模事務部門グループ」を新規作成（総務科、経理科、人事科）',
-      impact: '22名が新グループに統合',
-      status: 'active' as const
-    },
-    {
-      id: 4,
-      date: '2025-10-10 09:45',
-      mode: 'agenda' as const,
-      category: '主承認者設定',
-      user: '山田 太郎',
-      userLevel: 99,
-      action: 'リハ専門職グループのローテーション期間を月次から四半期に変更',
-      impact: '3名の承認者に影響',
-      status: 'active' as const
-    },
-    {
-      id: 5,
-      date: '2025-10-09 15:30',
-      mode: 'project' as const,
-      category: 'プロジェクト化閾値',
-      user: '山田 太郎',
-      userLevel: 99,
-      action: '施設プロジェクト化の閾値を500点から400点に引き下げ',
-      impact: 'プロジェクト化しやすくなる',
-      status: 'active' as const
-    },
-    {
-      id: 6,
-      date: '2025-10-08 11:20',
-      mode: 'project' as const,
-      category: '進捗管理設定',
-      user: '山田 太郎',
-      userLevel: 99,
-      action: '週次進捗レポートを有効化',
-      impact: 'すべてのプロジェクトリーダーに通知',
-      status: 'active' as const
-    }
-  ];
-
-  const filteredHistory = historyItems.filter(item => {
-    if (filterMode === 'all') return true;
-    return item.mode === filterMode;
+  // APIからデータ取得
+  const { logs, statistics, pagination, loading, error } = useVotingHistory({
+    mode: filterMode,
+    page,
+    limit: 50,
   });
+
+  // CSVエクスポート
+  const handleExport = async () => {
+    try {
+      await exportChangeLogs({ mode: filterMode });
+    } catch (err) {
+      console.error('Export failed:', err);
+      alert('エクスポートに失敗しました');
+    }
+  };
+
+  // 表示用データ（APIデータを使用）
+  const displayLogs = logs;
 
   const getModeLabel = (mode: 'agenda' | 'project') => {
     return mode === 'agenda' ? '議題モード' : 'プロジェクトモード';
@@ -129,18 +78,20 @@ export const VotingHistoryPage: React.FC = () => {
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4">
           <div className="text-sm text-slate-400 mb-1">総変更回数</div>
-          <div className="text-2xl font-bold text-white">{historyItems.length}回</div>
+          <div className="text-2xl font-bold text-white">
+            {statistics?.totalCount || 0}回
+          </div>
         </div>
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4">
           <div className="text-sm text-slate-400 mb-1">議題モード変更</div>
           <div className="text-2xl font-bold text-green-400">
-            {historyItems.filter(item => item.mode === 'agenda').length}回
+            {statistics?.agendaModeCount || 0}回
           </div>
         </div>
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4">
           <div className="text-sm text-slate-400 mb-1">プロジェクトモード変更</div>
           <div className="text-2xl font-bold text-purple-400">
-            {historyItems.filter(item => item.mode === 'project').length}回
+            {statistics?.projectModeCount || 0}回
           </div>
         </div>
       </div>
@@ -149,14 +100,32 @@ export const VotingHistoryPage: React.FC = () => {
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-6">
         <h3 className="text-lg font-bold text-white mb-4">変更履歴</h3>
 
-        <div className="space-y-4">
-          {filteredHistory.map((item, index) => (
+        {/* ローディング状態 */}
+        {loading && (
+          <div className="text-center py-12">
+            <div className="text-4xl mb-4">⏳</div>
+            <div className="text-slate-400">読み込み中...</div>
+          </div>
+        )}
+
+        {/* エラー状態 */}
+        {error && (
+          <div className="text-center py-12">
+            <div className="text-4xl mb-4">⚠️</div>
+            <div className="text-red-400">エラーが発生しました: {error.message}</div>
+          </div>
+        )}
+
+        {/* データ表示 */}
+        {!loading && !error && (
+          <div className="space-y-4">
+            {displayLogs.map((item, index) => (
             <div
               key={item.id}
               className="relative bg-slate-900/50 border border-slate-700/30 rounded-lg p-5 hover:border-slate-600/50 transition-colors"
             >
               {/* タイムライン線 */}
-              {index !== filteredHistory.length - 1 && (
+              {index !== displayLogs.length - 1 && (
                 <div className="absolute left-[2.4rem] top-[3.5rem] bottom-[-1rem] w-[2px] bg-slate-700/50" />
               )}
 
@@ -214,35 +183,44 @@ export const VotingHistoryPage: React.FC = () => {
               </div>
             </div>
           ))}
-        </div>
 
-        {/* 履歴が空の場合 */}
-        {filteredHistory.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">📋</div>
-            <div className="text-slate-400">
-              {filterMode === 'all'
-                ? '変更履歴がありません'
-                : `${getModeLabel(filterMode as 'agenda' | 'project')}の変更履歴がありません`
-              }
+          {/* 履歴が空の場合 */}
+          {displayLogs.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📋</div>
+              <div className="text-slate-400">
+                {filterMode === 'all'
+                  ? '変更履歴がありません'
+                  : `${getModeLabel(filterMode as 'agenda' | 'project')}の変更履歴がありません`
+                }
+              </div>
             </div>
+          )}
           </div>
         )}
       </div>
 
-      {/* ページネーション（将来実装） */}
+      {/* ページネーション */}
       <div className="flex items-center justify-between bg-slate-800/50 border border-slate-700/50 rounded-lg p-4">
         <div className="text-sm text-slate-400">
-          全{filteredHistory.length}件を表示中
+          全{statistics?.totalCount || 0}件中 {displayLogs.length}件を表示中
         </div>
         <div className="flex items-center space-x-2">
-          <button className="px-3 py-1.5 bg-slate-700/50 hover:bg-slate-700/70 border border-slate-600/50 rounded text-sm text-slate-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+          <button
+            onClick={() => setPage(page - 1)}
+            disabled={!pagination?.hasPrevious}
+            className="px-3 py-1.5 bg-slate-700/50 hover:bg-slate-700/70 border border-slate-600/50 rounded text-sm text-slate-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             前へ
           </button>
           <span className="px-3 py-1.5 bg-blue-600/20 border border-blue-500/30 rounded text-sm text-blue-400">
-            1
+            {pagination?.page || 1}
           </span>
-          <button className="px-3 py-1.5 bg-slate-700/50 hover:bg-slate-700/70 border border-slate-600/50 rounded text-sm text-slate-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+          <button
+            onClick={() => setPage(page + 1)}
+            disabled={!pagination?.hasNext}
+            className="px-3 py-1.5 bg-slate-700/50 hover:bg-slate-700/70 border border-slate-600/50 rounded text-sm text-slate-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             次へ
           </button>
         </div>
@@ -254,7 +232,11 @@ export const VotingHistoryPage: React.FC = () => {
           <div className="text-sm text-slate-400">
             変更履歴をエクスポートして監査証跡として保存できます
           </div>
-          <button className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg text-blue-400 transition-colors">
+          <button
+            onClick={handleExport}
+            className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg text-blue-400 transition-colors flex items-center"
+          >
+            <Download className="w-4 h-4 mr-2" />
             CSV形式でエクスポート
           </button>
         </div>

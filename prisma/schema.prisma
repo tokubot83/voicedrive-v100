@@ -134,79 +134,102 @@ model User {
   expiredDecisions              ExpiredEscalationDecision[]     @relation("ExpiredDecisions")
   notificationActionsExecuted   NotificationAction[]            @relation("NotificationActionExecutor")
   notificationRecipients        NotificationRecipient[]         @relation("NotificationRecipient")
+  settingChanges                VotingSettingChangeLog[]        @relation("SettingChangeUser")
+  settingReverts                VotingSettingChangeLog[]        @relation("SettingRevertUser")
+  systemConfigsUpdated          SystemConfig[]                  @relation("SystemConfigUpdater")
 }
 
 model Notification {
-  id                String                   @id @default(cuid())
-  category          String
-  subcategory       String?
-  priority          String
-  title             String
-  content           String
-  target            String
-  senderId          String
-  status            String                   @default("pending")
-  sentAt            DateTime?
-  recipientCount    Int                      @default(0)
-  readCount         Int                      @default(0)
-  clickCount        Int                      @default(0)
-  createdAt         DateTime                 @default(now())
-  updatedAt         DateTime                 @updatedAt
+  id             String    @id @default(cuid())
+  category       String
+  subcategory    String?
+  priority       String
+  title          String
+  content        String
+  target         String
+  senderId       String
+  status         String    @default("pending")
+  sentAt         DateTime?
+  recipientCount Int       @default(0)
+  readCount      Int       @default(0)
+  clickCount     Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   // Phase 2: Approvals page fields
-  notificationType  String?                  // APPROVAL_REQUIRED, MEMBER_SELECTION, VOTE_REQUIRED, etc.
-  urgency           String                   @default("normal") // normal, high, urgent
-  actionRequired    Boolean                  @default(false)
+  notificationType  String? // APPROVAL_REQUIRED, MEMBER_SELECTION, VOTE_REQUIRED, etc.
+  urgency           String    @default("normal") // normal, high, urgent
+  actionRequired    Boolean   @default(false)
   dueDate           DateTime?
-  metadata          Json?                    // Additional flexible data (budget amount, project ID, etc.)
-  relatedEntityType String?                  // Post, Poll, ApprovalTask, etc.
-  relatedEntityId   String?                  // ID of related entity
+  metadata          Json? // Additional flexible data (budget amount, project ID, etc.)
+  relatedEntityType String? // Post, Poll, ApprovalTask, etc.
+  relatedEntityId   String? // ID of related entity
 
-  sender            User                     @relation(fields: [senderId], references: [id])
-  actions           NotificationAction[]
-  recipients        NotificationRecipient[]
+  sender     User                    @relation(fields: [senderId], references: [id])
+  actions    NotificationAction[]
+  recipients NotificationRecipient[]
 }
 
 model NotificationAction {
-  id                   String       @id @default(cuid())
+  id                   String    @id @default(cuid())
   notificationId       String
-  actionType           String       // approve, reject, view, participate, decline, vote, escalate
-  actionLabel          String       // Button label
-  actionUrl            String?      // Optional URL for action
-  actionData           Json?        // Additional action parameters
-  isPrimary            Boolean      @default(false)
-  isDestructive        Boolean      @default(false)
-  requiresConfirmation Boolean      @default(false)
+  actionType           String // approve, reject, view, participate, decline, vote, escalate
+  actionLabel          String // Button label
+  actionUrl            String? // Optional URL for action
+  actionData           Json? // Additional action parameters
+  isPrimary            Boolean   @default(false)
+  isDestructive        Boolean   @default(false)
+  requiresConfirmation Boolean   @default(false)
   confirmationMessage  String?
   executedAt           DateTime?
   executedBy           String?
-  result               Json?        // Action execution result
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
+  result               Json? // Action execution result
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
-  notification         Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  executor             User?        @relation("NotificationActionExecutor", fields: [executedBy], references: [id])
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  executor     User?        @relation("NotificationActionExecutor", fields: [executedBy], references: [id])
 
   @@index([notificationId])
 }
 
 model NotificationRecipient {
-  id             String       @id @default(cuid())
+  id             String    @id @default(cuid())
   notificationId String
   userId         String
-  isRead         Boolean      @default(false)
+  isRead         Boolean   @default(false)
   readAt         DateTime?
-  actionTaken    String?      // approve, reject, viewed, etc.
+  actionTaken    String? // approve, reject, viewed, etc.
   actionTakenAt  DateTime?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  user           User         @relation("NotificationRecipient", fields: [userId], references: [id])
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user         User         @relation("NotificationRecipient", fields: [userId], references: [id])
 
   @@unique([notificationId, userId])
   @@index([userId, isRead])
   @@index([userId, actionTaken])
+}
+
+// システム全体設定テーブル（mode-switcher用）
+model SystemConfig {
+  id          String   @id @default(cuid())
+  configKey   String   @unique
+  configValue Json
+  category    String // "system", "feature", "ui"
+  description String?
+  isActive    Boolean  @default(true)
+  updatedBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  updatedByUser User @relation("SystemConfigUpdater", fields: [updatedBy], references: [id])
+
+  @@index([configKey])
+  @@index([category])
+  @@index([updatedAt])
+  @@map("system_configs")
 }
 
 model Interview {
@@ -2405,4 +2428,56 @@ model ProposalAuditLog {
   @@index([userId])
   @@index([timestamp])
   @@map("proposal_audit_logs")
+}
+
+/// 投票設定変更履歴テーブル
+model VotingSettingChangeLog {
+  id String @id @default(cuid())
+
+  // 変更基本情報
+  mode        String // 'agenda' | 'project' | 'both'
+  category    String // 変更カテゴリ
+  subcategory String? // サブカテゴリ（詳細分類）
+
+  // 変更内容
+  changeDescription String // 変更内容の説明
+  impactDescription String? // 影響範囲の説明
+
+  // 変更前後の値（JSON）
+  beforeValue Json? // 変更前の設定値
+  afterValue  Json? // 変更後の設定値
+
+  // 変更者情報
+  changedBy      String // 変更者ユーザーID
+  changedByLevel Decimal // 変更時の権限レベル
+  changedAt      DateTime @default(now())
+
+  // ステータス
+  status       String    @default("active") // 'active' | 'reverted' | 'superseded'
+  revertedAt   DateTime?
+  revertedBy   String?
+  revertReason String?
+
+  // 関連エンティティ
+  relatedEntityType String? // 'VotingGroup' | 'AgendaModeConfig' | 'ProjectModeConfig'
+  relatedEntityId   String? // 関連エンティティのID
+
+  // メタデータ
+  metadata Json? // 追加情報（影響人数、関連部署など）
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user           User  @relation("SettingChangeUser", fields: [changedBy], references: [id])
+  revertedByUser User? @relation("SettingRevertUser", fields: [revertedBy], references: [id])
+
+  @@index([changedAt])
+  @@index([mode])
+  @@index([category])
+  @@index([changedBy])
+  @@index([status])
+  @@index([mode, changedAt])
+  @@index([relatedEntityType, relatedEntityId])
+  @@map("voting_setting_change_logs")
 }
