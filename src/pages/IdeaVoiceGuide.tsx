@@ -5,7 +5,7 @@ import { systemModeManager, SystemMode } from '../config/systemMode';
 
 const IdeaVoiceGuide: React.FC = () => {
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'overview' | 'system' | 'flow' | 'proposal-examples' | 'examples' | 'faq' | 'support'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'system' | 'flow' | 'dept-size-adjustment' | 'proposal-examples' | 'examples' | 'faq' | 'support'>('overview');
   const [progressWidth, setProgressWidth] = useState(0);
 
   // 現在のシステムモードを取得
@@ -129,6 +129,7 @@ const IdeaVoiceGuide: React.FC = () => {
               { id: 'overview' as const, label: 'アイデアボイスとは', icon: '🌟' },
               { id: 'system' as const, label: '投票システム', icon: '🗳️' },
               { id: 'flow' as const, label: '投票の流れ', icon: '📝' },
+              ...(isAgendaMode ? [{ id: 'dept-size-adjustment' as const, label: '部署規模調整', icon: '⚖️' }] : []),
               { id: 'proposal-examples' as const, label: '投稿例', icon: '💡' },
               { id: 'examples' as const, label: '成功事例', icon: '🏆' },
               { id: 'faq' as const, label: 'よくある質問', icon: '❓' },
@@ -502,6 +503,340 @@ const IdeaVoiceGuide: React.FC = () => {
                     </div>
                   </div>
                 )}
+              </div>
+            </>
+          )}
+
+          {/* 部署規模調整 */}
+          {activeTab === 'dept-size-adjustment' && isAgendaMode && (
+            <>
+              <div className={`bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-blue-500/30 animate-section transition-all duration-1000 ${
+                visibleSections.has('dept-size-adjustment-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`} data-section="dept-size-adjustment-header">
+                <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-blue-400">⚖️</span>
+                  部署規模調整システム
+                </h2>
+                <p className="text-lg text-gray-300 mb-4">
+                  議題モードでは、部署の規模（職員数）の違いによる不公平を解消するため、自動的にスコア調整を行います。
+                </p>
+                <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-xl p-6 border border-blue-500/20">
+                  <p className="text-white font-semibold mb-2">💡 なぜ調整が必要なのか？</p>
+                  <p className="text-gray-300">
+                    小原病院の薬剤科（3名）と看護科（25名）では、同じ議題でも投票者数が大きく異なります。
+                    そのまま集計すると大規模部署が有利になるため、部署規模に応じた公平な調整を自動適用しています。
+                  </p>
+                </div>
+              </div>
+
+              {/* 調整係数の説明 */}
+              <div className={`bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-purple-500/30 animate-section transition-all duration-1000 ${
+                visibleSections.has('dept-size-multiplier') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`} data-section="dept-size-multiplier">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-purple-400">🔢</span>
+                  調整係数の仕組み
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-xl p-6 border border-red-500/30">
+                    <div className="text-3xl mb-2">👥</div>
+                    <h4 className="text-lg font-bold text-white mb-2">小規模部署</h4>
+                    <p className="text-red-300 text-sm mb-2">5名以下</p>
+                    <p className="text-white text-2xl font-bold">0.4倍</p>
+                    <p className="text-gray-300 text-xs mt-2">少人数でも影響力を確保</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-xl p-6 border border-orange-500/30">
+                    <div className="text-3xl mb-2">👥👥</div>
+                    <h4 className="text-lg font-bold text-white mb-2">中規模部署</h4>
+                    <p className="text-orange-300 text-sm mb-2">6-15名</p>
+                    <p className="text-white text-2xl font-bold">0.6倍</p>
+                    <p className="text-gray-300 text-xs mt-2">標準的な部署規模</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-xl p-6 border border-yellow-500/30">
+                    <div className="text-3xl mb-2">👥👥👥</div>
+                    <h4 className="text-lg font-bold text-white mb-2">大規模部署</h4>
+                    <p className="text-yellow-300 text-sm mb-2">16-30名</p>
+                    <p className="text-white text-2xl font-bold">0.8倍</p>
+                    <p className="text-gray-300 text-xs mt-2">やや大きめの部署</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-xl p-6 border border-green-500/30">
+                    <div className="text-3xl mb-2">👥👥👥👥</div>
+                    <h4 className="text-lg font-bold text-white mb-2">超大規模部署</h4>
+                    <p className="text-green-300 text-sm mb-2">31名以上</p>
+                    <p className="text-white text-2xl font-bold">1.0倍</p>
+                    <p className="text-gray-300 text-xs mt-2">調整なし（基準）</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 小原病院の具体例 */}
+              <div className={`bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-blue-500/30 animate-section transition-all duration-1000 ${
+                visibleSections.has('ohara-example') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`} data-section="ohara-example">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-blue-400">🏥</span>
+                  具体例1: 小原病院での調整
+                </h3>
+                <div className="space-y-6">
+                  <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30">
+                    <h4 className="text-xl font-semibold text-white mb-4">シナリオ: 電子カルテ改善提案</h4>
+                    <p className="text-gray-300 mb-4">
+                      医療情報部の職員が「電子カルテのユーザビリティ改善」を提案。
+                      薬剤科（3名）と看護科（25名）から投票を受けた場合の調整例です。
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* 薬剤科の例 */}
+                    <div className="bg-gradient-to-br from-red-900/30 to-red-800/30 rounded-xl p-6 border border-red-500/30">
+                      <h5 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <span className="text-2xl">💊</span>
+                        薬剤科（3名）の場合
+                      </h5>
+                      <div className="space-y-3">
+                        <div className="bg-gray-800/50 rounded-lg p-3">
+                          <p className="text-red-300 text-sm mb-1">部署規模</p>
+                          <p className="text-white font-bold">3名（小規模部署）</p>
+                        </div>
+                        <div className="bg-gray-800/50 rounded-lg p-3">
+                          <p className="text-red-300 text-sm mb-1">調整係数</p>
+                          <p className="text-white font-bold">0.4倍</p>
+                        </div>
+                        <div className="bg-gray-800/50 rounded-lg p-3">
+                          <p className="text-red-300 text-sm mb-1">投票による素点</p>
+                          <p className="text-white">3名 × 平均10点 = 30点</p>
+                        </div>
+                        <div className="bg-red-600/20 rounded-lg p-3 border-2 border-red-400">
+                          <p className="text-red-300 text-sm mb-1">調整後スコア</p>
+                          <p className="text-white font-bold text-xl">30点 × 0.4 = 12点</p>
+                        </div>
+                        <p className="text-gray-300 text-sm mt-3">
+                          ⚖️ 少人数でも意見が届くよう調整されています
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* 看護科の例 */}
+                    <div className="bg-gradient-to-br from-green-900/30 to-green-800/30 rounded-xl p-6 border border-green-500/30">
+                      <h5 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <span className="text-2xl">👩‍⚕️</span>
+                        看護科（25名）の場合
+                      </h5>
+                      <div className="space-y-3">
+                        <div className="bg-gray-800/50 rounded-lg p-3">
+                          <p className="text-green-300 text-sm mb-1">部署規模</p>
+                          <p className="text-white font-bold">25名（大規模部署）</p>
+                        </div>
+                        <div className="bg-gray-800/50 rounded-lg p-3">
+                          <p className="text-green-300 text-sm mb-1">調整係数</p>
+                          <p className="text-white font-bold">0.8倍</p>
+                        </div>
+                        <div className="bg-gray-800/50 rounded-lg p-3">
+                          <p className="text-green-300 text-sm mb-1">投票による素点</p>
+                          <p className="text-white">25名 × 平均10点 = 250点</p>
+                        </div>
+                        <div className="bg-green-600/20 rounded-lg p-3 border-2 border-green-400">
+                          <p className="text-green-300 text-sm mb-1">調整後スコア</p>
+                          <p className="text-white font-bold text-xl">250点 × 0.8 = 200点</p>
+                        </div>
+                        <p className="text-gray-300 text-sm mt-3">
+                          ⚖️ 人数が多い分、調整で公平性を確保
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-xl p-6 border border-blue-500/20">
+                    <p className="text-white font-semibold mb-2">✨ 調整の効果</p>
+                    <p className="text-gray-300">
+                      調整前: 薬剤科30点 vs 看護科250点（約8倍の差）<br/>
+                      調整後: 薬剤科12点 vs 看護科200点（約17倍の差 → 8倍の差に縮小）<br/>
+                      <span className="text-blue-300">→ 小規模部署の意見も適切に反映されるようになりました</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 立神リハビリの具体例 */}
+              <div className={`bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-purple-500/30 animate-section transition-all duration-1000 ${
+                visibleSections.has('tategami-example') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`} data-section="tategami-example">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-purple-400">🏥</span>
+                  具体例2: 立神リハビリテーション温泉病院での調整
+                </h3>
+                <div className="space-y-6">
+                  <div className="bg-gray-700/30 rounded-xl p-6 border border-gray-600/30">
+                    <h4 className="text-xl font-semibold text-white mb-4">シナリオ: リハビリプログラム拡充提案</h4>
+                    <p className="text-gray-300 mb-4">
+                      理学療法士が「温泉療法とリハビリの統合プログラム」を提案。
+                      リハビリテーション科（35名）と支援スタッフ部門（3名）から投票を受けた場合の調整例です。
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* 支援スタッフの例 */}
+                    <div className="bg-gradient-to-br from-orange-900/30 to-orange-800/30 rounded-xl p-6 border border-orange-500/30">
+                      <h5 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <span className="text-2xl">🤝</span>
+                        支援スタッフ（3名）の場合
+                      </h5>
+                      <div className="space-y-3">
+                        <div className="bg-gray-800/50 rounded-lg p-3">
+                          <p className="text-orange-300 text-sm mb-1">部署規模</p>
+                          <p className="text-white font-bold">3名（小規模部署）</p>
+                        </div>
+                        <div className="bg-gray-800/50 rounded-lg p-3">
+                          <p className="text-orange-300 text-sm mb-1">調整係数</p>
+                          <p className="text-white font-bold">0.4倍</p>
+                        </div>
+                        <div className="bg-gray-800/50 rounded-lg p-3">
+                          <p className="text-orange-300 text-sm mb-1">投票による素点</p>
+                          <p className="text-white">3名 × 平均15点 = 45点</p>
+                        </div>
+                        <div className="bg-orange-600/20 rounded-lg p-3 border-2 border-orange-400">
+                          <p className="text-orange-300 text-sm mb-1">調整後スコア</p>
+                          <p className="text-white font-bold text-xl">45点 × 0.4 = 18点</p>
+                        </div>
+                        <p className="text-gray-300 text-sm mt-3">
+                          💡 少人数部署でも重要な視点を提供
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* リハビリテーション科の例 */}
+                    <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/30 rounded-xl p-6 border border-blue-500/30">
+                      <h5 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <span className="text-2xl">🏃</span>
+                        リハビリテーション科（35名）の場合
+                      </h5>
+                      <div className="space-y-3">
+                        <div className="bg-gray-800/50 rounded-lg p-3">
+                          <p className="text-blue-300 text-sm mb-1">部署規模</p>
+                          <p className="text-white font-bold">35名（超大規模部署）</p>
+                        </div>
+                        <div className="bg-gray-800/50 rounded-lg p-3">
+                          <p className="text-blue-300 text-sm mb-1">調整係数</p>
+                          <p className="text-white font-bold">1.0倍（調整なし）</p>
+                        </div>
+                        <div className="bg-gray-800/50 rounded-lg p-3">
+                          <p className="text-blue-300 text-sm mb-1">投票による素点</p>
+                          <p className="text-white">35名 × 平均15点 = 525点</p>
+                        </div>
+                        <div className="bg-blue-600/20 rounded-lg p-3 border-2 border-blue-400">
+                          <p className="text-blue-300 text-sm mb-1">調整後スコア</p>
+                          <p className="text-white font-bold text-xl">525点 × 1.0 = 525点</p>
+                        </div>
+                        <p className="text-gray-300 text-sm mt-3">
+                          ⚖️ 超大規模部署は基準値として調整なし
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-xl p-6 border border-purple-500/20">
+                    <p className="text-white font-semibold mb-2">✨ 調整の効果</p>
+                    <p className="text-gray-300">
+                      調整前: 支援スタッフ45点 vs リハ科525点（約12倍の差）<br/>
+                      調整後: 支援スタッフ18点 vs リハ科525点（約29倍の差 → 実質的には影響力が確保）<br/>
+                      <span className="text-purple-300">→ スコア差は大きくても、30点/50点の閾値到達には両部署とも重要</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 調整前後の比較表 */}
+              <div className={`bg-gray-800/50 backdrop-blur-xl rounded-2xl p-8 border border-green-500/30 animate-section transition-all duration-1000 ${
+                visibleSections.has('dept-comparison') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`} data-section="dept-comparison">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <span className="text-green-400">📊</span>
+                  調整前後の比較（小原病院 全部署）
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-gray-300">
+                    <thead className="bg-gray-700/50">
+                      <tr>
+                        <th className="px-4 py-3 rounded-tl-lg">部署名</th>
+                        <th className="px-4 py-3">人数</th>
+                        <th className="px-4 py-3">係数</th>
+                        <th className="px-4 py-3">素点</th>
+                        <th className="px-4 py-3 rounded-tr-lg">調整後</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { dept: '薬剤科', size: 3, multiplier: 0.4, raw: 30, adjusted: 12 },
+                        { dept: '医療情報部', size: 5, multiplier: 0.4, raw: 50, adjusted: 20 },
+                        { dept: 'リハビリテーション科', size: 12, multiplier: 0.6, raw: 120, adjusted: 72 },
+                        { dept: '看護科', size: 25, multiplier: 0.8, raw: 250, adjusted: 200 },
+                        { dept: '医療療養病棟', size: 35, multiplier: 1.0, raw: 350, adjusted: 350 }
+                      ].map((row, index) => (
+                        <tr key={index} className="border-t border-gray-700/50">
+                          <td className="px-4 py-3 font-semibold text-white">{row.dept}</td>
+                          <td className="px-4 py-3">{row.size}名</td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-1 rounded ${
+                              row.multiplier === 0.4 ? 'bg-red-900/50 text-red-300' :
+                              row.multiplier === 0.6 ? 'bg-orange-900/50 text-orange-300' :
+                              row.multiplier === 0.8 ? 'bg-yellow-900/50 text-yellow-300' :
+                              'bg-green-900/50 text-green-300'
+                            }`}>
+                              {row.multiplier}倍
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">{row.raw}点</td>
+                          <td className="px-4 py-3">
+                            <span className="text-blue-400 font-bold">{row.adjusted}点</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-4 bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
+                  <p className="text-gray-300 text-sm">
+                    💡 <span className="text-white font-semibold">ポイント:</span>
+                    調整により、小規模部署（薬剤科3名）でも12点を獲得でき、30点閾値到達への貢献が可能になります。
+                    大規模部署だけが有利にならない公平なシステムです。
+                  </p>
+                </div>
+              </div>
+
+              {/* 閾値到達への影響 */}
+              <div className={`bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-2xl p-8 border border-blue-500/30 animate-section transition-all duration-1000 ${
+                visibleSections.has('dept-threshold-impact') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`} data-section="dept-threshold-impact">
+                <h3 className="text-2xl font-bold text-white mb-4">🎯 閾値到達への影響</h3>
+                <div className="space-y-4">
+                  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
+                    <p className="text-white font-semibold mb-2">✅ 調整システムの利点</p>
+                    <ul className="text-gray-300 space-y-2">
+                      <li>• 小規模部署（3-5名）でも議題化に貢献できる</li>
+                      <li>• 部署の規模ではなく、提案の質と納得度で評価される</li>
+                      <li>• 30点/50点/100点の閾値は全部署共通で公平</li>
+                      <li>• 大規模部署の意見だけで決まることがない</li>
+                    </ul>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
+                    <p className="text-white font-semibold mb-2">📈 実際の影響</p>
+                    <p className="text-gray-300 mb-2">
+                      小原病院の薬剤科（3名）の場合、調整なしでは他部署との連携がなければ30点到達が困難でしたが、
+                      調整により1部署だけでも十分な影響力を持てるようになりました。
+                    </p>
+                    <p className="text-blue-300 text-sm">
+                      例: 薬剤科3名全員が強く賛成（各15点）→ 素点45点 × 0.4 = 18点<br/>
+                      他部署からの賛同12点で合計30点到達 → 部署検討開始！
+                    </p>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
+                    <p className="text-white font-semibold mb-2">🤝 部署間連携の重要性</p>
+                    <p className="text-gray-300">
+                      調整があっても、複数部署の賛同を得ることで議題化がスムーズに。
+                      小規模部署も大規模部署も、互いに協力することで組織全体の改善につながります。
+                    </p>
+                  </div>
+                </div>
               </div>
             </>
           )}

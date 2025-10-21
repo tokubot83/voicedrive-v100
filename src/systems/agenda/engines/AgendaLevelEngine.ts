@@ -2,6 +2,7 @@
 import { AgendaLevel } from '../../../types/committee';
 import { Post, User } from '../../../types';
 import { PermissionLevel } from '../../../permissions/types/PermissionTypes';
+import { prisma } from '../../../lib/prisma.js';
 
 export interface AgendaPermissions {
   canView: boolean;
@@ -266,6 +267,108 @@ export class AgendaLevelEngine {
       return '🗳️ 投票のみ可能です（コメント不可）';
     }
     return null;
+  }
+
+  // ========== 部署規模調整エンジン ==========
+
+  /**
+   * 部署規模による閾値調整係数を取得
+   *
+   * 小規模部署が不利にならないよう、部署規模に応じてスコアを調整
+   *
+   * @param departmentSize - 部署の人数
+   * @returns 調整係数（0.4〜1.0）
+   */
+  getDepartmentSizeMultiplier(departmentSize: number): number {
+    if (departmentSize <= 5) return 0.4;      // 小規模部署（5名以下）
+    if (departmentSize <= 15) return 0.6;     // 中規模部署（6-15名）
+    if (departmentSize <= 30) return 0.8;     // 大規模部署（16-30名）
+    return 1.0;                                // 超大規模部署（31名以上）
+  }
+
+  /**
+   * 部署規模によるスコア調整
+   *
+   * @param rawScore - 調整前の素のスコア
+   * @param departmentSize - 部署の人数
+   * @returns 調整後のスコア
+   *
+   * @example
+   * // 総務科（8名、中規模部署）の場合
+   * adjustScoreByDepartmentSize(75, 8)
+   * // → 75 × 0.6 = 45点（調整後）
+   *
+   * // 看護科（80名、超大規模部署）の場合
+   * adjustScoreByDepartmentSize(75, 80)
+   * // → 75 × 1.0 = 75点（調整なし）
+   */
+  adjustScoreByDepartmentSize(rawScore: number, departmentSize: number): number {
+    const multiplier = this.getDepartmentSizeMultiplier(departmentSize);
+    const adjustedScore = rawScore * multiplier;
+
+    console.log(`[AgendaLevelEngine] 部署規模調整: ${departmentSize}名 → 係数${multiplier} → ${rawScore}点 → ${adjustedScore.toFixed(1)}点`);
+
+    return Math.round(adjustedScore);
+  }
+
+  /**
+   * 部署規模調整の詳細情報を取得（UIデバッグ用）
+   */
+  getDepartmentSizeAdjustmentInfo(rawScore: number, departmentSize: number): {
+    departmentSize: number;
+    category: '小規模' | '中規模' | '大規模' | '超大規模';
+    multiplier: number;
+    rawScore: number;
+    adjustedScore: number;
+    explanation: string;
+  } {
+    const multiplier = this.getDepartmentSizeMultiplier(departmentSize);
+    const adjustedScore = this.adjustScoreByDepartmentSize(rawScore, departmentSize);
+
+    let category: '小規模' | '中規模' | '大規模' | '超大規模';
+    if (departmentSize <= 5) category = '小規模';
+    else if (departmentSize <= 15) category = '中規模';
+    else if (departmentSize <= 30) category = '大規模';
+    else category = '超大規模';
+
+    const explanation =
+      multiplier < 1.0
+        ? `小規模部署のため、スコアに${multiplier}倍の調整係数を適用しています。これにより大規模部署との公平性を確保しています。`
+        : '大規模部署のため、スコアは調整なしでそのまま適用されます。';
+
+    return {
+      departmentSize,
+      category,
+      multiplier,
+      rawScore,
+      adjustedScore,
+      explanation
+    };
+  }
+
+  /**
+   * 部署の人数を取得（データベースから）
+   *
+   * @param department - 部署名
+   * @returns 部署の人数
+   */
+  async getDepartmentSize(department: string): Promise<number> {
+    try {
+      const count = await prisma.user.count({
+        where: {
+          department,
+          isRetired: false
+        }
+      });
+
+      console.log(`[AgendaLevelEngine] 部署人数取得: ${department} → ${count}名`);
+
+      return count;
+    } catch (error) {
+      console.error(`[AgendaLevelEngine] 部署人数取得エラー: ${department}`, error);
+      // エラー時は30名（大規模部署扱い）としてフォールバック
+      return 30;
+    }
   }
 }
 

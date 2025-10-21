@@ -7,6 +7,7 @@ import { standardRateLimit } from '../middleware/rateLimitMiddleware';
 import { prisma } from '../lib/prisma.js';
 import { AgendaLevelNotificationService } from '../services/AgendaLevelNotificationService';
 import { ProjectLevelNotificationService } from '../services/ProjectLevelNotificationService';
+import { agendaLevelEngine } from '../systems/agenda/engines/AgendaLevelEngine';
 
 const router = Router();
 
@@ -133,8 +134,17 @@ router.post(
           where: { postId },
         });
 
-        // スコア計算
-        const newScore = calculateAgendaScore(votes);
+        // スコア計算（議題モードの場合は部署規模調整を適用）
+        let newScore: number;
+        if (post.type === 'project') {
+          // プロジェクトモード: 調整なし（プロジェクトエンジンで別途調整）
+          newScore = calculateAgendaScore(votes);
+        } else {
+          // 議題モード: 部署規模調整を適用
+          const rawScore = calculateAgendaScore(votes);
+          const departmentSize = await agendaLevelEngine.getDepartmentSize(post.author.department);
+          newScore = agendaLevelEngine.adjustScoreByDepartmentSize(rawScore, departmentSize);
+        }
 
         // 🆕 投稿タイプに応じて前回スコアを取得
         const previousScore = post.type === 'project'
