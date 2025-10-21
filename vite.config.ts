@@ -138,6 +138,11 @@ export default defineConfig({
     target: 'es2020',
     outDir: 'dist',
     rollupOptions: {
+      external: [
+        '@prisma/client',
+        '.prisma/client',
+        '.prisma/client/index-browser'
+      ],
       onwarn(warning, warn) {
         if (warning.code === 'UNRESOLVED_IMPORT') return
         if (warning.code === 'CIRCULAR_DEPENDENCY') return
@@ -222,8 +227,12 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': '/src'
+      '@': '/src',
+      '.prisma/client/index-browser': '.prisma/client/index-browser.js'
     }
+  },
+  optimizeDeps: {
+    exclude: ['@prisma/client', '.prisma/client']
   },
   server: {
     port: 5173,
