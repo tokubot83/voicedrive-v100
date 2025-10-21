@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { Rocket, TrendingUp, AlertTriangle, Target, DollarSign, Users } from 'lucide-react';
+import { Rocket, TrendingUp, AlertTriangle, Target, Users } from 'lucide-react';
 import { Post, ProjectAnalysisData } from '../../types';
 
 interface ProjectProgressPanelProps {
@@ -238,42 +238,21 @@ export const ProjectProgressPanel: React.FC<ProjectProgressPanelProps> = ({
             </div>
           )}
 
-          {/* セクション5: リソース状況 */}
+          {/* セクション5: チーム構成 */}
           <div className="bg-white rounded-lg p-3 border border-green-100 mb-4">
             <div className="flex items-center gap-2 mb-3">
-              <DollarSign className="w-4 h-4 text-green-600" aria-hidden="true" />
+              <Users className="w-4 h-4 text-green-600" aria-hidden="true" />
               <span className="text-sm font-medium text-green-800">
-                予算・リソース状況
+                チーム構成
               </span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {/* 予算執行率 */}
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="text-xs text-gray-600 mb-1">予算執行率</div>
-                <div className="text-xl font-bold text-gray-800 mb-2">
-                  {data.resources.budget.rate}%
-                </div>
-                <div className="text-xs text-gray-600 mb-2">
-                  ¥{(data.resources.budget.used / 10000).toFixed(0)}万 / ¥
-                  {(data.resources.budget.total / 10000).toFixed(0)}万
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${data.resources.budget.rate}%` }}
-                  ></div>
-                </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <div className="text-xs text-gray-600 mb-1">アサイン人数</div>
+              <div className="text-xl font-bold text-gray-800 mb-2">
+                {data.resources.team.size}名
               </div>
-
-              {/* 人員 */}
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="text-xs text-gray-600 mb-1">アサイン人数</div>
-                <div className="text-xl font-bold text-gray-800 mb-2">
-                  {data.resources.team.size}名
-                </div>
-                <div className="text-xs text-gray-600">
-                  {data.resources.team.roles.join(' + ')}
-                </div>
+              <div className="text-xs text-gray-600">
+                {data.resources.team.roles.join(' + ')}
               </div>
             </div>
           </div>

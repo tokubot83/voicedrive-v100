@@ -150,11 +150,6 @@ export interface ProjectAnalysisData {
 
   /** リソース状況 */
   resources: {
-    budget: {
-      used: number;
-      total: number;
-      rate: number;
-    };
     team: {
       size: number;
       roles: string[];

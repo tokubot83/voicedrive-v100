@@ -348,22 +348,18 @@ const VotingSection: React.FC<VotingSectionProps> = ({
             status="active"
             quickInsights={post.enhancedProjectStatus ? [
               `🏢 ${post.enhancedProjectStatus.level === 'DEPARTMENT' ? '部署内' : post.enhancedProjectStatus.level === 'FACILITY' ? '施設内' : '法人'}プロジェクト`,
-              `💰 予算${Math.round((post.enhancedProjectStatus.resources.budget_used / post.enhancedProjectStatus.resources.budget_total) * 100)}%使用`,
               `👥 ${post.enhancedProjectStatus.resources.team_size}名参加`,
               `⏱️ ${post.enhancedProjectStatus.timeline}`
             ] : [
               '📅 予定通り',
-              `💰 予算${Math.round((projectData.budget.used / projectData.budget.total) * 100)}%使用`,
               `👥 ${projectData.team}名参加`
             ]}
             details={post.enhancedProjectStatus ? [
               { label: '進捗率', value: `${post.enhancedProjectStatus.resources.completion}%`, trend: 'up' },
-              { label: '予算執行', value: `${(post.enhancedProjectStatus.resources.budget_used / 10000).toFixed(0)}万円`, trend: 'stable' },
               { label: 'チーム規模', value: `${post.enhancedProjectStatus.resources.team_size}名` },
               { label: '期間', value: post.enhancedProjectStatus.timeline }
             ] : [
               { label: '進捗率', value: `${projectData.progress}%`, trend: 'up' },
-              { label: '予算執行', value: `¥${projectData.budget.used.toLocaleString()}`, trend: 'stable' },
               { label: '経過期間', value: `${projectData.timeline.current}/${projectData.timeline.total}ヶ月` },
               { label: '次の節目', value: projectData.nextMilestone }
             ]}
