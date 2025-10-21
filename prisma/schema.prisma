@@ -140,6 +140,7 @@ model User {
   votingConfigsUpdated          VotingConfig[]                  @relation("VotingConfigUpdater")
   menuConfigsUpdated            MenuConfig[]                    @relation("MenuConfigUpdater")
   proposalReviews               ProposalReview[]                @relation("UserProposalReviews")
+  proposalDecisions             ProposalDecision[]              @relation("UserProposalDecisions")
 }
 
 model Notification {
@@ -652,6 +653,7 @@ model Post {
   expiredEscalationDecisions ExpiredEscalationDecision[] @relation("ExpiredEscalationDecisions")
   proposalDocuments          ProposalDocument[]
   proposalReviews            ProposalReview[]            @relation("PostProposalReviews")
+  proposalDecisions          ProposalDecision[]          @relation("PostProposalDecisions")
 
   @@index([authorId])
   @@index([type])
@@ -2589,4 +2591,51 @@ model MenuConfig {
   @@index([isVisible])
   @@index([order])
   @@map("menu_configs")
+}
+
+// ========================================
+// proposal-management用テーブル (2025-10-21追加)
+// ========================================
+
+// 提案決定テーブル（却下・保留・部署案件化・レベルアップ承認）
+model ProposalDecision {
+  id            String   @id @default(cuid())
+  postId        String
+  post          Post     @relation("PostProposalDecisions", fields: [postId], references: [id], onDelete: Cascade)
+
+  // 決定情報
+  decisionType  String   // 'reject' | 'hold' | 'department_matter' | 'level_up_approved'
+  agendaLevel   String   // 決定時の議題レベル（'PENDING' | 'DEPT_REVIEW' | ...）
+
+  // 決定者情報
+  decidedBy     String
+  decidedByUser User     @relation("UserProposalDecisions", fields: [decidedBy], references: [id])
+  decidedAt     DateTime @default(now())
+
+  // 決定理由
+  reason        String   // 決定理由（必須）
+  notes         String?  // 追加メモ
+
+  // 保留固有フィールド
+  reviewDate    DateTime?  // 再検討予定日
+  isReviewed    Boolean?   @default(false)
+  reviewedAt    DateTime?
+  reviewedBy    String?
+  reviewOutcome String?    // 'approved' | 'rejected' | 'extended'
+
+  // 部署案件化固有フィールド
+  targetDepartment  String?   // 対象部署
+  assignedTo        String?   // 担当リーダーID
+  meetingScheduled  DateTime? // ミーティング予定日
+  meetingCompleted  Boolean?  @default(false)
+  meetingOutcome    String?   // ミーティング結果
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([postId])
+  @@index([decidedBy])
+  @@index([decisionType])
+  @@index([agendaLevel])
+  @@map("proposal_decisions")
 }

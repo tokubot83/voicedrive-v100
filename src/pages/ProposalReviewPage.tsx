@@ -10,7 +10,6 @@ import {
   CheckCircle,
   TrendingUp,
   XCircle,
-  Users,
   ThumbsUp,
   ThumbsDown,
   Minus,
@@ -50,7 +49,13 @@ export const ProposalReviewPage: React.FC<ProposalReviewPageProps> = () => {
       }
 
       const data = await response.json();
-      setPost(data);
+
+      // API response has { success: true, post: {...} } structure
+      if (data.success && data.post) {
+        setPost(data.post);
+      } else {
+        setPost(data);
+      }
     } catch (error) {
       console.error('Error fetching post:', error);
       setError('提案の取得に失敗しました');
@@ -100,10 +105,11 @@ export const ProposalReviewPage: React.FC<ProposalReviewPageProps> = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || '判断の送信に失敗しました');
+        throw new Error(errorData.message || errorData.error || '判断の送信に失敗しました');
       }
 
-      alert('判断を送信しました');
+      const result = await response.json();
+      alert(result.message || '判断を送信しました');
       navigate('/proposal-management');
     } catch (err: any) {
       setError(err.message || '判断の送信に失敗しました');
@@ -140,10 +146,10 @@ export const ProposalReviewPage: React.FC<ProposalReviewPageProps> = () => {
     );
   }
 
-  const voteData = post.pollResult || {};
-  const approveVotes = voteData.results?.find((r: any) => r.option.text === '賛成')?.votes || 0;
-  const neutralVotes = voteData.results?.find((r: any) => r.option.text === '中立')?.votes || 0;
-  const opposeVotes = voteData.results?.find((r: any) => r.option.text === '反対')?.votes || 0;
+  const voteCount = post.voteCount || { approve: 0, neutral: 0, oppose: 0 };
+  const approveVotes = voteCount.approve;
+  const neutralVotes = voteCount.neutral;
+  const opposeVotes = voteCount.oppose;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -177,7 +183,7 @@ export const ProposalReviewPage: React.FC<ProposalReviewPageProps> = () => {
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm text-gray-600">投稿者</p>
               <p className="font-semibold text-gray-900">{post.author?.name || '匿名'}</p>
-              <p className="text-sm text-gray-600">{post.department || '不明'}</p>
+              <p className="text-sm text-gray-600">{post.author?.department || '不明'}</p>
             </div>
 
             <div className="bg-gray-50 p-4 rounded-lg">
