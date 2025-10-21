@@ -2,19 +2,20 @@
   "framework": "vite",
   "buildCommand": "npm run build:vercel",
   "outputDirectory": "dist",
-  "installCommand": "npm install",
+  "installCommand": "npm install --production=false",
   "devCommand": "npm run dev",
   "env": {
     "VERCEL_FORCE_NO_BUILD_CACHE": "1",
     "NODE_OPTIONS": "--max-old-space-size=4096",
-    "SKIP_ENV_VALIDATION": "true"
+    "SKIP_ENV_VALIDATION": "true",
+    "PRISMA_SKIP_POSTINSTALL_GENERATE": "true"
   },
   "build": {
     "env": {
       "VERCEL_FORCE_NO_BUILD_CACHE": "1",
       "NODE_OPTIONS": "--max-old-space-size=4096",
       "SKIP_ENV_VALIDATION": "true",
-      "DATABASE_URL": "file:./prisma/dev.db"
+      "PRISMA_SKIP_POSTINSTALL_GENERATE": "true"
     }
   },
   "rewrites": [
