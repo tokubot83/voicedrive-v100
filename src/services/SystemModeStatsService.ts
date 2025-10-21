@@ -43,57 +43,20 @@ class SystemModeStatsService {
 
   /**
    * 移行準備状況の統計を取得
-   * TODO: 実際のDB接続実装時に、Prismaクエリに置き換え
    */
   async getMigrationStats(): Promise<MigrationStats> {
-    // デモ環境・開発環境用のダミーデータ
-    // TODO: 本番環境では以下のPrismaクエリを使用
-    /*
-    const prisma = new PrismaClient();
-
-    const now = new Date();
-    const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-
-    // 月間投稿数
-    const monthlyPosts = await prisma.post.count({
-      where: {
-        createdAt: { gte: oneMonthAgo }
+    try {
+      const response = await fetch('/api/system/mode/migration-stats');
+      if (!response.ok) {
+        throw new Error('統計取得に失敗しました');
       }
-    });
-
-    // 委員会提出数（スコア100点以上）
-    const committeeSubmissions = await prisma.post.count({
-      where: {
-        score: { gte: 100 },
-        createdAt: { gte: oneMonthAgo }
-      }
-    });
-
-    // アクティブユーザー数（月間1回以上ログイン）
-    const activeUsers = await prisma.user.count({
-      where: {
-        lastLoginAt: { gte: oneMonthAgo }
-      }
-    });
-
-    // 総ユーザー数
-    const totalUsers = await prisma.user.count();
-
-    const participationRate = totalUsers > 0
-      ? (activeUsers / totalUsers) * 100
-      : 0;
-
-    return {
-      monthlyPosts,
-      committeeSubmissions,
-      participationRate,
-      activeUsers,
-      totalUsers
-    };
-    */
-
-    // 暫定: デモ用データ
-    return this.getDemoStats();
+      const data = await response.json();
+      return data.stats;
+    } catch (error) {
+      console.error('統計取得エラー:', error);
+      // エラー時はデモデータを返す
+      return this.getDemoStats();
+    }
   }
 
   /**
@@ -121,54 +84,65 @@ class SystemModeStatsService {
    * 移行準備状況を判定
    */
   async checkMigrationReadiness(): Promise<MigrationReadiness> {
-    const stats = await this.getMigrationStats();
-
-    const postsProgress = Math.min(
-      (stats.monthlyPosts / this.THRESHOLDS.monthlyPosts) * 100,
-      100
-    );
-
-    const submissionsProgress = Math.min(
-      (stats.committeeSubmissions / this.THRESHOLDS.committeeSubmissions) * 100,
-      100
-    );
-
-    const participationProgress = Math.min(
-      (stats.participationRate / this.THRESHOLDS.participationRate) * 100,
-      100
-    );
-
-    const overallProgress = Math.round(
-      (postsProgress * 0.4 + submissionsProgress * 0.3 + participationProgress * 0.3)
-    );
-
-    const isReady =
-      stats.monthlyPosts >= this.THRESHOLDS.monthlyPosts &&
-      stats.committeeSubmissions >= this.THRESHOLDS.committeeSubmissions &&
-      stats.participationRate >= this.THRESHOLDS.participationRate;
-
-    const getStatus = (current: number, threshold: number): 'ready' | 'in_progress' | 'not_started' => {
-      if (current >= threshold) return 'ready';
-      if (current >= threshold * 0.3) return 'in_progress';
-      return 'not_started';
-    };
-
-    return {
-      isReady,
-      progress: overallProgress,
-      message: isReady
-        ? '✅ プロジェクト化モードへの移行準備が整っています'
-        : overallProgress >= 70
-        ? '⏳ まもなく移行準備が整います（70%以上達成）'
-        : overallProgress >= 40
-        ? '📊 移行準備が順調に進んでいます（40%以上達成）'
-        : '🌱 議題モードでの実績を積み重ねましょう（40%未満）',
-      details: {
-        postsStatus: getStatus(stats.monthlyPosts, this.THRESHOLDS.monthlyPosts),
-        submissionsStatus: getStatus(stats.committeeSubmissions, this.THRESHOLDS.committeeSubmissions),
-        participationStatus: getStatus(stats.participationRate, this.THRESHOLDS.participationRate)
+    try {
+      const response = await fetch('/api/system/mode/migration-stats');
+      if (!response.ok) {
+        throw new Error('移行準備状況の取得に失敗しました');
       }
-    };
+      const data = await response.json();
+      return data.readiness;
+    } catch (error) {
+      console.error('移行準備状況取得エラー:', error);
+      // エラー時はローカル計算にフォールバック
+      const stats = await this.getMigrationStats();
+
+      const postsProgress = Math.min(
+        (stats.monthlyPosts / this.THRESHOLDS.monthlyPosts) * 100,
+        100
+      );
+
+      const submissionsProgress = Math.min(
+        (stats.committeeSubmissions / this.THRESHOLDS.committeeSubmissions) * 100,
+        100
+      );
+
+      const participationProgress = Math.min(
+        (stats.participationRate / this.THRESHOLDS.participationRate) * 100,
+        100
+      );
+
+      const overallProgress = Math.round(
+        (postsProgress * 0.4 + submissionsProgress * 0.3 + participationProgress * 0.3)
+      );
+
+      const isReady =
+        stats.monthlyPosts >= this.THRESHOLDS.monthlyPosts &&
+        stats.committeeSubmissions >= this.THRESHOLDS.committeeSubmissions &&
+        stats.participationRate >= this.THRESHOLDS.participationRate;
+
+      const getStatus = (current: number, threshold: number): 'ready' | 'in_progress' | 'not_started' => {
+        if (current >= threshold) return 'ready';
+        if (current >= threshold * 0.3) return 'in_progress';
+        return 'not_started';
+      };
+
+      return {
+        isReady,
+        progress: overallProgress,
+        message: isReady
+          ? '✅ プロジェクト化モードへの移行準備が整っています'
+          : overallProgress >= 70
+          ? '⏳ まもなく移行準備が整います（70%以上達成）'
+          : overallProgress >= 40
+          ? '📊 移行準備が順調に進んでいます（40%以上達成）'
+          : '🌱 議題モードでの実績を積み重ねましょう（40%未満）',
+        details: {
+          postsStatus: getStatus(stats.monthlyPosts, this.THRESHOLDS.monthlyPosts),
+          submissionsStatus: getStatus(stats.committeeSubmissions, this.THRESHOLDS.committeeSubmissions),
+          participationStatus: getStatus(stats.participationRate, this.THRESHOLDS.participationRate)
+        }
+      };
+    }
   }
 
   /**

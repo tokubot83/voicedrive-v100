@@ -8,7 +8,10 @@ import agendaEscalationRoutes from './routes/agendaEscalationRoutes';
 import agendaExpiredEscalationRoutes from './routes/agendaExpiredEscalationRoutes';
 import proposalReviewRoutes from './routes/proposalReviewRoutes';
 import facilityProposalReviewRoutes from './routes/facilityProposalReviewRoutes';
+import systemModeRoutes from './routes/systemModeRoutes';
+import systemOperationsRoutes from './routes/systemOperationsRoutes';
 import { startExpiredEscalationJob } from './jobs/expiredEscalationCheckJob';
+import { startHealthCheckJob, startHealthCleanupJob } from './jobs/healthCheckJob';
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -23,6 +26,13 @@ app.use((req, res, next) => {
   console.log(`🔍 [Request] ${req.method} ${req.path}`);
   next();
 });
+
+// システムモードAPI（最優先で登録）
+console.log('⚙️  Registering System Mode API routes at /api/system');
+console.log('   SystemModeRoutes type:', typeof systemModeRoutes);
+console.log('   SystemModeRoutes value:', systemModeRoutes);
+app.use('/api/system', systemModeRoutes);
+app.use('/api/system', systemOperationsRoutes);
 
 // 議題モードAPI（より具体的なパスを先に登録）
 console.log('📋 Registering Agenda API routes at /api/agenda');
@@ -94,6 +104,8 @@ app.listen(PORT, () => {
 
   // Cron Job起動
   startExpiredEscalationJob();
+  startHealthCheckJob();
+  startHealthCleanupJob();
 });
 
 export default app;

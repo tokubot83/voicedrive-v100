@@ -4,7 +4,6 @@
  * 議題システムモードとプロジェクト化モードを管理
  */
 
-import { PermissionLevel, SpecialPermissionLevel } from '../permissions/types/PermissionTypes';
 import { User } from '../types';
 
 export enum SystemMode {
@@ -131,43 +130,62 @@ class SystemModeManager {
    */
   async setMode(mode: SystemMode, adminUser: User): Promise<void> {
     // システム管理者権限チェック（LEVEL_99 = 99）
-    if (adminUser.permissionLevel !== 99 && adminUser.permissionLevel !== SpecialPermissionLevel.LEVEL_X as any) {
+    if (Number(adminUser.permissionLevel) !== 99) {
       throw new Error('システム管理者（レベル99）のみモード変更可能です');
     }
 
     const previousMode = this.currentMode;
-    this.currentMode = mode;
 
-    const config: SystemModeConfig = {
-      mode,
-      enabledAt: new Date(),
-      enabledBy: adminUser.id,
-      description: mode === SystemMode.AGENDA
-        ? '議題システムモード - 委員会活性化・声を上げる文化の醸成'
-        : 'プロジェクト化モード - チーム編成・組織一体感の向上',
-      migrationStatus: previousMode !== mode ? 'in_progress' : 'completed'
-    };
-
-    this.modeConfig = config;
-
-    // 設定を永続化
-    await this.saveModeConfig(config);
-
-    // PermissionServiceに通知（循環参照を避けるため動的インポート）
+    // APIを使用してモードを変更
     try {
-      const { PermissionService } = await import('../permissions/services/PermissionService');
-      const permissionService = PermissionService.getInstance();
-      permissionService.onModeChange(mode);
+      const response = await fetch('/api/system/mode', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode, userId: adminUser.id })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'モード変更に失敗しました');
+      }
+
+      const result = await response.json();
+      this.currentMode = mode;
+
+      const config: SystemModeConfig = {
+        mode,
+        enabledAt: new Date(),
+        enabledBy: adminUser.id,
+        description: mode === SystemMode.AGENDA
+          ? '議題システムモード - 委員会活性化・声を上げる文化の醸成'
+          : 'プロジェクト化モード - チーム編成・組織一体感の向上',
+        migrationStatus: previousMode !== mode ? 'in_progress' : 'completed'
+      };
+
+      this.modeConfig = config;
+
+      // LocalStorageにもキャッシュ
+      await this.saveModeConfig(config);
+
+      // PermissionServiceに通知（循環参照を避けるため動的インポート）
+      try {
+        const { PermissionService } = await import('../permissions/services/PermissionService');
+        const permissionService = PermissionService.getInstance();
+        permissionService.onModeChange(mode);
+      } catch (error) {
+        console.warn('[SystemMode] PermissionServiceへの通知失敗:', error);
+      }
+
+      console.log(`[SystemMode] ${previousMode} → ${mode} に変更しました`);
+      console.log(`[SystemMode] 権限システムが ${mode} に対応しました`);
+
+      // リスナーに通知（同一タブ内の変更）
+      if (previousMode !== mode) {
+        this.notifyListeners(mode);
+      }
     } catch (error) {
-      console.warn('[SystemMode] PermissionServiceへの通知失敗:', error);
-    }
-
-    console.log(`[SystemMode] ${previousMode} → ${mode} に変更しました`);
-    console.log(`[SystemMode] 権限システムが ${mode} に対応しました`);
-
-    // リスナーに通知（同一タブ内の変更）
-    if (previousMode !== mode) {
-      this.notifyListeners(mode);
+      console.error('[SystemMode] モード変更エラー:', error);
+      throw error;
     }
   }
 
