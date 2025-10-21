@@ -24,6 +24,7 @@ const IdeaVoiceGuide: React.FC = () => {
       'header', 'intro', 'why', 'fairness', 'transparent', 'summary',
       'system-header', 'weight-system', 'anonymous-system', 'calculation', 'levels', 'approval',
       'flow-header', 'step1', 'step2', 'step3', 'step4', 'step5', 'flow-timeline',
+      'dept-size-adjustment-header', 'dept-size-multiplier', 'ohara-example', 'tategami-example', 'dept-comparison', 'dept-threshold-impact',
       'proposal-examples-header', 'operational-examples', 'communication-examples', 'innovation-examples', 'strategic-examples',
       'examples-header', 'nurse-cases', 'doctor-cases', 'admin-cases', 'tech-cases', 'examples-stats',
       'faq-header', 'faq1', 'faq2', 'faq3', 'faq4', 'faq5', 'faq6', 'faq-footer',
