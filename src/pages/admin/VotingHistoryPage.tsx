@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useVotingHistory } from '../../hooks/useVotingHistory';
 import { exportChangeLogs } from '../../services/votingHistoryService';
 import { Download } from 'lucide-react';
+import { ChangeLogDetailModal } from '../../components/voting/ChangeLogDetailModal';
 
 /**
  * 投票設定変更履歴ページ
@@ -12,6 +13,8 @@ import { Download } from 'lucide-react';
 export const VotingHistoryPage: React.FC = () => {
   const [filterMode, setFilterMode] = useState<'all' | 'agenda' | 'project'>('all');
   const [page, setPage] = useState(1);
+  const [selectedLogId, setSelectedLogId] = useState<string | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   // APIからデータ取得
   const { logs, statistics, pagination, loading, error } = useVotingHistory({
@@ -28,6 +31,18 @@ export const VotingHistoryPage: React.FC = () => {
       console.error('Export failed:', err);
       alert('エクスポートに失敗しました');
     }
+  };
+
+  // 詳細表示
+  const handleShowDetail = (logId: string) => {
+    setSelectedLogId(logId);
+    setIsDetailModalOpen(true);
+  };
+
+  // モーダルを閉じる
+  const handleCloseDetail = () => {
+    setIsDetailModalOpen(false);
+    setSelectedLogId(null);
   };
 
   // 表示用データ（APIデータを使用）
@@ -167,7 +182,10 @@ export const VotingHistoryPage: React.FC = () => {
 
                   {/* アクションボタン */}
                   <div className="mt-3 flex items-center space-x-2">
-                    <button className="px-3 py-1.5 bg-slate-700/50 hover:bg-slate-700/70 border border-slate-600/50 rounded text-xs text-slate-300 transition-colors">
+                    <button
+                      onClick={() => handleShowDetail(item.id)}
+                      className="px-3 py-1.5 bg-slate-700/50 hover:bg-slate-700/70 border border-slate-600/50 rounded text-xs text-slate-300 transition-colors"
+                    >
                       詳細を表示
                     </button>
                     <button className="px-3 py-1.5 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 rounded text-xs text-yellow-400 transition-colors">
@@ -241,6 +259,15 @@ export const VotingHistoryPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* 詳細表示モーダル */}
+      {selectedLogId && (
+        <ChangeLogDetailModal
+          logId={selectedLogId}
+          isOpen={isDetailModalOpen}
+          onClose={handleCloseDetail}
+        />
+      )}
     </div>
   );
 };

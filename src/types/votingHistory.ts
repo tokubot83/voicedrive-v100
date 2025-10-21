@@ -26,6 +26,9 @@ export interface ChangeLogDetail extends ChangeLog {
     permissionLevel: number;
   };
   changedAt: string;
+  revertedAt?: string;
+  revertedBy?: string;
+  revertReason?: string;
   relatedEntity?: {
     type: string;
     id: string;
