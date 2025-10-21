@@ -5,13 +5,23 @@
  *
  * 機能:
  * - profilePhotoUrl（CloudFront URL）からの画像表示
- * - 画像読み込み失敗時のフォールバック（イニシャル表示）
+ * - 画像未登録時のフォールバック（既存のイラストアバター表示）
+ * - 画像読み込み失敗時のフォールバック（既存のイラストアバター表示）
  * - レスポンシブサイズ対応
  *
  * @module PhotoAvatar
  */
 
 import React, { useState } from 'react';
+import Avatar from './Avatar';
+
+interface AvatarData {
+  gradient: string;
+  shadowClass?: string;
+  icon: string;
+  borderColor: string;
+  isRichGradient?: boolean;
+}
 
 interface PhotoAvatarProps {
   /** 職員名（イニシャル表示用） */
@@ -22,6 +32,8 @@ interface PhotoAvatarProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   /** 追加のCSSクラス */
   className?: string;
+  /** フォールバック用のイラストアバターデータ（avatarGenerator生成） */
+  fallbackAvatarData?: AvatarData;
 }
 
 const sizeClasses = {
@@ -35,19 +47,28 @@ const sizeClasses = {
 /**
  * PhotoAvatarコンポーネント
  *
- * CloudFront URLが存在する場合は写真を表示、存在しない場合はイニシャルを表示します。
- * 画像読み込みに失敗した場合も自動的にイニシャル表示にフォールバックします。
+ * 優先順位:
+ * 1. profilePhotoUrl が存在する場合 → 写真を表示
+ * 2. profilePhotoUrl が null または画像読み込み失敗 → fallbackAvatarData のイラスト表示
+ * 3. fallbackAvatarData も null → イニシャル表示（デフォルト）
  *
  * @example
  * ```tsx
  * // 写真URLあり
  * <PhotoAvatar
  *   name="山田太郎"
- *   profilePhotoUrl="https://d2k8x5j9m1n4p7.cloudfront.net/employees/EMP-2025-001.jpg"
+ *   profilePhotoUrl="https://medical-system.example.com/employees/EMP-2025-001.jpg"
  *   size="md"
  * />
  *
- * // 写真URLなし（イニシャル表示）
+ * // 写真URLなし、イラストアバターあり
+ * <PhotoAvatar
+ *   name="山田太郎"
+ *   size="md"
+ *   fallbackAvatarData={generatePersonalAvatar(user)}
+ * />
+ *
+ * // すべてなし（イニシャル表示）
  * <PhotoAvatar
  *   name="山田太郎"
  *   size="md"
@@ -58,7 +79,8 @@ const PhotoAvatar: React.FC<PhotoAvatarProps> = ({
   name,
   profilePhotoUrl,
   size = 'md',
-  className = ''
+  className = '',
+  fallbackAvatarData
 }) => {
   const [imageError, setImageError] = useState(false);
 
@@ -86,6 +108,7 @@ const PhotoAvatar: React.FC<PhotoAvatarProps> = ({
     setImageError(true);
   };
 
+  // 優先順位1: 写真を表示
   if (shouldShowPhoto) {
     return (
       <div className={`relative ${sizeClasses[size]} ${className}`}>
@@ -108,7 +131,18 @@ const PhotoAvatar: React.FC<PhotoAvatarProps> = ({
     );
   }
 
-  // フォールバック: イニシャル表示
+  // 優先順位2: イラストアバターを表示（既存のavatar generatorの出力）
+  if (fallbackAvatarData) {
+    return (
+      <Avatar
+        avatarData={fallbackAvatarData}
+        size={size}
+        className={className}
+      />
+    );
+  }
+
+  // 優先順位3: イニシャル表示（フォールバック）
   return (
     <div
       className={`

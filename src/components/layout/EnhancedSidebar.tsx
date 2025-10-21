@@ -3,7 +3,7 @@ import { useDemoMode } from '../demo/DemoModeController';
 import { useUserPermission } from '../../hooks/useUserPermission';
 import { MenuItem } from '../../types/sidebar';
 import { EnhancedSidebarMenuItem } from './EnhancedSidebarMenuItem';
-import Avatar from '../common/Avatar';
+import PhotoAvatar from '../common/PhotoAvatar';
 import { generatePersonalAvatar } from '../../utils/avatarGenerator';
 import { systemModeManager, SystemMode } from '../../config/systemMode';
 import { getAgendaMenuItems } from '../../config/agendaMenuConfig';
@@ -145,8 +145,10 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
       >
         {isDemoMode ? (
           <div className="flex items-center gap-3">
-            <Avatar
-              avatarData={generatePersonalAvatar(currentUser)}
+            <PhotoAvatar
+              name={currentUser.name}
+              profilePhotoUrl={currentUser.profilePhotoUrl}
+              fallbackAvatarData={generatePersonalAvatar(currentUser)}
               size="md"
             />
             <div className="flex-1 min-w-0">

@@ -65,6 +65,9 @@ export interface User {
   anonymizedId?: string;
   retirementProcessedBy?: string;
   retirementProcessedDate?: Date;
+  // Phase 2: 顔写真統合
+  profilePhotoUrl?: string | null;
+  profilePhotoUpdatedAt?: Date | null;
 }
 
 // Account types mapping to 13-level permission system

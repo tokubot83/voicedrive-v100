@@ -2,7 +2,7 @@ import { useState } from 'react';
 import VotingSection from './VotingSection';
 import FreespacePostRenderer from './FreespacePostRenderer';
 import ThreadedCommentSystem from './comments/ThreadedCommentSystem';
-import Avatar from './common/Avatar';
+import PhotoAvatar from './common/PhotoAvatar';
 import { generateAvatarByAnonymity, getDisplayName } from '../utils/avatarGenerator';
 import { Post as PostType, VoteOption, User, Comment } from '../types';
 import { proposalTypeConfigs } from '../config/proposalTypes';
@@ -155,8 +155,10 @@ const EnhancedPost = ({ post, currentUser, onVote, onComment }: EnhancedPostProp
     <div className={`rounded-xl border transition-colors mb-4 ${getBackgroundStyle()}`}>
       {/* ヘッダー */}
       <div className="flex items-center p-4 pb-3">
-        <Avatar 
-          avatarData={avatarData}
+        <PhotoAvatar
+          name={displayName}
+          profilePhotoUrl={post.author.profilePhotoUrl}
+          fallbackAvatarData={avatarData}
           size="md"
           className="shadow-md"
         />

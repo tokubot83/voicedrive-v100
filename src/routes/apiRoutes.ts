@@ -25,6 +25,8 @@ import * as expiredEscalationAPI from '../api/expiredEscalationDecision';
 // Phase 2: 顔写真統合
 import { validateWebhookSignature } from '../middleware/webhookAuth';
 import { handleEmployeeWebhook } from '../controllers/webhookController';
+// Phase 2: Approvals Page - Notifications API
+import notificationsApiRouter from './notificationsApi';
 
 const router = Router();
 
@@ -54,6 +56,10 @@ router.use('/v1/analytics', analyticsRoutes);
 
 // サイドバーメニュー管理API
 router.use('/sidebar-menu', sidebarMenuRoutes);
+
+// Phase 2: Approvals Page - Actionable Notifications API
+console.log('📋 Registering Approvals Notifications API routes at /approvals');
+router.use('/approvals', notificationsApiRouter);
 
 // 議題モードAPI（server.tsで直接登録するため、ここではコメントアウト）
 // console.log('📋 Registering Agenda API routes at /api/agenda');

@@ -3,7 +3,7 @@ import { MessageCircle, Clock, Users, Vote } from 'lucide-react';
 import { Poll, PollOption, PollVote } from '../types/poll';
 import { Post, Comment } from '../types';
 import ThreadedCommentSystem from './comments/ThreadedCommentSystem';
-import Avatar from './common/Avatar';
+import PhotoAvatar from './common/PhotoAvatar';
 import { generateAvatarByAnonymity, getDisplayName } from '../utils/avatarGenerator';
 import { useDemoMode } from './demo/DemoModeController';
 import PostReportButton from './common/PostReportButton';
@@ -83,8 +83,10 @@ const FreespacePost = ({ post, poll, userVote, onVote, onComment }: FreespacePos
     <div className="bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-colors mb-4">
       {/* ヘッダー */}
       <div className="flex items-center p-4 pb-3">
-        <Avatar 
-          avatarData={avatarData}
+        <PhotoAvatar
+          name={displayName}
+          profilePhotoUrl={post.author.profilePhotoUrl}
+          fallbackAvatarData={avatarData}
           size="md"
           className="shadow-md"
         />

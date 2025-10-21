@@ -3,7 +3,7 @@ import { useDemoMode } from '../components/demo/DemoModeController';
 import { MedicalProfile } from '../types/profile';
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 import Timeline from '../components/Timeline';
-import Avatar from '../components/common/Avatar';
+import PhotoAvatar from '../components/common/PhotoAvatar';
 import { generatePersonalAvatar } from '../utils/avatarGenerator';
 import { User, Calendar, Building2, Briefcase, Award, Activity, FileText, TrendingUp } from 'lucide-react';
 
@@ -77,8 +77,10 @@ const ProfilePage: React.FC = () => {
       <div className="px-6 pb-6 -mt-16 relative">
         <div className="flex items-end gap-6">
           <div className="relative">
-            <Avatar 
-              avatarData={avatarData}
+            <PhotoAvatar
+              name={currentUser.name}
+              profilePhotoUrl={currentUser.profilePhotoUrl}
+              fallbackAvatarData={avatarData}
               size="xl"
               className="border-4 border-slate-800 shadow-2xl"
             />

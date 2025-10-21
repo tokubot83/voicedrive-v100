@@ -3,7 +3,7 @@ import { ChevronDown, User, Shield, Briefcase, UserCheck, Building2, Users } fro
 import { demoUsers, DemoUser, ACCOUNT_TYPE_MAPPING } from '../../data/demo/users';
 import { AccountHierarchyService } from '../../services/AccountHierarchyService';
 import { FACILITIES } from '../../data/medical/facilities';
-import Avatar from '../common/Avatar';
+import PhotoAvatar from '../common/PhotoAvatar';
 import { generatePersonalAvatar } from '../../utils/avatarGenerator';
 
 interface DemoUserSwitcherProps {
@@ -45,8 +45,10 @@ export const DemoUserSwitcher: React.FC<DemoUserSwitcherProps> = ({ currentUser,
         onClick={() => setIsOpen(!isOpen)}
         className={`flex items-center gap-2 ${isMobile ? 'px-2 py-1.5' : 'px-4 py-2'} bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-full`}
       >
-        <Avatar
-          avatarData={generatePersonalAvatar(currentUser)}
+        <PhotoAvatar
+          name={currentUser.name}
+          profilePhotoUrl={currentUser.profilePhotoUrl}
+          fallbackAvatarData={generatePersonalAvatar(currentUser)}
           size={isMobile ? 'xs' : 'sm'}
         />
         <div className="text-left flex-1 min-w-0">
@@ -156,8 +158,10 @@ export const DemoUserSwitcher: React.FC<DemoUserSwitcherProps> = ({ currentUser,
                             currentUser.id === user.id ? 'bg-blue-50' : ''
                           }`}
                         >
-                          <Avatar
-                            avatarData={generatePersonalAvatar(user)}
+                          <PhotoAvatar
+                            name={user.name}
+                            profilePhotoUrl={user.profilePhotoUrl}
+                            fallbackAvatarData={generatePersonalAvatar(user)}
                             size="sm"
                           />
                           <div className="flex-1 text-left">
@@ -231,8 +235,10 @@ const HierarchicalUserList: React.FC<HierarchicalUserListProps> = ({ users, curr
             currentUser.id === user.id ? 'bg-blue-50' : ''
           }`}
         >
-          <Avatar
-            avatarData={generatePersonalAvatar(user)}
+          <PhotoAvatar
+            name={user.name}
+            profilePhotoUrl={user.profilePhotoUrl}
+            fallbackAvatarData={generatePersonalAvatar(user)}
             size="sm"
           />
           <div className="flex-1 text-left">
