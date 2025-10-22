@@ -28,9 +28,6 @@ app.use((req, res, next) => {
 });
 
 // システムモードAPI（最優先で登録）
-console.log('⚙️  Registering System Mode API routes at /api/system');
-console.log('   SystemModeRoutes type:', typeof systemModeRoutes);
-console.log('   SystemModeRoutes value:', systemModeRoutes);
 app.use('/api/system', systemModeRoutes);
 app.use('/api/system', systemOperationsRoutes);
 

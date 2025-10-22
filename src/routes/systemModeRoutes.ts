@@ -6,21 +6,14 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
-console.log('⚙️  [SystemModeRoutes] Loading system mode routes...');
-
 const router = Router();
 const prisma = new PrismaClient();
-
-// テストエンドポイント
-router.get('/test', (req: Request, res: Response) => {
-  res.json({ success: true, message: 'SystemMode routes working!' });
-});
 
 /**
  * GET /api/system/mode
  * 現在のシステムモードを取得
  */
-router.get('/mode', async (req: Request, res: Response) => {
+router.get('/mode', async (_req: Request, res: Response) => {
   try {
     const config = await prisma.systemConfig.findUnique({
       where: { configKey: 'system_mode' },
@@ -165,7 +158,7 @@ router.put('/mode', async (req: Request, res: Response) => {
  * GET /api/system/mode/migration-stats
  * 移行準備統計を取得
  */
-router.get('/mode/migration-stats', async (req: Request, res: Response) => {
+router.get('/mode/migration-stats', async (_req: Request, res: Response) => {
   try {
     // 1ヶ月前の日付
     const oneMonthAgo = new Date();
