@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useUserPermission } from '../hooks/useUserPermission';
 import { ProposalEscalationEngine } from '../services/ProposalEscalationEngine';
-import { AgendaDocumentEditor } from '../components/proposal/AgendaDocumentEditor';
+// import { AgendaDocumentEditor } from '../components/proposal/AgendaDocumentEditor';
+// DB構築後に上記コメントを解除
 import {
   FileText,
   Sparkles,
   RefreshCw,
-  Download,
-  Send,
   AlertCircle,
-  CheckCircle,
   Users,
   TrendingUp,
-  Clock,
   Target
 } from 'lucide-react';
 
@@ -145,17 +142,35 @@ export const ProposalGeneratorPage: React.FC = () => {
     setIsGenerating(true);
 
     try {
+      // 委員会を決定
+      const committee = escalationEngine.determineTargetCommittee(
+        selectedProposal.currentScore,
+        '業務改善',
+        '小原病院'
+      );
+
+      if (!committee) {
+        console.error('適切な委員会が見つかりませんでした');
+        setIsGenerating(false);
+        return;
+      }
+
       // ProposalEscalationEngineのgenerateAgendaDocumentメソッドを呼び出し
-      const document = await escalationEngine.generateAgendaDocument({
-        proposalId: selectedProposal.id,
+      const proposalData = {
         title: selectedProposal.title,
         department: selectedProposal.department,
-        currentScore: selectedProposal.currentScore,
-        participantCount: selectedProposal.participantCount,
-        submittedAt: selectedProposal.submittedAt,
-        votes: selectedProposal.votes,
-        topComments: selectedProposal.topComments
-      });
+        content: `投票スコア: ${selectedProposal.currentScore}点\n参加者: ${selectedProposal.participantCount}人`,
+        votingScore: selectedProposal.currentScore,
+        agreementRate: ((selectedProposal.votes['strongly-support'] + selectedProposal.votes['support']) / selectedProposal.participantCount) * 100,
+        supportComments: selectedProposal.topComments.map(c => c.content),
+        concerns: []
+      };
+
+      const document = await escalationEngine.generateAgendaDocument(
+        selectedProposal.id,
+        proposalData,
+        committee
+      );
 
       setGeneratedDocument(document);
     } catch (error) {
@@ -165,14 +180,6 @@ export const ProposalGeneratorPage: React.FC = () => {
     }
   };
 
-  const handleDocumentUpdate = (updatedDocument: any) => {
-    setGeneratedDocument(updatedDocument);
-  };
-
-  const handleExport = (format: 'pdf' | 'word') => {
-    // エクスポート処理（AgendaDocumentEditorが処理）
-    console.log('Exporting as:', format);
-  };
 
   // レベル5未満は利用不可
   if (permission.calculatedLevel < 5) {
@@ -322,11 +329,37 @@ export const ProposalGeneratorPage: React.FC = () => {
           {/* 右側：生成された提案書 */}
           <div className="lg:col-span-2">
             {generatedDocument ? (
+              <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
+                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-4">
+                  <div className="flex items-center text-yellow-400 mb-2">
+                    <AlertCircle className="w-5 h-5 mr-2" />
+                    <span className="font-semibold">DB構築前の一時表示</span>
+                  </div>
+                  <p className="text-sm text-gray-300">
+                    AgendaDocumentEditorはDB構築後に有効化されます。現在は生成された提案書データを表示しています。
+                  </p>
+                </div>
+
+                <div className="text-white space-y-4">
+                  <h2 className="text-2xl font-bold">{generatedDocument.proposalTitle || '提案書'}</h2>
+                  <div className="text-gray-400">
+                    <p>提案ID: {generatedDocument.proposalId}</p>
+                    <p>委員会: {generatedDocument.committeeId}</p>
+                  </div>
+                  <div className="mt-4 p-4 bg-gray-700/30 rounded">
+                    <pre className="text-sm whitespace-pre-wrap">{generatedDocument.content || 'コンテンツが生成されました'}</pre>
+                  </div>
+                </div>
+              </div>
+              /* DB構築後に有効化
               <AgendaDocumentEditor
-                initialDocument={generatedDocument}
-                onSave={handleDocumentUpdate}
-                onExport={handleExport}
+                documentId={generatedDocument.id || selectedProposal?.id || ''}
+                userId={user?.id || 'demo-user'}
+                userLevel={permission.calculatedLevel}
+                onSaveSuccess={handleDocumentUpdate}
+                onExportSuccess={(url) => console.log('Export URL:', url)}
               />
+              */
             ) : (
               <div className="bg-gray-800/50 rounded-xl p-12 backdrop-blur border border-gray-700/50 text-center">
                 <FileText className="w-16 h-16 text-gray-600 mx-auto mb-4" />
