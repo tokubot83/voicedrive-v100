@@ -26,7 +26,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom CSS Variables - ダークテーマ（デフォルト） */
+/* Custom CSS Variables - ダークテーマ固定 */
 :root,
 :root.dark-theme {
   --primary-color: #1d9bf0;
@@ -50,37 +50,6 @@
   /* ホバー・インタラクション */
   --hover-bg: rgba(255, 255, 255, 0.03);
   --link-hover: #1a8cd8;
-}
-
-/* ライトテーマ - X (Twitter) 配色完全コピー */
-:root.light-theme {
-  /* X公式カラー */
-  --primary-color: #1d9bf0;       /* X Blue */
-  --secondary-color: #1d9bf0;
-  --tertiary-color: #f91880;
-  --success-color: #00ba7c;
-  --warning-color: #ff7a00;
-  --danger-color: #f4212e;
-
-  /* X背景色 - 完全白ベース */
-  --bg-primary: #ffffff;          /* 完全白 */
-  --bg-secondary: #ffffff;        /* 完全白 */
-  --bg-tertiary: #f7f9f9;         /* Xの薄いグレー */
-
-  /* ヘッダー・ナビゲーション専用 */
-  --bg-header: rgba(255, 255, 255, 0.85);  /* 半透明白 */
-  --border-header: #eff3f4;       /* Xのボーダー */
-
-  /* テキスト色 */
-  --text-primary: #0f1419;        /* Xの黒 */
-  --text-secondary: #536471;      /* Xのグレー */
-
-  /* ボーダー・区切り線 */
-  --border-color: #eff3f4;        /* Xのボーダー */
-
-  /* ホバー・インタラクション */
-  --hover-bg: #f7f9f9;            /* Xのホバー背景 */
-  --link-hover: #1a8cd8;          /* Xのリンクホバー */
 }
 
 /* Base Styles */

@@ -1,6 +1,6 @@
-/* 人事お知らせシステム専用スタイル - VoiceDriveダークテーマ統一 */
+/* 人事お知らせシステム専用スタイル - VoiceDriveダークテーマ固定 */
 
-/* CSS変数定義 - ダークテーマ */
+/* CSS変数定義 - ダークテーマ固定 */
 :root, :root.dark-theme {
   /* 人事お知らせ専用カラーパレット（VoiceDriveベース） */
   --hr-primary: #10b981;        /* 緑系（人事・健康イメージ） */
@@ -26,48 +26,6 @@
   --hr-border-light: rgba(255, 255, 255, 0.1);
 
   /* カテゴリ別カラー */
-  --hr-category-urgent-bg: rgba(239, 68, 68, 0.1);
-  --hr-category-urgent-border: #ef4444;
-
-  --hr-category-meeting-bg: rgba(59, 130, 246, 0.1);
-  --hr-category-meeting-border: #3b82f6;
-
-  --hr-category-training-bg: rgba(139, 92, 246, 0.1);
-  --hr-category-training-border: #8b5cf6;
-
-  --hr-category-health-bg: rgba(16, 185, 129, 0.1);
-  --hr-category-health-border: #10b981;
-
-  --hr-category-other-bg: rgba(156, 163, 175, 0.1);
-  --hr-category-other-border: #9ca3af;
-}
-
-/* CSS変数定義 - ライトテーマ */
-:root.light-theme {
-  /* カラーパレットは同じ */
-  --hr-primary: #10b981;
-  --hr-urgent: #ef4444;
-  --hr-warning: #f59e0b;
-  --hr-info: #3b82f6;
-  --hr-success: #00ba7c;
-
-  /* 背景色（ライトテーマ用） */
-  --hr-bg-primary: #f8fafc;      /* 明るいグレー */
-  --hr-bg-secondary: #f1f5f9;    /* 少し暗いグレー */
-  --hr-bg-tertiary: #e2e8f0;     /* さらに暗いグレー */
-  --hr-bg-card: rgba(255, 255, 255, 0.9);     /* 半透明白 */
-  --hr-bg-modal: rgba(0, 0, 0, 0.5);         /* モーダル背景 */
-
-  /* テキストカラー（ライトテーマ用） */
-  --hr-text-primary: #1f2937;    /* ダークグレー */
-  --hr-text-secondary: #4b5563;  /* ミディアムグレー */
-  --hr-text-muted: #6b7280;      /* ライトグレー */
-
-  /* ボーダー・区切り線 */
-  --hr-border-color: rgba(229, 231, 235, 0.8);
-  --hr-border-light: rgba(0, 0, 0, 0.1);
-
-  /* カテゴリ別カラー（変更なし） */
   --hr-category-urgent-bg: rgba(239, 68, 68, 0.1);
   --hr-category-urgent-border: #ef4444;
 
@@ -165,10 +123,6 @@
   box-shadow: none;
 }
 
-:root.light-theme .hr-title-header {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-}
-
 .hr-title-content {
   max-width: 1200px;
   margin: 0 auto;
@@ -227,11 +181,6 @@
   border-image-slice: 1;
   padding: 20px 12px 12px 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
-}
-
-:root.light-theme .hr-category-filter {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .hr-category-container {
