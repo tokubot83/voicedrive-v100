@@ -7,70 +7,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 投稿ステータスのEnum
-enum PostStatus {
-  // 既存ステータス
-  ACTIVE // 通常（アクティブ）
-  UNDER_REVIEW // レビュー中
-  ARCHIVED // アーカイブ済み
-
-  // 部署議題フロー（30-50点）
-  UNDER_DEPT_REVIEW // 部署検討中（30点到達）
-  PENDING_SUPERVISOR_REVIEW // 主任の判断待ち（50点到達）
-  RECOMMENDED_TO_MANAGER // 師長に推薦済み
-  APPROVED_AS_DEPT_AGENDA // 部署議題として承認済み
-  REJECTED_BY_SUPERVISOR // 主任が却下
-  REJECTED_BY_MANAGER // 師長が却下
-
-  // 施設議題フロー（100点）
-  PENDING_DEPUTY_DIRECTOR_REVIEW // 副看護部長の判断待ち（100点到達）
-  APPROVED_FOR_COMMITTEE // 委員会提出承認済み
-  REJECTED_BY_DEPUTY_DIRECTOR // 副看護部長が却下
-
-  // 期限到達フロー
-  FACILITY_VOTE_EXPIRED_PENDING_DECISION // 施設投票期限終了・判断待ち
-  DOWNGRADED_TO_DEPT_AGENDA // 施設→部署に降格
-  REJECTED_AFTER_FACILITY_VOTE // 施設投票後に却下
-
-  // その他
-  CLOSED // 終了
-}
-
 model User {
-  id                   String    @id @default(cuid())
-  employeeId           String    @unique
-  email                String    @unique
-  name                 String
-  department           String?
-  facilityId           String?
-  role                 String?
-  avatar               String?
-  accountType          String
-  permissionLevel      Decimal
-  canPerformLeaderDuty Boolean   @default(false)
-  professionCategory   String?
-  parentId             String?
-  budgetApprovalLimit  Float?
-  stakeholderCategory  String?
-  position             String?
-  expertise            Int?
-  hierarchyLevel       Int?
-  isRetired            Boolean   @default(false)
-  retirementDate       DateTime?
-  anonymizedId         String?
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
-  lastLoginAt          DateTime?
-  loginCount           Int       @default(0)
-  age                  Int?
-  ageUpdatedAt         DateTime? @map("age_updated_at")
-  experienceYears      Float?
-  generation           String?
-
-  // Phase 2: 顔写真統合（医療システムからのWebhook連携）
-  profilePhotoUrl       String? // CloudFront CDN URL
-  profilePhotoUpdatedAt DateTime? // 写真更新日時
-
+  id                            String                          @id @default(cuid())
+  employeeId                    String                          @unique
+  email                         String                          @unique
+  name                          String
+  department                    String?
+  facilityId                    String?
+  role                          String?
+  avatar                        String?
+  accountType                   String
+  permissionLevel               Decimal
+  canPerformLeaderDuty          Boolean                         @default(false)
+  professionCategory            String?
+  parentId                      String?
+  budgetApprovalLimit           Float?
+  stakeholderCategory           String?
+  position                      String?
+  expertise                     Int?
+  hierarchyLevel                Int?
+  isRetired                     Boolean                         @default(false)
+  retirementDate                DateTime?
+  anonymizedId                  String?
+  createdAt                     DateTime                        @default(now())
+  updatedAt                     DateTime                        @updatedAt
+  lastLoginAt                   DateTime?
+  loginCount                    Int                             @default(0)
+  age                           Int?
+  ageUpdatedAt                  DateTime?                       @map("age_updated_at")
+  experienceYears               Float?
+  generation                    String?
+  profilePhotoUpdatedAt         DateTime?
+  profilePhotoUrl               String?
   acknowledgedAlerts            AnalyticsAlert[]                @relation("AlertAcknowledger")
   approvalTasksApproved         ApprovalTask[]                  @relation("ApprovalApprover")
   approvalTasksRequested        ApprovalTask[]                  @relation("ApprovalRequester")
@@ -78,10 +46,6 @@ model User {
   comments                      Comment[]                       @relation("CommentAuthor")
   chairmanCommittees            CommitteeInfo[]                 @relation("CommitteeChairperson")
   committeeMemberships          CommitteeMember[]               @relation("CommitteeMemberUser")
-  submissionRequestsApproved    CommitteeSubmissionRequest[]    @relation("SubmissionApprover")
-  submissionRequestsSent        CommitteeSubmissionRequest[]    @relation("SubmissionRequester")
-  proposalDocumentsCreated      ProposalDocument[]              @relation("ProposalCreator")
-  proposalDocumentsSubmitted    ProposalDocument[]              @relation("ProposalSubmitter")
   ownedInitiatives              CultureInitiative[]             @relation("InitiativeOwner")
   dateVotes                     DateVote[]                      @relation("DateVoter")
   decidedAgendas                DecisionMeetingAgenda[]         @relation("DecisionDecider")
@@ -93,6 +57,8 @@ model User {
   interviews                    Interview[]
   proposedAgendas               ManagementCommitteeAgenda[]     @relation("AgendaProposer")
   notifications                 Notification[]
+  notificationActionsExecuted   NotificationAction[]            @relation("NotificationActionExecutor")
+  notificationRecipients        NotificationRecipient[]         @relation("NotificationRecipient")
   eventParticipations           Participant[]                   @relation("EventParticipant")
   pollsCreated                  Poll[]                          @relation("PollCreator")
   pollVotes                     PollVote[]                      @relation("PollVoter")
@@ -113,16 +79,24 @@ model User {
   createdBoardMeetings          BoardMeeting[]                  @relation("BoardMeetingCreator")
   reviewedProposals             ChairmanProposal[]              @relation("ProposalReviewer")
   createdProposals              ChairmanProposal[]              @relation("ProposalCreator")
+  submissionRequestsApproved    CommitteeSubmissionRequest[]    @relation("SubmissionApprover")
+  submissionRequestsSent        CommitteeSubmissionRequest[]    @relation("SubmissionRequester")
   assignedCommonIssues          CrossFacilityCommonIssue[]      @relation("CommonIssueAssignee")
   approvedSuccessCases          CrossFacilitySuccessCase[]      @relation("SuccessCaseApprover")
   successCasesFromFacility      CrossFacilitySuccessCase[]      @relation("SuccessCaseFacility")
   evaluationNotifications       EvaluationNotification[]
+  expiredDecisions              ExpiredEscalationDecision[]     @relation("ExpiredDecisions")
   generatedReports              GeneratedReport[]               @relation("ReportGenerator")
+  menuConfigsUpdated            MenuConfig[]                    @relation("MenuConfigUpdater")
   notificationSettings          NotificationSettings?
   projectApprovals              ProjectApproval[]               @relation("ProjectApprover")
   completedMilestones           ProjectMilestone[]              @relation("MilestoneCompletedBy")
   recommendationLogs            ProjectRecommendationLog[]
   projectMemberships            ProjectTeamMember[]             @relation("ProjectMemberships")
+  proposalDecisions             ProposalDecision[]              @relation("UserProposalDecisions")
+  proposalDocumentsSubmitted    ProposalDocument[]              @relation("ProposalSubmitter")
+  proposalDocumentsCreated      ProposalDocument[]              @relation("ProposalCreator")
+  proposalReviews               ProposalReview[]                @relation("UserProposalReviews")
   reportAccessLogs              ReportAccessLog[]               @relation("ReportAccessUser")
   reportCustomizations          ReportCustomization[]           @relation("ReportCustomizer")
   participationStats            StaffProjectParticipationStats?
@@ -130,105 +104,92 @@ model User {
   approvedOpportunities         StrategicOpportunity[]          @relation("OpportunityApprover")
   responsibleReplications       SuccessCaseReplication[]        @relation("ReplicationResponsible")
   replicationsAtFacility        SuccessCaseReplication[]        @relation("ReplicationTargetFacility")
-  votingGroupsAsPrimaryApprover VotingGroup[]                   @relation("VotingGroupPrimaryApprover")
-  expiredDecisions              ExpiredEscalationDecision[]     @relation("ExpiredDecisions")
-  notificationActionsExecuted   NotificationAction[]            @relation("NotificationActionExecutor")
-  notificationRecipients        NotificationRecipient[]         @relation("NotificationRecipient")
-  settingChanges                VotingSettingChangeLog[]        @relation("SettingChangeUser")
-  settingReverts                VotingSettingChangeLog[]        @relation("SettingRevertUser")
   systemConfigsUpdated          SystemConfig[]                  @relation("SystemConfigUpdater")
   votingConfigsUpdated          VotingConfig[]                  @relation("VotingConfigUpdater")
-  menuConfigsUpdated            MenuConfig[]                    @relation("MenuConfigUpdater")
-  proposalReviews               ProposalReview[]                @relation("UserProposalReviews")
-  proposalDecisions             ProposalDecision[]              @relation("UserProposalDecisions")
+  votingGroupsAsPrimaryApprover VotingGroup[]                   @relation("VotingGroupPrimaryApprover")
+  settingReverts                VotingSettingChangeLog[]        @relation("SettingRevertUser")
+  settingChanges                VotingSettingChangeLog[]        @relation("SettingChangeUser")
 }
 
 model Notification {
-  id             String    @id @default(cuid())
-  category       String
-  subcategory    String?
-  priority       String
-  title          String
-  content        String
-  target         String
-  senderId       String
-  status         String    @default("pending")
-  sentAt         DateTime?
-  recipientCount Int       @default(0)
-  readCount      Int       @default(0)
-  clickCount     Int       @default(0)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  // Phase 2: Approvals page fields
-  notificationType  String? // APPROVAL_REQUIRED, MEMBER_SELECTION, VOTE_REQUIRED, etc.
-  urgency           String    @default("normal") // normal, high, urgent
-  actionRequired    Boolean   @default(false)
+  id                String                  @id @default(cuid())
+  category          String
+  subcategory       String?
+  priority          String
+  title             String
+  content           String
+  target            String
+  senderId          String
+  status            String                  @default("pending")
+  sentAt            DateTime?
+  recipientCount    Int                     @default(0)
+  readCount         Int                     @default(0)
+  clickCount        Int                     @default(0)
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  notificationType  String?
+  urgency           String                  @default("normal")
+  actionRequired    Boolean                 @default(false)
   dueDate           DateTime?
-  metadata          Json? // Additional flexible data (budget amount, project ID, etc.)
-  relatedEntityType String? // Post, Poll, ApprovalTask, etc.
-  relatedEntityId   String? // ID of related entity
-
-  sender     User                    @relation(fields: [senderId], references: [id])
-  actions    NotificationAction[]
-  recipients NotificationRecipient[]
+  metadata          Json?
+  relatedEntityType String?
+  relatedEntityId   String?
+  sender            User                    @relation(fields: [senderId], references: [id])
+  actions           NotificationAction[]
+  recipients        NotificationRecipient[]
 }
 
 model NotificationAction {
-  id                   String    @id @default(cuid())
+  id                   String       @id @default(cuid())
   notificationId       String
-  actionType           String // approve, reject, view, participate, decline, vote, escalate
-  actionLabel          String // Button label
-  actionUrl            String? // Optional URL for action
-  actionData           Json? // Additional action parameters
-  isPrimary            Boolean   @default(false)
-  isDestructive        Boolean   @default(false)
-  requiresConfirmation Boolean   @default(false)
+  actionType           String
+  actionLabel          String
+  actionUrl            String?
+  actionData           Json?
+  isPrimary            Boolean      @default(false)
+  isDestructive        Boolean      @default(false)
+  requiresConfirmation Boolean      @default(false)
   confirmationMessage  String?
   executedAt           DateTime?
   executedBy           String?
-  result               Json? // Action execution result
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
-
-  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  executor     User?        @relation("NotificationActionExecutor", fields: [executedBy], references: [id])
+  result               Json?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  executor             User?        @relation("NotificationActionExecutor", fields: [executedBy], references: [id])
+  notification         Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
   @@index([notificationId])
 }
 
 model NotificationRecipient {
-  id             String    @id @default(cuid())
+  id             String       @id @default(cuid())
   notificationId String
   userId         String
-  isRead         Boolean   @default(false)
+  isRead         Boolean      @default(false)
   readAt         DateTime?
-  actionTaken    String? // approve, reject, viewed, etc.
+  actionTaken    String?
   actionTakenAt  DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  user         User         @relation("NotificationRecipient", fields: [userId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  user           User         @relation("NotificationRecipient", fields: [userId], references: [id])
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
   @@unique([notificationId, userId])
   @@index([userId, isRead])
   @@index([userId, actionTaken])
 }
 
-// システム全体設定テーブル（mode-switcher用）
 model SystemConfig {
-  id          String   @id @default(cuid())
-  configKey   String   @unique
-  configValue Json
-  category    String // "system", "feature", "ui"
-  description String?
-  isActive    Boolean  @default(true)
-  updatedBy   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  updatedByUser User @relation("SystemConfigUpdater", fields: [updatedBy], references: [id])
+  id            String   @id @default(cuid())
+  configKey     String   @unique
+  configValue   Json
+  category      String
+  description   String?
+  isActive      Boolean  @default(true)
+  updatedBy     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  updatedByUser User     @relation("SystemConfigUpdater", fields: [updatedBy], references: [id])
 
   @@index([configKey])
   @@index([category])
@@ -321,37 +282,34 @@ model SurveyResponse {
 }
 
 model Project {
-  id               String    @id @default(cuid())
-  title            String
-  description      String
-  category         String
-  proposerId       String
-  objectives       Json
-  expectedOutcomes Json
-  budget           Float?
-  timeline         Json?
-  status           String    @default("proposed")
-  priority         String?
-  approvalLevel    Int       @default(0)
-  approvedBy       Json?
-  rejectionReason  String?
-  progressRate     Float     @default(0)
-  milestones       Json?
-  deliverables     Json?
-  actualOutcomes   Json?
-  lessonsLearned   String?
-  roi              Float?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  startedAt        DateTime?
-  completedAt      DateTime?
-
-  // 🆕 Post変換用フィールド
+  id                String    @id @default(cuid())
+  title             String
+  description       String
+  category          String
+  proposerId        String
+  objectives        Json
+  expectedOutcomes  Json
+  budget            Float?
+  timeline          Json?
+  status            String    @default("proposed")
+  priority          String?
+  approvalLevel     Int       @default(0)
+  approvedBy        Json?
+  rejectionReason   String?
+  progressRate      Float     @default(0)
+  milestones        Json?
+  deliverables      Json?
+  actualOutcomes    Json?
+  lessonsLearned    String?
+  roi               Float?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  startedAt         DateTime?
+  completedAt       DateTime?
   convertedToPostId String?   @unique @map("converted_to_post_id")
   conversionDate    DateTime? @map("conversion_date")
-
-  proposer      User  @relation(fields: [proposerId], references: [id])
-  convertedPost Post? @relation("ConvertedFromProject", fields: [convertedToPostId], references: [id])
+  convertedPost     Post?     @relation("ConvertedFromProject", fields: [convertedToPostId], references: [id])
+  proposer          User      @relation(fields: [proposerId], references: [id])
 }
 
 model Feedback {
@@ -568,92 +526,85 @@ model UserActivitySummary {
 }
 
 model Post {
-  id                 String    @id @default(cuid())
-  type               String
-  content            String
-  authorId           String
-  anonymityLevel     String
-  status             String    @default("active")
-  proposalType       String?
-  priority           String?
-  freespaceCategory  String?
-  freespaceScope     String?
-  expirationDate     DateTime?
-  isExpired          Boolean   @default(false)
-  extensionRequested Boolean   @default(false)
-  extensionReason    String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  agendaScore        Int?      @default(0)
-  agendaLevel        String?
-  season             String?
-  moderationStatus   String    @default("pending")
-  moderationScore    Int?
-  approvalStatus     String?   @default("pending") @map("approval_status")
-  approvedAt         DateTime? @map("approved_at")
-  approvedBy         String?   @map("approved_by")
-  rejectedAt         DateTime? @map("rejected_at")
-  rejectedBy         String?   @map("rejected_by")
-  rejectionReason    String?   @map("rejection_reason")
-
-  // 🆕 議題モード管理フィールド
-  agendaStatus                 PostStatus? @default(ACTIVE) @map("agenda_status")
-  agendaDecisionBy             String?     @map("agenda_decision_by")
-  agendaDecisionAt             DateTime?   @map("agenda_decision_at")
-  agendaDecisionReason         String?     @map("agenda_decision_reason")
-  agendaRescueLevel            Int?        @map("agenda_rescue_level")
-  agendaVotingDeadline         DateTime?   @map("agenda_voting_deadline")
-  projectDueDate               DateTime?   @map("project_due_date")
-  projectLevel                 String?     @map("project_level")
-  projectScore                 Int?        @default(0) @map("project_score")
-  currentProjectLevelStartedAt DateTime?   @map("current_project_level_started_at")
-  lastProjectLevelUpgrade      DateTime?   @map("last_project_level_upgrade")
-  projectProgress              Int?        @default(0) @map("project_progress")
-  totalEngagements             Int         @default(0) @map("total_engagements")
-  stronglySupportCount         Int         @default(0) @map("strongly_support_count")
-  supportCount                 Int         @default(0) @map("support_count")
-  neutralCount                 Int         @default(0) @map("neutral_count")
-  opposeCount                  Int         @default(0) @map("oppose_count")
-  stronglyOpposeCount          Int         @default(0) @map("strongly_oppose_count")
-  requiredSkills               String?     @map("required_skills")
-  projectComplexity            String?     @map("project_complexity")
-  targetProfession             String?     @map("target_profession")
-  targetDepartment             String?     @map("target_department")
-
-  // 🆕 Projects Legacy (ProjectListPage) 用フィールド
-  projectStatus       String?   @map("project_status") // 'active' | 'completed' | 'paused'
-  projectStartDate    DateTime? @map("project_start_date")
-  projectEndDate      DateTime? @map("project_end_date")
-  projectDepartment   String?   @map("project_department")
-  projectFacilityId   String?   @map("project_facility_id")
-  projectFacilityName String?   @map("project_facility_name")
-  projectParticipants Int?      @default(0) @map("project_participants")
-
-  // 🆕 Projects (EnhancedProjectListPage) 用フィールド
-  projectBudget        Float?  @map("project_budget") // 予算総額
-  projectBudgetUsed    Float?  @map("project_budget_used") // 予算使用額
-  projectTimeline      String? @map("project_timeline") // タイムライン説明
-  projectStage         String? @map("project_stage") // プロジェクトステージ
-  projectApprovalLevel String? @map("project_approval_level") // 承認レベル
-
-  comments                   Comment[]
-  event                      Event?
-  relatedAgendas             ManagementCommitteeAgenda[] @relation("AgendaRelatedPost")
-  poll                       Poll?
-  author                     User                        @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  votes                      Vote[]
-  successCases               CrossFacilitySuccessCase[]  @relation("SuccessCaseSource")
-  approvals                  ProjectApproval[]           @relation("PostApprovals")
-  diversityAnalysis          ProjectDiversityAnalysis?
-  milestones                 ProjectMilestone[]          @relation("ProjectMilestones")
-  recommendationLogs         ProjectRecommendationLog[]
-  teamMembers                ProjectTeamMember[]         @relation("ProjectTeamMembers")
-  projectLevelHistory        ProjectLevelHistory[]       @relation("PostProjectLevelHistory")
-  convertedFromProject       Project?                    @relation("ConvertedFromProject")
-  expiredEscalationDecisions ExpiredEscalationDecision[] @relation("ExpiredEscalationDecisions")
-  proposalDocuments          ProposalDocument[]
-  proposalReviews            ProposalReview[]            @relation("PostProposalReviews")
-  proposalDecisions          ProposalDecision[]          @relation("PostProposalDecisions")
+  id                           String                      @id @default(cuid())
+  type                         String
+  content                      String
+  authorId                     String
+  anonymityLevel               String
+  status                       String                      @default("active")
+  proposalType                 String?
+  priority                     String?
+  freespaceCategory            String?
+  freespaceScope               String?
+  expirationDate               DateTime?
+  isExpired                    Boolean                     @default(false)
+  extensionRequested           Boolean                     @default(false)
+  extensionReason              String?
+  createdAt                    DateTime                    @default(now())
+  updatedAt                    DateTime                    @updatedAt
+  agendaScore                  Int?                        @default(0)
+  agendaLevel                  String?
+  season                       String?
+  moderationStatus             String                      @default("pending")
+  moderationScore              Int?
+  approvalStatus               String?                     @default("pending") @map("approval_status")
+  approvedAt                   DateTime?                   @map("approved_at")
+  approvedBy                   String?                     @map("approved_by")
+  rejectedAt                   DateTime?                   @map("rejected_at")
+  rejectedBy                   String?                     @map("rejected_by")
+  rejectionReason              String?                     @map("rejection_reason")
+  agendaStatus                 PostStatus?                 @default("ACTIVE") @map("agenda_status")
+  agendaDecisionBy             String?                     @map("agenda_decision_by")
+  agendaDecisionAt             DateTime?                   @map("agenda_decision_at")
+  agendaDecisionReason         String?                     @map("agenda_decision_reason")
+  agendaRescueLevel            Int?                        @map("agenda_rescue_level")
+  agendaVotingDeadline         DateTime?                   @map("agenda_voting_deadline")
+  projectDueDate               DateTime?                   @map("project_due_date")
+  projectLevel                 String?                     @map("project_level")
+  projectScore                 Int?                        @default(0) @map("project_score")
+  currentProjectLevelStartedAt DateTime?                   @map("current_project_level_started_at")
+  lastProjectLevelUpgrade      DateTime?                   @map("last_project_level_upgrade")
+  projectProgress              Int?                        @default(0) @map("project_progress")
+  totalEngagements             Int                         @default(0) @map("total_engagements")
+  stronglySupportCount         Int                         @default(0) @map("strongly_support_count")
+  supportCount                 Int                         @default(0) @map("support_count")
+  neutralCount                 Int                         @default(0) @map("neutral_count")
+  opposeCount                  Int                         @default(0) @map("oppose_count")
+  stronglyOpposeCount          Int                         @default(0) @map("strongly_oppose_count")
+  requiredSkills               String?                     @map("required_skills")
+  projectComplexity            String?                     @map("project_complexity")
+  targetProfession             String?                     @map("target_profession")
+  targetDepartment             String?                     @map("target_department")
+  projectStatus                String?                     @map("project_status")
+  projectStartDate             DateTime?                   @map("project_start_date")
+  projectEndDate               DateTime?                   @map("project_end_date")
+  projectDepartment            String?                     @map("project_department")
+  projectFacilityId            String?                     @map("project_facility_id")
+  projectFacilityName          String?                     @map("project_facility_name")
+  projectParticipants          Int?                        @default(0) @map("project_participants")
+  projectBudget                Float?                      @map("project_budget")
+  projectBudgetUsed            Float?                      @map("project_budget_used")
+  projectTimeline              String?                     @map("project_timeline")
+  projectStage                 String?                     @map("project_stage")
+  projectApprovalLevel         String?                     @map("project_approval_level")
+  comments                     Comment[]
+  event                        Event?
+  relatedAgendas               ManagementCommitteeAgenda[] @relation("AgendaRelatedPost")
+  poll                         Poll?
+  author                       User                        @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  convertedFromProject         Project?                    @relation("ConvertedFromProject")
+  votes                        Vote[]
+  successCases                 CrossFacilitySuccessCase[]  @relation("SuccessCaseSource")
+  expiredEscalationDecisions   ExpiredEscalationDecision[] @relation("ExpiredEscalationDecisions")
+  approvals                    ProjectApproval[]           @relation("PostApprovals")
+  diversityAnalysis            ProjectDiversityAnalysis?
+  projectLevelHistory          ProjectLevelHistory[]       @relation("PostProjectLevelHistory")
+  milestones                   ProjectMilestone[]          @relation("ProjectMilestones")
+  recommendationLogs           ProjectRecommendationLog[]
+  teamMembers                  ProjectTeamMember[]         @relation("ProjectTeamMembers")
+  proposalDecisions            ProposalDecision[]          @relation("PostProposalDecisions")
+  proposalDocuments            ProposalDocument[]
+  proposalReviews              ProposalReview[]            @relation("PostProposalReviews")
 
   @@index([authorId])
   @@index([type])
@@ -671,12 +622,10 @@ model Post {
   @@index([projectScore])
   @@index([currentProjectLevelStartedAt])
   @@index([projectComplexity])
-  // 🆕 Projects Legacy 検索最適化インデックス
   @@index([projectLevel, projectStatus])
   @@index([projectFacilityId, projectStatus])
   @@index([projectDepartment, projectStatus])
   @@index([projectScore, projectLevel])
-  // 🆕 Projects (Enhanced) 検索最適化インデックス
   @@index([projectBudget])
   @@index([projectStage])
 }
@@ -1432,7 +1381,6 @@ model BoardMeetingAgenda {
   presentationReady   Boolean                         @default(false) @map("presentation_ready")
   documentUrls        Json?                           @map("document_urls")
   keyPoints           String?                         @map("key_points")
-  summary             String?                         @map("summary")
   expectedDiscussion  String?                         @map("expected_discussion")
   requiredDecision    String?                         @map("required_decision")
   chairmanReview      String?                         @default("pending") @map("chairman_review")
@@ -1794,9 +1742,9 @@ model ProjectMilestone {
   completedBy     String?   @map("completed_by")
   status          String    @default("pending")
   order           Int       @default(0)
-  progress        Int?      @default(0) // 🆕 マイルストーン進捗率（Projects用）
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
+  progress        Int?      @default(0)
   completedByUser User?     @relation("MilestoneCompletedBy", fields: [completedBy], references: [id])
   project         Post      @relation("ProjectMilestones", fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -2288,15 +2236,15 @@ model SidebarMenuConfig {
 model ExecutiveStrategicInsight {
   id                 String    @id @default(cuid())
   analysisDate       DateTime  @map("analysis_date")
-  insightType        String    @map("insight_type") // "priority_action" | "success_case" | "prediction" | "strategic_recommendation"
-  severity           String?   @map("severity") // "low" | "medium" | "high"
+  insightType        String    @map("insight_type")
+  severity           String?   @map("severity")
   title              String    @map("title")
   analysis           String    @map("analysis")
   rootCause          String?   @map("root_cause")
-  recommendedActions Json      @map("recommended_actions") // string[]
-  bestPractice       Json?     @map("best_practice") // { source: string, method: string, result: string }
-  predictions        Json?     @map("predictions") // { metric: string, currentValue: number, predictedValue: number, timeframe: string, confidence: number, condition: string }
-  strategicData      Json?     @map("strategic_data") // 追加の戦略データ（カテゴリ、アクション、期待効果等）
+  recommendedActions Json      @map("recommended_actions")
+  bestPractice       Json?     @map("best_practice")
+  predictions        Json?     @map("predictions")
+  strategicData      Json?     @map("strategic_data")
   isAcknowledged     Boolean   @default(false) @map("is_acknowledged")
   acknowledgedBy     String?   @map("acknowledged_by")
   acknowledgedAt     DateTime? @map("acknowledged_at")
@@ -2317,7 +2265,7 @@ model ExpiredEscalationDecision {
   id              String   @id @default(cuid())
   postId          String   @map("post_id")
   deciderId       String   @map("decider_id")
-  decision        String   @map("decision") // 'approve_at_current_level' | 'downgrade' | 'reject'
+  decision        String   @map("decision")
   decisionReason  String   @map("decision_reason")
   currentScore    Int      @map("current_score")
   targetScore     Int      @map("target_score")
@@ -2329,9 +2277,8 @@ model ExpiredEscalationDecision {
   facilityId      String?  @map("facility_id")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
-
-  post    Post @relation("ExpiredEscalationDecisions", fields: [postId], references: [id], onDelete: Cascade)
-  decider User @relation("ExpiredDecisions", fields: [deciderId], references: [id])
+  decider         User     @relation("ExpiredDecisions", fields: [deciderId], references: [id])
+  post            Post     @relation("ExpiredEscalationDecisions", fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([postId])
   @@index([deciderId])
@@ -2344,43 +2291,36 @@ model ExpiredEscalationDecision {
 /// 議題提案書テーブル
 /// Level 7+が作成した投稿から議題提案書を生成し、Level 8+が委員会に提出
 model ProposalDocument {
-  id          String @id @default(cuid())
-  postId      String @map("post_id")
-  title       String
-  agendaLevel String @map("agenda_level")
-  createdById String @map("created_by_id")
-  status      String @default("draft")
-
-  summary         String
-  background      String
-  objectives      String
-  expectedEffects String @map("expected_effects")
-  concerns        String
-  counterMeasures String @map("counter_measures")
-
-  voteAnalysis    Json  @map("vote_analysis")
-  commentAnalysis Json  @map("comment_analysis")
-  relatedInfo     Json? @map("related_info")
-
-  managerNotes        String? @map("manager_notes")
-  additionalContext   String? @map("additional_context")
-  recommendationLevel String? @map("recommendation_level")
-
-  targetCommittee   String?   @map("target_committee")
-  submittedDate     DateTime? @map("submitted_date")
-  submittedById     String?   @map("submitted_by_id")
-  committeeDecision Json?     @map("committee_decision")
-
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
-  lastModifiedDate DateTime @updatedAt @map("last_modified_date")
-
-  post        Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
-  createdBy   User  @relation("ProposalCreator", fields: [createdById], references: [id])
-  submittedBy User? @relation("ProposalSubmitter", fields: [submittedById], references: [id])
-
-  submissionRequests CommitteeSubmissionRequest[]
-  auditLogs          ProposalAuditLog[]
+  id                  String                       @id @default(cuid())
+  postId              String                       @map("post_id")
+  title               String
+  agendaLevel         String                       @map("agenda_level")
+  createdById         String                       @map("created_by_id")
+  status              String                       @default("draft")
+  summary             String
+  background          String
+  objectives          String
+  expectedEffects     String                       @map("expected_effects")
+  concerns            String
+  counterMeasures     String                       @map("counter_measures")
+  voteAnalysis        Json                         @map("vote_analysis")
+  commentAnalysis     Json                         @map("comment_analysis")
+  relatedInfo         Json?                        @map("related_info")
+  managerNotes        String?                      @map("manager_notes")
+  additionalContext   String?                      @map("additional_context")
+  recommendationLevel String?                      @map("recommendation_level")
+  targetCommittee     String?                      @map("target_committee")
+  submittedDate       DateTime?                    @map("submitted_date")
+  submittedById       String?                      @map("submitted_by_id")
+  committeeDecision   Json?                        @map("committee_decision")
+  createdAt           DateTime                     @default(now()) @map("created_at")
+  updatedAt           DateTime                     @updatedAt @map("updated_at")
+  lastModifiedDate    DateTime                     @updatedAt @map("last_modified_date")
+  submissionRequests  CommitteeSubmissionRequest[]
+  auditLogs           ProposalAuditLog[]
+  submittedBy         User?                        @relation("ProposalSubmitter", fields: [submittedById], references: [id])
+  createdBy           User                         @relation("ProposalCreator", fields: [createdById], references: [id])
+  post                Post                         @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([postId])
   @@index([createdById])
@@ -2392,22 +2332,20 @@ model ProposalDocument {
 
 /// 委員会提出リクエストテーブル
 model CommitteeSubmissionRequest {
-  id              String    @id @default(cuid())
-  documentId      String    @map("document_id")
-  requestedById   String    @map("requested_by_id")
-  requestedDate   DateTime  @default(now()) @map("requested_date")
-  targetCommittee String    @map("target_committee")
-  status          String    @default("pending")
-  reviewedById    String?   @map("reviewed_by_id")
-  reviewedDate    DateTime? @map("reviewed_date")
-  reviewNotes     String?   @map("review_notes")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  document    ProposalDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  requestedBy User             @relation("SubmissionRequester", fields: [requestedById], references: [id])
-  reviewedBy  User?            @relation("SubmissionApprover", fields: [reviewedById], references: [id])
+  id              String           @id @default(cuid())
+  documentId      String           @map("document_id")
+  requestedById   String           @map("requested_by_id")
+  requestedDate   DateTime         @default(now()) @map("requested_date")
+  targetCommittee String           @map("target_committee")
+  status          String           @default("pending")
+  reviewedById    String?          @map("reviewed_by_id")
+  reviewedDate    DateTime?        @map("reviewed_date")
+  reviewNotes     String?          @map("review_notes")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  reviewedBy      User?            @relation("SubmissionApprover", fields: [reviewedById], references: [id])
+  requestedBy     User             @relation("SubmissionRequester", fields: [requestedById], references: [id])
+  document        ProposalDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
   @@index([requestedById])
@@ -2419,17 +2357,16 @@ model CommitteeSubmissionRequest {
 
 /// 議題提案書監査ログテーブル
 model ProposalAuditLog {
-  id            String   @id @default(cuid())
-  documentId    String   @map("document_id")
-  userId        String   @map("user_id")
-  userName      String   @map("user_name")
-  userLevel     Decimal  @map("user_level")
+  id            String           @id @default(cuid())
+  documentId    String           @map("document_id")
+  userId        String           @map("user_id")
+  userName      String           @map("user_name")
+  userLevel     Decimal          @map("user_level")
   action        String
   details       String?
-  changedFields Json?    @map("changed_fields")
-  timestamp     DateTime @default(now())
-
-  document ProposalDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  changedFields Json?            @map("changed_fields")
+  timestamp     DateTime         @default(now())
+  document      ProposalDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
   @@index([userId])
@@ -2439,45 +2376,28 @@ model ProposalAuditLog {
 
 /// 投票設定変更履歴テーブル
 model VotingSettingChangeLog {
-  id String @id @default(cuid())
-
-  // 変更基本情報
-  mode        String // 'agenda' | 'project' | 'both'
-  category    String // 変更カテゴリ
-  subcategory String? // サブカテゴリ（詳細分類）
-
-  // 変更内容
-  changeDescription String // 変更内容の説明
-  impactDescription String? // 影響範囲の説明
-
-  // 変更前後の値（JSON）
-  beforeValue Json? // 変更前の設定値
-  afterValue  Json? // 変更後の設定値
-
-  // 変更者情報
-  changedBy      String // 変更者ユーザーID
-  changedByLevel Decimal // 変更時の権限レベル
-  changedAt      DateTime @default(now())
-
-  // ステータス
-  status       String    @default("active") // 'active' | 'reverted' | 'superseded'
-  revertedAt   DateTime?
-  revertedBy   String?
-  revertReason String?
-
-  // 関連エンティティ
-  relatedEntityType String? // 'VotingGroup' | 'AgendaModeConfig' | 'ProjectModeConfig'
-  relatedEntityId   String? // 関連エンティティのID
-
-  // メタデータ
-  metadata Json? // 追加情報（影響人数、関連部署など）
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  user           User  @relation("SettingChangeUser", fields: [changedBy], references: [id])
-  revertedByUser User? @relation("SettingRevertUser", fields: [revertedBy], references: [id])
+  id                String    @id @default(cuid())
+  mode              String
+  category          String
+  subcategory       String?
+  changeDescription String
+  impactDescription String?
+  beforeValue       Json?
+  afterValue        Json?
+  changedBy         String
+  changedByLevel    Decimal
+  changedAt         DateTime  @default(now())
+  status            String    @default("active")
+  revertedAt        DateTime?
+  revertedBy        String?
+  revertReason      String?
+  relatedEntityType String?
+  relatedEntityId   String?
+  metadata          Json?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  revertedByUser    User?     @relation("SettingRevertUser", fields: [revertedBy], references: [id])
+  user              User      @relation("SettingChangeUser", fields: [changedBy], references: [id])
 
   @@index([changedAt])
   @@index([mode])
@@ -2489,30 +2409,23 @@ model VotingSettingChangeLog {
   @@map("voting_setting_change_logs")
 }
 
-// ========================================
-// 提案レビュー用テーブル (2025-10-21追加)
-// ========================================
-
-// 提案レビューテーブル
 model ProposalReview {
-  id                       String   @id @default(cuid())
-  postId                   String
-  reviewerId               String
-  action                   String   // 'approve_as_dept_agenda' | 'escalate_to_facility' | 'reject'
-  reason                   String
-  comment                  String?
-  reviewedAt               DateTime @default(now())
-  agendaScoreAtReview      Int
-  voteCountAtReview        Json     // { approve: 15, neutral: 3, oppose: 2 }
-  reviewerPermissionLevel  Decimal
-  reviewerDepartment       String
-  status                   String   @default("active") // 'active' | 'superseded'
-  createdAt                DateTime @default(now()) @map("created_at")
-  updatedAt                DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  post     Post @relation("PostProposalReviews", fields: [postId], references: [id], onDelete: Cascade)
-  reviewer User @relation("UserProposalReviews", fields: [reviewerId], references: [id], onDelete: Cascade)
+  id                      String   @id @default(cuid())
+  postId                  String
+  reviewerId              String
+  action                  String
+  reason                  String
+  comment                 String?
+  reviewedAt              DateTime @default(now())
+  agendaScoreAtReview     Int
+  voteCountAtReview       Json
+  reviewerPermissionLevel Decimal
+  reviewerDepartment      String
+  status                  String   @default("active")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+  reviewer                User     @relation("UserProposalReviews", fields: [reviewerId], references: [id], onDelete: Cascade)
+  post                    Post     @relation("PostProposalReviews", fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([postId])
   @@index([reviewerId])
@@ -2523,23 +2436,18 @@ model ProposalReview {
   @@map("proposal_reviews")
 }
 
-// ========================================
-// system-operations用テーブル (2025-10-21追加)
-// ========================================
-
-// システムヘルステーブル
 model SystemHealth {
   id              String   @id @default(cuid())
-  status          String   // "healthy", "warning", "critical"
-  uptime          Int      // 稼働時間（秒）
-  serverStartedAt DateTime // サーバー起動日時
+  status          String
+  uptime          Int
+  serverStartedAt DateTime
   lastHealthCheck DateTime @default(now())
-  cpuUsage        Float?   // CPU使用率（%）
-  memoryUsage     Float?   // メモリ使用率（%）
-  diskUsage       Float?   // ディスク使用率（%）
-  apiResponseTime Float?   // API平均応答時間（ms）
-  errorRate       Float?   // エラー率（%）
-  metadata        Json?    // その他メトリクス
+  cpuUsage        Float?
+  memoryUsage     Float?
+  diskUsage       Float?
+  apiResponseTime Float?
+  errorRate       Float?
+  metadata        Json?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -2548,45 +2456,41 @@ model SystemHealth {
   @@map("system_health")
 }
 
-// 投票設定テーブル
 model VotingConfig {
   id                  String   @id @default(cuid())
   configKey           String   @unique
-  agendaModeSettings  Json     // 議題モードの投票設定
-  projectModeSettings Json     // プロジェクトモードの投票設定
-  votingRules         Json     // 共通の投票ルール
-  votingWeights       Json     // 権限レベル別投票重み
-  approvalThresholds  Json     // 承認閾値設定
+  agendaModeSettings  Json
+  projectModeSettings Json
+  votingRules         Json
+  votingWeights       Json
+  approvalThresholds  Json
   description         String?
   updatedBy           String
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
-
-  updatedByUser User @relation("VotingConfigUpdater", fields: [updatedBy], references: [id])
+  updatedByUser       User     @relation("VotingConfigUpdater", fields: [updatedBy], references: [id])
 
   @@index([configKey])
   @@index([updatedAt])
   @@map("voting_configs")
 }
 
-// メニュー設定テーブル
 model MenuConfig {
   id             String   @id @default(cuid())
-  menuType       String   // "agenda", "project", "common"
+  menuType       String
   menuKey        String   @unique
-  label          String   // 表示ラベル
-  icon           String?  // アイコン（絵文字またはアイコン名）
-  path           String   // ルートパス
-  order          Int      // 表示順序
+  label          String
+  icon           String?
+  path           String
+  order          Int
   isVisible      Boolean  @default(true)
-  requiredLevel  Float?   // 必要な権限レベル
-  enabledInModes Json     // 有効なモード ["AGENDA_MODE", "PROJECT_MODE"]
+  requiredLevel  Float?
+  enabledInModes Json
   description    String?
   updatedBy      String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-
-  updatedByUser User @relation("MenuConfigUpdater", fields: [updatedBy], references: [id])
+  updatedByUser  User     @relation("MenuConfigUpdater", fields: [updatedBy], references: [id])
 
   @@index([menuType])
   @@index([isVisible])
@@ -2594,45 +2498,29 @@ model MenuConfig {
   @@map("menu_configs")
 }
 
-// ========================================
-// proposal-management用テーブル (2025-10-21追加)
-// ========================================
-
-// 提案決定テーブル（却下・保留・部署案件化・レベルアップ承認）
 model ProposalDecision {
-  id            String   @id @default(cuid())
-  postId        String
-  post          Post     @relation("PostProposalDecisions", fields: [postId], references: [id], onDelete: Cascade)
-
-  // 決定情報
-  decisionType  String   // 'reject' | 'hold' | 'department_matter' | 'level_up_approved'
-  agendaLevel   String   // 決定時の議題レベル（'PENDING' | 'DEPT_REVIEW' | ...）
-
-  // 決定者情報
-  decidedBy     String
-  decidedByUser User     @relation("UserProposalDecisions", fields: [decidedBy], references: [id])
-  decidedAt     DateTime @default(now())
-
-  // 決定理由
-  reason        String   // 決定理由（必須）
-  notes         String?  // 追加メモ
-
-  // 保留固有フィールド
-  reviewDate    DateTime?  // 再検討予定日
-  isReviewed    Boolean?   @default(false)
-  reviewedAt    DateTime?
-  reviewedBy    String?
-  reviewOutcome String?    // 'approved' | 'rejected' | 'extended'
-
-  // 部署案件化固有フィールド
-  targetDepartment  String?   // 対象部署
-  assignedTo        String?   // 担当リーダーID
-  meetingScheduled  DateTime? // ミーティング予定日
-  meetingCompleted  Boolean?  @default(false)
-  meetingOutcome    String?   // ミーティング結果
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String    @id @default(cuid())
+  postId           String
+  decisionType     String
+  agendaLevel      String
+  decidedBy        String
+  decidedAt        DateTime  @default(now())
+  reason           String
+  notes            String?
+  reviewDate       DateTime?
+  isReviewed       Boolean?  @default(false)
+  reviewedAt       DateTime?
+  reviewedBy       String?
+  reviewOutcome    String?
+  targetDepartment String?
+  assignedTo       String?
+  meetingScheduled DateTime?
+  meetingCompleted Boolean?  @default(false)
+  meetingOutcome   String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  decidedByUser    User      @relation("UserProposalDecisions", fields: [decidedBy], references: [id])
+  post             Post      @relation("PostProposalDecisions", fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([postId])
   @@index([decidedBy])
@@ -2641,152 +2529,44 @@ model ProposalDecision {
   @@map("proposal_decisions")
 }
 
+enum PostStatus {
+  ACTIVE
+  UNDER_REVIEW
+  ARCHIVED
+  UNDER_DEPT_REVIEW
+  PENDING_SUPERVISOR_REVIEW
+  RECOMMENDED_TO_MANAGER
+  APPROVED_AS_DEPT_AGENDA
+  REJECTED_BY_SUPERVISOR
+  REJECTED_BY_MANAGER
+  PENDING_DEPUTY_DIRECTOR_REVIEW
+  APPROVED_FOR_COMMITTEE
+  REJECTED_BY_DEPUTY_DIRECTOR
+  FACILITY_VOTE_EXPIRED_PENDING_DECISION
+  DOWNGRADED_TO_DEPT_AGENDA
+  REJECTED_AFTER_FACILITY_VOTE
+  CLOSED
+}
+
 // ==========================================
-// CorporateAgendaDashboard関連テーブル
+// ProposalGenerator関連テーブル
 // 作成日: 2025-10-22
 // ==========================================
 
-// 施設別統計（日次・週次・月次集計）
-model FacilityStatistics {
-  id                  String    @id @default(cuid())
-  facilityId          String    @map("facility_id")
+// 委員会マスタ（医療システムからのキャッシュ）
+model Committee {
+  id                String   @id @default(cuid())
+  committeeId       String   @unique @map("committee_id")
+  name              String
+  schedule          String   // "第2火曜日"
+  facility          String
+  targetCategories  Json     @map("target_categories") // ["医療安全", "患者安全"]
+  isActive          Boolean  @default(true) @map("is_active")
+  syncedAt          DateTime @default(now()) @map("synced_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
-  // 期間
-  periodStart         DateTime  @map("period_start")
-  periodEnd           DateTime  @map("period_end")
-  periodType          String    @map("period_type")
-  // "daily", "weekly", "monthly"
-
-  // 投稿統計
-  totalPosts          Int       @default(0) @map("total_posts")
-  activePosts         Int       @default(0) @map("active_posts")
-  resolvedPosts       Int       @default(0) @map("resolved_posts")
-
-  // 参加統計
-  totalEmployees      Int       @default(0) @map("total_employees")
-  activeUsers         Int       @default(0) @map("active_users")
-  participationRate   Float     @default(0) @map("participation_rate")
-
-  // 処理統計
-  avgProcessDays      Float     @default(0) @map("avg_process_days")
-  medianProcessDays   Float     @default(0) @map("median_process_days")
-  maxProcessDays      Int       @default(0) @map("max_process_days")
-
-  // ヘルススコア（0-100）
-  healthScore         Float     @default(0) @map("health_score")
-  healthScorePrevious Float     @default(0) @map("health_score_previous")
-
-  // トレンド
-  trend               String    @default("stable") @map("trend")
-  // "up", "down", "stable"
-
-  // メタデータ
-  calculatedAt        DateTime  @default(now()) @map("calculated_at")
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
-
-  @@unique([facilityId, periodStart, periodEnd, periodType])
-  @@index([facilityId])
-  @@index([periodStart])
-  @@index([healthScore])
-  @@index([calculatedAt])
-  @@map("facility_statistics")
-}
-
-// 法人全体KPI（日次・週次・月次・四半期・年次集計）
-model CorporateKPI {
-  id                    String    @id @default(cuid())
-
-  // 期間
-  periodStart           DateTime  @map("period_start")
-  periodEnd             DateTime  @map("period_end")
-  periodType            String    @map("period_type")
-  // "daily", "weekly", "monthly", "quarterly", "yearly"
-
-  // 投稿統計
-  totalPosts            Int       @default(0) @map("total_posts")
-  totalPostsPrevious    Int       @default(0) @map("total_posts_previous")
-  totalPostsChange      Float     @default(0) @map("total_posts_change")
-
-  // 参加率統計
-  avgParticipationRate  Float     @default(0) @map("avg_participation_rate")
-  avgParticipationPrev  Float     @default(0) @map("avg_participation_prev")
-  participationChange   Float     @default(0) @map("participation_change")
-
-  // 解決率統計
-  avgResolutionRate     Float     @default(0) @map("avg_resolution_rate")
-  avgResolutionPrev     Float     @default(0) @map("avg_resolution_prev")
-  resolutionChange      Float     @default(0) @map("resolution_change")
-
-  // 処理日数統計
-  avgProcessDays        Float     @default(0) @map("avg_process_days")
-  avgProcessDaysPrev    Float     @default(0) @map("avg_process_days_prev")
-  processDaysChange     Float     @default(0) @map("process_days_change")
-
-  // メタデータ
-  calculatedAt          DateTime  @default(now()) @map("calculated_at")
-  createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
-
-  @@unique([periodStart, periodEnd, periodType])
-  @@index([periodStart])
-  @@index([periodType])
-  @@index([calculatedAt])
-  @@map("corporate_kpi")
-}
-
-// 施設アラート（参加率低下、処理日数増加、ヘルススコア低下等）
-model FacilityAlert {
-  id              String    @id @default(cuid())
-  facilityId      String    @map("facility_id")
-
-  // アラートタイプ
-  alertType       String    @map("alert_type")
-  // "participation_low", "process_time_high", "health_score_low", "resolution_rate_low"
-
-  // 重要度
-  severity        String    @map("severity")
-  // "info", "warning", "critical"
-
-  // 内容
-  message         String
-  currentValue    Float     @map("current_value")
-  thresholdValue  Float     @map("threshold_value")
-
-  // ステータス
-  isAcknowledged  Boolean   @default(false) @map("is_acknowledged")
-  acknowledgedBy  String?   @map("acknowledged_by")
-  acknowledgedAt  DateTime? @map("acknowledged_at")
-
-  // メタデータ
-  detectedAt      DateTime  @default(now()) @map("detected_at")
-  createdAt       DateTime  @default(now()) @map("created_at")
-
-  @@index([facilityId])
-  @@index([alertType])
-  @@index([severity])
-  @@index([isAcknowledged])
-  @@index([detectedAt])
-  @@map("facility_alerts")
-}
-
-// アラートしきい値設定
-model AlertThreshold {
-  id                        String    @id @default(cuid())
-
-  // しきい値設定
-  participationRateMin      Float     @default(60) @map("participation_rate_min")
-  processTimeDaysMax        Int       @default(30) @map("process_time_days_max")
-  healthScoreMin            Float     @default(60) @map("health_score_min")
-  resolutionRateMin         Float     @default(50) @map("resolution_rate_min")
-
-  // 適用範囲
-  applicableScope           String    @default("all") @map("applicable_scope")
-  // "all", "hospital", "clinic", "nursing_home", "rehab_facility"
-
-  createdAt                 DateTime  @default(now()) @map("created_at")
-  updatedAt                 DateTime  @updatedAt @map("updated_at")
-
-  @@index([applicableScope])
-  @@map("alert_thresholds")
+  @@index([facility])
+  @@index([isActive])
+  @@map("committees")
 }
