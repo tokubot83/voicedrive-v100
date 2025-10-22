@@ -5,11 +5,11 @@ import { PermissionLevel } from '../permissions/types/PermissionTypes';
 import Timeline from '../components/Timeline';
 import PhotoAvatar from '../components/common/PhotoAvatar';
 import { generatePersonalAvatar } from '../utils/avatarGenerator';
-import { User, Calendar, Building2, Briefcase, Award, Activity, FileText, TrendingUp } from 'lucide-react';
+import { User, Award, Activity, FileText, TrendingUp, Settings, Lock } from 'lucide-react';
 
 const ProfilePage: React.FC = () => {
   const { currentUser } = useDemoMode();
-  const [activeTab, setActiveTab] = useState<'profile' | 'posts' | 'stats'>('profile');
+  const [activeTab, setActiveTab] = useState<'stats' | 'posts' | 'votes' | 'settings'>('stats');
 
   // Create medical profile from current user data
   const profile: MedicalProfile = {
@@ -98,7 +98,8 @@ const ProfilePage: React.FC = () => {
                 投票力: {profile.votingWeight.toFixed(1)}
               </span>
               <span className="text-gray-400">
-                経験年数: {profile.totalExperience}年
+                {/* Phase 7実装後に医療システムから取得 */}
+                経験年数: 取得中...
               </span>
             </div>
           </div>
@@ -107,15 +108,15 @@ const ProfilePage: React.FC = () => {
         {/* Tab Navigation */}
         <div className="flex gap-1 mt-6 border-b border-slate-700">
           <button
-            onClick={() => setActiveTab('profile')}
+            onClick={() => setActiveTab('stats')}
             className={`px-6 py-3 font-medium transition-colors relative ${
-              activeTab === 'profile'
+              activeTab === 'stats'
                 ? 'text-blue-400'
                 : 'text-gray-400 hover:text-gray-300'
             }`}
           >
-            プロフィール
-            {activeTab === 'profile' && (
+            活動統計
+            {activeTab === 'stats' && (
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-400 rounded-t-full" />
             )}
           </button>
@@ -133,15 +134,28 @@ const ProfilePage: React.FC = () => {
             )}
           </button>
           <button
-            onClick={() => setActiveTab('stats')}
+            onClick={() => setActiveTab('votes')}
             className={`px-6 py-3 font-medium transition-colors relative ${
-              activeTab === 'stats'
+              activeTab === 'votes'
                 ? 'text-blue-400'
                 : 'text-gray-400 hover:text-gray-300'
             }`}
           >
-            活動統計
-            {activeTab === 'stats' && (
+            投票履歴
+            {activeTab === 'votes' && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-400 rounded-t-full" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`px-6 py-3 font-medium transition-colors relative ${
+              activeTab === 'settings'
+                ? 'text-blue-400'
+                : 'text-gray-400 hover:text-gray-300'
+            }`}
+          >
+            設定
+            {activeTab === 'settings' && (
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-400 rounded-t-full" />
             )}
           </button>
@@ -150,100 +164,18 @@ const ProfilePage: React.FC = () => {
 
       {/* Tab Content */}
       <div className="px-6 py-6">
-        {/* Profile Tab */}
-        {activeTab === 'profile' && (
-          <div className="space-y-6">
-            {/* Basic Info */}
-            <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <User className="w-5 h-5 text-blue-400" />
-                基本情報
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-400 text-sm">職員番号</p>
-                  <p className="text-white">{profile.employeeNumber}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm">入職日</p>
-                  <p className="text-white">{new Date(profile.hireDate).toLocaleDateString('ja-JP')}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm">施設</p>
-                  <p className="text-white">小原病院</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm">職種</p>
-                  <p className="text-white">理学療法士</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Motto & Introduction */}
-            <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Award className="w-5 h-5 text-blue-400" />
-                座右の銘・自己紹介
-              </h2>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-gray-400 text-sm mb-2">座右の銘</p>
-                  <p className="text-white italic">"{profile.motto}"</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-2">自己紹介</p>
-                  <p className="text-white">{profile.selfIntroduction}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Skills & Hobbies */}
-            <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-blue-400" />
-                スキル・趣味
-              </h2>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-gray-400 text-sm mb-2">スキル</p>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.skills.map((skill, index) => (
-                      <span key={index} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-2">趣味</p>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.hobbies.map((hobby, index) => (
-                      <span key={index} className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
-                        {hobby === 'running' ? 'ランニング' :
-                         hobby === 'reading' ? '読書' :
-                         hobby === 'cooking' ? '料理' : hobby}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
+        {/* プライバシー通知 */}
+        <div className="mb-6 bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <Lock className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-blue-300 font-medium">プライベートページ</p>
+              <p className="text-gray-400 text-sm mt-1">
+                このページの内容はあなたにのみ表示されます。他のユーザーには公開されません。
+              </p>
             </div>
           </div>
-        )}
-
-        {/* Posts Tab */}
-        {activeTab === 'posts' && (
-          <div>
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <FileText className="w-5 h-5 text-blue-400" />
-                投稿履歴
-              </h2>
-              <p className="text-gray-400 mt-1">これまでの投稿一覧</p>
-            </div>
-            <Timeline activeTab="all" filterByUser={currentUser.id} />
-          </div>
-        )}
+        </div>
 
         {/* Stats Tab */}
         {activeTab === 'stats' && (
@@ -277,8 +209,7 @@ const ProfilePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Committee Agenda Stats - 現在は委員会方式 */}
-            {/* TODO: Phase 5以降でプロジェクト化システムに移行時は「プロジェクト参加状況」に戻す */}
+            {/* Committee Agenda Stats */}
             <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
               <h3 className="text-lg font-semibold mb-4">議題提出・採択状況</h3>
 
@@ -348,6 +279,155 @@ const ProfilePage: React.FC = () => {
               <h3 className="text-lg font-semibold mb-4">月別活動推移</h3>
               <div className="h-64 flex items-center justify-center text-gray-500">
                 <p>活動推移グラフ（実装予定）</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Posts Tab */}
+        {activeTab === 'posts' && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <FileText className="w-5 h-5 text-blue-400" />
+                投稿履歴
+              </h2>
+              <p className="text-gray-400 mt-1">あなたの実名投稿と匿名投稿の履歴</p>
+            </div>
+
+            {/* 匿名投稿の説明 */}
+            <div className="mb-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <Lock className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-yellow-300 font-medium">匿名投稿について</p>
+                  <p className="text-gray-400 text-sm mt-1">
+                    🔒マークの投稿は匿名で行ったものです。あなただけがこの履歴を見ることができ、他のユーザーには投稿者が特定されません。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <Timeline activeTab="all" filterByUser={currentUser.id} />
+          </div>
+        )}
+
+        {/* Votes Tab */}
+        {activeTab === 'votes' && (
+          <div className="space-y-6">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Award className="w-5 h-5 text-blue-400" />
+                投票履歴
+              </h2>
+              <p className="text-gray-400 mt-1">あなたが投票した議題の一覧</p>
+            </div>
+
+            {/* Phase 7実装予定の通知 */}
+            <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-12 border border-slate-700/50 text-center">
+              <Activity className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-400 mb-2">投票履歴機能</h3>
+              <p className="text-gray-500">
+                Phase 7実装後に利用可能になります
+              </p>
+              <p className="text-gray-600 text-sm mt-2">
+                投票した議題、カテゴリ別投票実績、投票傾向分析などが表示されます
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Settings Tab */}
+        {activeTab === 'settings' && (
+          <div className="space-y-6">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Settings className="w-5 h-5 text-blue-400" />
+                設定
+              </h2>
+              <p className="text-gray-400 mt-1">プロフィールとプライバシー設定</p>
+            </div>
+
+            {/* プロフィール公開設定 */}
+            <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Lock className="w-5 h-5 text-blue-400" />
+                プロフィール公開設定
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="radio"
+                    id="privacy-private"
+                    name="privacy"
+                    defaultChecked
+                    className="mt-1"
+                  />
+                  <label htmlFor="privacy-private" className="flex-1 cursor-pointer">
+                    <p className="text-white font-medium">非公開（推奨）</p>
+                    <p className="text-gray-400 text-sm mt-1">
+                      プロフィール情報は自分だけが閲覧できます。投稿時の匿名性が最大限保護されます。
+                    </p>
+                  </label>
+                </div>
+                <div className="flex items-start gap-3 opacity-50 cursor-not-allowed">
+                  <input
+                    type="radio"
+                    id="privacy-department"
+                    name="privacy"
+                    disabled
+                    className="mt-1"
+                  />
+                  <label htmlFor="privacy-department" className="flex-1">
+                    <p className="text-white font-medium">同じ部署のみ公開（準備中）</p>
+                    <p className="text-gray-400 text-sm mt-1">
+                      同じ部署のメンバーにのみプロフィールが表示されます。
+                    </p>
+                  </label>
+                </div>
+                <div className="flex items-start gap-3 opacity-50 cursor-not-allowed">
+                  <input
+                    type="radio"
+                    id="privacy-all"
+                    name="privacy"
+                    disabled
+                    className="mt-1"
+                  />
+                  <label htmlFor="privacy-all" className="flex-1">
+                    <p className="text-white font-medium">全体公開（準備中）</p>
+                    <p className="text-gray-400 text-sm mt-1">
+                      すべてのユーザーにプロフィールが表示されます。
+                    </p>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* 通知設定 */}
+            <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+              <h3 className="text-lg font-semibold mb-4">通知設定</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white font-medium">投稿への反応通知</p>
+                    <p className="text-gray-400 text-sm">いいねやコメントがついた時に通知</p>
+                  </div>
+                  <input type="checkbox" defaultChecked className="toggle" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white font-medium">議題採択通知</p>
+                    <p className="text-gray-400 text-sm">提案が議題として採択された時に通知</p>
+                  </div>
+                  <input type="checkbox" defaultChecked className="toggle" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white font-medium">週次レポート</p>
+                    <p className="text-gray-400 text-sm">毎週の活動サマリーをメールで受信</p>
+                  </div>
+                  <input type="checkbox" defaultChecked className="toggle" />
+                </div>
               </div>
             </div>
           </div>
