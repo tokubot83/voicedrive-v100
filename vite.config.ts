@@ -150,60 +150,14 @@ export default defineConfig({
         warn(warning)
       },
       output: {
-        manualChunks(id) {
-          // React関連 - より明示的にチャンク分割
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
-            return 'vendor-react';
-          }
-
-          // ルーティング関連
-          if (id.includes('node_modules/react-router')) {
-            return 'vendor-router';
-          }
-          
-          // UI ライブラリ
-          if (id.includes('node_modules/lucide-react')) {
-            return 'ui';
-          }
-          
-          // 大きなサービスファイルを分割
-          if (id.includes('src/services/PostVisibilityEngine')) {
-            return 'visibility-engine';
-          }
-          
-          if (id.includes('src/hooks/projects/useProjectScoring')) {
-            return 'project-scoring';
-          }
-          
-          // デモデータを分割
-          if (id.includes('src/data/demo/')) {
-            return 'demo-data';
-          }
-          
-          // ダッシュボード関連コンポーネント
-          if (id.includes('src/components/dashboards/') || id.includes('src/pages/') && id.includes('Dashboard')) {
-            return 'dashboards';
-          }
-          
-          // 分析コンポーネント
-          if (id.includes('src/components/analytics/')) {
-            return 'analytics-components';
-          }
-          
-          // 権限システム
-          if (id.includes('src/permissions/')) {
-            return 'permissions';
-          }
-          
-          // その他のサービス
-          if (id.includes('src/services/')) {
-            return 'services';
-          }
-          
-          // その他のnode_modules
-          if (id.includes('node_modules/')) {
-            return 'vendor';
-          }
+        manualChunks: {
+          // Reactを単一のチャンクに確実にまとめる
+          'vendor-react': ['react', 'react-dom', 'react/jsx-runtime'],
+          // ルーティング
+          'vendor-router': ['react-router-dom'],
+          // その他のライブラリ
+          'vendor-ui': ['lucide-react'],
+          'vendor-libs': ['axios', 'date-fns']
         },
         assetFileNames: (assetInfo) => {
           if (!assetInfo.name) return 'assets/[name]-[hash][extname]';
