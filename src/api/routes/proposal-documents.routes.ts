@@ -196,7 +196,7 @@ router.get('/proposal-documents/:documentId', async (req: Request, res: Response
       userLevel
     });
 
-    const { document, canEdit, canView } = await getDocumentWithPermission(
+    const { document, canEdit } = await getDocumentWithPermission(
       documentId,
       userId as string,
       parseInt(userLevel as string, 10)
@@ -370,9 +370,6 @@ router.post('/proposal-documents', async (req: Request, res: Response) => {
       userId
     });
 
-    const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress;
-    const userAgent = req.headers['user-agent'];
-
     const result = await prisma.$transaction(async (tx) => {
       const document = await tx.proposalDocument.create({
         data: {
@@ -402,10 +399,7 @@ router.post('/proposal-documents', async (req: Request, res: Response) => {
           userId,
           userName: user.name,
           userLevel: Number(user.permissionLevel),
-          changedFields: { fields: ['all_fields'] },
-          ipAddress,
-          userAgent,
-          timestamp: new Date()
+          changedFields: { fields: ['all_fields'] }
         }
       });
 
@@ -427,6 +421,233 @@ router.post('/proposal-documents', async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       error: '提案書類の作成中にエラーが発生しました',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+/**
+ * POST /api/proposal-documents/:documentId/submit
+ * 委員会提出（ProposalDocumentCard用）
+ * NEW: 2025-10-22
+ */
+router.post('/proposal-documents/:documentId/submit', async (req: Request, res: Response) => {
+  try {
+    const { documentId } = req.params;
+    const { targetCommittee, userId } = req.body;
+
+    if (!targetCommittee || !userId) {
+      return res.status(400).json({
+        success: false,
+        error: 'targetCommitteeとuserIdが必要です'
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'ユーザーが見つかりません'
+      });
+    }
+
+    const userLevel = Number(user.permissionLevel);
+
+    // 管理職権限チェック
+    if (!hasManagerPermission(userLevel)) {
+      return res.status(403).json({
+        success: false,
+        error: '管理職権限（Level 11+）が必要です'
+      });
+    }
+
+    const document = await prisma.proposalDocument.findUnique({
+      where: { id: documentId }
+    });
+
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        error: '提案書類が見つかりません'
+      });
+    }
+
+    // 作成者チェック
+    if (document.createdById !== userId && !hasDirectorPermission(userLevel)) {
+      return res.status(403).json({
+        success: false,
+        error: '作成者のみが提出できます'
+      });
+    }
+
+    // ステータスチェック
+    if (document.status !== 'ready') {
+      return res.status(400).json({
+        success: false,
+        error: '提出準備完了状態の提案書のみ提出できます',
+        currentStatus: document.status
+      });
+    }
+
+    // トランザクション: 提案書更新 + 提出リクエスト作成 + 監査ログ
+    const result = await prisma.$transaction(async (tx) => {
+      const updatedDocument = await tx.proposalDocument.update({
+        where: { id: documentId },
+        data: {
+          status: 'submitted',
+          targetCommittee,
+          submittedDate: new Date(),
+          submittedById: userId
+        },
+        include: {
+          createdBy: { select: { id: true, name: true, position: true, department: true } },
+          submittedBy: { select: { id: true, name: true } }
+        }
+      });
+
+      const submissionRequest = await tx.committeeSubmissionRequest.create({
+        data: {
+          documentId,
+          requestedById: userId,
+          targetCommittee,
+          status: 'pending'
+        }
+      });
+
+      const auditLog = await tx.proposalAuditLog.create({
+        data: {
+          documentId,
+          userId,
+          userName: user.name,
+          userLevel: userLevel,
+          action: 'submitted',
+          details: `委員会に提出: ${targetCommittee}`,
+          changedFields: { targetCommittee, status: 'submitted' }
+        }
+      });
+
+      return { updatedDocument, submissionRequest, auditLog };
+    });
+
+    console.log('[POST /proposal-documents/:documentId/submit] 提出完了:', documentId);
+
+    return res.status(200).json({
+      success: true,
+      data: result
+    });
+
+  } catch (error: any) {
+    console.error('[POST /proposal-documents/:documentId/submit] エラー:', error);
+    return res.status(500).json({
+      success: false,
+      error: '提出中にエラーが発生しました',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+/**
+ * DELETE /api/proposal-documents/:documentId
+ * 提案書類削除（ProposalDocumentCard用）
+ * NEW: 2025-10-22
+ */
+router.delete('/proposal-documents/:documentId', async (req: Request, res: Response) => {
+  try {
+    const { documentId } = req.params;
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: 'userIdが必要です'
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId as string }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'ユーザーが見つかりません'
+      });
+    }
+
+    const userLevel = Number(user.permissionLevel);
+
+    // 管理職権限チェック
+    if (!hasManagerPermission(userLevel)) {
+      return res.status(403).json({
+        success: false,
+        error: '管理職権限（Level 11+）が必要です'
+      });
+    }
+
+    const document = await prisma.proposalDocument.findUnique({
+      where: { id: documentId }
+    });
+
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        error: '提案書類が見つかりません'
+      });
+    }
+
+    // 作成者チェック
+    if (document.createdById !== userId && !hasDirectorPermission(userLevel)) {
+      return res.status(403).json({
+        success: false,
+        error: '作成者のみが削除できます'
+      });
+    }
+
+    // ステータスチェック
+    if (document.status !== 'draft') {
+      return res.status(400).json({
+        success: false,
+        error: '下書き状態の提案書のみ削除できます',
+        currentStatus: document.status
+      });
+    }
+
+    // トランザクション: 監査ログ作成 + 削除
+    await prisma.$transaction(async (tx) => {
+      await tx.proposalAuditLog.create({
+        data: {
+          documentId,
+          userId: userId as string,
+          userName: user.name,
+          userLevel: userLevel,
+          action: 'deleted',
+          details: `下書き削除: ${document.title}`
+        }
+      });
+
+      await tx.proposalDocument.delete({
+        where: { id: documentId }
+      });
+    });
+
+    console.log('[DELETE /proposal-documents/:documentId] 削除完了:', documentId);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        deletedId: documentId,
+        message: '提案書類を削除しました'
+      }
+    });
+
+  } catch (error: any) {
+    console.error('[DELETE /proposal-documents/:documentId] エラー:', error);
+    return res.status(500).json({
+      success: false,
+      error: '削除中にエラーが発生しました',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

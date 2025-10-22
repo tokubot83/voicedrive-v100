@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../hooks/useAuth';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { Post, VoteOption, User } from '../types';
@@ -23,21 +24,71 @@ import { ExpiredEscalationCard } from '../components/voting/ExpiredEscalationCar
 import type { ExpiredEscalationDecision } from '../components/voting/ExpiredEscalationCard';
 import { Shield, Filter, LayoutGrid, FileText, AlertCircle } from 'lucide-react';
 
+// ProposalDocument API関数
+const API_BASE = 'http://localhost:4000';
+
+async function fetchProposalDocuments(userId: string, userLevel: number): Promise<ProposalDocument[]> {
+  const response = await fetch(`${API_BASE}/api/proposal-documents?userId=${userId}&userLevel=${userLevel}&limit=100`);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch proposal documents');
+  }
+
+  const data = await response.json();
+  return data.data.documents.map((doc: any) => ({
+    ...doc,
+    createdDate: new Date(doc.createdAt),
+    lastModifiedDate: new Date(doc.updatedAt),
+    submittedDate: doc.submittedDate ? new Date(doc.submittedDate) : undefined
+  }));
+}
+
+async function submitProposalDocument(documentId: string, targetCommittee: string, userId: string): Promise<any> {
+  const response = await fetch(`${API_BASE}/api/proposal-documents/${documentId}/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ targetCommittee, userId })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to submit document');
+  }
+
+  return response.json();
+}
+
 export const ProposalManagementPage: React.FC = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { currentUser: authUser } = useAuth();
-  const { currentUser: demoUser, isDemoMode } = useDemoMode();
+  const { currentUser: demoUser } = useDemoMode();
   const activeUser = demoUser || authUser;
 
   const [selectedLevel, setSelectedLevel] = useState<AgendaLevel | 'all'>('all');
   const [posts, setPosts] = useState<Post[]>([]);
-  const [documents, setDocuments] = useState<ProposalDocument[]>([]);
   const [filter, setFilter] = useState<'managed' | 'viewable'>('managed');
   const [viewMode, setViewMode] = useState<'analysis' | 'documents' | 'expired'>('analysis');
   const [markedCandidates, setMarkedCandidates] = useState<Set<string>>(new Set());
   const [expiredEscalations, setExpiredEscalations] = useState<any[]>([]);
 
   const { calculateScore, convertVotesToEngagements } = useProjectScoring();
+
+  // React Query: ProposalDocuments取得
+  const { data: documents = [], isLoading: isDocumentsLoading, error: documentsError } = useQuery({
+    queryKey: ['proposalDocuments', activeUser?.id, activeUser?.permissionLevel],
+    queryFn: () => fetchProposalDocuments(activeUser!.id, Number(activeUser!.permissionLevel)),
+    enabled: !!activeUser
+  });
+
+  // Mutation: ProposalDocument提出
+  const submitMutation = useMutation({
+    mutationFn: ({ documentId, targetCommittee }: { documentId: string; targetCommittee: string }) =>
+      submitProposalDocument(documentId, targetCommittee, activeUser!.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['proposalDocuments'] });
+    }
+  });
 
   // ユーザーの管轄レベルと閲覧可能レベルを取得
   const managedLevels = activeUser
@@ -54,7 +105,6 @@ export const ProposalManagementPage: React.FC = () => {
       initializeDemoProposalDocuments();
 
       loadProposals();
-      loadDocuments();
       loadExpiredEscalations();
     }
   }, [activeUser]);
@@ -81,11 +131,6 @@ export const ProposalManagementPage: React.FC = () => {
     }
   };
 
-  const loadDocuments = () => {
-    // 全ドキュメントを取得（実際はユーザーに関連するもののみ）
-    const allDocs = proposalDocumentGenerator.getAllDocuments();
-    setDocuments(allDocs);
-  };
 
   const loadExpiredEscalations = async () => {
     try {
@@ -187,8 +232,8 @@ export const ProposalManagementPage: React.FC = () => {
 
     console.log('議題提案書を作成しました:', document);
 
-    // ドキュメント一覧を更新
-    loadDocuments();
+    // ドキュメント一覧を更新（React Queryが自動で再取得）
+    queryClient.invalidateQueries({ queryKey: ['proposalDocuments'] });
 
     // 議題提案書編集ページへ遷移
     navigate(`/proposal-document/${document.id}`);
@@ -566,8 +611,10 @@ export const ProposalManagementPage: React.FC = () => {
               document={document}
               onEdit={(docId) => navigate(`/proposal-document/${docId}`)}
               onSubmitRequest={(docId) => {
-                // TODO: 提出リクエスト処理
-                alert('提出リクエスト機能は実装中です');
+                const targetCommittee = prompt('提出先の委員会を入力してください：');
+                if (!targetCommittee) return;
+
+                submitMutation.mutate({ documentId: docId, targetCommittee });
               }}
             />
           ))
