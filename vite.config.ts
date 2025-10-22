@@ -152,26 +152,36 @@ export default defineConfig({
       },
       output: {
         manualChunks(id) {
-          // Reactを単一のチャンクに確実にまとめる
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
-            return 'vendor-react';
+          // node_modules内のチェックは、より具体的なものを先に判定
+          if (id.includes('node_modules/')) {
+            // React本体とその依存を最優先でチェック
+            if (id.includes('/react/') ||
+                id.includes('/react-dom/') ||
+                id.includes('/scheduler/') ||
+                id.match(/node_modules\/react$/)) {
+              return 'vendor-react';
+            }
+
+            // react-routerはReactの後にチェック
+            if (id.includes('/react-router')) {
+              return 'vendor-router';
+            }
+
+            // lucide-reactもReactの後
+            if (id.includes('/lucide-react')) {
+              return 'vendor-ui';
+            }
+
+            // その他のライブラリ
+            if (id.includes('/axios') || id.includes('/date-fns')) {
+              return 'vendor-libs';
+            }
+
+            // 上記以外のnode_modules
+            return 'vendor-other';
           }
 
-          // ルーティング
-          if (id.includes('node_modules/react-router-dom')) {
-            return 'vendor-router';
-          }
-
-          // UI ライブラリ
-          if (id.includes('node_modules/lucide-react')) {
-            return 'vendor-ui';
-          }
-
-          // その他のライブラリ
-          if (id.includes('node_modules/axios') || id.includes('node_modules/date-fns')) {
-            return 'vendor-libs';
-          }
-
+          // src配下のコード
           // 大きなページコンポーネントを分割
           if (id.includes('src/pages/')) {
             const pageName = id.split('src/pages/')[1]?.split('.')[0];
@@ -188,11 +198,6 @@ export default defineConfig({
           // コンポーネントを分割
           if (id.includes('src/components/')) {
             return 'components';
-          }
-
-          // その他のnode_modules
-          if (id.includes('node_modules/')) {
-            return 'vendor-other';
           }
         },
         assetFileNames: (assetInfo) => {
