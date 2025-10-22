@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
 import { FileText, Calendar, CheckCircle, AlertCircle, MessageSquare, Eye, ThumbsUp, ThumbsDown, Loader2 } from 'lucide-react';
 
 /**
@@ -115,38 +114,73 @@ async function reviewAgenda(params: {
 }
 
 export const BoardAgendaReviewPage: React.FC = () => {
-  const queryClient = useQueryClient();
-  const [selectedAgendaId, setSelectedAgendaId] = useState<string | null>(null);
-  const [reviewComment, setReviewComment] = useState<string>('');
-
   // TODO: 実際のユーザーIDを取得（認証コンテキストから）
   const currentUserId = 'user-chairman-001';
 
+  // 状態管理
+  const [nextMeeting, setNextMeeting] = useState<BoardMeeting | null>(null);
+  const [agendasData, setAgendasData] = useState<BoardAgendasResponse | null>(null);
+  const [isMeetingLoading, setIsMeetingLoading] = useState(true);
+  const [isAgendasLoading, setIsAgendasLoading] = useState(false);
+  const [meetingError, setMeetingError] = useState<Error | null>(null);
+  const [agendasError, setAgendasError] = useState<Error | null>(null);
+  const [isReviewPending, setIsReviewPending] = useState(false);
+
   // 次回理事会情報取得
-  const { data: nextMeeting, isLoading: isMeetingLoading, error: meetingError } = useQuery({
-    queryKey: ['nextBoardMeeting'],
-    queryFn: fetchNextBoardMeeting
-  });
+  useEffect(() => {
+    const loadNextMeeting = async () => {
+      try {
+        setIsMeetingLoading(true);
+        const meeting = await fetchNextBoardMeeting();
+        setNextMeeting(meeting);
+        setMeetingError(null);
+      } catch (err) {
+        setMeetingError(err as Error);
+      } finally {
+        setIsMeetingLoading(false);
+      }
+    };
+
+    loadNextMeeting();
+  }, []);
 
   // 理事会議題一覧取得
-  const { data: agendasData, isLoading: isAgendasLoading, error: agendasError } = useQuery({
-    queryKey: ['boardAgendas', nextMeeting?.meetingDate],
-    queryFn: () => fetchBoardAgendas(nextMeeting!.meetingDate),
-    enabled: !!nextMeeting?.meetingDate
-  });
+  useEffect(() => {
+    if (!nextMeeting?.meetingDate) return;
 
-  // レビューアクションミューテーション
-  const reviewMutation = useMutation({
-    mutationFn: reviewAgenda,
-    onSuccess: () => {
-      // 議題一覧を再取得
-      queryClient.invalidateQueries({ queryKey: ['boardAgendas'] });
-      setSelectedAgendaId(null);
-      setReviewComment('');
+    const loadAgendas = async () => {
+      try {
+        setIsAgendasLoading(true);
+        const data = await fetchBoardAgendas(nextMeeting.meetingDate);
+        setAgendasData(data);
+        setAgendasError(null);
+      } catch (err) {
+        setAgendasError(err as Error);
+      } finally {
+        setIsAgendasLoading(false);
+      }
+    };
+
+    loadAgendas();
+  }, [nextMeeting?.meetingDate]);
+
+  // 議題一覧を再取得する関数
+  const refetchAgendas = async () => {
+    if (!nextMeeting?.meetingDate) return;
+
+    try {
+      setIsAgendasLoading(true);
+      const data = await fetchBoardAgendas(nextMeeting.meetingDate);
+      setAgendasData(data);
+      setAgendasError(null);
+    } catch (err) {
+      setAgendasError(err as Error);
+    } finally {
+      setIsAgendasLoading(false);
     }
-  });
+  };
 
-  const handleReviewAction = (agendaId: string, action: 'approve' | 'revise' | 'reject') => {
+  const handleReviewAction = async (agendaId: string, action: 'approve' | 'revise' | 'reject') => {
     const comment = window.prompt(
       action === 'approve' ? 'コメント（任意）:' :
       action === 'revise' ? '修正依頼理由を入力してください:' :
@@ -158,12 +192,21 @@ export const BoardAgendaReviewPage: React.FC = () => {
       return;
     }
 
-    reviewMutation.mutate({
-      agendaId,
-      action,
-      comment: comment || undefined,
-      userId: currentUserId
-    });
+    try {
+      setIsReviewPending(true);
+      await reviewAgenda({
+        agendaId,
+        action,
+        comment: comment || undefined,
+        userId: currentUserId
+      });
+      // 議題一覧を再取得
+      await refetchAgendas();
+    } catch (error) {
+      alert('レビュー処理に失敗しました: ' + (error as Error).message);
+    } finally {
+      setIsReviewPending(false);
+    }
   };
 
   const getReviewStatusColor = (status?: string) => {
@@ -436,10 +479,10 @@ export const BoardAgendaReviewPage: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => handleReviewAction(agenda.id, 'approve')}
-                          disabled={reviewMutation.isPending}
+                          disabled={isReviewPending}
                           className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-600/50 rounded-lg transition-colors flex items-center justify-center gap-2"
                         >
-                          {reviewMutation.isPending ? (
+                          {isReviewPending ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
                             <ThumbsUp className="w-4 h-4" />
@@ -448,10 +491,10 @@ export const BoardAgendaReviewPage: React.FC = () => {
                         </button>
                         <button
                           onClick={() => handleReviewAction(agenda.id, 'revise')}
-                          disabled={reviewMutation.isPending}
+                          disabled={isReviewPending}
                           className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 disabled:bg-yellow-600/50 rounded-lg transition-colors flex items-center justify-center gap-2"
                         >
-                          {reviewMutation.isPending ? (
+                          {isReviewPending ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
                             <AlertCircle className="w-4 h-4" />
@@ -460,10 +503,10 @@ export const BoardAgendaReviewPage: React.FC = () => {
                         </button>
                         <button
                           onClick={() => handleReviewAction(agenda.id, 'reject')}
-                          disabled={reviewMutation.isPending}
+                          disabled={isReviewPending}
                           className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-600/50 rounded-lg transition-colors flex items-center justify-center gap-2"
                         >
-                          {reviewMutation.isPending ? (
+                          {isReviewPending ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
                             <ThumbsDown className="w-4 h-4" />

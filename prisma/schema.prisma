@@ -1431,12 +1431,12 @@ model BoardMeetingAgenda {
   documentsReady      Boolean                         @default(false) @map("documents_ready")
   presentationReady   Boolean                         @default(false) @map("presentation_ready")
   documentUrls        Json?                           @map("document_urls")
-  keyPoints           String?                         @db.Text @map("key_points")
-  summary             String?                         @db.Text @map("summary")
-  expectedDiscussion  String?                         @db.Text @map("expected_discussion")
-  requiredDecision    String?                         @db.Text @map("required_decision")
+  keyPoints           String?                         @map("key_points")
+  summary             String?                         @map("summary")
+  expectedDiscussion  String?                         @map("expected_discussion")
+  requiredDecision    String?                         @map("required_decision")
   chairmanReview      String?                         @default("pending") @map("chairman_review")
-  chairmanComment     String?                         @db.Text @map("chairman_comment")
+  chairmanComment     String?                         @map("chairman_comment")
   chairmanReviewedBy  String?                         @map("chairman_reviewed_by")
   chairmanReviewedAt  DateTime?                       @map("chairman_reviewed_at")
   createdAt           DateTime                        @default(now()) @map("created_at")
@@ -2646,29 +2646,6 @@ model ProposalDecision {
 // 作成日: 2025-10-22
 // ==========================================
 
-// 施設マスタ（医療システムからのキャッシュ）
-model Facility {
-  id              String    @id @default(cuid())
-  facilityCode    String    @unique @map("facility_code")
-  facilityName    String    @map("facility_name")
-  facilityType    String    @map("facility_type")
-  // "総合病院", "地域医療センター", "リハビリ病院", "クリニック", "介護施設"
-
-  totalEmployees  Int       @default(0) @map("total_employees")
-  isActive        Boolean   @default(true) @map("is_active")
-
-  // 医療システムとの同期
-  syncedAt        DateTime  @default(now()) @map("synced_at")
-
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-
-  @@index([facilityCode])
-  @@index([facilityType])
-  @@index([isActive])
-  @@map("facilities")
-}
-
 // 施設別統計（日次・週次・月次集計）
 model FacilityStatistics {
   id                  String    @id @default(cuid())
@@ -2772,7 +2749,7 @@ model FacilityAlert {
   // "info", "warning", "critical"
 
   // 内容
-  message         String    @db.Text
+  message         String
   currentValue    Float     @map("current_value")
   thresholdValue  Float     @map("threshold_value")
 
