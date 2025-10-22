@@ -12,6 +12,8 @@ import analyticsRoutes from './routes/analytics.routes';
 import postRoutes from './routes/post.routes';
 import sidebarMenuRoutes from './routes/sidebar-menu.routes';
 import proposalDecisionRoutes from './routes/proposal-decision.routes';
+import expiredEscalationRoutes from './routes/expired-escalation.routes';
+import boardAgendasRoutes from './routes/board-agendas.routes';
 
 // 環境変数バリデーション（起動前にチェック）
 validateEnvironment();
@@ -173,6 +175,8 @@ app.use('/api/v1/analytics', analyticsRoutes); // レート制限はルート内
 app.use('/api', apiLimiter, postRoutes); // ComposeForm統合実装（2025-10-09）
 app.use('/api/sidebar-menu', apiLimiter, sidebarMenuRoutes); // サイドバーメニュー管理（2025-10-19）
 app.use('/api/agenda', apiLimiter, proposalDecisionRoutes); // 提案決定API（却下・保留・部署案件化）（2025-10-21）
+app.use('/api/agenda', apiLimiter, expiredEscalationRoutes); // 期限到達提案API（2025-10-21）
+app.use('/api', apiLimiter, boardAgendasRoutes); // 理事会議題レビューAPI（2025-10-13）
 
 // 404ハンドラー
 app.use((req: Request, res: Response) => {
