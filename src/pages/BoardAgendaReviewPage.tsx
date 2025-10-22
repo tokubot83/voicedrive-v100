@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FileText, Calendar, CheckCircle, AlertCircle, MessageSquare, Eye, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { FileText, Calendar, CheckCircle, AlertCircle, MessageSquare, Eye, ThumbsUp, ThumbsDown, Loader2 } from 'lucide-react';
 
 /**
  * 理事会議題確認
@@ -10,190 +11,180 @@ import { FileText, Calendar, CheckCircle, AlertCircle, MessageSquare, Eye, Thumb
 
 interface AgendaItem {
   id: string;
-  title: string;
+  item: string;
   category: string;
   priority: 'high' | 'medium' | 'low';
-  preparedBy: string;
-  source: string;
-  summary: string;
-  keyPoints: string[];
-  expectedDiscussion: string;
-  requiredDecision: string;
-  documentsAttached: boolean;
+  preparedBy?: string;
+  sourceReport?: string;
+  summary?: string;
+  keyPoints?: string;
+  expectedDiscussion?: string;
+  requiredDecision?: string;
+  documentsReady: boolean;
   presentationReady: boolean;
-  estimatedTime: number; // minutes
-  chairmanReview: 'pending' | 'approved' | 'needs_revision' | 'rejected';
+  duration: number;
+  chairmanReview?: string;
   chairmanComment?: string;
+  chairmanReviewedAt?: string;
+  agendaOrder: number;
+  presenter: {
+    id: string;
+    name: string;
+    position?: string;
+    department?: string;
+  };
 }
 
 interface BoardMeeting {
-  date: string;
-  time: string;
+  id: string;
+  meetingDate: string;
+  startTime: string;
   location: string;
   expectedAttendees: number;
+  expectedDuration: number;
+  totalAgendaCount: number;
   totalEstimatedTime: number;
+  preparationProgress: number;
+  status: string;
+}
+
+interface BoardMeetingResponse {
+  success: boolean;
+  meeting: BoardMeeting;
+}
+
+interface BoardAgendasResponse {
+  success: boolean;
+  agendas: AgendaItem[];
+  statistics: {
+    total: number;
+    approved: number;
+    pending: number;
+    needsRevision: number;
+    rejected: number;
+  };
+}
+
+// APIベースURL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+
+// 次回理事会情報取得
+async function fetchNextBoardMeeting(): Promise<BoardMeeting> {
+  const response = await fetch(`${API_BASE_URL}/api/board-meetings/next`);
+  if (!response.ok) {
+    throw new Error('次回理事会情報の取得に失敗しました');
+  }
+  const data: BoardMeetingResponse = await response.json();
+  return data.meeting;
+}
+
+// 理事会議題一覧取得
+async function fetchBoardAgendas(meetingDate: string): Promise<BoardAgendasResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/board-agendas?meetingDate=${encodeURIComponent(meetingDate)}`);
+  if (!response.ok) {
+    throw new Error('議題一覧の取得に失敗しました');
+  }
+  return response.json();
+}
+
+// 理事長レビューアクション
+async function reviewAgenda(params: {
+  agendaId: string;
+  action: 'approve' | 'revise' | 'reject';
+  comment?: string;
+  userId: string;
+}): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/api/board-agendas/${params.agendaId}/review`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      action: params.action,
+      comment: params.comment,
+      userId: params.userId
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'レビュー処理に失敗しました');
+  }
+
+  return response.json();
 }
 
 export const BoardAgendaReviewPage: React.FC = () => {
-  const [selectedAgenda, setSelectedAgenda] = useState<string | null>(null);
-  const [reviewComments, setReviewComments] = useState<Record<string, string>>({});
+  const queryClient = useQueryClient();
+  const [selectedAgendaId, setSelectedAgendaId] = useState<string | null>(null);
+  const [reviewComment, setReviewComment] = useState<string>('');
 
-  // 次回理事会情報
-  const nextMeeting: BoardMeeting = {
-    date: '2025年10月20日',
-    time: '14:00',
-    location: '本部会議室A',
-    expectedAttendees: 12,
-    totalEstimatedTime: 120
+  // TODO: 実際のユーザーIDを取得（認証コンテキストから）
+  const currentUserId = 'user-chairman-001';
+
+  // 次回理事会情報取得
+  const { data: nextMeeting, isLoading: isMeetingLoading, error: meetingError } = useQuery({
+    queryKey: ['nextBoardMeeting'],
+    queryFn: fetchNextBoardMeeting
+  });
+
+  // 理事会議題一覧取得
+  const { data: agendasData, isLoading: isAgendasLoading, error: agendasError } = useQuery({
+    queryKey: ['boardAgendas', nextMeeting?.meetingDate],
+    queryFn: () => fetchBoardAgendas(nextMeeting!.meetingDate),
+    enabled: !!nextMeeting?.meetingDate
+  });
+
+  // レビューアクションミューテーション
+  const reviewMutation = useMutation({
+    mutationFn: reviewAgenda,
+    onSuccess: () => {
+      // 議題一覧を再取得
+      queryClient.invalidateQueries({ queryKey: ['boardAgendas'] });
+      setSelectedAgendaId(null);
+      setReviewComment('');
+    }
+  });
+
+  const handleReviewAction = (agendaId: string, action: 'approve' | 'revise' | 'reject') => {
+    const comment = window.prompt(
+      action === 'approve' ? 'コメント（任意）:' :
+      action === 'revise' ? '修正依頼理由を入力してください:' :
+      '却下理由を入力してください:'
+    );
+
+    if (action !== 'approve' && !comment) {
+      alert('修正依頼・却下の場合は理由の入力が必須です');
+      return;
+    }
+
+    reviewMutation.mutate({
+      agendaId,
+      action,
+      comment: comment || undefined,
+      userId: currentUserId
+    });
   };
 
-  // 理事会議題一覧（レベル17が準備）
-  const agendaItems: AgendaItem[] = [
-    {
-      id: 'agenda-1',
-      title: '2025年度第2四半期 人事戦略報告',
-      category: '人事戦略',
-      priority: 'high',
-      preparedBy: '戦略企画部',
-      source: '月次議題化プロセスレポート',
-      summary: 'Q2の人事施策実施状況、職員エンゲージメント指標、次四半期の重点課題を報告。VoiceDrive議題化プロセス導入により職員参加率が64%に向上。',
-      keyPoints: [
-        '職員エンゲージメントスコア: 74点（前期比+6点）',
-        'VoiceDrive参加率: 64.3%（目標60%達成）',
-        '議題化プロセス導入による組織課題の早期発見・解決',
-        'Q3重点施策: 施設間人材ローテーション制度の試験導入'
-      ],
-      expectedDiscussion: '施設間ローテーション制度の具体的な運用方法、予算措置',
-      requiredDecision: '施設間人材ローテーション制度の試験導入承認',
-      documentsAttached: true,
-      presentationReady: true,
-      estimatedTime: 20,
-      chairmanReview: 'pending'
-    },
-    {
-      id: 'agenda-2',
-      title: '施設間人材配置最適化提案',
-      category: '組織改善',
-      priority: 'high',
-      preparedBy: '戦略企画部',
-      source: '組織分析レポート',
-      summary: '全10施設の人材配置分析の結果、夜勤帯の人員偏在が判明。施設横断での人材融通により、負担平準化と医療の質向上を図る。',
-      keyPoints: [
-        '6施設で夜勤時の人手不足が共通課題',
-        '施設間での人材融通により月平均40時間の残業削減見込み',
-        '職員のスキル向上とキャリア開発にも寄与',
-        '初期投資: 約500万円、年間効果: 人件費効率化 約2,000万円'
-      ],
-      expectedDiscussion: '施設間移動の支援体制、職員の同意取得プロセス',
-      requiredDecision: '2026年4月からの試験運用承認、予算措置',
-      documentsAttached: true,
-      presentationReady: false,
-      estimatedTime: 15,
-      chairmanReview: 'pending'
-    },
-    {
-      id: 'agenda-3',
-      title: '職員エンゲージメント向上施策の中間報告',
-      category: 'カルチャー開発',
-      priority: 'medium',
-      preparedBy: '人事部',
-      source: 'カルチャー開発委員会',
-      summary: '2025年上半期のエンゲージメント向上施策の実施状況と成果を報告。メンター制度、チーム制勤務など複数施策を展開。',
-      keyPoints: [
-        '新人離職率: 35% → 12%（中央総合病院メンター制度）',
-        '残業時間削減: 月平均18時間 → 12時間（桜ヶ丘総合病院チーム制勤務）',
-        '成功事例の横展開により法人全体での効果拡大を計画',
-        '下半期重点: 若手職員キャリアパス制度の整備'
-      ],
-      expectedDiscussion: '成功事例の他施設への展開スケジュール',
-      requiredDecision: '特になし（情報共有）',
-      documentsAttached: true,
-      presentationReady: true,
-      estimatedTime: 10,
-      chairmanReview: 'approved',
-      chairmanComment: '良好な成果。横展開を積極的に進めてください。'
-    },
-    {
-      id: 'agenda-4',
-      title: '委員会制度改革の進捗と成果',
-      category: 'ガバナンス',
-      priority: 'medium',
-      preparedBy: '戦略企画部',
-      source: '委員会効果測定レポート',
-      summary: '議題化プロセスと連動した委員会制度改革の進捗報告。職員の声が委員会で適切に検討される仕組みを構築。',
-      keyPoints: [
-        '委員会レビュー案件: 342件（前年同期比+180%）',
-        '委員会から経営層への提案: 89件（実施率67%）',
-        '職員の声が組織改善につながる実感の向上',
-        '今後の課題: 委員会間の連携強化、審議の効率化'
-      ],
-      expectedDiscussion: '委員会運営の効率化施策',
-      requiredDecision: '特になし（進捗確認）',
-      documentsAttached: true,
-      presentationReady: true,
-      estimatedTime: 15,
-      chairmanReview: 'approved'
-    },
-    {
-      id: 'agenda-5',
-      title: 'VoiceDrive議題化プロセス導入成果報告',
-      category: 'システム改善',
-      priority: 'high',
-      preparedBy: '人事部・戦略企画部',
-      source: 'ボイス分析統括レポート',
-      summary: 'VoiceDrive議題化プロセスの導入成果を総括。職員の声の可視化・組織化により、組織課題の早期発見と解決を実現。',
-      keyPoints: [
-        '総投稿数: 12,847件（全施設）、参加率: 64.3%',
-        '解決済み案件: 7,541件（解決率58.7%）',
-        '平均処理日数: 26.4日（目標30日以内達成）',
-        '2026年4月より全10施設への本格展開を提案'
-      ],
-      expectedDiscussion: '全施設展開の予算、スケジュール、体制',
-      requiredDecision: '2026年4月全施設展開の承認、予算約800万円の承認',
-      documentsAttached: true,
-      presentationReady: true,
-      estimatedTime: 25,
-      chairmanReview: 'pending'
-    },
-    {
-      id: 'agenda-6',
-      title: '次年度予算編成方針（人事関連）',
-      category: '予算',
-      priority: 'high',
-      preparedBy: '戦略企画部',
-      source: '戦略HR計画',
-      summary: '2026年度の人事関連予算編成方針を提示。職員育成、システム投資、働き方改革施策への重点配分を提案。',
-      keyPoints: [
-        '総額: 前年比+12%（重点投資により組織強化）',
-        '主要項目: VoiceDrive全施設展開、人材ローテーション制度、キャリアラダー制度',
-        '期待効果: 離職率低下、生産性向上、職員満足度向上',
-        '投資回収: 3年間で人件費効率化により投資額の150%回収見込み'
-      ],
-      expectedDiscussion: '予算規模の妥当性、優先順位',
-      requiredDecision: '次年度予算編成方針の承認',
-      documentsAttached: false,
-      presentationReady: false,
-      estimatedTime: 20,
-      chairmanReview: 'needs_revision',
-      chairmanComment: '具体的な数値根拠を補強してください。投資効果の試算をより詳細に。'
-    }
-  ];
-
-  const getReviewStatusColor = (status: AgendaItem['chairmanReview']) => {
+  const getReviewStatusColor = (status?: string) => {
     switch (status) {
       case 'approved': return 'text-green-400 bg-green-400/10 border-green-400/30';
       case 'needs_revision': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30';
       case 'rejected': return 'text-red-400 bg-red-400/10 border-red-400/30';
-      case 'pending': return 'text-gray-400 bg-gray-400/10 border-gray-400/30';
+      case 'pending':
+      default:
+        return 'text-gray-400 bg-gray-400/10 border-gray-400/30';
     }
   };
 
-  const getReviewStatusLabel = (status: AgendaItem['chairmanReview']) => {
+  const getReviewStatusLabel = (status?: string) => {
     switch (status) {
       case 'approved': return '承認済';
       case 'needs_revision': return '修正依頼';
       case 'rejected': return '却下';
-      case 'pending': return '確認待ち';
+      case 'pending':
+      default:
+        return '確認待ち';
     }
   };
 
@@ -205,15 +196,71 @@ export const BoardAgendaReviewPage: React.FC = () => {
     }
   };
 
-  const handleReviewAction = (agendaId: string, action: 'approve' | 'revise' | 'reject') => {
-    console.log(`Agenda ${agendaId}: ${action}`);
-    // 実際の実装では、ここでAPIを呼び出してレビュー結果を保存
+  // keyPointsのパース（JSON文字列 or 改行区切りテキスト）
+  const parseKeyPoints = (keyPoints?: string): string[] => {
+    if (!keyPoints) return [];
+
+    try {
+      // JSON形式を試す
+      const parsed = JSON.parse(keyPoints);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {
+      // JSON解析失敗 → 改行区切りと仮定
+      return keyPoints.split('\n').filter(line => line.trim());
+    }
+
+    return [];
   };
 
-  const totalTime = agendaItems.reduce((sum, item) => sum + item.estimatedTime, 0);
-  const approvedCount = agendaItems.filter(item => item.status === 'approved').length;
-  const pendingCount = agendaItems.filter(item => item.chairmanReview === 'pending').length;
-  const needsRevisionCount = agendaItems.filter(item => item.chairmanReview === 'needs_revision').length;
+  // ローディング状態
+  if (isMeetingLoading || isAgendasLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
+          <span className="text-lg">読み込み中...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // エラー状態
+  if (meetingError || agendasError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center">
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 max-w-md">
+          <div className="flex items-center gap-3 mb-2">
+            <AlertCircle className="w-6 h-6 text-red-400" />
+            <h2 className="text-xl font-semibold text-red-400">エラー</h2>
+          </div>
+          <p className="text-gray-300">
+            {(meetingError as Error)?.message || (agendasError as Error)?.message || 'データの取得に失敗しました'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // データがない場合
+  if (!nextMeeting || !agendasData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <p className="text-xl text-gray-400">予定されている理事会がありません</p>
+        </div>
+      </div>
+    );
+  }
+
+  const agendaItems = agendasData.agendas;
+  const statistics = agendasData.statistics;
+
+  // 日付フォーマット
+  const formatDate = (isoDate: string) => {
+    const date = new Date(isoDate);
+    return date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
@@ -238,8 +285,8 @@ export const BoardAgendaReviewPage: React.FC = () => {
               <Calendar className="w-5 h-5 text-blue-400" />
               <span className="text-sm text-gray-400">次回理事会</span>
             </div>
-            <div className="text-2xl font-bold mb-1">{nextMeeting.date}</div>
-            <p className="text-sm text-gray-400">{nextMeeting.time} / {nextMeeting.location}</p>
+            <div className="text-2xl font-bold mb-1">{formatDate(nextMeeting.meetingDate)}</div>
+            <p className="text-sm text-gray-400">{nextMeeting.startTime} / {nextMeeting.location}</p>
           </div>
 
           <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
@@ -247,8 +294,8 @@ export const BoardAgendaReviewPage: React.FC = () => {
               <FileText className="w-5 h-5 text-purple-400" />
               <span className="text-sm text-gray-400">総議題数</span>
             </div>
-            <div className="text-3xl font-bold mb-1">{agendaItems.length}件</div>
-            <p className="text-sm text-gray-400">予定時間: {totalTime}分</p>
+            <div className="text-3xl font-bold mb-1">{statistics.total}件</div>
+            <p className="text-sm text-gray-400">予定時間: {nextMeeting.totalEstimatedTime}分</p>
           </div>
 
           <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
@@ -256,8 +303,8 @@ export const BoardAgendaReviewPage: React.FC = () => {
               <CheckCircle className="w-5 h-5 text-green-400" />
               <span className="text-sm text-gray-400">承認済</span>
             </div>
-            <div className="text-3xl font-bold mb-1 text-green-400">{approvedCount}件</div>
-            <p className="text-sm text-yellow-400">確認待ち: {pendingCount}件</p>
+            <div className="text-3xl font-bold mb-1 text-green-400">{statistics.approved}件</div>
+            <p className="text-sm text-yellow-400">確認待ち: {statistics.pending}件</p>
           </div>
 
           <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
@@ -265,7 +312,7 @@ export const BoardAgendaReviewPage: React.FC = () => {
               <AlertCircle className="w-5 h-5 text-yellow-400" />
               <span className="text-sm text-gray-400">要対応</span>
             </div>
-            <div className="text-3xl font-bold mb-1 text-yellow-400">{needsRevisionCount}件</div>
+            <div className="text-3xl font-bold mb-1 text-yellow-400">{statistics.needsRevision}件</div>
             <p className="text-sm text-gray-400">修正依頼中</p>
           </div>
         </div>
@@ -279,127 +326,161 @@ export const BoardAgendaReviewPage: React.FC = () => {
             <h2 className="text-xl font-semibold">議題一覧</h2>
           </div>
 
-          <div className="space-y-4">
-            {agendaItems.map((agenda) => (
-              <div
-                key={agenda.id}
-                className="bg-slate-900/50 rounded-lg p-5 border border-slate-700/50"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className={`text-xl ${getPriorityColor(agenda.priority)}`}>●</span>
-                      <h3 className="text-lg font-medium">{agenda.title}</h3>
-                      <span className={`px-3 py-1 rounded-full text-xs border ${getReviewStatusColor(agenda.chairmanReview)}`}>
-                        {getReviewStatusLabel(agenda.chairmanReview)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-400 mb-3">
-                      <span>{agenda.category}</span>
-                      <span>準備: {agenda.preparedBy}</span>
-                      <span>出典: {agenda.source}</span>
-                      <span>予定時間: {agenda.estimatedTime}分</span>
-                    </div>
-                  </div>
-                </div>
+          {agendaItems.length === 0 ? (
+            <div className="text-center py-12 text-gray-400">
+              <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p>議題がまだ登録されていません</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {agendaItems.map((agenda) => {
+                const keyPoints = parseKeyPoints(agenda.keyPoints);
 
-                <p className="text-gray-300 mb-4">{agenda.summary}</p>
-
-                {/* 論点 */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <p className="text-sm font-medium text-gray-400 mb-2">主要ポイント:</p>
-                    <ul className="space-y-1">
-                      {agenda.keyPoints.map((point, idx) => (
-                        <li key={idx} className="text-sm text-gray-300 flex items-start gap-2">
-                          <span className="text-blue-400 mt-1">•</span>
-                          <span>{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm font-medium text-gray-400 mb-1">想定される議論:</p>
-                      <p className="text-sm text-gray-300">{agenda.expectedDiscussion}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-400 mb-1">求められる決定:</p>
-                      <p className="text-sm text-yellow-400">{agenda.requiredDecision}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 資料状況 */}
-                <div className="flex items-center gap-6 mb-4 pb-4 border-b border-slate-700">
-                  <div className="flex items-center gap-2">
-                    {agenda.documentsAttached ? (
-                      <CheckCircle className="w-4 h-4 text-green-400" />
-                    ) : (
-                      <AlertCircle className="w-4 h-4 text-red-400" />
-                    )}
-                    <span className={`text-sm ${agenda.documentsAttached ? 'text-green-400' : 'text-red-400'}`}>
-                      報告書
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {agenda.presentationReady ? (
-                      <CheckCircle className="w-4 h-4 text-green-400" />
-                    ) : (
-                      <AlertCircle className="w-4 h-4 text-red-400" />
-                    )}
-                    <span className={`text-sm ${agenda.presentationReady ? 'text-green-400' : 'text-red-400'}`}>
-                      プレゼン資料
-                    </span>
-                  </div>
-                </div>
-
-                {/* 理事長コメント */}
-                {agenda.chairmanComment && (
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-4">
-                    <div className="flex items-start gap-2">
-                      <MessageSquare className="w-4 h-4 text-blue-400 mt-1" />
-                      <div>
-                        <p className="text-xs text-blue-400 mb-1">理事長コメント:</p>
-                        <p className="text-sm text-gray-300">{agenda.chairmanComment}</p>
+                return (
+                  <div
+                    key={agenda.id}
+                    className="bg-slate-900/50 rounded-lg p-5 border border-slate-700/50"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className={`text-xl ${getPriorityColor(agenda.priority)}`}>●</span>
+                          <h3 className="text-lg font-medium">{agenda.item}</h3>
+                          <span className={`px-3 py-1 rounded-full text-xs border ${getReviewStatusColor(agenda.chairmanReview)}`}>
+                            {getReviewStatusLabel(agenda.chairmanReview)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-400 mb-3">
+                          <span>{agenda.category}</span>
+                          {agenda.preparedBy && <span>準備: {agenda.preparedBy}</span>}
+                          {agenda.sourceReport && <span>出典: {agenda.sourceReport}</span>}
+                          <span>予定時間: {agenda.duration}分</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
 
-                {/* アクションボタン */}
-                {agenda.chairmanReview === 'pending' && (
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => handleReviewAction(agenda.id, 'approve')}
-                      className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center justify-center gap-2"
-                    >
-                      <ThumbsUp className="w-4 h-4" />
-                      承認
-                    </button>
-                    <button
-                      onClick={() => handleReviewAction(agenda.id, 'revise')}
-                      className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg transition-colors flex items-center justify-center gap-2"
-                    >
-                      <AlertCircle className="w-4 h-4" />
-                      修正依頼
-                    </button>
-                    <button
-                      onClick={() => handleReviewAction(agenda.id, 'reject')}
-                      className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center justify-center gap-2"
-                    >
-                      <ThumbsDown className="w-4 h-4" />
-                      却下
-                    </button>
-                    <button className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors flex items-center gap-2">
-                      <Eye className="w-4 h-4" />
-                      詳細確認
-                    </button>
+                    {agenda.summary && (
+                      <p className="text-gray-300 mb-4">{agenda.summary}</p>
+                    )}
+
+                    {/* 論点 */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                      {keyPoints.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-400 mb-2">主要ポイント:</p>
+                          <ul className="space-y-1">
+                            {keyPoints.map((point, idx) => (
+                              <li key={idx} className="text-sm text-gray-300 flex items-start gap-2">
+                                <span className="text-blue-400 mt-1">•</span>
+                                <span>{point}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      <div className="space-y-3">
+                        {agenda.expectedDiscussion && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-400 mb-1">想定される議論:</p>
+                            <p className="text-sm text-gray-300">{agenda.expectedDiscussion}</p>
+                          </div>
+                        )}
+                        {agenda.requiredDecision && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-400 mb-1">求められる決定:</p>
+                            <p className="text-sm text-yellow-400">{agenda.requiredDecision}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 資料状況 */}
+                    <div className="flex items-center gap-6 mb-4 pb-4 border-b border-slate-700">
+                      <div className="flex items-center gap-2">
+                        {agenda.documentsReady ? (
+                          <CheckCircle className="w-4 h-4 text-green-400" />
+                        ) : (
+                          <AlertCircle className="w-4 h-4 text-red-400" />
+                        )}
+                        <span className={`text-sm ${agenda.documentsReady ? 'text-green-400' : 'text-red-400'}`}>
+                          報告書
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {agenda.presentationReady ? (
+                          <CheckCircle className="w-4 h-4 text-green-400" />
+                        ) : (
+                          <AlertCircle className="w-4 h-4 text-red-400" />
+                        )}
+                        <span className={`text-sm ${agenda.presentationReady ? 'text-green-400' : 'text-red-400'}`}>
+                          プレゼン資料
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 理事長コメント */}
+                    {agenda.chairmanComment && (
+                      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-4">
+                        <div className="flex items-start gap-2">
+                          <MessageSquare className="w-4 h-4 text-blue-400 mt-1" />
+                          <div>
+                            <p className="text-xs text-blue-400 mb-1">理事長コメント:</p>
+                            <p className="text-sm text-gray-300">{agenda.chairmanComment}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* アクションボタン */}
+                    {agenda.chairmanReview === 'pending' && (
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => handleReviewAction(agenda.id, 'approve')}
+                          disabled={reviewMutation.isPending}
+                          className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-600/50 rounded-lg transition-colors flex items-center justify-center gap-2"
+                        >
+                          {reviewMutation.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <ThumbsUp className="w-4 h-4" />
+                          )}
+                          承認
+                        </button>
+                        <button
+                          onClick={() => handleReviewAction(agenda.id, 'revise')}
+                          disabled={reviewMutation.isPending}
+                          className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 disabled:bg-yellow-600/50 rounded-lg transition-colors flex items-center justify-center gap-2"
+                        >
+                          {reviewMutation.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <AlertCircle className="w-4 h-4" />
+                          )}
+                          修正依頼
+                        </button>
+                        <button
+                          onClick={() => handleReviewAction(agenda.id, 'reject')}
+                          disabled={reviewMutation.isPending}
+                          className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-600/50 rounded-lg transition-colors flex items-center justify-center gap-2"
+                        >
+                          {reviewMutation.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <ThumbsDown className="w-4 h-4" />
+                          )}
+                          却下
+                        </button>
+                        <button className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors flex items-center gap-2">
+                          <Eye className="w-4 h-4" />
+                          詳細確認
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
