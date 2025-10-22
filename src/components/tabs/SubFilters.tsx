@@ -67,7 +67,10 @@ export const SubFilters: React.FC<SubFiltersProps> = ({
   }
 
   return (
-    <div className="flex justify-center py-2 px-4 border-t border-gray-800 animate-slideDown">
+    <div
+      className="flex justify-center py-2 px-4 border-t animate-slideDown"
+      style={{ borderColor: 'var(--border-header)' }}
+    >
       <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
         {currentFilters.map((filter, index) => {
           // 同じparentTabで同じIDのフィルターを区別するためのユニークキー
@@ -77,14 +80,11 @@ export const SubFilters: React.FC<SubFiltersProps> = ({
             <button
               key={uniqueKey}
               onClick={() => handleFilterClick(filter.id)}
-              className={`
-                px-3 py-1.5 rounded-full text-sm font-medium
-                transition-all duration-200 transform hover:scale-105
-                ${activeFilter === filter.id
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200'
-                }
-              `}
+              className="px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 transform hover:scale-105"
+              style={{
+                backgroundColor: activeFilter === filter.id ? 'var(--primary-color)' : 'var(--bg-tertiary)',
+                color: activeFilter === filter.id ? '#ffffff' : 'var(--text-secondary)'
+              }}
             >
               {filter.label}
             </button>

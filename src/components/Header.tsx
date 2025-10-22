@@ -56,9 +56,15 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
   }
 
   return (
-    <header className={`fixed left-0 right-0 top-0 z-50 bg-black/80 backdrop-blur border-b border-gray-800 transition-transform duration-300 ${
-      isVisible ? 'translate-y-0' : '-translate-y-full'
-    }`}>
+    <header
+      className={`fixed left-0 right-0 top-0 z-50 backdrop-blur border-b transition-transform duration-300 ${
+        isVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}
+      style={{
+        backgroundColor: 'var(--bg-header)',
+        borderColor: 'var(--border-header)'
+      }}
+    >
       <div className="flex items-center justify-between px-4 py-3">
         {/* 左側のスペーサー */}
         <div className="flex-1"></div>

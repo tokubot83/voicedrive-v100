@@ -38,25 +38,49 @@
   --bg-primary: #0f1419;
   --bg-secondary: #1a1a2e;
   --bg-tertiary: #16213e;
+
+  /* ヘッダー・ナビゲーション専用 */
+  --bg-header: rgba(0, 0, 0, 0.8);
+  --border-header: rgba(47, 51, 54, 0.5);
+
   --text-primary: #e7e9ea;
   --text-secondary: #71767b;
   --border-color: rgba(47, 51, 54, 0.5);
+
+  /* ホバー・インタラクション */
+  --hover-bg: rgba(255, 255, 255, 0.03);
+  --link-hover: #1a8cd8;
 }
 
-/* ライトテーマ - 見やすさ重視の配色 */
+/* ライトテーマ - X (Twitter) 配色完全コピー */
 :root.light-theme {
-  --primary-color: #0284c7;
-  --secondary-color: #6366f1;
-  --tertiary-color: #db2777;
-  --success-color: #059669;
-  --warning-color: #ea580c;
-  --danger-color: #dc2626;
-  --bg-primary: #f8fafc;
-  --bg-secondary: #f1f5f9;
-  --bg-tertiary: #e2e8f0;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --border-color: rgba(148, 163, 184, 0.3);
+  /* X公式カラー */
+  --primary-color: #1d9bf0;       /* X Blue */
+  --secondary-color: #1d9bf0;
+  --tertiary-color: #f91880;
+  --success-color: #00ba7c;
+  --warning-color: #ff7a00;
+  --danger-color: #f4212e;
+
+  /* X背景色 - 完全白ベース */
+  --bg-primary: #ffffff;          /* 完全白 */
+  --bg-secondary: #ffffff;        /* 完全白 */
+  --bg-tertiary: #f7f9f9;         /* Xの薄いグレー */
+
+  /* ヘッダー・ナビゲーション専用 */
+  --bg-header: rgba(255, 255, 255, 0.85);  /* 半透明白 */
+  --border-header: #eff3f4;       /* Xのボーダー */
+
+  /* テキスト色 */
+  --text-primary: #0f1419;        /* Xの黒 */
+  --text-secondary: #536471;      /* Xのグレー */
+
+  /* ボーダー・区切り線 */
+  --border-color: #eff3f4;        /* Xのボーダー */
+
+  /* ホバー・インタラクション */
+  --hover-bg: #f7f9f9;            /* Xのホバー背景 */
+  --link-hover: #1a8cd8;          /* Xのリンクホバー */
 }
 
 /* Base Styles */

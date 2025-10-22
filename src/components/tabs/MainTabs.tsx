@@ -90,21 +90,23 @@ export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) =>
 
   return (
     <div className="w-full flex justify-center">
-      <div className="flex overflow-x-auto scrollbar-hide border-b border-gray-700/50 sm:border-b-0">
+      <div
+        className="flex overflow-x-auto scrollbar-hide border-b sm:border-b-0"
+        style={{ borderColor: 'var(--border-header)' }}
+      >
         {mainTabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => handleTabClick(tab.id)}
             className={`
-              flex-1 sm:flex-initial flex items-center justify-center gap-2 
+              flex-1 sm:flex-initial flex items-center justify-center gap-2
               px-4 py-3 min-w-0
               whitespace-nowrap transition-all duration-200
               relative group
-              ${activeTab === tab.id
-                ? 'text-blue-400'
-                : 'text-gray-400 hover:text-white'
-              }
             `}
+            style={{
+              color: activeTab === tab.id ? 'var(--primary-color)' : 'var(--text-secondary)'
+            }}
           >
             <span className="text-lg sm:text-base">{tab?.icon}</span>
             <span className="text-sm sm:text-base font-medium">
@@ -124,16 +126,22 @@ export const MainTabs: React.FC<MainTabsProps> = ({ activeTab, onTabChange }) =>
             
             {/* アクティブインジケーター */}
             {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-400" />
+              <div
+                className="absolute bottom-0 left-0 right-0 h-1"
+                style={{ backgroundColor: 'var(--primary-color)' }}
+              />
             )}
-            
+
             {/* ホバーエフェクト */}
-            <div className={`
-              absolute bottom-0 left-0 right-0 h-0.5 
-              bg-gray-600 transform scale-x-0 
-              group-hover:scale-x-100 transition-transform duration-200
-              ${activeTab === tab.id ? 'hidden' : ''}
-            `} />
+            <div
+              className={`
+                absolute bottom-0 left-0 right-0 h-0.5
+                transform scale-x-0
+                group-hover:scale-x-100 transition-transform duration-200
+                ${activeTab === tab.id ? 'hidden' : ''}
+              `}
+              style={{ backgroundColor: 'var(--hover-bg)' }}
+            />
           </button>
         ))}
       </div>
