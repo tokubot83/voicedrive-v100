@@ -3,10 +3,10 @@
  * 運営委員会からの議題を最終決定
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../hooks/useAuth';
 import { useDemoMode } from '../components/demo/DemoModeController';
-import { decisionMeetingService } from '../services/DecisionMeetingService';
 import { DecisionAgenda, DecisionMeetingStats } from '../types/decisionMeeting';
 import { MobileFooter } from '../components/layout/MobileFooter';
 import { DesktopFooter } from '../components/layout/DesktopFooter';
@@ -17,28 +17,120 @@ import {
   Zap, ArrowRight
 } from 'lucide-react';
 
+// API Functions
+const API_BASE = 'http://localhost:4000';
+
+async function fetchDecisionAgendas(status?: string, priority?: string, month?: string): Promise<{ agendas: DecisionAgenda[], stats: DecisionMeetingStats }> {
+  const params = new URLSearchParams();
+  if (status) params.append('status', status);
+  if (priority) params.append('priority', priority);
+  if (month) params.append('month', month);
+
+  const url = `${API_BASE}/api/decision-agendas${params.toString() ? `?${params.toString()}` : ''}`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch decision agendas: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return {
+    agendas: data.agendas.map((a: any) => ({
+      ...a,
+      proposedDate: new Date(a.proposedDate),
+      scheduledDate: a.scheduledDate ? new Date(a.scheduledDate) : undefined,
+      decidedDate: a.decidedDate ? new Date(a.decidedDate) : undefined
+    })),
+    stats: data.stats
+  };
+}
+
+async function decideAgenda(agendaId: string, action: 'approve' | 'reject' | 'defer', userId: string, notes?: string): Promise<any> {
+  const response = await fetch(`${API_BASE}/api/decision-agendas/${agendaId}/decide`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, userId, notes })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to decide agenda');
+  }
+
+  return response.json();
+}
+
+async function startReview(agendaId: string, userId: string): Promise<any> {
+  const response = await fetch(`${API_BASE}/api/decision-agendas/${agendaId}/start-review`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to start review');
+  }
+
+  return response.json();
+}
+
 type TabType = 'all' | 'pending' | 'in_review' | 'this_month';
 
 const DecisionMeetingPage: React.FC = () => {
   const { currentUser: authUser } = useAuth();
-  const { currentUser: demoUser, isDemoMode } = useDemoMode();
+  const { currentUser: demoUser } = useDemoMode();
   const activeUser = demoUser || authUser;
+  const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState<TabType>('pending');
-  const [agendas, setAgendas] = useState<DecisionAgenda[]>([]);
-  const [stats, setStats] = useState<DecisionMeetingStats | null>(null);
   const [selectedAgenda, setSelectedAgenda] = useState<DecisionAgenda | null>(null);
 
-  useEffect(() => {
-    // デモデータ初期化
-    decisionMeetingService.initializeDemoData();
-    loadData();
-  }, []);
+  // タブに基づくフィルタパラメータ
+  const getFilterParams = () => {
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-  const loadData = () => {
-    setAgendas(decisionMeetingService.getAllAgendas());
-    setStats(decisionMeetingService.getStats());
+    switch (activeTab) {
+      case 'pending':
+        return { status: 'pending' };
+      case 'in_review':
+        return { status: 'in_review' };
+      case 'this_month':
+        return { month };
+      default:
+        return {};
+    }
   };
+
+  const filterParams = getFilterParams();
+
+  // データ取得
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['decisionAgendas', filterParams],
+    queryFn: () => fetchDecisionAgendas(filterParams.status, undefined, filterParams.month)
+  });
+
+  const agendas = data?.agendas || [];
+  const stats = data?.stats || null;
+
+  // 決定アクションのMutation
+  const decideMutation = useMutation({
+    mutationFn: ({ agendaId, action, notes }: { agendaId: string, action: 'approve' | 'reject' | 'defer', notes?: string }) =>
+      decideAgenda(agendaId, action, activeUser?.id || '', notes),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['decisionAgendas'] });
+      setSelectedAgenda(null);
+    }
+  });
+
+  // 審議開始のMutation
+  const startReviewMutation = useMutation({
+    mutationFn: (agendaId: string) => startReview(agendaId, activeUser?.id || ''),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['decisionAgendas'] });
+    }
+  });
 
   const getTypeLabel = (type: DecisionAgenda['type']) => {
     const labels = {
@@ -109,16 +201,7 @@ const DecisionMeetingPage: React.FC = () => {
   };
 
   const getFilteredAgendas = () => {
-    switch (activeTab) {
-      case 'pending':
-        return agendas.filter(a => a.status === 'pending');
-      case 'in_review':
-        return agendas.filter(a => a.status === 'in_review');
-      case 'this_month':
-        return decisionMeetingService.getThisMonthDecisions();
-      default:
-        return agendas;
-    }
+    return agendas;
   };
 
   const handleApprove = () => {
@@ -127,17 +210,13 @@ const DecisionMeetingPage: React.FC = () => {
     const notes = prompt('承認コメント（任意）');
     if (notes === null) return; // キャンセル
 
-    const success = decisionMeetingService.approveAgenda(
-      selectedAgenda.id,
-      activeUser,
-      notes || undefined
-    );
+    decideMutation.mutate({
+      agendaId: selectedAgenda.id,
+      action: 'approve',
+      notes: notes || undefined
+    });
 
-    if (success) {
-      alert(`✅ 議題を承認しました\n\n${selectedAgenda.title}`);
-      loadData();
-      setSelectedAgenda(null);
-    }
+    alert(`✅ 議題を承認しました\n\n${selectedAgenda.title}`);
   };
 
   const handleReject = () => {
@@ -146,17 +225,13 @@ const DecisionMeetingPage: React.FC = () => {
     const reason = prompt('却下理由を入力してください（必須）');
     if (!reason) return;
 
-    const success = decisionMeetingService.rejectAgenda(
-      selectedAgenda.id,
-      activeUser,
-      reason
-    );
+    decideMutation.mutate({
+      agendaId: selectedAgenda.id,
+      action: 'reject',
+      notes: reason
+    });
 
-    if (success) {
-      alert(`❌ 議題を却下しました\n\n${selectedAgenda.title}`);
-      loadData();
-      setSelectedAgenda(null);
-    }
+    alert(`❌ 議題を却下しました\n\n${selectedAgenda.title}`);
   };
 
   const handleDefer = () => {
@@ -165,26 +240,44 @@ const DecisionMeetingPage: React.FC = () => {
     const reason = prompt('保留理由を入力してください（必須）');
     if (!reason) return;
 
-    const success = decisionMeetingService.deferAgenda(
-      selectedAgenda.id,
-      activeUser,
-      reason
-    );
+    decideMutation.mutate({
+      agendaId: selectedAgenda.id,
+      action: 'defer',
+      notes: reason
+    });
 
-    if (success) {
-      alert(`⏸️ 議題を保留しました\n\n${selectedAgenda.title}`);
-      loadData();
-      setSelectedAgenda(null);
-    }
+    alert(`⏸️ 議題を保留しました\n\n${selectedAgenda.title}`);
   };
 
   const handleStartReview = (id: string) => {
-    const success = decisionMeetingService.startReview(id);
-    if (success) {
-      alert('審議を開始しました');
-      loadData();
-    }
+    startReviewMutation.mutate(id);
+    alert('審議を開始しました');
   };
+
+  // ローディング表示
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // エラー表示
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <Card className="bg-red-900/20 border-red-500/50 p-8 max-w-md">
+          <AlertTriangle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-red-400 text-center mb-2">エラーが発生しました</h2>
+          <p className="text-gray-300 text-center">{(error as Error).message}</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 pb-32">
@@ -375,7 +468,7 @@ const DecisionMeetingPage: React.FC = () => {
         >
           <Card
             className="bg-gray-800 p-6 border border-gray-700 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-6">
               <div className="flex-1">

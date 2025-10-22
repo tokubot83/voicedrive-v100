@@ -553,7 +553,7 @@ model Post {
   rejectedAt                   DateTime?                   @map("rejected_at")
   rejectedBy                   String?                     @map("rejected_by")
   rejectionReason              String?                     @map("rejection_reason")
-  agendaStatus                 PostStatus?                 @default("ACTIVE") @map("agenda_status")
+  agendaStatus                 PostStatus?                 @default(ACTIVE) @map("agenda_status")
   agendaDecisionBy             String?                     @map("agenda_decision_by")
   agendaDecisionAt             DateTime?                   @map("agenda_decision_at")
   agendaDecisionReason         String?                     @map("agenda_decision_reason")

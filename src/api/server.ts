@@ -14,6 +14,11 @@ import sidebarMenuRoutes from './routes/sidebar-menu.routes';
 import proposalDecisionRoutes from './routes/proposal-decision.routes';
 import expiredEscalationRoutes from './routes/expired-escalation.routes';
 import boardAgendasRoutes from './routes/board-agendas.routes';
+import decisionAgendasRoutes from './routes/decision-agendas.routes';
+import boardDecisionsRoutes from './routes/board-decisions.routes';
+import boardDecisionMilestonesRoutes from './routes/board-decision-milestones.routes';
+import boardDecisionFacilityImplementationsRoutes from './routes/board-decision-facility-implementations.routes';
+import proposalDocumentsRoutes from './routes/proposal-documents.routes';
 
 // 環境変数バリデーション（起動前にチェック）
 validateEnvironment();
@@ -177,6 +182,12 @@ app.use('/api/sidebar-menu', apiLimiter, sidebarMenuRoutes); // サイドバー�
 app.use('/api/agenda', apiLimiter, proposalDecisionRoutes); // 提案決定API（却下・保留・部署案件化）（2025-10-21）
 app.use('/api/agenda', apiLimiter, expiredEscalationRoutes); // 期限到達提案API（2025-10-21）
 app.use('/api', apiLimiter, boardAgendasRoutes); // 理事会議題レビューAPI（2025-10-13）
+app.use('/api', apiLimiter, decisionAgendasRoutes); // 決定会議API（2025-10-22）
+app.use('/api', apiLimiter, boardDecisionsRoutes); // 理事会決定フォローAPI（2025-10-13）
+app.use('/api', apiLimiter, boardDecisionMilestonesRoutes); // 理事会決定マイルストーンAPI（2025-10-13）
+app.use('/api', apiLimiter, boardDecisionFacilityImplementationsRoutes); // 理事会決定施設実施状況API（2025-10-13）
+app.use('/api/proposal-documents', apiLimiter, proposalDocumentsRoutes); // 議題提案書API（2025-10-22）
+app.use('/api', apiLimiter, proposalDocumentsRoutes); // 委員会提出リクエストAPI（/api/committee-submission-requests）（2025-10-22）
 
 // 404ハンドラー
 app.use((req: Request, res: Response) => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle, Clock, AlertTriangle, TrendingUp, Building2, Calendar, BarChart3, Users } from 'lucide-react';
 
 /**
@@ -42,9 +42,45 @@ interface FacilityImplementation {
 export const BoardDecisionFollowPage: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedDecision, setSelectedDecision] = useState<string | null>(null);
+  const [boardDecisions, setBoardDecisions] = useState<BoardDecision[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // 理事会決定事項
-  const boardDecisions: BoardDecision[] = [
+  // API: 理事会決定事項一覧取得
+  useEffect(() => {
+    const fetchDecisions = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const params = new URLSearchParams();
+        if (selectedStatus !== 'all') {
+          params.append('status', selectedStatus);
+        }
+
+        const response = await fetch(`/api/board-decisions?${params.toString()}`);
+        const data = await response.json();
+
+        if (data.success) {
+          setBoardDecisions(data.data.decisions);
+        } else {
+          setError(data.error || 'データの取得に失敗しました');
+        }
+      } catch (err: any) {
+        console.error('理事会決定事項の取得エラー:', err);
+        setError('ネットワークエラーが発生しました');
+        // エラー時はモックデータを表示（開発用）
+        setBoardDecisions(mockBoardDecisions);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDecisions();
+  }, [selectedStatus]);
+
+  // モックデータ（DB構築前・API未接続時のフォールバック）
+  const mockBoardDecisions: BoardDecision[] = [
     {
       id: 'dec-001',
       meetingDate: '2025年7月15日',
@@ -382,6 +418,20 @@ export const BoardDecisionFollowPage: React.FC = () => {
           </div>
         </div>
 
+        {/* エラー表示 */}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-400" />
+              <div>
+                <p className="text-red-400 font-medium">エラーが発生しました</p>
+                <p className="text-sm text-red-300">{error}</p>
+                <p className="text-xs text-gray-400 mt-1">モックデータを表示しています（開発モード）</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* フィルター */}
         <div className="flex gap-2 mb-6">
           {statusFilters.map((filter) => (
@@ -399,8 +449,19 @@ export const BoardDecisionFollowPage: React.FC = () => {
           ))}
         </div>
 
-        {/* 決定事項一覧 */}
-        <div className="space-y-6">
+        {/* ローディング状態 */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-400">理事会決定事項を読み込み中...</p>
+          </div>
+        ) : filteredDecisions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <AlertTriangle className="w-16 h-16 text-gray-600 mb-4" />
+            <p className="text-gray-400">該当する決定事項が見つかりません</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
           {filteredDecisions.map((decision) => (
             <div
               key={decision.id}
@@ -500,6 +561,7 @@ export const BoardDecisionFollowPage: React.FC = () => {
             </div>
           ))}
         </div>
+        )}
 
         {/* 施設別実施状況（サンプル: VoiceDrive展開） */}
         {selectedDecision === 'dec-001' && (

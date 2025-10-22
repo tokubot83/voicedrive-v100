@@ -1,42 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Save, Download, History, Edit3, FileText, AlertCircle } from 'lucide-react';
-import { proposalEscalationEngine } from '../../services/ProposalEscalationEngine';
+import { Save, Download, History, Edit3, FileText, AlertCircle, Loader2 } from 'lucide-react';
+import axios from 'axios';
 
 interface AgendaDocumentEditorProps {
-  proposalId: string;
-  proposalData: {
-    title: string;
-    background?: string;
-    content: string;
-    expectedEffect?: string;
-    budget?: string;
-    proposer: string;
-    department: string;
-    votingScore?: number;
-    agreementRate?: number;
-    supportComments?: string[];
-    concerns?: string[];
-  };
-  committeeName: string;
-  onSave?: (document: EditableAgendaDocument) => void;
-  onExport?: (format: 'pdf' | 'word') => void;
-}
-
-interface EditableAgendaDocument {
-  proposalId: string;
-  committeeId: string;
-  documentType: string;
-  content: string;
-  editedSections: {
-    [key: string]: {
-      original: string;
-      edited: string;
-      editedAt: Date;
-      editedBy?: string;
-    };
-  };
-  generatedAt: Date;
-  lastEditedAt?: Date;
+  documentId: string;
+  userId: string;
+  userLevel: number;
+  onSaveSuccess?: (document: any) => void;
+  onExportSuccess?: (url: string) => void;
 }
 
 interface EditableSection {
@@ -48,105 +19,105 @@ interface EditableSection {
 }
 
 export const AgendaDocumentEditor: React.FC<AgendaDocumentEditorProps> = ({
-  proposalId,
-  proposalData,
-  committeeName,
-  onSave,
-  onExport
+  documentId,
+  userId,
+  userLevel,
+  onSaveSuccess,
+  onExportSuccess
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedDocument, setEditedDocument] = useState<EditableAgendaDocument | null>(null);
+  const [document, setDocument] = useState<any>(null);
   const [sections, setSections] = useState<EditableSection[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [canEdit, setCanEdit] = useState(false);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
 
-  // 初期ドキュメント生成
+  // ドキュメントを読み込む
   useEffect(() => {
-    const initializeDocument = async () => {
-      const committee = proposalEscalationEngine.determineTargetCommittee(
-        proposalData.votingScore || 0,
-        '業務改善',
-        '小原病院'
-      );
+    const loadDocument = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      if (committee) {
-        const doc = await proposalEscalationEngine.generateAgendaDocument(
-          proposalId,
-          proposalData,
-          committee
+        const response = await axios.get(
+          `/api/proposal-documents/${documentId}`,
+          {
+            params: { userId, userLevel }
+          }
         );
 
-        setEditedDocument({
-          ...doc,
-          editedSections: {},
-          lastEditedAt: undefined
-        });
+        const { document: doc, canEdit: editPermission, editHistory } = response.data;
+
+        setDocument(doc);
+        setCanEdit(editPermission);
+        setAuditLogs(editHistory || []);
 
         // セクション分割
         setSections([
           {
             id: 'title',
             label: '議題名',
-            value: proposalData.title,
+            value: doc.title || '',
             multiline: false,
             required: true
           },
           {
             id: 'background',
             label: '背景・現状の課題',
-            value: proposalData.background || '',
+            value: doc.background || '',
             multiline: true,
             required: false
           },
           {
-            id: 'content',
+            id: 'objectives',
             label: '提案内容',
-            value: proposalData.content,
+            value: doc.objectives || '',
             multiline: true,
             required: true
           },
           {
-            id: 'expectedEffect',
+            id: 'expectedEffects',
             label: '期待される効果',
-            value: proposalData.expectedEffect || '',
+            value: doc.expectedEffects || '',
             multiline: true,
             required: false
           },
           {
-            id: 'budget',
-            label: '必要予算',
-            value: proposalData.budget || '未定',
-            multiline: false,
+            id: 'concerns',
+            label: '懸念事項',
+            value: doc.concerns || '',
+            multiline: true,
             required: false
           },
           {
-            id: 'votingSummary',
-            label: '投票結果サマリー',
-            value: generateVotingSummary(proposalData),
+            id: 'counterMeasures',
+            label: '対応策',
+            value: doc.counterMeasures || '',
+            multiline: true,
+            required: false
+          },
+          {
+            id: 'managerNotes',
+            label: '管理者メモ',
+            value: doc.managerNotes || '',
             multiline: true,
             required: false
           }
         ]);
+
+        setLoading(false);
+      } catch (err: any) {
+        console.error('ドキュメント読み込みエラー:', err);
+        setError(err.response?.data?.message || 'ドキュメントの読み込みに失敗しました');
+        setLoading(false);
       }
     };
 
-    initializeDocument();
-  }, [proposalId, proposalData, committeeName]);
-
-  // 投票サマリー生成
-  const generateVotingSummary = (data: typeof proposalData): string => {
-    const score = data.votingScore || 0;
-    const rate = data.agreementRate || 0;
-    const supports = data.supportComments?.join('\n- ') || 'なし';
-    const concerns = data.concerns?.join('\n- ') || 'なし';
-
-    return `総投票スコア: ${score}点
-賛成率: ${rate}%
-主な賛成意見:
-- ${supports}
-主な懸念事項:
-- ${concerns}`;
-  };
+    loadDocument();
+  }, [documentId, userId, userLevel]);
 
   // セクション編集
   const handleSectionEdit = (sectionId: string, newValue: string) => {
@@ -157,83 +128,125 @@ export const AgendaDocumentEditor: React.FC<AgendaDocumentEditorProps> = ({
           : section
       )
     );
-
-    if (editedDocument) {
-      const originalSection = sections.find(s => s.id === sectionId);
-      if (originalSection && originalSection.value !== newValue) {
-        setEditedDocument(prev => ({
-          ...prev!,
-          editedSections: {
-            ...prev!.editedSections,
-            [sectionId]: {
-              original: originalSection.value,
-              edited: newValue,
-              editedAt: new Date(),
-              editedBy: 'current_user'
-            }
-          },
-          lastEditedAt: new Date()
-        }));
-        setHasUnsavedChanges(true);
-      }
-    }
+    setHasUnsavedChanges(true);
   };
 
   // ドキュメント保存
-  const handleSave = useCallback(() => {
-    if (!editedDocument) return;
+  const handleSave = useCallback(async () => {
+    if (!document) return;
 
-    // 編集内容をコンテンツに反映
-    let updatedContent = editedDocument.content;
-    sections.forEach(section => {
-      const placeholder = `{{${section.id}}}`;
-      updatedContent = updatedContent.replace(placeholder, section.value);
-    });
+    try {
+      setLoading(true);
+      setError(null);
 
-    const documentToSave = {
-      ...editedDocument,
-      content: updatedContent
-    };
+      // セクションデータを更新データに変換
+      const updateData: any = {
+        userId
+      };
 
-    onSave?.(documentToSave);
-    setHasUnsavedChanges(false);
-  }, [editedDocument, sections, onSave]);
+      sections.forEach(section => {
+        updateData[section.id] = section.value;
+      });
+
+      const response = await axios.put(
+        `/api/proposal-documents/${documentId}`,
+        updateData
+      );
+
+      const { document: updatedDoc } = response.data;
+      setDocument(updatedDoc);
+      setHasUnsavedChanges(false);
+
+      if (onSaveSuccess) {
+        onSaveSuccess(updatedDoc);
+      }
+
+      setLoading(false);
+    } catch (err: any) {
+      console.error('保存エラー:', err);
+      setError(err.response?.data?.message || '保存に失敗しました');
+      setLoading(false);
+    }
+  }, [document, documentId, userId, sections, onSaveSuccess]);
 
   // エクスポート処理
-  const handleExport = (format: 'pdf' | 'word') => {
-    handleSave();
-    onExport?.(format);
+  const handleExport = async (format: 'pdf' | 'word') => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await axios.post(
+        `/api/proposal-documents/${documentId}/export`,
+        { format, userId }
+      );
+
+      const { downloadUrl } = response.data;
+
+      // ダウンロードリンクを開く
+      window.open(downloadUrl, '_blank');
+
+      if (onExportSuccess) {
+        onExportSuccess(downloadUrl);
+      }
+
+      setLoading(false);
+    } catch (err: any) {
+      console.error('エクスポートエラー:', err);
+      setError(err.response?.data?.message || 'エクスポートに失敗しました');
+      setLoading(false);
+    }
   };
 
   // 編集履歴の表示
   const renderEditHistory = () => {
-    if (!editedDocument || Object.keys(editedDocument.editedSections).length === 0) {
+    if (!auditLogs || auditLogs.length === 0) {
       return <div className="text-gray-500 text-sm">編集履歴はありません</div>;
     }
 
     return (
       <div className="space-y-2">
-        {Object.entries(editedDocument.editedSections).map(([sectionId, history]) => {
-          const section = sections.find(s => s.id === sectionId);
-          return (
-            <div key={sectionId} className="border-l-2 border-blue-500 pl-4">
-              <div className="font-semibold text-sm">{section?.label}</div>
-              <div className="text-xs text-gray-600">
-                {new Date(history.editedAt).toLocaleString('ja-JP')}
-              </div>
-              <div className="text-sm">
-                <span className="line-through text-red-500">{history.original}</span>
-                <span className="text-green-600 ml-2">{history.edited}</span>
-              </div>
+        {auditLogs.map((log: any) => (
+          <div key={log.id} className="border-l-2 border-blue-500 pl-4">
+            <div className="font-semibold text-sm">{log.action}</div>
+            <div className="text-xs text-gray-600">
+              {new Date(log.timestamp).toLocaleString('ja-JP')} - {log.userName}
             </div>
-          );
-        })}
+            {log.changedFields && (
+              <div className="text-sm text-gray-700">
+                変更フィールド: {log.changedFields.fields?.join(', ') || ''}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     );
   };
 
-  if (!editedDocument) {
-    return <div>ドキュメントを生成中...</div>;
+  // ローディング表示
+  if (loading && !document) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        <span className="ml-2">ドキュメントを読み込み中...</span>
+      </div>
+    );
+  }
+
+  // エラー表示
+  if (error && !document) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="flex items-center text-red-700">
+          <AlertCircle className="w-6 h-6 mr-2" />
+          <span className="font-semibold">エラー</span>
+        </div>
+        <p className="text-red-600 mt-2">{error}</p>
+      </div>
+    );
+  }
+
+  if (!document) {
+    return <div>ドキュメントが見つかりません</div>;
   }
 
   return (
@@ -262,10 +275,15 @@ export const AgendaDocumentEditor: React.FC<AgendaDocumentEditorProps> = ({
 
           <button
             onClick={() => setIsEditing(!isEditing)}
+            disabled={!canEdit}
             className={`p-2 rounded-lg transition-colors ${
-              isEditing ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
+              !canEdit
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : isEditing
+                ? 'bg-blue-500 text-white'
+                : 'hover:bg-gray-100'
             }`}
-            title={isEditing ? '編集終了' : '編集開始'}
+            title={!canEdit ? '編集権限がありません' : isEditing ? '編集終了' : '編集開始'}
           >
             <Edit3 className="w-5 h-5" />
           </button>
@@ -297,13 +315,13 @@ export const AgendaDocumentEditor: React.FC<AgendaDocumentEditorProps> = ({
       <div className="bg-gray-50 rounded-lg p-4 mb-6">
         <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
-            <span className="font-semibold">提案ID:</span> {proposalId}
+            <span className="font-semibold">提案ID:</span> {document.id}
           </div>
           <div>
-            <span className="font-semibold">委員会:</span> {committeeName}
+            <span className="font-semibold">委員会:</span> {document.targetCommittee || '未定'}
           </div>
           <div>
-            <span className="font-semibold">作成日:</span> {new Date(editedDocument.generatedAt).toLocaleDateString('ja-JP')}
+            <span className="font-semibold">作成日:</span> {new Date(document.createdAt).toLocaleDateString('ja-JP')}
           </div>
         </div>
       </div>
@@ -359,8 +377,8 @@ export const AgendaDocumentEditor: React.FC<AgendaDocumentEditorProps> = ({
       {/* フッター */}
       <div className="mt-6 pt-4 border-t flex justify-between items-center">
         <div className="text-sm text-gray-500">
-          {editedDocument.lastEditedAt && (
-            <span>最終編集: {new Date(editedDocument.lastEditedAt).toLocaleString('ja-JP')}</span>
+          {document.updatedAt && (
+            <span>最終編集: {new Date(document.updatedAt).toLocaleString('ja-JP')}</span>
           )}
         </div>
 

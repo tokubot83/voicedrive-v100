@@ -1,12 +1,15 @@
 /**
  * 提案書類API（Prisma対応版）
  * 作成日: 2025年10月13日
- * 更新日: 2025年10月13日
+ * 更新日: 2025年10月22日
  *
  * エンドポイント:
+ * - GET /api/proposal-documents - 提案書類一覧取得（NEW: 2025-10-22）
  * - GET /api/proposal-documents/:documentId - 提案書類取得
  * - PUT /api/proposal-documents/:documentId - 提案書類更新
  * - POST /api/proposal-documents - 提案書類作成
+ * - POST /api/proposal-documents/:documentId/submit - 委員会提出（NEW: 2025-10-22）
+ * - DELETE /api/proposal-documents/:documentId - 提案書類削除（NEW: 2025-10-22）
  * - POST /api/proposal-documents/:documentId/export - PDF/Wordエクスポート
  * - GET /api/proposal-documents/:documentId/audit-logs - 編集履歴取得
  */
@@ -26,6 +29,150 @@ import {
 
 const router = Router();
 const prisma = new PrismaClient();
+
+// ヘルパー関数: 権限チェック
+function hasManagerPermission(level: number): boolean {
+  return level >= 11;
+}
+
+function hasDirectorPermission(level: number): boolean {
+  return level >= 13;
+}
+
+/**
+ * GET /api/proposal-documents
+ * 提案書類一覧取得（ProposalDocumentCard用）
+ * NEW: 2025-10-22
+ */
+router.get('/proposal-documents', async (req: Request, res: Response) => {
+  try {
+    const {
+      status,
+      agendaLevel,
+      createdById,
+      targetCommittee,
+      limit = '20',
+      offset = '0',
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      userId,
+      userLevel
+    } = req.query;
+
+    if (!userId || !userLevel) {
+      return res.status(400).json({
+        success: false,
+        error: 'userIdとuserLevelが必要です'
+      });
+    }
+
+    const currentUserLevel = parseInt(userLevel as string, 10);
+
+    // フィルタ条件構築
+    const where: any = {};
+
+    if (status) where.status = status;
+    if (agendaLevel) where.agendaLevel = agendaLevel;
+    if (createdById) where.createdById = createdById;
+    if (targetCommittee) where.targetCommittee = targetCommittee;
+
+    // 権限に応じたフィルタ
+    if (currentUserLevel < 11) {
+      // 一般職員: 提出済みのみ閲覧可能
+      where.status = { in: ['submitted', 'approved', 'rejected'] };
+    } else if (currentUserLevel < 13) {
+      // 管理職: 自分の提案書 OR 提出済み
+      where.OR = [
+        { createdById: userId as string },
+        { status: { in: ['submitted', 'approved', 'rejected'] } }
+      ];
+    }
+    // Level 13+: すべて閲覧可能（フィルタなし）
+
+    console.log('[GET /api/proposal-documents] 一覧取得開始:', {
+      where,
+      limit,
+      offset,
+      sortBy,
+      sortOrder
+    });
+
+    // 総件数取得
+    const total = await prisma.proposalDocument.count({ where });
+
+    // データ取得
+    const documents = await prisma.proposalDocument.findMany({
+      where,
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            position: true,
+            department: true
+          }
+        },
+        submittedBy: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      },
+      orderBy: { [sortBy as string]: sortOrder },
+      take: Number(limit),
+      skip: Number(offset)
+    });
+
+    // レスポンス整形
+    const formattedDocuments = documents.map(doc => ({
+      id: doc.id,
+      postId: doc.postId,
+      title: doc.title,
+      agendaLevel: doc.agendaLevel,
+      status: doc.status,
+      summary: doc.summary,
+      voteAnalysis: doc.voteAnalysis,
+      commentAnalysis: doc.commentAnalysis,
+      recommendationLevel: doc.recommendationLevel,
+      targetCommittee: doc.targetCommittee,
+      submittedDate: doc.submittedDate?.toISOString(),
+      createdBy: doc.createdBy,
+      submittedBy: doc.submittedBy,
+      createdAt: doc.createdAt.toISOString(),
+      updatedAt: doc.updatedAt.toISOString()
+    }));
+
+    const totalPages = Math.ceil(total / Number(limit));
+    const currentPage = Math.floor(Number(offset) / Number(limit)) + 1;
+
+    console.log('[GET /api/proposal-documents] 一覧取得完了:', {
+      count: formattedDocuments.length,
+      total
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        documents: formattedDocuments,
+        pagination: {
+          total,
+          hasMore: total > Number(offset) + documents.length,
+          currentPage,
+          totalPages
+        }
+      }
+    });
+
+  } catch (error: any) {
+    console.error('[GET /api/proposal-documents] エラー:', error);
+    return res.status(500).json({
+      success: false,
+      error: '提案書類一覧の取得中にエラーが発生しました',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
 
 /**
  * GET /api/proposal-documents/:documentId
