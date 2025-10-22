@@ -151,14 +151,14 @@ export default defineConfig({
       },
       output: {
         manualChunks(id) {
-          // React関連
-          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
-            return 'react';
+          // React関連 - より明示的にチャンク分割
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'vendor-react';
           }
-          
+
           // ルーティング関連
           if (id.includes('node_modules/react-router')) {
-            return 'router';
+            return 'vendor-router';
           }
           
           // UI ライブラリ
