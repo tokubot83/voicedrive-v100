@@ -1431,11 +1431,12 @@ model BoardMeetingAgenda {
   documentsReady      Boolean                         @default(false) @map("documents_ready")
   presentationReady   Boolean                         @default(false) @map("presentation_ready")
   documentUrls        Json?                           @map("document_urls")
-  keyPoints           String?                         @map("key_points")
-  expectedDiscussion  String?                         @map("expected_discussion")
-  requiredDecision    String?                         @map("required_decision")
+  keyPoints           String?                         @db.Text @map("key_points")
+  summary             String?                         @db.Text @map("summary")
+  expectedDiscussion  String?                         @db.Text @map("expected_discussion")
+  requiredDecision    String?                         @db.Text @map("required_decision")
   chairmanReview      String?                         @default("pending") @map("chairman_review")
-  chairmanComment     String?                         @map("chairman_comment")
+  chairmanComment     String?                         @db.Text @map("chairman_comment")
   chairmanReviewedBy  String?                         @map("chairman_reviewed_by")
   chairmanReviewedAt  DateTime?                       @map("chairman_reviewed_at")
   createdAt           DateTime                        @default(now()) @map("created_at")
@@ -2638,4 +2639,177 @@ model ProposalDecision {
   @@index([decisionType])
   @@index([agendaLevel])
   @@map("proposal_decisions")
+}
+
+// ==========================================
+// CorporateAgendaDashboard関連テーブル
+// 作成日: 2025-10-22
+// ==========================================
+
+// 施設マスタ（医療システムからのキャッシュ）
+model Facility {
+  id              String    @id @default(cuid())
+  facilityCode    String    @unique @map("facility_code")
+  facilityName    String    @map("facility_name")
+  facilityType    String    @map("facility_type")
+  // "総合病院", "地域医療センター", "リハビリ病院", "クリニック", "介護施設"
+
+  totalEmployees  Int       @default(0) @map("total_employees")
+  isActive        Boolean   @default(true) @map("is_active")
+
+  // 医療システムとの同期
+  syncedAt        DateTime  @default(now()) @map("synced_at")
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([facilityCode])
+  @@index([facilityType])
+  @@index([isActive])
+  @@map("facilities")
+}
+
+// 施設別統計（日次・週次・月次集計）
+model FacilityStatistics {
+  id                  String    @id @default(cuid())
+  facilityId          String    @map("facility_id")
+
+  // 期間
+  periodStart         DateTime  @map("period_start")
+  periodEnd           DateTime  @map("period_end")
+  periodType          String    @map("period_type")
+  // "daily", "weekly", "monthly"
+
+  // 投稿統計
+  totalPosts          Int       @default(0) @map("total_posts")
+  activePosts         Int       @default(0) @map("active_posts")
+  resolvedPosts       Int       @default(0) @map("resolved_posts")
+
+  // 参加統計
+  totalEmployees      Int       @default(0) @map("total_employees")
+  activeUsers         Int       @default(0) @map("active_users")
+  participationRate   Float     @default(0) @map("participation_rate")
+
+  // 処理統計
+  avgProcessDays      Float     @default(0) @map("avg_process_days")
+  medianProcessDays   Float     @default(0) @map("median_process_days")
+  maxProcessDays      Int       @default(0) @map("max_process_days")
+
+  // ヘルススコア（0-100）
+  healthScore         Float     @default(0) @map("health_score")
+  healthScorePrevious Float     @default(0) @map("health_score_previous")
+
+  // トレンド
+  trend               String    @default("stable") @map("trend")
+  // "up", "down", "stable"
+
+  // メタデータ
+  calculatedAt        DateTime  @default(now()) @map("calculated_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  @@unique([facilityId, periodStart, periodEnd, periodType])
+  @@index([facilityId])
+  @@index([periodStart])
+  @@index([healthScore])
+  @@index([calculatedAt])
+  @@map("facility_statistics")
+}
+
+// 法人全体KPI（日次・週次・月次・四半期・年次集計）
+model CorporateKPI {
+  id                    String    @id @default(cuid())
+
+  // 期間
+  periodStart           DateTime  @map("period_start")
+  periodEnd             DateTime  @map("period_end")
+  periodType            String    @map("period_type")
+  // "daily", "weekly", "monthly", "quarterly", "yearly"
+
+  // 投稿統計
+  totalPosts            Int       @default(0) @map("total_posts")
+  totalPostsPrevious    Int       @default(0) @map("total_posts_previous")
+  totalPostsChange      Float     @default(0) @map("total_posts_change")
+
+  // 参加率統計
+  avgParticipationRate  Float     @default(0) @map("avg_participation_rate")
+  avgParticipationPrev  Float     @default(0) @map("avg_participation_prev")
+  participationChange   Float     @default(0) @map("participation_change")
+
+  // 解決率統計
+  avgResolutionRate     Float     @default(0) @map("avg_resolution_rate")
+  avgResolutionPrev     Float     @default(0) @map("avg_resolution_prev")
+  resolutionChange      Float     @default(0) @map("resolution_change")
+
+  // 処理日数統計
+  avgProcessDays        Float     @default(0) @map("avg_process_days")
+  avgProcessDaysPrev    Float     @default(0) @map("avg_process_days_prev")
+  processDaysChange     Float     @default(0) @map("process_days_change")
+
+  // メタデータ
+  calculatedAt          DateTime  @default(now()) @map("calculated_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  @@unique([periodStart, periodEnd, periodType])
+  @@index([periodStart])
+  @@index([periodType])
+  @@index([calculatedAt])
+  @@map("corporate_kpi")
+}
+
+// 施設アラート（参加率低下、処理日数増加、ヘルススコア低下等）
+model FacilityAlert {
+  id              String    @id @default(cuid())
+  facilityId      String    @map("facility_id")
+
+  // アラートタイプ
+  alertType       String    @map("alert_type")
+  // "participation_low", "process_time_high", "health_score_low", "resolution_rate_low"
+
+  // 重要度
+  severity        String    @map("severity")
+  // "info", "warning", "critical"
+
+  // 内容
+  message         String    @db.Text
+  currentValue    Float     @map("current_value")
+  thresholdValue  Float     @map("threshold_value")
+
+  // ステータス
+  isAcknowledged  Boolean   @default(false) @map("is_acknowledged")
+  acknowledgedBy  String?   @map("acknowledged_by")
+  acknowledgedAt  DateTime? @map("acknowledged_at")
+
+  // メタデータ
+  detectedAt      DateTime  @default(now()) @map("detected_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@index([facilityId])
+  @@index([alertType])
+  @@index([severity])
+  @@index([isAcknowledged])
+  @@index([detectedAt])
+  @@map("facility_alerts")
+}
+
+// アラートしきい値設定
+model AlertThreshold {
+  id                        String    @id @default(cuid())
+
+  // しきい値設定
+  participationRateMin      Float     @default(60) @map("participation_rate_min")
+  processTimeDaysMax        Int       @default(30) @map("process_time_days_max")
+  healthScoreMin            Float     @default(60) @map("health_score_min")
+  resolutionRateMin         Float     @default(50) @map("resolution_rate_min")
+
+  // 適用範囲
+  applicableScope           String    @default("all") @map("applicable_scope")
+  // "all", "hospital", "clinic", "nursing_home", "rehab_facility"
+
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+
+  @@index([applicableScope])
+  @@map("alert_thresholds")
 }
