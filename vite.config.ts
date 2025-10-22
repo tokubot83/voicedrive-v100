@@ -151,54 +151,15 @@ export default defineConfig({
         warn(warning)
       },
       output: {
-        manualChunks(id) {
-          // node_modules内のチェックは、より具体的なものを先に判定
-          if (id.includes('node_modules/')) {
-            // React本体とその依存を最優先でチェック
-            if (id.includes('/react/') ||
-                id.includes('/react-dom/') ||
-                id.includes('/scheduler/') ||
-                id.match(/node_modules\/react$/)) {
-              return 'vendor-react';
-            }
-
-            // react-routerはReactの後にチェック
-            if (id.includes('/react-router')) {
-              return 'vendor-router';
-            }
-
-            // lucide-reactもReactの後
-            if (id.includes('/lucide-react')) {
-              return 'vendor-ui';
-            }
-
-            // その他のライブラリ
-            if (id.includes('/axios') || id.includes('/date-fns')) {
-              return 'vendor-libs';
-            }
-
-            // 上記以外のnode_modules
-            return 'vendor-other';
-          }
-
-          // src配下のコード
-          // 大きなページコンポーネントを分割
-          if (id.includes('src/pages/')) {
-            const pageName = id.split('src/pages/')[1]?.split('.')[0];
-            if (pageName) {
-              return `page-${pageName}`;
-            }
-          }
-
-          // サービスファイルを分割
-          if (id.includes('src/services/')) {
-            return 'services';
-          }
-
-          // コンポーネントを分割
-          if (id.includes('src/components/')) {
-            return 'components';
-          }
+        manualChunks: {
+          // Reactを明示的に単一チャンクに固定（最も確実な方法）
+          'react-vendor': [
+            'react',
+            'react-dom',
+            'react-dom/client',
+            'react/jsx-runtime',
+            'react/jsx-dev-runtime'
+          ]
         },
         assetFileNames: (assetInfo) => {
           if (!assetInfo.name) return 'assets/[name]-[hash][extname]';
