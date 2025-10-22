@@ -13,7 +13,7 @@ const SettingsPage = () => {
   const { theme, setTheme } = useTheme();
   const { fontSize, setFontSize } = useFontSize();
   const { transitionsEnabled, reducedMotion, setTransitionsEnabled, setReducedMotion } = useAnimation();
-  const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'privacy' | 'display' | 'app'>('notifications');
+  const [activeTab, setActiveTab] = useState<'notifications' | 'privacy' | 'display' | 'app'>('notifications');
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pb-20">
@@ -32,13 +32,6 @@ const SettingsPage = () => {
         {/* タブナビゲーション */}
         <div className="hr-category-filter">
           <div className="hr-category-container">
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`hr-category-btn ${activeTab === 'profile' ? 'active' : ''}`}
-            >
-              <User className="w-4 h-4" />
-              <span>プロフィール</span>
-            </button>
             <button
               onClick={() => setActiveTab('notifications')}
               className={`hr-category-btn ${activeTab === 'notifications' ? 'active' : ''}`}
@@ -77,42 +70,6 @@ const SettingsPage = () => {
 
         {/* タブコンテンツ */}
         <div className="space-y-6">
-            {/* Profile Settings */}
-            {activeTab === 'profile' && (
-              <div className="bg-white dark:bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-200 dark:border-slate-700/50">
-                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">プロフィール設定</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">名前</label>
-                  <input
-                    type="text"
-                    value={currentUser.name}
-                    readOnly
-                    className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-900/50 border border-gray-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">役職</label>
-                  <input
-                    type="text"
-                    value={currentUser.position}
-                    readOnly
-                    className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-900/50 border border-gray-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">部門</label>
-                  <input
-                    type="text"
-                    value={currentUser.department}
-                    readOnly
-                    className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-900/50 border border-gray-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white"
-                  />
-                </div>
-              </div>
-            </div>
-            )}
-
             {/* Notification Settings */}
             {activeTab === 'notifications' && (
               <NotificationSettings userId={currentUser.id || 'demo-user'} />
@@ -124,26 +81,19 @@ const SettingsPage = () => {
                 {/* VoiceDriveデータ分析同意設定 */}
                 <ConsentSettings userId={currentUser.id || 'demo-user'} />
 
-                {/* その他のプライバシー設定 */}
-                <div className="bg-white dark:bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-200 dark:border-slate-700/50">
-                  <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">その他のプライバシー設定</h2>
-                  <div className="space-y-4">
-                    <div className="space-y-3">
-                      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-400">プロフィール公開設定</h3>
-                      <label className="flex items-center justify-between">
-                        <span className="text-gray-800 dark:text-gray-300">プロフィールを公開</span>
-                        <input type="checkbox" defaultChecked className="toggle" />
-                      </label>
-                      <label className="flex items-center justify-between">
-                        <span className="text-gray-800 dark:text-gray-300">投稿履歴を公開</span>
-                        <input type="checkbox" defaultChecked className="toggle" />
-                      </label>
-                      <label className="flex items-center justify-between">
-                        <span className="text-gray-800 dark:text-gray-300">評価スコアを公開</span>
-                        <input type="checkbox" className="toggle" />
-                      </label>
-                    </div>
-                  </div>
+                {/* プロフィールページへの案内 */}
+                <div className="bg-blue-500/10 border border-blue-500/30 dark:bg-blue-500/10 dark:border-blue-500/30 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">プロフィール公開設定について</h3>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm mb-4">
+                    プロフィールの公開範囲や投稿履歴の表示設定は、プロフィールページで管理できます。
+                  </p>
+                  <a
+                    href="/profile"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium"
+                  >
+                    <User className="w-4 h-4" />
+                    プロフィールページを開く
+                  </a>
                 </div>
               </div>
             )}
