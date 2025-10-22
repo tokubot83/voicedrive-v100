@@ -65,6 +65,7 @@ export default defineConfig({
         ]
       },
       workbox: {
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024, // 4MB
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,gif,webp,woff,woff2,ttf,eot}'],
         runtimeCaching: [
           {
@@ -150,14 +151,49 @@ export default defineConfig({
         warn(warning)
       },
       output: {
-        manualChunks: {
+        manualChunks(id) {
           // Reactを単一のチャンクに確実にまとめる
-          'vendor-react': ['react', 'react-dom', 'react/jsx-runtime'],
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'vendor-react';
+          }
+
           // ルーティング
-          'vendor-router': ['react-router-dom'],
+          if (id.includes('node_modules/react-router-dom')) {
+            return 'vendor-router';
+          }
+
+          // UI ライブラリ
+          if (id.includes('node_modules/lucide-react')) {
+            return 'vendor-ui';
+          }
+
           // その他のライブラリ
-          'vendor-ui': ['lucide-react'],
-          'vendor-libs': ['axios', 'date-fns']
+          if (id.includes('node_modules/axios') || id.includes('node_modules/date-fns')) {
+            return 'vendor-libs';
+          }
+
+          // 大きなページコンポーネントを分割
+          if (id.includes('src/pages/')) {
+            const pageName = id.split('src/pages/')[1]?.split('.')[0];
+            if (pageName) {
+              return `page-${pageName}`;
+            }
+          }
+
+          // サービスファイルを分割
+          if (id.includes('src/services/')) {
+            return 'services';
+          }
+
+          // コンポーネントを分割
+          if (id.includes('src/components/')) {
+            return 'components';
+          }
+
+          // その他のnode_modules
+          if (id.includes('node_modules/')) {
+            return 'vendor-other';
+          }
         },
         assetFileNames: (assetInfo) => {
           if (!assetInfo.name) return 'assets/[name]-[hash][extname]';
