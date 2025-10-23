@@ -78,7 +78,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
 
     // モード変更リスナーを登録
     const handleModeChange = (newMode: SystemMode) => {
-      console.log('[EnhancedSidebar] モード変更検出:', currentMode, '→', newMode);
+      console.log('[EnhancedSidebar] モード変更検出:', newMode);
       setCurrentMode(newMode);
       updateMenuItems(newMode);
     };
@@ -89,7 +89,7 @@ export const EnhancedSidebar: React.FC<EnhancedSidebarProps> = ({ currentPath, o
     return () => {
       systemModeManager.removeModeChangeListener(handleModeChange);
     };
-  }, [userPermissionLevel, currentMode]);
+  }, [userPermissionLevel]);
 
   // モード表示名
   const getModeLabel = () => {

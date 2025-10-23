@@ -109,99 +109,102 @@ export const ExpiredEscalationProposalsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">期限到達提案一覧</h1>
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-20">
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+          <h1 className="text-3xl font-bold text-white mb-6">期限到達提案一覧</h1>
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* ヘッダー */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-4xl font-bold text-gray-800">期限到達提案一覧</h1>
-        <button
-          onClick={fetchProposals}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          title="更新"
-        >
-          <RefreshCw className="w-6 h-6 text-blue-600" />
-        </button>
-      </div>
-
-      {/* 説明 */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
-        <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-        <p className="text-blue-800 text-sm">
-          投票期限に到達したが目標スコアに未達成の提案を表示しています。
-          各提案について、現在のレベルで承認するか、ダウングレードするか、不採用にするかを判断してください。
-        </p>
-      </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-          <p className="text-red-700 text-sm">{error}</p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pb-20">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* ヘッダー */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-4xl font-bold text-white">期限到達提案一覧</h1>
+          <button
+            onClick={fetchProposals}
+            className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors"
+            title="更新"
+          >
+            <RefreshCw className="w-6 h-6 text-blue-400" />
+          </button>
         </div>
-      )}
 
-      {/* サマリー */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-          <div className="text-3xl font-bold text-blue-600 mb-1">{proposals.length}</div>
-          <div className="text-sm text-gray-600">判断待ち提案数</div>
-        </div>
-      </div>
-
-      {/* 提案一覧 */}
-      {proposals.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 border border-gray-200">
-          <p className="text-center text-gray-500">
-            判断待ちの期限到達提案はありません
+        {/* 説明 */}
+        <div className="bg-blue-900/30 border border-blue-500/30 rounded-lg p-4 mb-6 flex items-start gap-3 backdrop-blur-sm">
+          <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+          <p className="text-blue-200 text-sm">
+            投票期限に到達したが目標スコアに未達成の提案を表示しています。
+            各提案について、現在のレベルで承認するか、ダウングレードするか、不採用にするかを判断してください。
           </p>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {proposals.map((proposal) => {
-            const currentScore = proposal.agendaScore || 0;
-            const targetScore = getTargetScore(proposal.agendaLevel);
-            const achievementRate = getAchievementRate(currentScore, targetScore);
-            const daysOverdue = proposal.agendaVotingDeadline
-              ? getDaysOverdue(proposal.agendaVotingDeadline)
-              : 0;
 
-            return (
-              <div key={proposal.id} className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+        {error && (
+          <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-4 mb-6 flex items-start gap-3 backdrop-blur-sm">
+            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+            <p className="text-red-200 text-sm">{error}</p>
+          </div>
+        )}
+
+        {/* サマリー */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl p-6 border border-gray-700/50">
+            <div className="text-3xl font-bold text-blue-400 mb-1">{proposals.length}</div>
+            <div className="text-sm text-gray-300">判断待ち提案数</div>
+          </div>
+        </div>
+
+        {/* 提案一覧 */}
+        {proposals.length === 0 ? (
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl p-12 border border-gray-700/50">
+            <p className="text-center text-gray-400">
+              判断待ちの期限到達提案はありません
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {proposals.map((proposal) => {
+              const currentScore = proposal.agendaScore || 0;
+              const targetScore = getTargetScore(proposal.agendaLevel);
+              const achievementRate = getAchievementRate(currentScore, targetScore);
+              const daysOverdue = proposal.agendaVotingDeadline
+                ? getDaysOverdue(proposal.agendaVotingDeadline)
+                : 0;
+
+              return (
+                <div key={proposal.id} className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700/50 p-6">
                 {/* ヘッダー行 */}
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <div className="flex gap-2 mb-2 flex-wrap">
                       {proposal.agendaLevel && (
-                        <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                        <span className="px-3 py-1 bg-blue-900/50 text-blue-300 border border-blue-500/50 rounded-full text-sm font-medium">
                           {proposal.agendaLevel}
                         </span>
                       )}
                       {proposal.proposalType && (
-                        <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
+                        <span className="px-3 py-1 bg-purple-900/50 text-purple-300 border border-purple-500/50 rounded-full text-sm">
                           {proposal.proposalType}
                         </span>
                       )}
                       {daysOverdue > 0 && (
-                        <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+                        <span className="px-3 py-1 bg-red-900/50 text-red-300 border border-red-500/50 rounded-full text-sm font-medium">
                           期限超過 {daysOverdue}日
                         </span>
                       )}
                     </div>
 
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">
+                    <h3 className="text-xl font-bold text-white mb-2">
                       {proposal.content}
                     </h3>
 
                     {proposal.author && (
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-300">
                         提案者: {proposal.author.name}
                         {proposal.author.department && ` (${proposal.author.department})`}
                       </p>
@@ -216,29 +219,29 @@ export const ExpiredEscalationProposalsPage: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="border-t border-gray-200 my-4"></div>
+                <div className="border-t border-gray-700/50 my-4"></div>
 
                 {/* スコア情報 */}
                 <div>
                   <div className="flex items-center gap-4 mb-2">
-                    <div className="text-3xl font-bold text-blue-600">
+                    <div className="text-3xl font-bold text-blue-400">
                       {currentScore}点
                     </div>
-                    <div className="text-gray-600">
+                    <div className="text-gray-300">
                       / 目標 {targetScore}点
                     </div>
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium ${
                         achievementRate >= 100
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-orange-100 text-orange-700'
+                          ? 'bg-green-900/50 text-green-300 border border-green-500/50'
+                          : 'bg-orange-900/50 text-orange-300 border border-orange-500/50'
                       }`}
                     >
                       到達率 {achievementRate.toFixed(1)}%
                     </span>
                   </div>
 
-                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all"
                       style={{ width: `${Math.min(achievementRate, 100)}%` }}
@@ -259,6 +262,7 @@ export const ExpiredEscalationProposalsPage: React.FC = () => {
         onClose={handleCloseModal}
         onDecide={handleDecide}
       />
+      </div>
     </div>
   );
 };
