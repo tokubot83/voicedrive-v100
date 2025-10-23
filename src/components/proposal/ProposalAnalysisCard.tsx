@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { Post, User } from '../../types';
 import { AgendaLevel } from '../../types/committee';
 import { VoteAnalysis, CommentAnalysis } from '../../types/proposalDocument';
-import { BarChart3, MessageSquare, TrendingUp, Users, Calendar, Star, Send, Clock, ThumbsUp, ThumbsDown, Pause, FileText, AlertCircle, ArrowUp, CheckCircle, XCircle, Play } from 'lucide-react';
+import { BarChart3, MessageSquare, Users, Calendar, Star, Send, Clock, ThumbsUp, ThumbsDown, Pause, FileText, AlertCircle, ArrowUp } from 'lucide-react';
 import { analyzeVotes, analyzeComments } from '../../utils/proposalAnalyzer';
 import { proposalPermissionService } from '../../services/ProposalPermissionService';
 import AgendaDeadlineManager from '../../utils/agendaDeadlineManager';
@@ -109,7 +109,7 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
     events.push({
       id: 'created',
       type: 'created',
-      timestamp: post.createdAt || post.timestamp,
+      timestamp: post.timestamp,
       title: '投稿作成',
       description: `${post.author.name}が提案を投稿`,
       icon: <FileText className="w-4 h-4" />,
@@ -131,7 +131,7 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
       if (currentScore >= lvl.threshold) {
         // レベル到達の推定日時（投稿からの経過日数で推測）
         const daysAfterCreation = index + 2; // 2日、3日、4日...と仮定
-        const estimatedDate = new Date(post.createdAt || post.timestamp);
+        const estimatedDate = new Date(post.timestamp);
         estimatedDate.setDate(estimatedDate.getDate() + daysAfterCreation);
 
         events.push({
@@ -263,9 +263,17 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
   const nextAction = getNextAction();
 
   // タイムスタンプのフォーマット
-  const formatTimestamp = (timestamp: Date) => {
+  const formatTimestamp = (timestamp: Date | string) => {
+    // Date オブジェクトに変換
+    const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+
+    // 無効な日付の場合はデフォルト表示
+    if (isNaN(date.getTime())) {
+      return '日時不明';
+    }
+
     const now = new Date();
-    const diffMs = now.getTime() - timestamp.getTime();
+    const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
@@ -275,7 +283,7 @@ export const ProposalAnalysisCard: React.FC<ProposalAnalysisCardProps> = ({
     if (diffHours < 24) return `${diffHours}時間前`;
     if (diffDays < 7) return `${diffDays}日前`;
 
-    return timestamp.toLocaleDateString('ja-JP', {
+    return date.toLocaleDateString('ja-JP', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
