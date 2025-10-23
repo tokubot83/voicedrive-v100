@@ -183,23 +183,8 @@ export async function seedSidebarMenuConfigs() {
       isSystem: true,
       adminNotes: 'レベル12（部長）以上のみ表示',
     },
-    {
-      menuItemId: 'system_operations',
-      menuCategory: 'common',
-      menuSubcategory: 'management',
-      icon: '🔧',
-      label: 'システム運用',
-      path: '/admin/system-operations',
-      description: 'システム管理・設定',
-      isVisible: true,
-      displayOrder: 21,
-      showOnDesktop: true,
-      showOnMobile: true,
-      showOnTablet: true,
-      visibleForLevels: JSON.stringify(['X', '99']),
-      isSystem: true,
-      adminNotes: 'レベルX（システム管理者）のみ表示',
-    },
+    // システム運用メニューはコード内で直接制御（レベル99専用）
+    // EnhancedSidebar.tsxで実装
   ];
 
   // 全てのメニューをまとめて投入
