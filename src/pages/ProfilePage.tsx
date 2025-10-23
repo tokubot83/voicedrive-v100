@@ -402,34 +402,6 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            {/* 通知設定 */}
-            <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
-              <h3 className="text-lg font-semibold mb-4">通知設定</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white font-medium">投稿への反応通知</p>
-                    <p className="text-gray-400 text-sm">いいねやコメントがついた時に通知</p>
-                  </div>
-                  <input type="checkbox" defaultChecked className="toggle" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white font-medium">議題採択通知</p>
-                    <p className="text-gray-400 text-sm">提案が議題として採択された時に通知</p>
-                  </div>
-                  <input type="checkbox" defaultChecked className="toggle" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white font-medium">週次レポート</p>
-                    <p className="text-gray-400 text-sm">毎週の活動サマリーをメールで受信</p>
-                  </div>
-                  <input type="checkbox" defaultChecked className="toggle" />
-                </div>
-              </div>
-            </div>
           </div>
         )}
       </div>
