@@ -1,7 +1,7 @@
-/* 人事お知らせシステム専用スタイル - VoiceDriveダークテーマ固定 */
+/* 人事お知らせシステム専用スタイル - VoiceDriveダークテーマ統一 */
 
-/* CSS変数定義 - ダークテーマ固定 */
-:root, :root.dark-theme {
+/* CSS変数定義 */
+:root {
   /* 人事お知らせ専用カラーパレット（VoiceDriveベース） */
   --hr-primary: #10b981;        /* 緑系（人事・健康イメージ） */
   --hr-urgent: #ef4444;         /* 緊急時の赤 */
@@ -16,10 +16,10 @@
   --hr-bg-card: rgba(15, 20, 25, 0.8);     /* 半透明ダーク */
   --hr-bg-modal: rgba(0, 0, 0, 0.9);       /* モーダル背景 */
 
-  /* テキストカラー（ダークテーマ用） */
-  --hr-text-primary: #f9fafb;    /* 明るい白 */
-  --hr-text-secondary: #d1d5db;  /* ライトグレー */
-  --hr-text-muted: #9ca3af;      /* ミディアムグレー */
+  /* テキストカラー（明るい背景用に調整） */
+  --hr-text-primary: #1f2937;    /* ダークグレー */
+  --hr-text-secondary: #4b5563;  /* ミディアムグレー */
+  --hr-text-muted: #9ca3af;      /* ライトグレー */
 
   /* ボーダー・区切り線 */
   --hr-border-color: var(--border-color);    /* rgba(47, 51, 54, 0.5) */
@@ -329,25 +329,24 @@
 }
 
 .hr-message-bubble {
-  background: rgba(26, 26, 46, 0.6);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(229, 231, 235, 0.8);
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
 .hr-message-bubble:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-  border-color: rgba(255, 255, 255, 0.15);
-  background: rgba(26, 26, 46, 0.7);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: rgba(209, 213, 219, 1);
 }
 
 .hr-bubble-urgent {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(254, 242, 242, 0.95);
   border-left: 4px solid var(--hr-category-urgent-border);
 }
 
