@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import MobileFooter from '../../components/layout/MobileFooter';
-import DesktopFooter from '../../components/layout/DesktopFooter';
+import { MobileFooter } from '../../components/layout/MobileFooter';
+import { DesktopFooter } from '../../components/layout/DesktopFooter';
 
 /**
  * システム管理者向けガイド（Level 99）
