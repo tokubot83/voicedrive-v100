@@ -329,24 +329,25 @@
 }
 
 .hr-message-bubble {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(26, 26, 46, 0.6);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(229, 231, 235, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
 }
 
 .hr-message-bubble:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border-color: rgba(209, 213, 219, 1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 26, 46, 0.7);
 }
 
 .hr-bubble-urgent {
-  background: rgba(254, 242, 242, 0.95);
+  background: rgba(239, 68, 68, 0.1);
   border-left: 4px solid var(--hr-category-urgent-border);
 }
 
