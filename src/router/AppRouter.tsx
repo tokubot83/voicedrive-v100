@@ -32,6 +32,13 @@ import UserGuide from '../pages/UserGuide';
 import ProposalManagementGuide from '../pages/ProposalManagementGuide';
 import { ProposalGeneratorPage } from '../pages/ProposalGeneratorPage';
 
+// Role-based Guides
+import GuidesHub from '../pages/GuidesHub';
+import StaffBasicGuide from '../pages/role-guides/StaffBasicGuide';
+import ManagerGuide from '../pages/role-guides/ManagerGuide';
+import HRGuide from '../pages/role-guides/HRGuide';
+import SystemAdminGuide from '../pages/role-guides/SystemAdminGuide';
+
 // Test pages
 import MedicalAPITestPanel from '../components/test/MedicalAPITestPanel';
 import TestSummaryReceiver from '../pages/TestSummaryReceiver';
@@ -530,6 +537,15 @@ const AppRouter: React.FC = () => {
       <Route path="interview-guide" element={<InterviewGuide />} />
       <Route path="user-guide" element={<UserGuide />} />
       <Route path="proposal-management-guide" element={<ProposalManagementGuide />} />
+
+      {/* Guides Hub - Central navigation for all guides */}
+      <Route path="guides-hub" element={<GuidesHub />} />
+
+      {/* Role-based Guides */}
+      <Route path="role-guides/staff-basic" element={<StaffBasicGuide />} />
+      <Route path="role-guides/manager" element={<ManagerGuide />} />
+      <Route path="role-guides/hr" element={<HRGuide />} />
+      <Route path="role-guides/system-admin" element={<SystemAdminGuide />} />
       <Route path="department-station" element={
         <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_3}>
           <DepartmentStationPage />
