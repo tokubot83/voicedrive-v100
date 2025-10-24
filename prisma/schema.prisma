@@ -42,7 +42,6 @@ model User {
   profilePhotoUpdatedAt         DateTime?
   profilePhotoUrl               String?
   profile                       UserProfile?
-  postLikes                     PostLike[]
   acknowledgedAlerts            AnalyticsAlert[]                @relation("AlertAcknowledger")
   approvalTasksApproved         ApprovalTask[]                  @relation("ApprovalApprover")
   approvalTasksRequested        ApprovalTask[]                  @relation("ApprovalRequester")
@@ -598,7 +597,6 @@ model Post {
   author                       User                        @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
   convertedFromProject         Project?                    @relation("ConvertedFromProject")
   votes                        Vote[]
-  postLikes                    PostLike[]
   successCases                 CrossFacilitySuccessCase[]  @relation("SuccessCaseSource")
   expiredEscalationDecisions   ExpiredEscalationDecision[] @relation("ExpiredEscalationDecisions")
   approvals                    ProjectApproval[]           @relation("PostApprovals")
@@ -2608,23 +2606,6 @@ model UserProfile {
 
   @@index([userId])
   @@map("user_profiles")
-}
-
-// PostLike: いいね履歴
-model PostLike {
-  id      String   @id @default(cuid())
-  userId  String   @map("user_id")
-  postId  String   @map("post_id")
-  likedAt DateTime @default(now()) @map("liked_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, postId])
-  @@index([userId])
-  @@index([postId])
-  @@index([likedAt])
-  @@map("post_likes")
 }
 
 // AgendaDecision: 議題採択決定

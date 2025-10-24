@@ -11,6 +11,7 @@ import { projectModeAnalytics } from '../systems/project/analytics/ProjectModeAn
 import { demoPosts } from '../data/demo/posts';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useAgendaStats } from '../hooks/useAgendaStats';
+import { useVoteStats } from '../hooks/useVoteStats';
 
 const ProfilePage: React.FC = () => {
   const { currentUser } = useDemoMode();
@@ -22,6 +23,9 @@ const ProfilePage: React.FC = () => {
 
   // 議題統計を取得
   const { stats: agendaStatsData, departmentAverage, loading: agendaStatsLoading } = useAgendaStats(currentUser.id);
+
+  // 投票統計を取得
+  const { stats: voteStatsData, voteTendencyLabel, departmentTendency, loading: voteStatsLoading } = useVoteStats(currentUser.id);
 
   // モード変更を監視
   useEffect(() => {
@@ -497,20 +501,188 @@ const ProfilePage: React.FC = () => {
                 <Award className="w-5 h-5 text-blue-400" />
                 投票履歴
               </h2>
-              <p className="text-gray-400 mt-1">あなたが投票した議題の一覧</p>
+              <p className="text-gray-400 mt-1">あなたが投票した議題の一覧と投票傾向</p>
             </div>
 
-            {/* Phase 7実装予定の通知 */}
-            <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-12 border border-slate-700/50 text-center">
-              <Activity className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-400 mb-2">投票履歴機能</h3>
-              <p className="text-gray-500">
-                Phase 7実装後に利用可能になります
-              </p>
-              <p className="text-gray-600 text-sm mt-2">
-                投票した議題、カテゴリ別投票実績、投票傾向分析などが表示されます
-              </p>
-            </div>
+            {voteStatsLoading ? (
+              <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-12 border border-slate-700/50 text-center">
+                <Activity className="w-16 h-16 text-gray-600 mx-auto mb-4 animate-pulse" />
+                <p className="text-gray-400">投票統計を読み込み中...</p>
+              </div>
+            ) : voteStatsData && voteStatsData.totalVotes > 0 ? (
+              <>
+                {/* 投票サマリー */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                    <p className="text-gray-400 text-sm">総投票数</p>
+                    <p className="text-3xl font-bold text-white mt-2">{voteStatsData.totalVotes}</p>
+                    <p className="text-xs text-gray-500 mt-1">平均 {voteStatsData.votingFrequency} 票/日</p>
+                  </div>
+                  <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                    <p className="text-gray-400 text-sm">投票傾向</p>
+                    <p className="text-2xl font-bold text-blue-400 mt-2">{voteTendencyLabel}</p>
+                    <p className="text-xs text-gray-500 mt-1">スコア: {voteStatsData.voteTendencyScore > 0 ? '+' : ''}{voteStatsData.voteTendencyScore}</p>
+                  </div>
+                  <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                    <p className="text-gray-400 text-sm">最も投票が多いカテゴリ</p>
+                    <p className="text-xl font-bold text-purple-400 mt-2">{voteStatsData.mostActiveCategory || 'なし'}</p>
+                    <p className="text-xs text-gray-500 mt-1">平均重み: {voteStatsData.averageVoteWeight.toFixed(1)}</p>
+                  </div>
+                </div>
+
+                {/* 投票オプション別分布 */}
+                <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                  <h3 className="text-lg font-semibold mb-4">投票オプション別分布</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400">強く賛成</span>
+                      <div className="flex items-center gap-3 flex-1 ml-4">
+                        <div className="flex-1 bg-slate-700 rounded-full h-2">
+                          <div
+                            className="bg-green-500 h-2 rounded-full transition-all"
+                            style={{ width: `${(voteStatsData.voteDistribution.stronglySupport / voteStatsData.totalVotes) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-green-400 font-bold w-12 text-right">{voteStatsData.voteDistribution.stronglySupport}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400">賛成</span>
+                      <div className="flex items-center gap-3 flex-1 ml-4">
+                        <div className="flex-1 bg-slate-700 rounded-full h-2">
+                          <div
+                            className="bg-blue-500 h-2 rounded-full transition-all"
+                            style={{ width: `${(voteStatsData.voteDistribution.support / voteStatsData.totalVotes) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-blue-400 font-bold w-12 text-right">{voteStatsData.voteDistribution.support}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400">中立</span>
+                      <div className="flex items-center gap-3 flex-1 ml-4">
+                        <div className="flex-1 bg-slate-700 rounded-full h-2">
+                          <div
+                            className="bg-gray-500 h-2 rounded-full transition-all"
+                            style={{ width: `${(voteStatsData.voteDistribution.neutral / voteStatsData.totalVotes) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-gray-400 font-bold w-12 text-right">{voteStatsData.voteDistribution.neutral}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400">反対</span>
+                      <div className="flex items-center gap-3 flex-1 ml-4">
+                        <div className="flex-1 bg-slate-700 rounded-full h-2">
+                          <div
+                            className="bg-orange-500 h-2 rounded-full transition-all"
+                            style={{ width: `${(voteStatsData.voteDistribution.oppose / voteStatsData.totalVotes) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-orange-400 font-bold w-12 text-right">{voteStatsData.voteDistribution.oppose}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400">強く反対</span>
+                      <div className="flex items-center gap-3 flex-1 ml-4">
+                        <div className="flex-1 bg-slate-700 rounded-full h-2">
+                          <div
+                            className="bg-red-500 h-2 rounded-full transition-all"
+                            style={{ width: `${(voteStatsData.voteDistribution.stronglyOppose / voteStatsData.totalVotes) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-red-400 font-bold w-12 text-right">{voteStatsData.voteDistribution.stronglyOppose}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 部署平均との比較 */}
+                {departmentTendency && (
+                  <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-xl p-6 border border-blue-500/30">
+                    <h3 className="text-lg font-semibold mb-4">部署平均との比較</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <p className="text-gray-400 text-sm">部署平均傾向</p>
+                        <p className="text-xl font-bold text-blue-300 mt-2">{departmentTendency.tendencyLabel}</p>
+                        <p className="text-xs text-gray-500 mt-1">スコア: {departmentTendency.averageTendencyScore > 0 ? '+' : ''}{departmentTendency.averageTendencyScore}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-gray-400 text-sm">部署総投票数</p>
+                        <p className="text-xl font-bold text-green-300 mt-2">{departmentTendency.totalVotes}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-gray-400 text-sm">部署平均投票数</p>
+                        <p className="text-xl font-bold text-purple-300 mt-2">{departmentTendency.averageVotesPerUser}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* カテゴリ別投票実績 */}
+                {voteStatsData.categoryBreakdown.length > 0 && (
+                  <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                    <h3 className="text-lg font-semibold mb-4">カテゴリ別投票実績</h3>
+                    <div className="space-y-3">
+                      {voteStatsData.categoryBreakdown.map((category, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+                          <span className="text-gray-300">{category.category}</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-gray-400">{category.voteCount}票</span>
+                            <span className={`text-sm font-semibold ${
+                              category.averageTendency > 30 ? 'text-green-400' :
+                              category.averageTendency < -30 ? 'text-red-400' :
+                              'text-gray-400'
+                            }`}>
+                              {category.averageTendency > 0 ? '+' : ''}{category.averageTendency}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 最近の投票 */}
+                {voteStatsData.recentVotes.length > 0 && (
+                  <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                    <h3 className="text-lg font-semibold mb-4">最近の投票（直近10件）</h3>
+                    <div className="space-y-2">
+                      {voteStatsData.recentVotes.map((vote, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg text-sm">
+                          <div className="flex items-center gap-3">
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              vote.voteOption === 'strongly-support' ? 'bg-green-500/20 text-green-400' :
+                              vote.voteOption === 'support' ? 'bg-blue-500/20 text-blue-400' :
+                              vote.voteOption === 'neutral' ? 'bg-gray-500/20 text-gray-400' :
+                              vote.voteOption === 'oppose' ? 'bg-orange-500/20 text-orange-400' :
+                              'bg-red-500/20 text-red-400'
+                            }`}>
+                              {vote.voteOption === 'strongly-support' ? '強く賛成' :
+                               vote.voteOption === 'support' ? '賛成' :
+                               vote.voteOption === 'neutral' ? '中立' :
+                               vote.voteOption === 'oppose' ? '反対' : '強く反対'}
+                            </span>
+                            <span className="text-gray-400">{vote.postCategory || 'その他'}</span>
+                          </div>
+                          <span className="text-gray-500 text-xs">
+                            {new Date(vote.votedAt).toLocaleDateString('ja-JP')}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-12 border border-slate-700/50 text-center">
+                <Activity className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-400 mb-2">まだ投票がありません</h3>
+                <p className="text-gray-500">
+                  議題に投票すると、ここに履歴が表示されます
+                </p>
+              </div>
+            )}
           </div>
         )}
 
