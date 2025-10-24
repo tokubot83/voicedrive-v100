@@ -236,3 +236,135 @@ export function getCurrentToken(): string {
 export function setToken(token: string): void {
   currentToken = token;
 }
+
+// === ProfilePage API統合 ===
+
+/**
+ * API-1: 職員基本情報取得
+ * PersonalStationと共通のAPI
+ */
+export interface EmployeeBasicInfo {
+  employeeId: string;
+  employeeNumber: string;
+  name: string;
+  nameKana: string;
+  email: string;
+  department: string;
+  facilityId: string;
+  profession: string;
+  position: string;
+  hireDate: string;
+  permissionLevel: number;
+  canPerformLeaderDuty: boolean;
+  professionCategory: string;
+  avatar: string;
+  isRetired: boolean;
+}
+
+export async function getEmployeeBasicInfo(employeeId: string): Promise<{
+  success: boolean;
+  data?: EmployeeBasicInfo;
+  error?: string;
+}> {
+  try {
+    const response = await makeAPIRequest<EmployeeBasicInfo>(
+      `/api/v2/employees/${employeeId}`,
+      'GET'
+    );
+
+    return {
+      success: true,
+      data: response,
+    };
+  } catch (error) {
+    console.error('Failed to fetch employee basic info:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '職員情報の取得に失敗しました',
+    };
+  }
+}
+
+/**
+ * API-2: 職員経験年数サマリー取得
+ * PersonalStationと共通のAPI
+ */
+export interface EmployeeExperienceSummary {
+  employeeId: string;
+  yearsOfService: number;          // 勤続年数（当法人）
+  totalExperienceYears: number;    // 総職務経験年数（前職含む）
+  previousExperience: number;      // 前職経験年数
+  currentPositionYears: number;    // 現職での年数
+  calculatedAt: string;
+}
+
+export async function getEmployeeExperienceSummary(employeeId: string): Promise<{
+  success: boolean;
+  data?: EmployeeExperienceSummary;
+  error?: string;
+}> {
+  try {
+    const response = await makeAPIRequest<EmployeeExperienceSummary>(
+      `/api/v2/employees/${employeeId}/experience-summary`,
+      'GET'
+    );
+
+    return {
+      success: true,
+      data: response,
+    };
+  } catch (error) {
+    console.error('Failed to fetch employee experience summary:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '経験年数情報の取得に失敗しました',
+    };
+  }
+}
+
+/**
+ * API-3: 職員スキル情報取得（将来実装）
+ * EmployeeSkillテーブル実装後に使用可能
+ */
+export interface EmployeeSkill {
+  skillId: string;
+  skillName: string;
+  skillCategory: string;
+  level: number;
+  certificationDate: string;
+  expirationDate?: string;
+  certifiedBy?: string;
+}
+
+export interface EmployeeSkillsResponse {
+  employeeId: string;
+  skills: EmployeeSkill[];
+  totalSkillCount: number;
+  averageLevel: number;
+  calculatedAt: string;
+  note?: string;
+}
+
+export async function getEmployeeSkills(employeeId: string): Promise<{
+  success: boolean;
+  data?: EmployeeSkillsResponse;
+  error?: string;
+}> {
+  try {
+    const response = await makeAPIRequest<EmployeeSkillsResponse>(
+      `/api/v2/employees/${employeeId}/skills`,
+      'GET'
+    );
+
+    return {
+      success: true,
+      data: response,
+    };
+  } catch (error) {
+    console.error('Failed to fetch employee skills:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'スキル情報の取得に失敗しました',
+    };
+  }
+}

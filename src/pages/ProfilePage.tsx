@@ -9,11 +9,15 @@ import { User, Award, Activity, FileText, TrendingUp, Settings, Lock, Users, Tar
 import { systemModeManager, SystemMode } from '../config/systemMode';
 import { projectModeAnalytics } from '../systems/project/analytics/ProjectModeAnalytics';
 import { demoPosts } from '../data/demo/posts';
+import { useUserProfile } from '../hooks/useUserProfile';
 
 const ProfilePage: React.FC = () => {
   const { currentUser } = useDemoMode();
   const [activeTab, setActiveTab] = useState<'stats' | 'posts' | 'votes' | 'settings'>('stats');
   const [systemMode, setSystemMode] = useState<SystemMode>(systemModeManager.getCurrentMode());
+
+  // ユーザープロフィールと統計情報を取得
+  const { profile: userProfile, stats: userStats, loading: profileLoading } = useUserProfile(currentUser.id);
 
   // モード変更を監視
   useEffect(() => {
@@ -29,7 +33,7 @@ const ProfilePage: React.FC = () => {
     };
   }, []);
 
-  // Create medical profile from current user data
+  // Create medical profile from current user data + API data
   const profile: MedicalProfile = {
     id: currentUser.id,
     employeeNumber: 'EMP-2024-' + currentUser.id.slice(-3),
@@ -40,22 +44,25 @@ const ProfilePage: React.FC = () => {
     profession: 'physical_therapist',
     position: currentUser.position || 'member',
     hireDate: '2018-04-01',
-    experienceYears: 6,
-    previousExperience: 3,
-    totalExperience: 9,
-    motto: '患者さまの笑顔が私の原動力',
-    selfIntroduction: '理学療法士として9年間、患者さまの機能回復をサポートしてきました。',
-    hobbies: ['running', 'reading', 'cooking'],
-    skills: ['脳血管リハビリ', 'チーム医療', '患者指導'],
+    // 医療システムAPIから取得した経験年数を使用（取得中の場合はデフォルト値）
+    experienceYears: userStats?.experienceYears ?? 6,
+    previousExperience: userStats?.previousExperience ?? 3,
+    totalExperience: userStats?.totalExperience ?? 9,
+    // UserProfileから取得（存在しない場合はデフォルト値）
+    motto: userProfile?.motto ?? '患者さまの笑顔が私の原動力',
+    selfIntroduction: userProfile?.selfIntroduction ?? '理学療法士として9年間、患者さまの機能回復をサポートしてきました。',
+    hobbies: userProfile?.hobbies ? JSON.parse(userProfile.hobbies) : ['running', 'reading', 'cooking'],
+    // 医療システムAPIから取得したスキル情報を使用
+    skills: userStats?.skills && userStats.skills.length > 0 ? userStats.skills : ['脳血管リハビリ', 'チーム医療', '患者指導'],
     profileImage: currentUser.avatar,
-    coverImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    coverImage: userProfile?.coverImage ?? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     votingWeight: 2.5 + (currentUser.permissionLevel || 1) * 0.5,
     permissionLevel: currentUser.permissionLevel || PermissionLevel.LEVEL_1,
     approvalAuthority: currentUser.permissionLevel >= 3 ? 'medium' : 'none',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-06-01T00:00:00Z',
-    lastProfileUpdate: '2024-06-01T00:00:00Z',
-    profileCompleteRate: 85
+    createdAt: userProfile?.createdAt ?? '2024-01-01T00:00:00Z',
+    updatedAt: userProfile?.updatedAt ?? '2024-06-01T00:00:00Z',
+    lastProfileUpdate: userProfile?.lastProfileUpdate ?? '2024-06-01T00:00:00Z',
+    profileCompleteRate: userProfile?.profileCompleteRate ?? 85
   };
 
   // Generate avatar for current user
@@ -132,8 +139,11 @@ const ProfilePage: React.FC = () => {
                 投票力: {profile.votingWeight.toFixed(1)}
               </span>
               <span className="text-gray-400">
-                {/* Phase 7実装後に医療システムから取得 */}
-                経験年数: 取得中...
+                {profileLoading ? (
+                  '経験年数: 取得中...'
+                ) : (
+                  `経験年数: ${profile.experienceYears}年 (総: ${profile.totalExperience}年)`
+                )}
               </span>
             </div>
           </div>

@@ -1,6 +1,7 @@
 // ユーザーサービス（データベース接続）
 import prisma from '../../lib/prisma';
 import { isValidToken } from '../../middleware/authMiddleware';
+import { getEmployeeBasicInfo, getEmployeeExperienceSummary, getEmployeeSkills } from '../medicalSystemAPI';
 
 export interface UserData {
   employeeId: string;
@@ -341,6 +342,237 @@ export class UserService {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to fetch hierarchy',
+      };
+    }
+  }
+
+  // ユーザープロフィール取得（またはデフォルトで作成）
+  static async getOrCreateProfile(userId: string) {
+    try {
+      // 既存のプロフィールを検索
+      let profile = await prisma.userProfile.findUnique({
+        where: { userId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              department: true,
+              role: true,
+              profilePhotoUrl: true,
+            }
+          }
+        }
+      });
+
+      // プロフィールが存在しない場合は作成
+      if (!profile) {
+        profile = await prisma.userProfile.create({
+          data: {
+            userId,
+            profileCompleteRate: 0,
+            privacyLevel: 'private',
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                department: true,
+                role: true,
+                profilePhotoUrl: true,
+              }
+            }
+          }
+        });
+      }
+
+      return {
+        success: true,
+        data: profile,
+      };
+    } catch (error) {
+      console.error('Failed to get or create profile:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to get or create profile',
+      };
+    }
+  }
+
+  // ユーザープロフィール更新
+  static async updateProfile(userId: string, data: {
+    motto?: string | null;
+    selfIntroduction?: string | null;
+    hobbies?: string | null;
+    coverImage?: string | null;
+    privacyLevel?: string;
+  }) {
+    try {
+      // プロフィールが存在しない場合は作成
+      const existingProfile = await prisma.userProfile.findUnique({
+        where: { userId }
+      });
+
+      if (!existingProfile) {
+        await prisma.userProfile.create({
+          data: {
+            userId,
+            ...data,
+            profileCompleteRate: 0,
+            privacyLevel: data.privacyLevel || 'private',
+          }
+        });
+      }
+
+      // プロフィールを更新
+      const profile = await prisma.userProfile.update({
+        where: { userId },
+        data: {
+          ...data,
+          lastProfileUpdate: new Date(),
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              department: true,
+              role: true,
+              profilePhotoUrl: true,
+            }
+          }
+        }
+      });
+
+      // プロフィール完成度を計算
+      const completeRate = this.calculateProfileCompleteRate({
+        motto: profile.motto,
+        selfIntroduction: profile.selfIntroduction,
+        hobbies: profile.hobbies,
+        coverImage: profile.coverImage,
+      });
+
+      // 完成度を更新
+      if (completeRate !== profile.profileCompleteRate) {
+        await prisma.userProfile.update({
+          where: { userId },
+          data: { profileCompleteRate: completeRate }
+        });
+      }
+
+      return {
+        success: true,
+        data: { ...profile, profileCompleteRate: completeRate },
+      };
+    } catch (error) {
+      console.error('Profile update failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update profile',
+      };
+    }
+  }
+
+  // プロフィール完成度計算（各項目25%）
+  private static calculateProfileCompleteRate(profile: {
+    motto?: string | null;
+    selfIntroduction?: string | null;
+    hobbies?: string | null;
+    coverImage?: string | null;
+  }): number {
+    let rate = 0;
+    if (profile.motto) rate += 25;
+    if (profile.selfIntroduction) rate += 25;
+    if (profile.hobbies) rate += 25;
+    if (profile.coverImage) rate += 25;
+    return rate;
+  }
+
+  // ユーザーの統計情報を取得（医療システムAPIと統合）
+  static async getUserStats(userId: string, employeeId: string) {
+    try {
+      // VoiceDrive内の活動データを取得
+      const [postsCount, votesCount, commentsCount] = await Promise.all([
+        prisma.post.count({ where: { authorId: userId } }),
+        prisma.vote.count({ where: { userId } }),
+        prisma.comment.count({ where: { authorId: userId } }),
+      ]);
+
+      // 医療システムから経験年数データを取得（API-2）
+      const experienceResult = await getEmployeeExperienceSummary(employeeId);
+
+      let experienceData = {
+        yearsOfService: 0,
+        totalExperienceYears: 0,
+        previousExperience: 0,
+      };
+
+      if (experienceResult.success && experienceResult.data) {
+        experienceData = {
+          yearsOfService: experienceResult.data.yearsOfService,
+          totalExperienceYears: experienceResult.data.totalExperienceYears,
+          previousExperience: experienceResult.data.previousExperience,
+        };
+      } else {
+        console.warn('[getUserStats] 医療システムから経験年数データを取得できませんでした:', experienceResult.error);
+      }
+
+      // スキル情報を取得（API-3）
+      const skillsResult = await getEmployeeSkills(employeeId);
+      let skills: string[] = [];
+
+      if (skillsResult.success && skillsResult.data) {
+        skills = skillsResult.data.skills.map(skill => skill.skillName);
+      } else {
+        console.warn('[getUserStats] スキル情報を取得できませんでした:', skillsResult.error);
+      }
+
+      return {
+        success: true,
+        data: {
+          postsCount,
+          votesCount,
+          commentsCount,
+          experienceYears: experienceData.yearsOfService,
+          totalExperience: experienceData.totalExperienceYears,
+          previousExperience: experienceData.previousExperience,
+          skills,
+        }
+      };
+    } catch (error) {
+      console.error('Failed to get user stats:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to get user stats',
+      };
+    }
+  }
+
+  // 医療システムから職員基本情報を取得
+  static async getEmployeeInfoFromMedicalSystem(employeeId: string) {
+    try {
+      const result = await getEmployeeBasicInfo(employeeId);
+
+      if (!result.success || !result.data) {
+        return {
+          success: false,
+          error: result.error || '職員情報の取得に失敗しました',
+        };
+      }
+
+      return {
+        success: true,
+        data: result.data,
+      };
+    } catch (error) {
+      console.error('Failed to fetch employee info from medical system:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '医療システムとの通信に失敗しました',
       };
     }
   }
