@@ -10,6 +10,7 @@ import { systemModeManager, SystemMode } from '../config/systemMode';
 import { projectModeAnalytics } from '../systems/project/analytics/ProjectModeAnalytics';
 import { demoPosts } from '../data/demo/posts';
 import { useUserProfile } from '../hooks/useUserProfile';
+import { useAgendaStats } from '../hooks/useAgendaStats';
 
 const ProfilePage: React.FC = () => {
   const { currentUser } = useDemoMode();
@@ -18,6 +19,9 @@ const ProfilePage: React.FC = () => {
 
   // ユーザープロフィールと統計情報を取得
   const { profile: userProfile, stats: userStats, loading: profileLoading } = useUserProfile(currentUser.id);
+
+  // 議題統計を取得
+  const { stats: agendaStatsData, departmentAverage, loading: agendaStatsLoading } = useAgendaStats(currentUser.id);
 
   // モード変更を監視
   useEffect(() => {
@@ -72,19 +76,23 @@ const ProfilePage: React.FC = () => {
   const userPosts = demoPosts.filter(post => post.author.id === currentUser.id);
   const projectAnalytics = projectModeAnalytics.getOverallAnalytics(userPosts);
 
-  // 議題モード用の統計データ
+  // 議題モード用の統計データ（APIから取得またはデフォルト値）
   const agendaStats = {
-    totalPosts: 24,
-    improvementPosts: 15,
+    totalPosts: userStats?.postsCount ?? 24,
+    improvementPosts: 15,  // TODO: カテゴリ別集計実装時に更新
     communityPosts: 6,
     reportPosts: 3,
     totalLikes: 156,
     totalComments: 89,
-    submittedAgendas: 8,      // 議題として提出された数
-    adoptedAgendas: 5,         // 委員会で採択された数
-    implementingAgendas: 3,    // 実施中の改善活動
-    completedAgendas: 12,      // 完了した改善活動
-    committeeScore: 85,        // 委員会での貢献度スコア
+    submittedAgendas: agendaStatsData?.submittedAgendas ?? 0,
+    adoptedAgendas: agendaStatsData?.adoptedAgendas ?? 0,
+    rejectedAgendas: agendaStatsData?.rejectedAgendas ?? 0,
+    pendingAgendas: agendaStatsData?.pendingAgendas ?? 0,
+    implementingAgendas: agendaStatsData?.implementingAgendas ?? 0,
+    completedAgendas: agendaStatsData?.completedAgendas ?? 0,
+    committeeScore: agendaStatsData?.committeeScore ?? 0,
+    adoptionRate: agendaStatsData?.adoptionRate ?? 0,
+    implementationRate: agendaStatsData?.implementationRate ?? 0,
   };
 
   // プロジェクトモード用の統計データ
@@ -315,17 +323,64 @@ const ProfilePage: React.FC = () => {
 
                 {/* 委員会貢献度スコア */}
                 <div className="mt-4 p-4 bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg border border-blue-500/30">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="text-gray-300 text-sm">委員会貢献度スコア</p>
-                      <p className="text-3xl font-bold text-white mt-1">{agendaStats.committeeScore}<span className="text-lg text-gray-400">/100</span></p>
+                      <p className="text-3xl font-bold text-white mt-1">
+                        {agendaStatsLoading ? (
+                          <span className="text-xl">計算中...</span>
+                        ) : (
+                          <>{agendaStats.committeeScore}<span className="text-lg text-gray-400">/100</span></>
+                        )}
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-gray-400">組織改善への貢献を</p>
                       <p className="text-xs text-gray-400">総合的に評価</p>
                     </div>
                   </div>
+
+                  {/* 部署平均との比較 */}
+                  {departmentAverage && !agendaStatsLoading && (
+                    <div className="pt-3 border-t border-blue-500/20">
+                      <div className="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                          <p className="text-xs text-gray-400">部署平均スコア</p>
+                          <p className="text-sm font-bold text-blue-300 mt-1">{departmentAverage.averageCommitteeScore}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400">部署採択率</p>
+                          <p className="text-sm font-bold text-green-300 mt-1">{departmentAverage.averageAdoptionRate}%</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400">部署実施率</p>
+                          <p className="text-sm font-bold text-purple-300 mt-1">{departmentAverage.averageImplementationRate}%</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
+
+                {/* 詳細メトリクス */}
+                {agendaStatsData && !agendaStatsLoading && agendaStatsData.committeeBreakdown.length > 0 && (
+                  <div className="mt-4 p-4 bg-slate-900/50 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-300 mb-3">委員会別実績</h4>
+                    <div className="space-y-2">
+                      {agendaStatsData.committeeBreakdown.map((committee, index) => (
+                        <div key={index} className="flex items-center justify-between text-sm">
+                          <span className="text-gray-400">
+                            {committee.committeeType} ({committee.committeeLevel})
+                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-gray-500">提出 {committee.submittedCount}</span>
+                            <span className="text-green-400">採択 {committee.adoptedCount}</span>
+                            <span className="text-blue-400">{committee.adoptionRate}%</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
