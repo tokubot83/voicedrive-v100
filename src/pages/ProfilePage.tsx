@@ -1,15 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDemoMode } from '../components/demo/DemoModeController';
 import { MedicalProfile } from '../types/profile';
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 import Timeline from '../components/Timeline';
 import PhotoAvatar from '../components/common/PhotoAvatar';
 import { generatePersonalAvatar } from '../utils/avatarGenerator';
-import { User, Award, Activity, FileText, TrendingUp, Settings, Lock } from 'lucide-react';
+import { User, Award, Activity, FileText, TrendingUp, Settings, Lock, Users, Target } from 'lucide-react';
+import { systemModeManager, SystemMode } from '../config/systemMode';
+import { projectModeAnalytics } from '../systems/project/analytics/ProjectModeAnalytics';
+import { demoPosts } from '../data/demo/posts';
 
 const ProfilePage: React.FC = () => {
   const { currentUser } = useDemoMode();
   const [activeTab, setActiveTab] = useState<'stats' | 'posts' | 'votes' | 'settings'>('stats');
+  const [systemMode, setSystemMode] = useState<SystemMode>(systemModeManager.getCurrentMode());
+
+  // モード変更を監視
+  useEffect(() => {
+    const handleModeChange = (newMode: SystemMode) => {
+      console.log('[ProfilePage] モード変更検出:', newMode);
+      setSystemMode(newMode);
+    };
+
+    systemModeManager.addModeChangeListener(handleModeChange);
+
+    return () => {
+      systemModeManager.removeModeChangeListener(handleModeChange);
+    };
+  }, []);
 
   // Create medical profile from current user data
   const profile: MedicalProfile = {
@@ -43,25 +61,41 @@ const ProfilePage: React.FC = () => {
   // Generate avatar for current user
   const avatarData = generatePersonalAvatar(currentUser);
 
-  // Mock stats for activity section - 現在は委員会方式
-  // TODO: Phase 5以降でプロジェクト化システムに移行時は元の表示に戻す
-  const stats = {
+  // プロジェクトモード用の統計データを取得
+  const userPosts = demoPosts.filter(post => post.author.id === currentUser.id);
+  const projectAnalytics = projectModeAnalytics.getOverallAnalytics(userPosts);
+
+  // 議題モード用の統計データ
+  const agendaStats = {
     totalPosts: 24,
     improvementPosts: 15,
     communityPosts: 6,
     reportPosts: 3,
     totalLikes: 156,
     totalComments: 89,
-    // 議題提出関連（現在の委員会方式）
     submittedAgendas: 8,      // 議題として提出された数
     adoptedAgendas: 5,         // 委員会で採択された数
     implementingAgendas: 3,    // 実施中の改善活動
     completedAgendas: 12,      // 完了した改善活動
     committeeScore: 85,        // 委員会での貢献度スコア
-    // 将来のプロジェクト化用（Phase 5以降）
-    activeProjects: 5,         // 進行中のプロジェクト
-    completedProjects: 12      // 完了済みプロジェクト
   };
+
+  // プロジェクトモード用の統計データ
+  const projectStats = {
+    totalPosts: userPosts.length,
+    totalProjects: projectAnalytics.totalProjects,
+    activeProjects: projectAnalytics.activeProjects,
+    completedProjects: projectAnalytics.completedProjects,
+    projectCompletionRate: projectAnalytics.projectCompletionRate,
+    collaborationScore: projectAnalytics.collaborationScore,
+    crossDepartmentProjects: projectAnalytics.crossDepartmentProjects,
+    averageTeamSize: projectAnalytics.averageTeamSize,
+    totalLikes: 156,
+    totalComments: 89,
+  };
+
+  // 現在のモードに応じた統計データを選択
+  const stats = systemMode === SystemMode.PROJECT ? projectStats : agendaStats;
 
   return (
     <div className="min-h-screen">
@@ -185,94 +219,172 @@ const ProfilePage: React.FC = () => {
               活動統計
             </h2>
 
-            {/* Post Stats */}
+            {/* Post Stats - 共通表示 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
                 <p className="text-gray-400 text-sm">総投稿数</p>
                 <p className="text-3xl font-bold text-white mt-2">{stats.totalPosts}</p>
                 <p className="text-xs text-gray-500 mt-1">全期間</p>
               </div>
-              <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
-                <p className="text-gray-400 text-sm">改善提案</p>
-                <p className="text-3xl font-bold text-blue-400 mt-2">{stats.improvementPosts}</p>
-                <p className="text-xs text-gray-500 mt-1">全体の{Math.round(stats.improvementPosts / stats.totalPosts * 100)}%</p>
-              </div>
+              {systemMode === SystemMode.AGENDA && (
+                <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                  <p className="text-gray-400 text-sm">改善提案</p>
+                  <p className="text-3xl font-bold text-blue-400 mt-2">{agendaStats.improvementPosts}</p>
+                  <p className="text-xs text-gray-500 mt-1">全体の{Math.round(agendaStats.improvementPosts / agendaStats.totalPosts * 100)}%</p>
+                </div>
+              )}
+              {systemMode === SystemMode.PROJECT && (
+                <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                  <p className="text-gray-400 text-sm">プロジェクト数</p>
+                  <p className="text-3xl font-bold text-blue-400 mt-2">{projectStats.totalProjects}</p>
+                  <p className="text-xs text-gray-500 mt-1">提案したプロジェクト</p>
+                </div>
+              )}
               <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
                 <p className="text-gray-400 text-sm">総いいね数</p>
                 <p className="text-3xl font-bold text-pink-400 mt-2">{stats.totalLikes}</p>
-                <p className="text-xs text-gray-500 mt-1">平均 {Math.round(stats.totalLikes / stats.totalPosts)}/投稿</p>
+                <p className="text-xs text-gray-500 mt-1">平均 {stats.totalPosts > 0 ? Math.round(stats.totalLikes / stats.totalPosts) : 0}/投稿</p>
               </div>
               <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
                 <p className="text-gray-400 text-sm">総コメント数</p>
                 <p className="text-3xl font-bold text-green-400 mt-2">{stats.totalComments}</p>
-                <p className="text-xs text-gray-500 mt-1">平均 {Math.round(stats.totalComments / stats.totalPosts)}/投稿</p>
+                <p className="text-xs text-gray-500 mt-1">平均 {stats.totalPosts > 0 ? Math.round(stats.totalComments / stats.totalPosts) : 0}/投稿</p>
               </div>
             </div>
 
-            {/* Committee Agenda Stats */}
-            <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
-              <h3 className="text-lg font-semibold mb-4">議題提出・採択状況</h3>
+            {/* 議題モード専用統計 */}
+            {systemMode === SystemMode.AGENDA && (
+              <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                <h3 className="text-lg font-semibold mb-4">議題提出・採択状況</h3>
 
-              {/* 議題提出実績 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
-                  <div>
-                    <p className="text-gray-400 text-sm">議題として提出</p>
-                    <p className="text-2xl font-bold text-blue-400 mt-1">{stats.submittedAgendas}</p>
-                    <p className="text-xs text-gray-500 mt-1">100点到達した提案</p>
+                {/* 議題提出実績 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+                    <div>
+                      <p className="text-gray-400 text-sm">議題として提出</p>
+                      <p className="text-2xl font-bold text-blue-400 mt-1">{agendaStats.submittedAgendas}</p>
+                      <p className="text-xs text-gray-500 mt-1">100点到達した提案</p>
+                    </div>
+                    <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-blue-400" />
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
-                    <FileText className="w-6 h-6 text-blue-400" />
+                  <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+                    <div>
+                      <p className="text-gray-400 text-sm">委員会で採択</p>
+                      <p className="text-2xl font-bold text-green-400 mt-1">{agendaStats.adoptedAgendas}</p>
+                      <p className="text-xs text-gray-500 mt-1">採択率 {agendaStats.submittedAgendas > 0 ? Math.round(agendaStats.adoptedAgendas / agendaStats.submittedAgendas * 100) : 0}%</p>
+                    </div>
+                    <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
+                      <Award className="w-6 h-6 text-green-400" />
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
-                  <div>
-                    <p className="text-gray-400 text-sm">委員会で採択</p>
-                    <p className="text-2xl font-bold text-green-400 mt-1">{stats.adoptedAgendas}</p>
-                    <p className="text-xs text-gray-500 mt-1">採択率 {Math.round(stats.adoptedAgendas / stats.submittedAgendas * 100)}%</p>
+
+                {/* 改善活動状況 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+                    <div>
+                      <p className="text-gray-400 text-sm">実施中の改善活動</p>
+                      <p className="text-2xl font-bold text-yellow-400 mt-1">{agendaStats.implementingAgendas}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center">
+                      <Activity className="w-6 h-6 text-yellow-400" />
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
-                    <Award className="w-6 h-6 text-green-400" />
+                  <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+                    <div>
+                      <p className="text-gray-400 text-sm">完了した改善活動</p>
+                      <p className="text-2xl font-bold text-purple-400 mt-1">{agendaStats.completedAgendas}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
+                      <TrendingUp className="w-6 h-6 text-purple-400" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 委員会貢献度スコア */}
+                <div className="mt-4 p-4 bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg border border-blue-500/30">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-300 text-sm">委員会貢献度スコア</p>
+                      <p className="text-3xl font-bold text-white mt-1">{agendaStats.committeeScore}<span className="text-lg text-gray-400">/100</span></p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-400">組織改善への貢献を</p>
+                      <p className="text-xs text-gray-400">総合的に評価</p>
+                    </div>
                   </div>
                 </div>
               </div>
+            )}
 
-              {/* 改善活動状況 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
-                  <div>
-                    <p className="text-gray-400 text-sm">実施中の改善活動</p>
-                    <p className="text-2xl font-bold text-yellow-400 mt-1">{stats.implementingAgendas}</p>
+            {/* プロジェクトモード専用統計 */}
+            {systemMode === SystemMode.PROJECT && (
+              <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
+                <h3 className="text-lg font-semibold mb-4">プロジェクト実績</h3>
+
+                {/* プロジェクト基本統計 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+                    <div>
+                      <p className="text-gray-400 text-sm">進行中のプロジェクト</p>
+                      <p className="text-2xl font-bold text-blue-400 mt-1">{projectStats.activeProjects}</p>
+                      <p className="text-xs text-gray-500 mt-1">実行中のプロジェクト</p>
+                    </div>
+                    <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
+                      <Target className="w-6 h-6 text-blue-400" />
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center">
-                    <Activity className="w-6 h-6 text-yellow-400" />
+                  <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+                    <div>
+                      <p className="text-gray-400 text-sm">完了したプロジェクト</p>
+                      <p className="text-2xl font-bold text-green-400 mt-1">{projectStats.completedProjects}</p>
+                      <p className="text-xs text-gray-500 mt-1">完了率 {projectStats.projectCompletionRate}%</p>
+                    </div>
+                    <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
+                      <Award className="w-6 h-6 text-green-400" />
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
-                  <div>
-                    <p className="text-gray-400 text-sm">完了した改善活動</p>
-                    <p className="text-2xl font-bold text-purple-400 mt-1">{stats.completedAgendas}</p>
+
+                {/* 協働実績 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+                    <div>
+                      <p className="text-gray-400 text-sm">部署横断プロジェクト</p>
+                      <p className="text-2xl font-bold text-yellow-400 mt-1">{projectStats.crossDepartmentProjects}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center">
+                      <Users className="w-6 h-6 text-yellow-400" />
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-purple-400" />
+                  <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+                    <div>
+                      <p className="text-gray-400 text-sm">平均チーム規模</p>
+                      <p className="text-2xl font-bold text-purple-400 mt-1">{projectStats.averageTeamSize}人</p>
+                    </div>
+                    <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
+                      <Users className="w-6 h-6 text-purple-400" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 協働スコア */}
+                <div className="mt-4 p-4 bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg border border-blue-500/30">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-300 text-sm">協働スコア</p>
+                      <p className="text-3xl font-bold text-white mt-1">{projectStats.collaborationScore}<span className="text-lg text-gray-400">/100</span></p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-400">部署横断・施設横断</p>
+                      <p className="text-xs text-gray-400">プロジェクトへの参加度</p>
+                    </div>
                   </div>
                 </div>
               </div>
-
-              {/* 委員会貢献度スコア */}
-              <div className="mt-4 p-4 bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg border border-blue-500/30">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-300 text-sm">委員会貢献度スコア</p>
-                    <p className="text-3xl font-bold text-white mt-1">{stats.committeeScore}<span className="text-lg text-gray-400">/100</span></p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-gray-400">組織改善への貢献を</p>
-                    <p className="text-xs text-gray-400">総合的に評価</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            )}
 
             {/* Activity Chart Placeholder */}
             <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
