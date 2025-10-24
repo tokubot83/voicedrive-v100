@@ -36,9 +36,13 @@ model User {
   age                           Int?
   ageUpdatedAt                  DateTime?                       @map("age_updated_at")
   experienceYears               Float?
+  previousExperience            Float?                          @map("previous_experience")
+  totalExperience               Float?                          @map("total_experience")
   generation                    String?
   profilePhotoUpdatedAt         DateTime?
   profilePhotoUrl               String?
+  profile                       UserProfile?
+  postLikes                     PostLike[]
   acknowledgedAlerts            AnalyticsAlert[]                @relation("AlertAcknowledger")
   approvalTasksApproved         ApprovalTask[]                  @relation("ApprovalApprover")
   approvalTasksRequested        ApprovalTask[]                  @relation("ApprovalRequester")
@@ -594,6 +598,7 @@ model Post {
   author                       User                        @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
   convertedFromProject         Project?                    @relation("ConvertedFromProject")
   votes                        Vote[]
+  postLikes                    PostLike[]
   successCases                 CrossFacilitySuccessCase[]  @relation("SuccessCaseSource")
   expiredEscalationDecisions   ExpiredEscalationDecision[] @relation("ExpiredEscalationDecisions")
   approvals                    ProjectApproval[]           @relation("PostApprovals")
@@ -2555,18 +2560,134 @@ enum PostStatus {
 
 // 委員会マスタ（医療システムからのキャッシュ）
 model Committee {
-  id                String   @id @default(cuid())
-  committeeId       String   @unique @map("committee_id")
-  name              String
-  schedule          String   // "第2火曜日"
-  facility          String
-  targetCategories  Json     @map("target_categories") // ["医療安全", "患者安全"]
-  isActive          Boolean  @default(true) @map("is_active")
-  syncedAt          DateTime @default(now()) @map("synced_at")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(cuid())
+  committeeId      String   @unique @map("committee_id")
+  name             String
+  schedule         String // "第2火曜日"
+  facility         String
+  targetCategories Json     @map("target_categories") // ["医療安全", "患者安全"]
+  isActive         Boolean  @default(true) @map("is_active")
+  syncedAt         DateTime @default(now()) @map("synced_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   @@index([facility])
   @@index([isActive])
   @@map("committees")
+}
+
+// ============================================
+// ProfilePage関連テーブル
+// ============================================
+
+// UserProfile: ユーザープロフィール詳細（VoiceDrive独自）
+model UserProfile {
+  id     String @id @default(cuid())
+  userId String @unique @map("user_id")
+
+  // プロフィール情報（将来対応）
+  motto            String? // モットー・座右の銘
+  selfIntroduction String? // 自己紹介
+  hobbies          String? // 趣味（JSON配列）
+  coverImage       String? @map("cover_image") // カバー画像URL
+
+  // プロフィール完成度
+  profileCompleteRate Int @default(0) @map("profile_complete_rate") // 0-100
+
+  // プライバシー設定
+  privacyLevel String @default("private") @map("privacy_level")
+  // private, department, public
+
+  // メタデータ
+  lastProfileUpdate DateTime @default(now()) @map("last_profile_update")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_profiles")
+}
+
+// PostLike: いいね履歴
+model PostLike {
+  id      String   @id @default(cuid())
+  userId  String   @map("user_id")
+  postId  String   @map("post_id")
+  likedAt DateTime @default(now()) @map("liked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+  @@index([likedAt])
+  @@map("post_likes")
+}
+
+// AgendaDecision: 議題採択決定
+model AgendaDecision {
+  id     String @id @default(cuid())
+  postId String @unique @map("post_id")
+
+  // 採択情報
+  isAdopted Boolean   @default(false) @map("is_adopted")
+  adoptedAt DateTime? @map("adopted_at")
+  decidedBy String?   @map("decided_by") // 承認者ID
+
+  // 委員会情報
+  committeeType  String @map("committee_type") // facility, department, etc.
+  committeeLevel String @map("committee_level") // FACILITY, ORGANIZATION
+
+  // 決定理由
+  decisionReason String? @map("decision_reason")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  implementations AgendaImplementation[]
+
+  @@index([postId])
+  @@index([isAdopted])
+  @@index([committeeLevel])
+  @@map("agenda_decisions")
+}
+
+// AgendaImplementation: 改善活動実施状況
+model AgendaImplementation {
+  id               String @id @default(cuid())
+  postId           String @map("post_id")
+  agendaDecisionId String @map("agenda_decision_id")
+
+  // 実施状況
+  status   String @map("status") // planning, implementing, completed, canceled
+  progress Int    @default(0) // 0-100
+
+  // 実施期間
+  plannedStartDate DateTime? @map("planned_start_date")
+  plannedEndDate   DateTime? @map("planned_end_date")
+  actualStartDate  DateTime? @map("actual_start_date")
+  actualEndDate    DateTime? @map("actual_end_date")
+
+  // 実施内容
+  implementationPlan String? @map("implementation_plan")
+  results            String? // 実施結果
+
+  // 責任者
+  responsibleUserId String? @map("responsible_user_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  agendaDecision AgendaDecision @relation(fields: [agendaDecisionId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([agendaDecisionId])
+  @@index([status])
+  @@index([responsibleUserId])
+  @@map("agenda_implementations")
 }
