@@ -7,6 +7,25 @@ import { AuditService } from '../services/AuditService';
 import { MobileFooter } from '../components/layout/MobileFooter';
 import { DesktopFooter } from '../components/layout/DesktopFooter';
 
+/**
+ * システム基盤設定ページ（Level 99専用）
+ *
+ * 役割: システムインフラ・基盤レイヤーの設定を管理
+ * - 一般設定（サイト名、言語、セッション）
+ * - セキュリティ基盤（パスワード、2FA、ログイン制限）
+ * - 通知基盤（メール/システム通知のON/OFF）
+ * - データベース基盤（バックアップ、保持期間、圧縮）
+ * - API基盤（有効化、レート制限、CORS）
+ * - 詳細設定（ログレベル、キャッシュ、デバッグモード）
+ *
+ * 対象外（専用ページで管理）:
+ * - 業務機能設定（面談、投票、委員会、プロジェクトなど）
+ * - 通知カテゴリ管理
+ * - ユーザー・権限管理
+ *
+ * アクセス: SystemOperationsPage > システム基盤設定カード
+ */
+
 interface SystemSetting {
   key: string;
   value: string | number | boolean;
@@ -378,10 +397,13 @@ export const SystemSettingsPage: React.FC = () => {
         <div className="bg-gradient-to-r from-cyan-900/50 to-blue-900/50 rounded-2xl p-6 backdrop-blur-xl border border-cyan-500/20 mb-6">
           <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
             <span className="text-4xl">⚙️</span>
-            システム設定
+            システム基盤設定
           </h1>
           <p className="text-gray-300">
-            システム全体の設定を管理します
+            システムインフラ・基盤レイヤーの設定を管理します（DB、API、セキュリティ、キャッシュなど）
+          </p>
+          <p className="text-sm text-gray-400 mt-2">
+            ※業務機能設定（面談、投票、委員会など）は各専用ページで管理してください
           </p>
         </div>
 

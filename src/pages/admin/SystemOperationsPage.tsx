@@ -53,8 +53,8 @@ export const SystemOperationsPage: React.FC = () => {
     {
       id: 'system-settings',
       icon: '🛠️',
-      title: 'システム設定',
-      description: 'グローバル設定、機能ON/OFF切替',
+      title: 'システム基盤設定',
+      description: 'インフラ設定（DB、API、セキュリティ、キャッシュ）',
       path: '/admin/system-settings',
       stats: '設定項目: 28件',
       color: 'orange',
@@ -78,6 +78,36 @@ export const SystemOperationsPage: React.FC = () => {
       path: '/admin/sidebar-menu-management',
       stats: '管理項目: 11件',
       color: 'pink',
+      badge: null
+    },
+    {
+      id: 'interview-settings',
+      icon: '💬',
+      title: '面談設定',
+      description: '面談タイプ、スケジュール、予約制限の設定',
+      path: '/admin/interview-settings',
+      stats: '面談タイプ: 10種類',
+      color: 'teal',
+      badge: 'NEW'
+    },
+    {
+      id: 'committee-settings',
+      icon: '🏛️',
+      title: '委員会設定',
+      description: 'ステータス、会議スケジュール、承認フロー',
+      path: '/admin/committee-settings',
+      stats: 'ステータス: 5種類',
+      color: 'emerald',
+      badge: 'NEW'
+    },
+    {
+      id: 'notification-category',
+      icon: '🔔',
+      title: '通知カテゴリ管理',
+      description: 'カテゴリ別の配信方法、優先度設定',
+      path: '/admin/notification-category',
+      stats: 'カテゴリ: 8種類',
+      color: 'indigo',
       badge: 'NEW'
     }
   ];
@@ -126,6 +156,24 @@ export const SystemOperationsPage: React.FC = () => {
         border: 'border-pink-500/30',
         text: 'text-pink-400',
         hover: 'hover:bg-pink-600/20 hover:border-pink-500/50'
+      },
+      teal: {
+        bg: 'bg-teal-600/10',
+        border: 'border-teal-500/30',
+        text: 'text-teal-400',
+        hover: 'hover:bg-teal-600/20 hover:border-teal-500/50'
+      },
+      emerald: {
+        bg: 'bg-emerald-600/10',
+        border: 'border-emerald-500/30',
+        text: 'text-emerald-400',
+        hover: 'hover:bg-emerald-600/20 hover:border-emerald-500/50'
+      },
+      indigo: {
+        bg: 'bg-indigo-600/10',
+        border: 'border-indigo-500/30',
+        text: 'text-indigo-400',
+        hover: 'hover:bg-indigo-600/20 hover:border-indigo-500/50'
       }
     };
     return colorMap[color] || colorMap.slate;

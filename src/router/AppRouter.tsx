@@ -130,6 +130,9 @@ import { ProjectModeSettingsPage } from '../pages/admin/ProjectModeSettingsPage'
 import { VotingHistoryPage } from '../pages/admin/VotingHistoryPage';
 import { SystemOperationsPage } from '../pages/admin/SystemOperationsPage';
 import { SidebarMenuManagementPage } from '../pages/admin/SidebarMenuManagementPage';
+import { InterviewSettingsPage } from '../pages/admin/InterviewSettingsPage';
+import { CommitteeSettingsPage } from '../pages/admin/CommitteeSettingsPage';
+import { NotificationCategoryPage } from '../pages/admin/NotificationCategoryPage';
 
 // Appeal pages
 import AppealV3Page from '../pages/AppealV3Page';
@@ -607,6 +610,21 @@ const AppRouter: React.FC = () => {
       <Route path="admin/sidebar-menu-management" element={
         <ProtectedRoute requiredLevel={99}>
           <SidebarMenuManagementPage />
+        </ProtectedRoute>
+      } />
+      <Route path="admin/interview-settings" element={
+        <ProtectedRoute requiredLevel={99}>
+          <InterviewSettingsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="admin/committee-settings" element={
+        <ProtectedRoute requiredLevel={99}>
+          <CommitteeSettingsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="admin/notification-category" element={
+        <ProtectedRoute requiredLevel={99}>
+          <NotificationCategoryPage />
         </ProtectedRoute>
       } />
 
