@@ -123,7 +123,7 @@ import { SystemSettingsPage } from '../pages/SystemSettingsPage';
 import { AuditLogPage } from '../pages/AuditLogPage';
 import { ModeSwitcherPage } from '../pages/admin/ModeSwitcherPage';
 import { UserManagementPage } from '../pages/admin/UserManagementPage';
-import { SystemMonitorPage } from '../pages/admin/SystemMonitorPage';
+import { SystemMonitorPageEnhanced } from '../pages/admin/SystemMonitorPageEnhanced';
 import VotingSettingsPage from '../pages/admin/VotingSettingsPage';
 import { AgendaModeSettingsPage } from '../pages/admin/AgendaModeSettingsPage';
 import { ProjectModeSettingsPage } from '../pages/admin/ProjectModeSettingsPage';
@@ -594,7 +594,7 @@ const AppRouter: React.FC = () => {
       } />
       <Route path="admin/system-monitor" element={
         <ProtectedRoute requiredLevel={99}>
-          <SystemMonitorPage />
+          <SystemMonitorPageEnhanced />
         </ProtectedRoute>
       } />
       <Route path="admin/voting-settings" element={
