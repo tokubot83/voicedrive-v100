@@ -482,6 +482,134 @@ const AppealFormV3: React.FC<AppealFormV3Props> = ({
           </p>
         </div>
 
+        {/* 証拠書類アップロード */}
+        <div className="bg-gray-50 p-6 rounded-lg">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            📎 証拠書類（任意）
+          </h3>
+          <p className="text-sm text-gray-600 mb-4">
+            評価に関する証拠書類をアップロードできます（最大5ファイル、各15MB以下）
+          </p>
+
+          <div className="space-y-4">
+            {/* ファイル選択ボタン */}
+            <div>
+              <input
+                type="file"
+                id="file-upload"
+                multiple
+                accept=".pdf,.jpg,.jpeg,.png,.gif"
+                onChange={async (e) => {
+                  const files = Array.from(e.target.files || []);
+
+                  // ファイル数チェック
+                  if (uploadedFiles.length + files.length > V3_APPEAL_VALIDATION_RULES.evidenceDocuments.maxFiles) {
+                    toast.error(`ファイルは最大${V3_APPEAL_VALIDATION_RULES.evidenceDocuments.maxFiles}件までアップロード可能です`);
+                    return;
+                  }
+
+                  // ファイルサイズチェック
+                  const oversizedFiles = files.filter(f => f.size > V3_APPEAL_VALIDATION_RULES.evidenceDocuments.maxSizePerFile);
+                  if (oversizedFiles.length > 0) {
+                    toast.error('ファイルサイズは15MB以下にしてください');
+                    return;
+                  }
+
+                  // ファイルタイプチェック
+                  const invalidFiles = files.filter(f => !V3_APPEAL_VALIDATION_RULES.evidenceDocuments.allowedTypes.includes(f.type));
+                  if (invalidFiles.length > 0) {
+                    toast.error('PDF、JPEG、PNG、GIF形式のファイルのみアップロード可能です');
+                    return;
+                  }
+
+                  // アップロード処理
+                  try {
+                    const uploadPromises = files.map(async (file) => {
+                      const fileId = await appealServiceV3.uploadV3Evidence(file);
+                      return {
+                        fileId,
+                        filename: file.name,
+                        originalName: file.name,
+                        size: file.size,
+                        contentType: file.type
+                      };
+                    });
+
+                    const uploadedDocs = await Promise.all(uploadPromises);
+
+                    setUploadedFiles(prev => [...prev, ...files]);
+                    setFormData(prev => ({
+                      ...prev,
+                      evidenceDocuments: [...(prev.evidenceDocuments || []), ...uploadedDocs]
+                    }));
+
+                    toast.success(`${files.length}件のファイルをアップロードしました`);
+                  } catch (error: any) {
+                    console.error('ファイルアップロードエラー:', error);
+                    toast.error(error.message || 'ファイルのアップロードに失敗しました');
+                  }
+
+                  // input要素をリセット
+                  e.target.value = '';
+                }}
+                className="hidden"
+              />
+              <label
+                htmlFor="file-upload"
+                className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 cursor-pointer"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                ファイルを選択
+              </label>
+              <span className="ml-3 text-sm text-gray-500">
+                {uploadedFiles.length}/{V3_APPEAL_VALIDATION_RULES.evidenceDocuments.maxFiles}件
+              </span>
+            </div>
+
+            {/* アップロード済みファイル一覧 */}
+            {uploadedFiles.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-700">アップロード済みファイル:</p>
+                {uploadedFiles.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-md">
+                    <div className="flex items-center space-x-3">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                        <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+                        setFormData(prev => ({
+                          ...prev,
+                          evidenceDocuments: (prev.evidenceDocuments || []).filter((_, i) => i !== index)
+                        }));
+                        toast.info('ファイルを削除しました');
+                      }}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <p className="text-xs text-gray-500">
+              ※ PDF、JPEG、PNG、GIF形式に対応しています
+            </p>
+          </div>
+        </div>
+
         {/* 下書き機能 */}
         <div className="bg-gray-50 p-4 rounded-lg">
           <h4 className="font-medium text-gray-900 mb-3">📝 下書き機能</h4>

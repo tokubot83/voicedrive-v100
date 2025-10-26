@@ -1,52 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   AppealStatus,
   APPEAL_STATUS_CONFIG
 } from '../../types/appeal';
-import { 
-  V3AppealResponse,
+import {
+  V3AppealRecord,
   V3GradeUtils
 } from '../../types/appeal-v3';
+import { appealServiceV3 } from '../../services/appealServiceV3';
 import { toast } from 'react-toastify';
-
-interface V3AppealItem {
-  appealId: string;
-  employeeId: string;
-  employeeName: string;
-  evaluationPeriod: string;
-  appealCategory: string;
-  status: AppealStatus;
-  priority: 'high' | 'medium' | 'low';
-  createdAt: string;
-  expectedResponseDate?: string;
-  details?: {
-    originalScore: number;
-    requestedScore: number;
-    originalGrade: string;
-    requestedGrade: string;
-    scoreDifference: number;
-    evaluationSystem: string;
-    gradingSystem: string;
-  };
-  assignedReviewer?: {
-    id: string;
-    name: string;
-    role: string;
-  };
-}
 
 interface AppealStatusListV3Props {
   employeeId?: string;
   refreshTrigger?: number;
 }
 
-const AppealStatusListV3: React.FC<AppealStatusListV3Props> = ({ 
+const AppealStatusListV3: React.FC<AppealStatusListV3Props> = ({
   employeeId,
-  refreshTrigger 
+  refreshTrigger
 }) => {
-  const [appeals, setAppeals] = useState<V3AppealItem[]>([]);
+  const [appeals, setAppeals] = useState<V3AppealRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAppeal, setSelectedAppeal] = useState<V3AppealItem | null>(null);
+  const [selectedAppeal, setSelectedAppeal] = useState<V3AppealRecord | null>(null);
 
   useEffect(() => {
     loadV3Appeals();
@@ -55,102 +30,28 @@ const AppealStatusListV3: React.FC<AppealStatusListV3Props> = ({
   const loadV3Appeals = async () => {
     try {
       setLoading(true);
-      
-      // 実際の実装では、employeeIdでフィルタリングされたAPIを呼び出す
-      // 今回はデモデータを生成
-      const demoAppeals: V3AppealItem[] = [
-        {
-          appealId: 'V3-APPEAL-001',
-          employeeId: 'V3-TEST-E001',
-          employeeName: 'V3テスト太郎',
-          evaluationPeriod: '2025年度上期（V3）',
-          appealCategory: '点数計算の誤り',
-          status: AppealStatus.UNDER_REVIEW,
-          priority: 'high',
-          createdAt: '2025-08-20T14:55:00Z',
-          expectedResponseDate: '2025-08-27T14:55:00Z',
-          details: {
-            originalScore: 68,
-            requestedScore: 94,
-            originalGrade: 'B+',
-            requestedGrade: 'S',
-            scoreDifference: 26,
-            evaluationSystem: '100-point',
-            gradingSystem: '7-tier'
-          },
-          assignedReviewer: {
-            id: 'DEPT_HEAD_V3_001',
-            name: 'V3部門長テスト',
-            role: 'department_head_v3'
-          }
-        },
-        {
-          appealId: 'V3-APPEAL-002',
-          employeeId: 'V3-TEST-E002',
-          employeeName: 'V3テスト花子',
-          evaluationPeriod: '2025年度上期（V3）',
-          appealCategory: '成果の見落とし',
-          status: AppealStatus.ADDITIONAL_INFO,
-          priority: 'medium',
-          createdAt: '2025-08-18T09:30:00Z',
-          details: {
-            originalScore: 72,
-            requestedScore: 83,
-            originalGrade: 'A',
-            requestedGrade: 'A+',
-            scoreDifference: 11,
-            evaluationSystem: '100-point',
-            gradingSystem: '7-tier'
-          },
-          assignedReviewer: {
-            id: 'SECTION_CHIEF_V3_001',
-            name: 'V3課長テスト',
-            role: 'section_chief_v3'
-          }
-        },
-        {
-          appealId: 'V3-APPEAL-003',
-          employeeId: 'V3-TEST-E003',
-          employeeName: 'V3テスト次郎',
-          evaluationPeriod: '2024年度下期（V3）',
-          appealCategory: 'その他',
-          status: AppealStatus.RESOLVED,
-          priority: 'low',
-          createdAt: '2025-08-15T16:20:00Z',
-          details: {
-            originalScore: 76,
-            requestedScore: 81,
-            originalGrade: 'A',
-            requestedGrade: 'A+',
-            scoreDifference: 5,
-            evaluationSystem: '100-point',
-            gradingSystem: '7-tier'
-          }
-        }
-      ];
-      
-      // employeeIdでフィルタリング
-      const filteredAppeals = employeeId 
-        ? demoAppeals.filter(appeal => appeal.employeeId === employeeId)
-        : demoAppeals;
-        
-      setAppeals(filteredAppeals);
-      
+
+      // 実APIから異議申し立て一覧を取得
+      const appeals = await appealServiceV3.getV3Appeals(employeeId);
+      setAppeals(appeals);
+
     } catch (error) {
       console.error('V3異議申し立て一覧の取得に失敗:', error);
       toast.error('V3異議申し立て一覧の取得に失敗しました');
+
+      // エラー時は空配列を設定
+      setAppeals([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAppealClick = async (appeal: V3AppealItem) => {
+  const handleAppealClick = async (appeal: V3AppealRecord) => {
     try {
       // V3ステータス詳細を取得
-      const response = await fetch(`http://localhost:8080/api/v3/appeals/${appeal.appealId}/status`);
-      const statusData = await response.json();
-      
-      if (statusData.success) {
+      const statusData = await appealServiceV3.getV3AppealStatus(appeal.appealId);
+
+      if (statusData) {
         setSelectedAppeal({
           ...appeal,
           assignedReviewer: statusData.assignedReviewer

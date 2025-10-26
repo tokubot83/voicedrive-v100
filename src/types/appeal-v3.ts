@@ -24,17 +24,40 @@ export interface V3EvaluationPeriod {
   evaluationSystem: V3EvaluationSystem;
 }
 
+// 証拠書類情報
+export interface EvidenceDocument {
+  fileId: string;
+  filename: string;
+  originalName: string;
+  size: number;
+  contentType?: string;
+  url?: string;
+  uploadedAt?: string;
+}
+
 // V3異議申し立てリクエスト
-export interface V3AppealRequest extends AppealRequest {
+export interface V3AppealRequest extends Omit<AppealRequest, 'evidenceDocuments'> {
   originalScore: number;    // 0-100
   requestedScore: number;   // 0-100
   originalGrade?: string;   // S, A+, A, B+, B, C, D
   requestedGrade?: string;  // S, A+, A, B+, B, C, D
+  evidenceDocuments?: EvidenceDocument[];  // 証拠書類（V3では詳細情報）
   // 3軸評価対応
   facilityGrade?: string;      // 施設内評価 (S, A, B, C, D)
   corporateGrade?: string;     // 法人内評価 (S, A, B, C, D)
   overallGrade?: string;       // 総合評価 (S, A+, A, B+, B, C, D)
   overallScore?: number;       // 総合評価点数 (0-100)
+  // スコア詳細情報
+  scores?: {
+    currentTotal: number;
+    disputedItems?: any[];
+  };
+  // 相対評価情報
+  relativeEvaluation?: {
+    facilityGrade?: string;
+    corporateGrade?: string;
+    disputeReason?: string;
+  };
 }
 
 // V3異議申し立てレスポンス
@@ -172,7 +195,7 @@ export const V3_APPEAL_VALIDATION_RULES = {
   },
   evidenceDocuments: {
     maxFiles: 5,
-    maxSizePerFile: 10 * 1024 * 1024, // 10MB
+    maxSizePerFile: 15 * 1024 * 1024, // 15MB
     allowedTypes: ['application/pdf', 'image/jpeg', 'image/png', 'image/gif']
   },
   submissionDeadline: 14 // 評価開示後14日以内
@@ -189,6 +212,48 @@ export interface V3AppealFormData extends V3AppealRequest {
     scoreDifference: number;
     estimatedPriority: string;
   };
+}
+
+// V3異議申し立てレコード（一覧表示用）
+export interface V3AppealRecord {
+  appealId: string;
+  employeeId: string;
+  employeeName: string;
+  evaluationPeriod: string;
+  appealCategory: string;
+  status: AppealStatus;
+  priority: 'high' | 'medium' | 'low';
+  createdAt: string;
+  expectedResponseDate?: string;
+  details?: {
+    originalScore: number;
+    requestedScore: number;
+    originalGrade: string;
+    requestedGrade: string;
+    scoreDifference: number;
+    evaluationSystem: string;
+    gradingSystem: string;
+  };
+  assignedReviewer?: {
+    id: string;
+    name: string;
+    role: string;
+  };
+}
+
+// V3異議申し立てステータス（詳細情報用）
+export interface V3AppealStatus {
+  appealId: string;
+  status: AppealStatus;
+  priority: 'high' | 'medium' | 'low';
+  assignedReviewer?: {
+    id: string;
+    name: string;
+    role: string;
+  };
+  expectedResponseDate?: string;
+  lastUpdatedAt: string;
+  lastUpdatedBy: string;
 }
 
 export default V3GradeUtils;
