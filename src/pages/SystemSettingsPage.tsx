@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { Settings, Shield, Bell, Mail, Database, Globe, Sliders, Save, RefreshCw, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Settings, Shield, Bell, Database, Globe, Sliders, Save, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
-import { Card } from '../components/ui/Card';
-import { AuditService } from '../services/AuditService';
 import { MobileFooter } from '../components/layout/MobileFooter';
 import { DesktopFooter } from '../components/layout/DesktopFooter';
 
@@ -268,41 +266,61 @@ export const SystemSettingsPage: React.FC = () => {
 
   const handleSave = async () => {
     setSaveStatus('saving');
-    
-    // 設定保存のシミュレーション
-    setTimeout(() => {
-      setSaveStatus('saved');
-      setHasChanges(false);
-      
-      // 監査ログ記録
-      AuditService.log({
-        userId: user?.id || '',
-        action: 'SYSTEM_SETTINGS_UPDATED',
-        details: {
-          generalSettings: Object.fromEntries(
-            Object.entries(generalSettings).map(([k, v]) => [k, v.value])
-          ),
-          securitySettings: Object.fromEntries(
-            Object.entries(securitySettings).map(([k, v]) => [k, v.value])
-          ),
-          notificationSettings: Object.fromEntries(
-            Object.entries(notificationSettings).map(([k, v]) => [k, v.value])
-          ),
-          databaseSettings: Object.fromEntries(
-            Object.entries(databaseSettings).map(([k, v]) => [k, v.value])
-          ),
-          apiSettings: Object.fromEntries(
-            Object.entries(apiSettings).map(([k, v]) => [k, v.value])
-          ),
-          advancedSettings: Object.fromEntries(
-            Object.entries(advancedSettings).map(([k, v]) => [k, v.value])
-          )
+
+    try {
+      // API呼び出しでシステム設定を保存
+      const response = await fetch('/api/system/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        severity: 'high'
+        body: JSON.stringify({
+          settings: {
+            general: Object.fromEntries(
+              Object.entries(generalSettings).map(([k, v]) => [k, v.value])
+            ),
+            security: Object.fromEntries(
+              Object.entries(securitySettings).map(([k, v]) => [k, v.value])
+            ),
+            notification: Object.fromEntries(
+              Object.entries(notificationSettings).map(([k, v]) => [k, v.value])
+            ),
+            database: Object.fromEntries(
+              Object.entries(databaseSettings).map(([k, v]) => [k, v.value])
+            ),
+            api: Object.fromEntries(
+              Object.entries(apiSettings).map(([k, v]) => [k, v.value])
+            ),
+            advanced: Object.fromEntries(
+              Object.entries(advancedSettings).map(([k, v]) => [k, v.value])
+            )
+          },
+          userId: user?.id || ''
+        })
       });
-      
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSaveStatus('saved');
+        setHasChanges(false);
+
+        console.log('✅ システム設定を保存しました:', {
+          updatedCount: result.data.updatedCount,
+          updatedSettings: result.data.updatedSettings
+        });
+
+        setTimeout(() => setSaveStatus('idle'), 3000);
+      } else {
+        throw new Error(result.error || 'システム設定の保存に失敗しました');
+      }
+    } catch (error) {
+      console.error('❌ システム設定保存エラー:', error);
+      setSaveStatus('error');
+      alert(error instanceof Error ? error.message : 'システム設定の保存に失敗しました');
       setTimeout(() => setSaveStatus('idle'), 3000);
-    }, 1000);
+    }
   };
 
   const handleReset = () => {

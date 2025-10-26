@@ -92,6 +92,11 @@ router.use('/webhooks/medical-system/whistleblowing', whistleblowingWebhookRoute
 // Phase 2.x: 投稿作成API
 import { prisma } from '../lib/prisma';
 
+// システム設定API
+import systemSettingsRoutes from './systemSettingsRoutes';
+console.log('⚙️ Registering System Settings API routes at /system');
+router.use('/system', systemSettingsRoutes);
+
 // 議題モードAPI（server.tsで直接登録するため、ここではコメントアウト）
 // console.log('📋 Registering Agenda API routes at /api/agenda');
 // console.log('   AgendaRoutes type:', typeof agendaRoutes);
