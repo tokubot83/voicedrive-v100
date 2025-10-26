@@ -207,20 +207,35 @@ export class SystemSettingsService {
     error?: string;
   }> {
     try {
-      // TODO: 実際のバックアップ処理を実装
-      // 現在はシミュレーション
       const backupId = `backup-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
-      const fileName = `voicedrive-backup-${new Date().toISOString().split('T')[0]}.sql`;
+      const fileName = `voicedrive-backup-${new Date().toISOString().split('T')[0]}.db`;
 
-      // シミュレーション: バックアップ作成
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // SQLiteデータベースのバックアップ（開発環境）
+      const fs = await import('fs');
+      const path = await import('path');
+
+      const sourceDb = path.join(process.cwd(), 'prisma', 'dev.db');
+      const backupDir = path.join(process.cwd(), 'backups');
+      const backupPath = path.join(backupDir, fileName);
+
+      // backupsディレクトリがなければ作成
+      if (!fs.existsSync(backupDir)) {
+        fs.mkdirSync(backupDir, { recursive: true });
+      }
+
+      // ファイルコピー
+      await fs.promises.copyFile(sourceDb, backupPath);
+
+      const stats = await fs.promises.stat(backupPath);
+
+      console.log(`✅ [Backup] Created: ${fileName} (${(stats.size / 1024 / 1024).toFixed(2)}MB)`);
 
       return {
         success: true,
         data: {
           backupId,
           fileName,
-          size: 1024 * 1024 * 50, // 50MB（仮）
+          size: stats.size,
           timestamp: new Date().toISOString(),
           status: 'completed'
         }
@@ -253,14 +268,56 @@ export class SystemSettingsService {
     error?: string;
   }> {
     try {
-      // TODO: 確認トークン検証
-      // TODO: 実際の復元処理を実装
-      // 現在はシミュレーション
+      // 確認トークン検証（セキュリティ対策）
+      const expectedToken = crypto.createHash('sha256')
+        .update(`${backupId}:${userId}:voicedrive-restore`)
+        .digest('hex');
+
+      if (confirmationToken !== expectedToken.substring(0, 32)) {
+        return {
+          success: false,
+          error: '確認トークンが無効です'
+        };
+      }
 
       const restoreId = `restore-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
 
-      // シミュレーション: データベース復元
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const fs = await import('fs');
+      const path = await import('path');
+
+      const backupDir = path.join(process.cwd(), 'backups');
+      const targetDb = path.join(process.cwd(), 'prisma', 'dev.db');
+
+      // バックアップファイルを検索
+      const backupFiles = fs.readdirSync(backupDir);
+      const backupFile = backupFiles.find(file => file.includes(backupId.split('-')[1]));
+
+      if (!backupFile) {
+        return {
+          success: false,
+          error: 'バックアップファイルが見つかりません'
+        };
+      }
+
+      const backupPath = path.join(backupDir, backupFile);
+
+      // 現在のDBのバックアップを作成（安全のため）
+      const safetyBackup = path.join(backupDir, `pre-restore-${Date.now()}.db`);
+      await fs.promises.copyFile(targetDb, safetyBackup);
+
+      // データベース復元（ファイルコピー）
+      await fs.promises.copyFile(backupPath, targetDb);
+
+      // Prismaクライアントを再接続
+      await prisma.$disconnect();
+      await prisma.$connect();
+
+      // レコード数をカウント（簡易版）
+      const userCount = await prisma.user.count();
+      const postCount = await prisma.post.count();
+      const recordsRestored = userCount + postCount;
+
+      console.log(`✅ [Restore] Completed: ${backupFile} (${recordsRestored} records)`);
 
       return {
         success: true,
@@ -269,7 +326,7 @@ export class SystemSettingsService {
           backupId,
           timestamp: new Date().toISOString(),
           status: 'completed',
-          recordsRestored: 10000 // 仮
+          recordsRestored
         }
       };
     } catch (error) {
@@ -308,10 +365,28 @@ export class SystemSettingsService {
         const startTime = Date.now();
 
         try {
-          // TODO: 実際の最適化処理を実装
-          // PostgreSQL: VACUUM, ANALYZE, REINDEX
-          // 現在はシミュレーション
-          await new Promise(resolve => setTimeout(resolve, 500));
+          switch (operation) {
+            case 'vacuum':
+              // SQLite: VACUUM（データベースを再構築し、空き領域を回収）
+              await prisma.$executeRawUnsafe('VACUUM');
+              console.log('✅ [Optimize] VACUUM completed');
+              break;
+
+            case 'analyze':
+              // SQLite: ANALYZE（統計情報を更新）
+              await prisma.$executeRawUnsafe('ANALYZE');
+              console.log('✅ [Optimize] ANALYZE completed');
+              break;
+
+            case 'reindex':
+              // SQLite: REINDEX（インデックスを再構築）
+              await prisma.$executeRawUnsafe('REINDEX');
+              console.log('✅ [Optimize] REINDEX completed');
+              break;
+
+            default:
+              console.warn(`⚠️ [Optimize] Unknown operation: ${operation}`);
+          }
 
           results.push({
             operation,
@@ -319,6 +394,7 @@ export class SystemSettingsService {
             duration: Date.now() - startTime
           });
         } catch (error) {
+          console.error(`❌ [Optimize] ${operation} failed:`, error);
           results.push({
             operation,
             status: 'failed' as const,
@@ -450,12 +526,73 @@ export class SystemSettingsService {
       const exportId = `export-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
       const fileName = `voicedrive-logs-${params.startDate.toISOString().split('T')[0]}-to-${params.endDate.toISOString().split('T')[0]}.${params.format}`;
 
-      // TODO: 実際のログエクスポート処理を実装
-      // AuditLog, ErrorLog等をエクスポート
-      // 現在はシミュレーション
+      const fs = await import('fs');
+      const path = await import('path');
+
+      // エクスポートディレクトリ作成
+      const exportDir = path.join(process.cwd(), 'exports');
+      if (!fs.existsSync(exportDir)) {
+        fs.mkdirSync(exportDir, { recursive: true });
+      }
+
+      let logs: any[] = [];
+      let recordCount = 0;
+
+      // 監査ログをエクスポート
+      if (params.logTypes.includes('audit')) {
+        const auditLogs = await prisma.auditLog.findMany({
+          where: {
+            createdAt: {
+              gte: params.startDate,
+              lte: params.endDate
+            }
+          },
+          orderBy: { createdAt: 'desc' }
+        });
+        logs.push(...auditLogs);
+        recordCount += auditLogs.length;
+      }
+
+      // システムヘルスログをエクスポート
+      if (params.logTypes.includes('health')) {
+        const healthLogs = await prisma.systemHealth.findMany({
+          where: {
+            createdAt: {
+              gte: params.startDate,
+              lte: params.endDate
+            }
+          },
+          orderBy: { createdAt: 'desc' }
+        });
+        logs.push(...healthLogs);
+        recordCount += healthLogs.length;
+      }
+
+      // ファイルに書き出し
+      const exportPath = path.join(exportDir, fileName);
+      let content: string;
+
+      if (params.format === 'json') {
+        content = JSON.stringify(logs, null, 2);
+      } else {
+        // CSV形式
+        if (logs.length > 0) {
+          const headers = Object.keys(logs[0]).join(',');
+          const rows = logs.map(log => Object.values(log).map(v => JSON.stringify(v)).join(',')).join('\n');
+          content = `${headers}\n${rows}`;
+        } else {
+          content = '';
+        }
+      }
+
+      await fs.promises.writeFile(exportPath, content, 'utf-8');
+
+      const stats = await fs.promises.stat(exportPath);
 
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 24); // 24時間後に期限切れ
+
+      console.log(`✅ [Export] Created: ${fileName} (${recordCount} records, ${(stats.size / 1024).toFixed(2)}KB)`);
 
       return {
         success: true,
@@ -463,8 +600,8 @@ export class SystemSettingsService {
           exportId,
           fileName,
           downloadUrl: `/api/system/logs/download/${exportId}`,
-          size: 1024 * 1024 * 5, // 5MB（仮）
-          recordCount: 1000, // 仮
+          size: stats.size,
+          recordCount,
           expiresAt: expiresAt.toISOString()
         }
       };
