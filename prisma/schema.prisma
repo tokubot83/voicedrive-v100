@@ -112,6 +112,24 @@ model User {
   votingGroupsAsPrimaryApprover VotingGroup[]                   @relation("VotingGroupPrimaryApprover")
   settingReverts                VotingSettingChangeLog[]        @relation("SettingRevertUser")
   settingChanges                VotingSettingChangeLog[]        @relation("SettingChangeUser")
+
+  // Phase 2.6: UserManagementPage同期管理フィールド
+  syncStatus                    SyncStatus                      @default(never_synced) @map("sync_status")
+  lastSyncedAt                  DateTime?                       @map("last_synced_at")
+  syncErrorMessage              String?                         @map("sync_error_message")
+
+  // Phase 2.6: VoiceDrive固有設定（Phase 3で使用）
+  voiceDriveSettings            Json?                           @map("voicedrive_settings")
+
+  // Phase 2.6: AnalyticsFunctionsPage用フィールド
+  birthYear                     Int?                            @map("birth_year")
+  lastActiveAt                  DateTime?                       @map("last_active_at")
+  activityScore                 Float                           @default(0) @map("activity_score")
+  activityLogs                  UserActivityLog[]
+
+  @@index([syncStatus])
+  @@index([lastActiveAt])
+  @@index([activityScore])
 }
 
 model Notification {
@@ -285,34 +303,44 @@ model SurveyResponse {
 }
 
 model Project {
-  id                String    @id @default(cuid())
-  title             String
-  description       String
-  category          String
-  proposerId        String
-  objectives        Json
-  expectedOutcomes  Json
-  budget            Float?
-  timeline          Json?
-  status            String    @default("proposed")
-  priority          String?
-  approvalLevel     Int       @default(0)
-  approvedBy        Json?
-  rejectionReason   String?
-  progressRate      Float     @default(0)
-  milestones        Json?
-  deliverables      Json?
-  actualOutcomes    Json?
-  lessonsLearned    String?
-  roi               Float?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  startedAt         DateTime?
-  completedAt       DateTime?
-  convertedToPostId String?   @unique @map("converted_to_post_id")
-  conversionDate    DateTime? @map("conversion_date")
-  convertedPost     Post?     @relation("ConvertedFromProject", fields: [convertedToPostId], references: [id])
-  proposer          User      @relation(fields: [proposerId], references: [id])
+  id                    String    @id @default(cuid())
+  title                 String
+  description           String
+  category              String
+  proposerId            String
+  objectives            Json
+  expectedOutcomes      Json
+  budget                Float?
+  timeline              Json?
+  status                String    @default("proposed")
+  priority              String?
+  approvalLevel         Int       @default(0)
+  approvedBy            Json?
+  rejectionReason       String?
+  progressRate          Float     @default(0)
+  milestones            Json?
+  deliverables          Json?
+  actualOutcomes        Json?
+  lessonsLearned        String?
+  roi                   Float?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  startedAt             DateTime?
+  completedAt           DateTime?
+  convertedToPostId     String?   @unique @map("converted_to_post_id")
+  conversionDate        DateTime? @map("conversion_date")
+
+  // Phase 2.6: AnalyticsFunctionsPage ROI指標
+  implementationStatus  String    @default("proposed") @map("implementation_status")
+  estimatedCostSavings  Float?    @map("estimated_cost_savings")
+  actualCostSavings     Float?    @map("actual_cost_savings")
+  implementedAt         DateTime? @map("implemented_at")
+  roiScore              Float?    @map("roi_score")
+
+  convertedPost         Post?     @relation("ConvertedFromProject", fields: [convertedToPostId], references: [id])
+  proposer              User      @relation(fields: [proposerId], references: [id])
+
+  @@index([implementationStatus])
 }
 
 model Feedback {
@@ -2148,6 +2176,18 @@ model EvaluationNotification {
 model NotificationSettings {
   id                       String   @id @default(cuid())
   userId                   String   @unique @map("user_id")
+
+  // 🆕 シンプル設定（Phase 1: 2025-10-26実装）
+  globalEnabled            Boolean  @default(true) @map("global_enabled")
+  quickSetting             String   @default("important") @map("quick_setting")
+
+  // 🆕 詳細設定（Phase 2: JSON形式）
+  categories               Json?    @map("categories")
+
+  // 🆕 デバイス管理（Phase 3: PWA対応）
+  deviceTokens             Json?    @map("device_tokens")
+
+  // 既存フィールド（互換性維持）
   enableEmailNotifications Boolean  @default(true) @map("enable_email_notifications")
   enablePushNotifications  Boolean  @default(true) @map("enable_push_notifications")
   enableSmsNotifications   Boolean  @default(false) @map("enable_sms_notifications")
@@ -2157,10 +2197,13 @@ model NotificationSettings {
   quietHoursStart          String?  @map("quiet_hours_start")
   quietHoursEnd            String?  @map("quiet_hours_end")
   enableQuietHours         Boolean  @default(false) @map("enable_quiet_hours")
+
   createdAt                DateTime @default(now()) @map("created_at")
   updatedAt                DateTime @updatedAt @map("updated_at")
   user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([quickSetting])
   @@map("notification_settings")
 }
 
@@ -2532,6 +2575,55 @@ model ProposalDecision {
   @@map("proposal_decisions")
 }
 
+// Phase 2.6: AnalyticsFunctionsPage - 月次集計テーブル
+model MonthlyAnalytics {
+  id                String   @id @default(cuid())
+  month             String                  // YYYY-MM形式
+  facilityId        String?                 // 施設別（nullは全社）
+  departmentId      String?                 // 部門別（nullは全社）
+
+  // ユーザー指標
+  totalUsers        Int      @default(0)    @map("total_users")
+  activeUsers       Int      @default(0)    @map("active_users")
+  newUsers          Int      @default(0)    @map("new_users")
+
+  // 活動指標
+  totalPosts        Int      @default(0)    @map("total_posts")
+  totalVotes        Int      @default(0)    @map("total_votes")
+  totalFeedbacks    Int      @default(0)    @map("total_feedbacks")
+  totalProjects     Int      @default(0)    @map("total_projects")
+  completedProjects Int      @default(0)    @map("completed_projects")
+
+  // パフォーマンス指標
+  postsPerUser      Float?                  @map("posts_per_user")
+  votesPerUser      Float?                  @map("votes_per_user")
+  engagementScore   Float?                  @map("engagement_score")
+
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt     @map("updated_at")
+
+  @@unique([month, facilityId, departmentId])
+  @@index([month])
+  @@index([facilityId])
+  @@index([departmentId])
+  @@map("monthly_analytics")
+}
+
+// Phase 2.6: AnalyticsFunctionsPage - ユーザー活動ログ
+model UserActivityLog {
+  id           String   @id @default(cuid())
+  userId       String                       @map("user_id")
+  activityType String                       @map("activity_type") // 'post', 'vote', 'feedback', 'project', 'survey'
+  activityId   String                       @map("activity_id")
+  timestamp    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp])
+  @@index([activityType])
+  @@map("user_activity_logs")
+}
+
 enum PostStatus {
   ACTIVE
   UNDER_REVIEW
@@ -2549,6 +2641,14 @@ enum PostStatus {
   DOWNGRADED_TO_DEPT_AGENDA
   REJECTED_AFTER_FACILITY_VOTE
   CLOSED
+}
+
+// Phase 2.6: UserManagementPage同期ステータス
+enum SyncStatus {
+  synced
+  pending
+  error
+  never_synced
 }
 
 // ==========================================
