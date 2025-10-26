@@ -4,13 +4,12 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Users, Search, Filter, Edit, Trash2, UserPlus, Download, Upload, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Users, Search, Download, Shield, AlertTriangle, CheckCircle, RefreshCw, Clock, XCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '../../components/ui/Card';
 import { MobileFooter } from '../../components/layout/MobileFooter';
 import { DesktopFooter } from '../../components/layout/DesktopFooter';
-import { AuditService } from '../../services/AuditService';
 import { ACCOUNT_TYPE_LABELS } from '../../types/accountLevel';
 
 interface UserAccount {
@@ -23,6 +22,10 @@ interface UserAccount {
   isActive: boolean;
   lastLoginAt?: Date;
   createdAt: Date;
+  // 同期関連フィールド
+  syncStatus: 'synced' | 'pending' | 'error' | 'never_synced';
+  lastSyncedAt?: Date;
+  syncErrorMessage?: string;
 }
 
 export const UserManagementPage: React.FC = () => {
@@ -33,8 +36,8 @@ export const UserManagementPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterLevel, setFilterLevel] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [selectedUser, setSelectedUser] = useState<UserAccount | null>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string>('');
 
   // 権限チェック（レベル99のみアクセス可能）
   useEffect(() => {
@@ -63,7 +66,9 @@ export const UserManagementPage: React.FC = () => {
         position: 'システム管理者',
         isActive: true,
         lastLoginAt: new Date('2025-10-05T14:30:00'),
-        createdAt: new Date('2025-01-01')
+        createdAt: new Date('2025-01-01'),
+        syncStatus: 'synced',
+        lastSyncedAt: new Date('2025-10-26T10:00:00')
       },
       {
         id: 'user-001',
@@ -74,7 +79,9 @@ export const UserManagementPage: React.FC = () => {
         position: '看護師',
         isActive: true,
         lastLoginAt: new Date('2025-10-05T10:20:00'),
-        createdAt: new Date('2025-01-15')
+        createdAt: new Date('2025-01-15'),
+        syncStatus: 'synced',
+        lastSyncedAt: new Date('2025-10-26T09:30:00')
       },
       {
         id: 'user-002',
@@ -85,7 +92,10 @@ export const UserManagementPage: React.FC = () => {
         position: '主任',
         isActive: true,
         lastLoginAt: new Date('2025-10-04T16:45:00'),
-        createdAt: new Date('2024-06-01')
+        createdAt: new Date('2024-06-01'),
+        syncStatus: 'error',
+        lastSyncedAt: new Date('2025-10-25T14:00:00'),
+        syncErrorMessage: 'Webhook署名検証エラー'
       },
       {
         id: 'user-003',
@@ -96,7 +106,9 @@ export const UserManagementPage: React.FC = () => {
         position: '師長',
         isActive: true,
         lastLoginAt: new Date('2025-10-05T09:15:00'),
-        createdAt: new Date('2023-04-01')
+        createdAt: new Date('2023-04-01'),
+        syncStatus: 'synced',
+        lastSyncedAt: new Date('2025-10-26T08:45:00')
       },
       {
         id: 'user-004',
@@ -107,7 +119,9 @@ export const UserManagementPage: React.FC = () => {
         position: '中堅職員',
         isActive: false,
         lastLoginAt: new Date('2025-09-20T11:30:00'),
-        createdAt: new Date('2024-02-01')
+        createdAt: new Date('2024-02-01'),
+        syncStatus: 'pending',
+        lastSyncedAt: new Date('2025-10-20T11:30:00')
       }
     ];
 
@@ -143,28 +157,73 @@ export const UserManagementPage: React.FC = () => {
     setFilteredUsers(filtered);
   }, [users, searchTerm, filterLevel, filterStatus]);
 
-  const handleEditUser = (user: UserAccount) => {
-    setSelectedUser(user);
-    setShowEditModal(true);
+  // 個別ユーザー同期
+  const handleSyncSingleUser = async (userId: string) => {
+    setIsSyncing(true);
+    setSyncMessage(`ユーザー ${userId} を同期中...`);
+
+    try {
+      // TODO: 実際の実装では、医療システムAPIを呼び出し
+      // const response = await fetch(`/api/medical-system/employees/${userId}`);
+      // const medicalData = await response.json();
+
+      // デモ: 同期成功をシミュレート
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      setUsers(prev => prev.map(u =>
+        u.id === userId
+          ? { ...u, syncStatus: 'synced', lastSyncedAt: new Date(), syncErrorMessage: undefined }
+          : u
+      ));
+
+      setSyncMessage('同期が完了しました');
+      setTimeout(() => setSyncMessage(''), 3000);
+    } catch (error) {
+      setUsers(prev => prev.map(u =>
+        u.id === userId
+          ? { ...u, syncStatus: 'error', syncErrorMessage: '同期エラー: ' + (error as Error).message }
+          : u
+      ));
+      setSyncMessage('同期に失敗しました');
+      setTimeout(() => setSyncMessage(''), 3000);
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
-  const handleDeleteUser = (userId: string) => {
-    if (!confirm('このユーザーを削除してよろしいですか？')) return;
+  // 全ユーザー一括同期
+  const handleSyncAllUsers = async () => {
+    setIsSyncing(true);
+    setSyncMessage('全ユーザーを同期中...');
 
-    AuditService.log({
-      userId: user?.id || '',
-      action: 'USER_DELETED',
-      targetId: userId,
-      details: { deletedUser: users.find(u => u.id === userId) },
-      severity: 'high'
-    });
+    try {
+      // TODO: 実際の実装では、医療システムAPIを呼び出し
+      // const response = await fetch('/api/medical-system/employees');
+      // const allEmployees = await response.json();
 
-    setUsers(prev => prev.filter(u => u.id !== userId));
+      // デモ: 一括同期成功をシミュレート
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      setUsers(prev => prev.map(u => ({
+        ...u,
+        syncStatus: 'synced',
+        lastSyncedAt: new Date(),
+        syncErrorMessage: undefined
+      })));
+
+      setSyncMessage(`${users.length}名のユーザーを同期しました`);
+      setTimeout(() => setSyncMessage(''), 3000);
+    } catch (error) {
+      setSyncMessage('一括同期に失敗しました');
+      setTimeout(() => setSyncMessage(''), 3000);
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const handleExportUsers = () => {
     const csv = [
-      ['ユーザーID', '名前', 'メール', '権限レベル', '部署', '役職', 'ステータス', '最終ログイン', '作成日'],
+      ['ユーザーID', '名前', 'メール', '権限レベル', '部署', '役職', 'ステータス', '同期状態', '最終同期日時', '最終ログイン', '作成日'],
       ...filteredUsers.map(u => [
         u.id,
         u.name,
@@ -173,6 +232,10 @@ export const UserManagementPage: React.FC = () => {
         u.department,
         u.position,
         u.isActive ? '有効' : '無効',
+        u.syncStatus === 'synced' ? '同期済み' :
+        u.syncStatus === 'error' ? 'エラー' :
+        u.syncStatus === 'pending' ? '同期待ち' : '未同期',
+        u.lastSyncedAt?.toLocaleString('ja-JP') || '',
         u.lastLoginAt?.toLocaleString('ja-JP') || '',
         u.createdAt.toLocaleString('ja-JP')
       ])
@@ -317,13 +380,6 @@ export const UserManagementPage: React.FC = () => {
               <Download className="w-4 h-4" />
               CSVエクスポート
             </button>
-
-            <button
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
-              <UserPlus className="w-4 h-4" />
-              新規ユーザー
-            </button>
           </div>
         </Card>
 
@@ -340,7 +396,6 @@ export const UserManagementPage: React.FC = () => {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase">権限</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase">ステータス</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase">最終ログイン</th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-300 uppercase">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700/50">
@@ -367,25 +422,6 @@ export const UserManagementPage: React.FC = () => {
                         hour: '2-digit',
                         minute: '2-digit'
                       }) || '-'}
-                    </td>
-                    <td className="px-4 py-3 text-sm">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => handleEditUser(u)}
-                          className="p-1 text-blue-400 hover:text-blue-300 transition-colors"
-                          title="編集"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteUser(u.id)}
-                          className="p-1 text-red-400 hover:text-red-300 transition-colors"
-                          title="削除"
-                          disabled={u.permissionLevel === 99}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
                     </td>
                   </tr>
                 ))}

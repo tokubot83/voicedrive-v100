@@ -85,6 +85,9 @@ export const SystemMonitorPageEnhanced: React.FC = () => {
   // Phase 2拡張メトリクス
   const [integrationMetrics, setIntegrationMetrics] = useState<IntegrationMetrics | null>(null);
 
+  // Phase 2.5拡張メトリクス（医療システム統計含む）
+  const [enhancedIntegrationMetrics, setEnhancedIntegrationMetrics] = useState<import('../../types/medicalSystem.types').EnhancedIntegrationMetrics | null>(null);
+
   // 権限チェック（レベル99のみアクセス可能）
   useEffect(() => {
     if (!user || user.permissionLevel !== 99) {
@@ -161,7 +164,8 @@ export const SystemMonitorPageEnhanced: React.FC = () => {
         notifications,
         schedulers,
         api,
-        integration
+        integration,
+        enhancedIntegration
       ] = await Promise.all([
         MonitoringService.getDatabaseMetrics(),
         MonitoringService.getSecurityMetrics(),
@@ -169,7 +173,8 @@ export const SystemMonitorPageEnhanced: React.FC = () => {
         MonitoringService.getNotificationMetrics(),
         MonitoringService.getSchedulerMetrics(),
         MonitoringService.getAPIMetrics(),
-        MonitoringService.getIntegrationMetrics()
+        MonitoringService.getIntegrationMetrics(),
+        MonitoringService.getEnhancedIntegrationMetrics() // Phase 2.5: 医療システム統計含む
       ]);
 
       setDatabaseMetrics(database);
@@ -179,6 +184,7 @@ export const SystemMonitorPageEnhanced: React.FC = () => {
       setSchedulerMetrics(schedulers);
       setAPIMetrics(api);
       setIntegrationMetrics(integration);
+      setEnhancedIntegrationMetrics(enhancedIntegration); // Phase 2.5
     } catch (error) {
       console.error('監視メトリクスの取得に失敗:', error);
     }
@@ -797,8 +803,232 @@ export const SystemMonitorPageEnhanced: React.FC = () => {
             <div>
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
                 <Link className="w-6 h-6" />
-                医療システム連携監視（Phase 2 - 20項目）
+                医療システム連携監視（Phase 2.5 - 双方向監視）
               </h2>
+
+              {/* Phase 2.5: 医療システム側統計（Webhook送信・面談実施率） */}
+              {enhancedIntegrationMetrics?.medicalSystem && (
+                <>
+                  {/* Webhook差分検出アラート */}
+                  <Card className={`p-6 border mb-6 ${
+                    enhancedIntegrationMetrics.medicalSystem.syncHealth === 'healthy'
+                      ? 'bg-green-900/20 border-green-500/50'
+                      : enhancedIntegrationMetrics.medicalSystem.syncHealth === 'warning'
+                      ? 'bg-yellow-900/20 border-yellow-500/50'
+                      : 'bg-red-900/20 border-red-500/50'
+                  }`}>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                        {enhancedIntegrationMetrics.medicalSystem.syncHealth === 'healthy' && <CheckCircle className="w-6 h-6 text-green-400" />}
+                        {enhancedIntegrationMetrics.medicalSystem.syncHealth === 'warning' && <AlertTriangle className="w-6 h-6 text-yellow-400" />}
+                        {enhancedIntegrationMetrics.medicalSystem.syncHealth === 'critical' && <AlertTriangle className="w-6 h-6 text-red-400" />}
+                        Webhook送信・受信差分検出
+                      </h3>
+                      {getStatusBadge(enhancedIntegrationMetrics.medicalSystem.syncHealth)}
+                    </div>
+
+                    <div className="grid md:grid-cols-4 gap-6 mb-4">
+                      <div>
+                        <p className="text-sm text-gray-400 mb-2">医療システム送信</p>
+                        <p className="text-3xl font-bold text-white">
+                          {enhancedIntegrationMetrics.medicalSystem.webhookStats.sent24h}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">24時間</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-400 mb-2">VoiceDrive受信</p>
+                        <p className="text-3xl font-bold text-white">
+                          {enhancedIntegrationMetrics.webhook.received24h}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">24時間</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-400 mb-2">差分</p>
+                        <p className={`text-4xl font-bold ${
+                          enhancedIntegrationMetrics.medicalSystem.syncDiscrepancy === 0 ? 'text-green-400' :
+                          enhancedIntegrationMetrics.medicalSystem.syncDiscrepancy <= 5 ? 'text-yellow-400' :
+                          'text-red-400'
+                        }`}>
+                          {enhancedIntegrationMetrics.medicalSystem.syncDiscrepancy}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">欠損件数</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-400 mb-2">送信成功率</p>
+                        <p className="text-3xl font-bold text-green-400">
+                          {((enhancedIntegrationMetrics.medicalSystem.webhookStats.succeeded /
+                             enhancedIntegrationMetrics.medicalSystem.webhookStats.sent24h) * 100).toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">目標: 99%</p>
+                      </div>
+                    </div>
+
+                    {enhancedIntegrationMetrics.medicalSystem.syncDiscrepancy > 0 && (
+                      <div className={`mt-4 p-4 rounded-lg border ${
+                        enhancedIntegrationMetrics.medicalSystem.syncHealth === 'warning'
+                          ? 'bg-yellow-500/10 border-yellow-500/30'
+                          : 'bg-red-500/10 border-red-500/30'
+                      }`}>
+                        <p className={`font-semibold ${
+                          enhancedIntegrationMetrics.medicalSystem.syncHealth === 'warning'
+                            ? 'text-yellow-200'
+                            : 'text-red-200'
+                        }`}>
+                          ⚠️ データ欠損を検出しました
+                        </p>
+                        <p className="text-sm text-gray-300 mt-2">
+                          医療システムから送信された{enhancedIntegrationMetrics.medicalSystem.webhookStats.sent24h}件のうち、
+                          VoiceDriveで受信できたのは{enhancedIntegrationMetrics.webhook.received24h}件です。
+                          {enhancedIntegrationMetrics.medicalSystem.syncDiscrepancy}件のデータが欠損している可能性があります。
+                        </p>
+                        <p className="text-sm text-gray-400 mt-2">
+                          推奨アクション: ネットワーク接続を確認し、リトライキューをチェックしてください。
+                        </p>
+                      </div>
+                    )}
+
+                    {/* リトライキュー統計 */}
+                    <div className="mt-6 p-4 bg-gray-700/30 rounded-lg">
+                      <h4 className="text-white font-semibold mb-3">リトライキュー統計</h4>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-400 mb-1">保留中</p>
+                          <p className="text-2xl font-bold text-yellow-400">
+                            {enhancedIntegrationMetrics.medicalSystem.webhookStats.queueStatus.pending}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400 mb-1">処理中</p>
+                          <p className="text-2xl font-bold text-blue-400">
+                            {enhancedIntegrationMetrics.medicalSystem.webhookStats.queueStatus.processing}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-400 mb-1">失敗（要確認）</p>
+                          <p className="text-2xl font-bold text-red-400">
+                            {enhancedIntegrationMetrics.medicalSystem.webhookStats.queueStatus.failed}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* 面談実施率監視 */}
+                  <Card className="bg-gray-800/50 p-6 border border-gray-700/50 mb-6">
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                      <Calendar className="w-5 h-5" />
+                      面談実施率監視（医療システム統計）
+                    </h3>
+
+                    <div className="grid md:grid-cols-5 gap-6 mb-6">
+                      <div>
+                        <p className="text-sm text-gray-400 mb-2">予定面談数</p>
+                        <p className="text-3xl font-bold text-white">
+                          {enhancedIntegrationMetrics.medicalSystem.interviewStats.totalScheduled}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-400 mb-2">完了面談数</p>
+                        <p className="text-3xl font-bold text-green-400">
+                          {enhancedIntegrationMetrics.medicalSystem.interviewStats.actuallyCompleted}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-400 mb-2">実施率</p>
+                        <p className={`text-4xl font-bold ${
+                          enhancedIntegrationMetrics.medicalSystem.interviewStats.completionRate >= 90 ? 'text-green-400' :
+                          enhancedIntegrationMetrics.medicalSystem.interviewStats.completionRate >= 80 ? 'text-yellow-400' :
+                          'text-red-400'
+                        }`}>
+                          {enhancedIntegrationMetrics.medicalSystem.interviewStats.completionRate.toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">目標: 90%</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-400 mb-2">無断欠席率</p>
+                        <p className={`text-3xl font-bold ${
+                          enhancedIntegrationMetrics.medicalSystem.interviewStats.noShowRate <= 5 ? 'text-green-400' :
+                          enhancedIntegrationMetrics.medicalSystem.interviewStats.noShowRate <= 10 ? 'text-yellow-400' :
+                          'text-red-400'
+                        }`}>
+                          {enhancedIntegrationMetrics.medicalSystem.interviewStats.noShowRate.toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">目標: &lt;5%</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-400 mb-2">平均所要時間</p>
+                        <p className="text-3xl font-bold text-white">
+                          {enhancedIntegrationMetrics.medicalSystem.interviewStats.avgDuration.toFixed(0)}分
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* 面談タイプ別統計 */}
+                    <div className="space-y-3">
+                      <h4 className="text-white font-semibold">面談タイプ別統計</h4>
+                      {Object.entries(enhancedIntegrationMetrics.medicalSystem.interviewStats.byInterviewType).map(([type, stats]) => (
+                        <div key={type} className="p-4 bg-gray-700/30 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-white font-semibold">{type}</p>
+                            <span className={`px-2 py-1 rounded text-xs ${
+                              stats.completionRate >= 90 ? 'bg-green-500/20 text-green-400' :
+                              stats.completionRate >= 80 ? 'bg-yellow-500/20 text-yellow-400' :
+                              'bg-red-500/20 text-red-400'
+                            }`}>
+                              実施率: {stats.completionRate.toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <p className="text-gray-400">予定</p>
+                              <p className="text-white font-semibold">{stats.scheduled}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-400">完了</p>
+                              <p className="text-white font-semibold">{stats.completed}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-400">平均時間</p>
+                              <p className="text-white font-semibold">{stats.avgDuration.toFixed(0)}分</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-400">ステータス</p>
+                              <p className="text-white font-semibold">
+                                {stats.completionRate >= 90 ? '✓ 良好' : stats.completionRate >= 80 ? '⚠ 注意' : '✗ 要改善'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="mt-2 w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+                            <div
+                              className={`h-full transition-all duration-300 ${
+                                stats.completionRate >= 90 ? 'bg-green-500' :
+                                stats.completionRate >= 80 ? 'bg-yellow-500' :
+                                'bg-red-500'
+                              }`}
+                              style={{ width: `${stats.completionRate}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </>
+              )}
+
+              {/* 医療システムAPI接続エラー時の表示 */}
+              {!enhancedIntegrationMetrics?.medicalSystem && (
+                <Card className="bg-yellow-900/20 border-yellow-500/50 p-6 border mb-6">
+                  <div className="flex items-center gap-3">
+                    <AlertTriangle className="w-6 h-6 text-yellow-400" />
+                    <div>
+                      <p className="text-yellow-200 font-semibold">医療システムAPIに接続できません</p>
+                      <p className="text-sm text-gray-300 mt-1">
+                        医療システム側の統計データを取得できませんでした。VoiceDrive側のデータのみ表示します。
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              )}
 
               {/* 接続性ステータス */}
               <Card className="bg-gray-800/50 p-6 border border-gray-700/50 mb-6">
