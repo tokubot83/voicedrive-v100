@@ -10,7 +10,6 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '../../components/ui/Card';
 import { MobileFooter } from '../../components/layout/MobileFooter';
 import { DesktopFooter } from '../../components/layout/DesktopFooter';
-import { ACCOUNT_TYPE_LABELS } from '../../types/accountLevel';
 
 interface UserAccount {
   id: string;
@@ -26,6 +25,13 @@ interface UserAccount {
   syncStatus: 'synced' | 'pending' | 'error' | 'never_synced';
   lastSyncedAt?: Date;
   syncErrorMessage?: string;
+  // VoiceDrive固有設定
+  voiceDriveSettings?: {
+    emailNotifications: boolean;
+    pushNotifications: boolean;
+    weeklyDigest: boolean;
+    theme: 'light' | 'dark' | 'auto';
+  };
 }
 
 export const UserManagementPage: React.FC = () => {
@@ -68,7 +74,13 @@ export const UserManagementPage: React.FC = () => {
         lastLoginAt: new Date('2025-10-05T14:30:00'),
         createdAt: new Date('2025-01-01'),
         syncStatus: 'synced',
-        lastSyncedAt: new Date('2025-10-26T10:00:00')
+        lastSyncedAt: new Date('2025-10-26T10:00:00'),
+        voiceDriveSettings: {
+          emailNotifications: true,
+          pushNotifications: true,
+          weeklyDigest: true,
+          theme: 'dark'
+        }
       },
       {
         id: 'user-001',
@@ -81,7 +93,13 @@ export const UserManagementPage: React.FC = () => {
         lastLoginAt: new Date('2025-10-05T10:20:00'),
         createdAt: new Date('2025-01-15'),
         syncStatus: 'synced',
-        lastSyncedAt: new Date('2025-10-26T09:30:00')
+        lastSyncedAt: new Date('2025-10-26T09:30:00'),
+        voiceDriveSettings: {
+          emailNotifications: true,
+          pushNotifications: false,
+          weeklyDigest: true,
+          theme: 'auto'
+        }
       },
       {
         id: 'user-002',
@@ -95,7 +113,13 @@ export const UserManagementPage: React.FC = () => {
         createdAt: new Date('2024-06-01'),
         syncStatus: 'error',
         lastSyncedAt: new Date('2025-10-25T14:00:00'),
-        syncErrorMessage: 'Webhook署名検証エラー'
+        syncErrorMessage: 'Webhook署名検証エラー',
+        voiceDriveSettings: {
+          emailNotifications: false,
+          pushNotifications: true,
+          weeklyDigest: false,
+          theme: 'light'
+        }
       },
       {
         id: 'user-003',
@@ -108,7 +132,13 @@ export const UserManagementPage: React.FC = () => {
         lastLoginAt: new Date('2025-10-05T09:15:00'),
         createdAt: new Date('2023-04-01'),
         syncStatus: 'synced',
-        lastSyncedAt: new Date('2025-10-26T08:45:00')
+        lastSyncedAt: new Date('2025-10-26T08:45:00'),
+        voiceDriveSettings: {
+          emailNotifications: true,
+          pushNotifications: true,
+          weeklyDigest: true,
+          theme: 'dark'
+        }
       },
       {
         id: 'user-004',
@@ -121,7 +151,13 @@ export const UserManagementPage: React.FC = () => {
         lastLoginAt: new Date('2025-09-20T11:30:00'),
         createdAt: new Date('2024-02-01'),
         syncStatus: 'pending',
-        lastSyncedAt: new Date('2025-10-20T11:30:00')
+        lastSyncedAt: new Date('2025-10-20T11:30:00'),
+        voiceDriveSettings: {
+          emailNotifications: true,
+          pushNotifications: false,
+          weeklyDigest: false,
+          theme: 'auto'
+        }
       }
     ];
 
@@ -267,6 +303,41 @@ export const UserManagementPage: React.FC = () => {
     );
   };
 
+  const getSyncStatusBadge = (status: UserAccount['syncStatus']) => {
+    const config = {
+      synced: {
+        color: 'bg-green-500/20 text-green-400 border-green-500/30',
+        label: '同期済み',
+        icon: CheckCircle
+      },
+      error: {
+        color: 'bg-red-500/20 text-red-400 border-red-500/30',
+        label: 'エラー',
+        icon: XCircle
+      },
+      pending: {
+        color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+        label: '同期待ち',
+        icon: Clock
+      },
+      never_synced: {
+        color: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+        label: '未同期',
+        icon: AlertTriangle
+      }
+    };
+
+    const badge = config[status];
+    const Icon = badge.icon;
+
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium border flex items-center gap-1 ${badge.color}`}>
+        <Icon className="w-3 h-3" />
+        {badge.label}
+      </span>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 w-full pb-32">
       <div className="w-full p-6">
@@ -374,6 +445,15 @@ export const UserManagementPage: React.FC = () => {
 
             {/* アクションボタン */}
             <button
+              onClick={handleSyncAllUsers}
+              disabled={isSyncing}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+              {isSyncing ? '同期中...' : '全ユーザー同期'}
+            </button>
+
+            <button
               onClick={handleExportUsers}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
             >
@@ -382,6 +462,14 @@ export const UserManagementPage: React.FC = () => {
             </button>
           </div>
         </Card>
+
+        {/* 同期メッセージ */}
+        {syncMessage && (
+          <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg text-blue-400 flex items-center gap-2">
+            <CheckCircle className="w-5 h-5" />
+            {syncMessage}
+          </div>
+        )}
 
         {/* ユーザーリスト */}
         <Card className="bg-gray-800/50 border border-gray-700/50 overflow-hidden">
@@ -395,7 +483,9 @@ export const UserManagementPage: React.FC = () => {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase">役職</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase">権限</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase">ステータス</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase">同期状態</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase">最終ログイン</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-300 uppercase">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700/50">
@@ -415,6 +505,26 @@ export const UserManagementPage: React.FC = () => {
                         {u.isActive ? '有効' : '無効'}
                       </span>
                     </td>
+                    <td className="px-4 py-3 text-sm">
+                      <div className="flex flex-col gap-1">
+                        {getSyncStatusBadge(u.syncStatus)}
+                        {u.lastSyncedAt && (
+                          <span className="text-xs text-gray-500">
+                            {u.lastSyncedAt.toLocaleString('ja-JP', {
+                              month: '2-digit',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        )}
+                        {u.syncErrorMessage && (
+                          <span className="text-xs text-red-400" title={u.syncErrorMessage}>
+                            {u.syncErrorMessage.substring(0, 20)}...
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 py-3 text-sm text-gray-400">
                       {u.lastLoginAt?.toLocaleString('ja-JP', {
                         month: '2-digit',
@@ -422,6 +532,18 @@ export const UserManagementPage: React.FC = () => {
                         hour: '2-digit',
                         minute: '2-digit'
                       }) || '-'}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleSyncSingleUser(u.id)}
+                          disabled={isSyncing}
+                          className="p-1 text-blue-400 hover:text-blue-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="このユーザーを同期"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
