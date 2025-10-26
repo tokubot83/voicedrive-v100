@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, BellOff, ChevronDown, ChevronRight, Check, X, Info } from 'lucide-react';
+import { Bell, ChevronDown, ChevronRight, Check, Info } from 'lucide-react';
 import { useNotificationSettings } from '../../hooks/useNotificationSettings';
 import { NOTIFICATION_CATEGORIES_INFO, NotificationCategory } from '../../types/notification';
 
@@ -13,7 +13,6 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
     isLoading,
     hasUnsavedChanges,
     saveSettings,
-    toggleGlobalEnabled,
     setQuickSetting,
     toggleCategory,
     updateCategorySettings,
@@ -24,6 +23,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
 
   const [expandedCategories, setExpandedCategories] = useState<Set<NotificationCategory>>(new Set());
   const [showPermissionDialog, setShowPermissionDialog] = useState(false);
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
 
   // カテゴリの展開/折りたたみ
   const toggleExpand = (category: NotificationCategory) => {
@@ -84,74 +84,112 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
         </div>
       )}
 
-      {/* グローバル設定 */}
-      <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            {settings.globalEnabled ? (
-              <Bell className="w-5 h-5 text-indigo-400" />
-            ) : (
-              <BellOff className="w-5 h-5 text-gray-400" />
-            )}
-            <h2 className="text-xl font-semibold text-white">通知設定</h2>
-          </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={settings.globalEnabled}
-              onChange={toggleGlobalEnabled}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
-          </label>
+      {/* シンプル通知設定（メイン） */}
+      <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-8 border border-slate-700/50">
+        <div className="flex items-center space-x-3 mb-6">
+          <Bell className="w-6 h-6 text-indigo-400" />
+          <h2 className="text-2xl font-bold text-white">通知設定</h2>
         </div>
 
-        {/* かんたん設定 */}
-        {settings.globalEnabled && (
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-3">かんたん設定</h3>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={() => setQuickSetting('all')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    settings.quickSetting === 'all'
-                      ? 'bg-indigo-500 text-white'
-                      : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                  }`}
-                >
-                  すべてON
-                </button>
-                <button
-                  onClick={() => setQuickSetting('important')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    settings.quickSetting === 'important'
-                      ? 'bg-indigo-500 text-white'
-                      : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                  }`}
-                >
-                  重要のみ
-                </button>
-                <button
-                  onClick={() => setQuickSetting('none')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    settings.quickSetting === 'none'
-                      ? 'bg-indigo-500 text-white'
-                      : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                  }`}
-                >
-                  すべてOFF
-                </button>
+        <p className="text-gray-300 mb-6 text-lg">
+          どの通知を受け取りますか？
+        </p>
+
+        {/* 大きな選択ボタン（50代・60代向け） */}
+        <div className="space-y-4">
+          <button
+            onClick={() => setQuickSetting('all')}
+            className={`w-full p-6 rounded-xl text-left transition-all border-2 ${
+              settings.quickSetting === 'all'
+                ? 'bg-indigo-600 border-indigo-400 shadow-lg'
+                : 'bg-slate-700/50 border-slate-600 hover:bg-slate-700 hover:border-slate-500'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">✅</span>
+                  <h3 className="text-xl font-bold text-white">すべて受け取る</h3>
+                </div>
+                <p className="text-gray-300 text-base ml-11">
+                  すべての通知を受け取ります（推奨）
+                </p>
               </div>
+              {settings.quickSetting === 'all' && (
+                <Check className="w-8 h-8 text-white" />
+              )}
             </div>
-          </div>
-        )}
+          </button>
+
+          <button
+            onClick={() => setQuickSetting('important')}
+            className={`w-full p-6 rounded-xl text-left transition-all border-2 ${
+              settings.quickSetting === 'important'
+                ? 'bg-indigo-600 border-indigo-400 shadow-lg'
+                : 'bg-slate-700/50 border-slate-600 hover:bg-slate-700 hover:border-slate-500'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">⚠️</span>
+                  <h3 className="text-xl font-bold text-white">重要なお知らせのみ</h3>
+                </div>
+                <p className="text-gray-300 text-base ml-11">
+                  緊急連絡や面談予定など、重要な通知だけ受け取ります
+                </p>
+              </div>
+              {settings.quickSetting === 'important' && (
+                <Check className="w-8 h-8 text-white" />
+              )}
+            </div>
+          </button>
+
+          <button
+            onClick={() => setQuickSetting('none')}
+            className={`w-full p-6 rounded-xl text-left transition-all border-2 ${
+              settings.quickSetting === 'none'
+                ? 'bg-indigo-600 border-indigo-400 shadow-lg'
+                : 'bg-slate-700/50 border-slate-600 hover:bg-slate-700 hover:border-slate-500'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">🔕</span>
+                  <h3 className="text-xl font-bold text-white">通知OFF</h3>
+                </div>
+                <p className="text-gray-300 text-base ml-11">
+                  すべての通知を停止します
+                </p>
+              </div>
+              {settings.quickSetting === 'none' && (
+                <Check className="w-8 h-8 text-white" />
+              )}
+            </div>
+          </button>
+        </div>
+
+        {/* 上級者向け設定トグル */}
+        <div className="mt-8 pt-6 border-t border-slate-700">
+          <button
+            onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+            className="flex items-center justify-between w-full text-gray-400 hover:text-white transition-colors"
+          >
+            <span className="text-sm">上級者向け設定</span>
+            {showAdvancedSettings ? (
+              <ChevronDown className="w-5 h-5" />
+            ) : (
+              <ChevronRight className="w-5 h-5" />
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* カテゴリ別設定 */}
-      {settings.globalEnabled && (
+      {/* カテゴリ別設定（上級者向け） */}
+      {showAdvancedSettings && (
         <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
-          <h3 className="text-lg font-semibold text-white mb-4">詳細設定</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">詳細設定（上級者向け）</h3>
           <div className="space-y-2">
             {Object.entries(NOTIFICATION_CATEGORIES_INFO).map(([key, info]) => {
               const category = key as NotificationCategory;
@@ -264,8 +302,8 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
         </div>
       )}
 
-      {/* 静音時間設定 */}
-      {settings.globalEnabled && (
+      {/* 静音時間設定（上級者向け） */}
+      {showAdvancedSettings && (
         <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-slate-700/50">
           <div className="flex items-center justify-between mb-4">
             <div>
