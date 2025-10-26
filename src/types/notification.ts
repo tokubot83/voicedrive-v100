@@ -9,7 +9,6 @@ export type NotificationCategory =
   | 'proposal'             // 議題・提案
   | 'project'              // プロジェクト
   | 'survey'               // アンケート
-  | 'shift'                // シフト・勤務
   | 'training'             // 研修・教育
   | 'system';              // システム
 
@@ -104,12 +103,6 @@ export const NOTIFICATION_PRESETS = {
         sound: false,
         vibration: false
       },
-      shift: {
-        enabled: true,
-        priority: 'high',
-        sound: true,
-        vibration: true
-      },
       training: {
         enabled: true,
         priority: 'medium',
@@ -138,12 +131,6 @@ export const NOTIFICATION_PRESETS = {
         enabled: true,
         priority: 'high',
         sound: false,
-        vibration: false
-      },
-      shift: {
-        enabled: true,
-        priority: 'high',
-        sound: true,
         vibration: false
       }
     }
@@ -216,16 +203,6 @@ export const NOTIFICATION_CATEGORIES_INFO = {
       { id: 'new', name: '新規アンケート' },
       { id: 'reminder', name: '回答リマインダー' },
       { id: 'mandatory', name: '必須アンケート' }
-    ]
-  },
-  shift: {
-    name: 'シフト・勤務',
-    icon: '📅',
-    description: 'シフト変更や勤務に関する通知',
-    subTypes: [
-      { id: 'change', name: 'シフト変更' },
-      { id: 'cover', name: '代替要請' },
-      { id: 'overtime', name: '超過勤務アラート' }
     ]
   },
   training: {

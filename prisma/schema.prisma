@@ -2672,3 +2672,53 @@ model AgendaImplementation {
   @@index([responsibleUserId])
   @@map("agenda_implementations")
 }
+
+/// 医療システム連携Webhook受信ログ（Phase 2）
+model WebhookLog {
+  id                  String   @id @default(cuid())
+
+  // イベント情報
+  eventType           String   // employee.created, employee.photo.updated, employee.photo.deleted
+  eventTimestamp      DateTime // 医療システム側のイベント発生時刻
+
+  // 受信情報
+  receivedAt          DateTime @default(now())
+  requestId           String?  @unique // X-Request-ID ヘッダー（重複検出用）
+
+  // ペイロード
+  staffId             String   // 対象職員のstaffId
+  payloadSize         Int      // ペイロードのバイト数
+  fullPayload         Json     // 完全なペイロード（デバッグ用）
+
+  // 処理結果
+  processingStatus    String   // success, failed, signature_failed, validation_failed
+  processingTime      Int      // 処理時間（ミリ秒）
+  errorMessage        String?  // エラーメッセージ
+  errorStack          String?  // エラースタックトレース
+
+  // セキュリティ
+  signatureValid      Boolean  // HMAC署名検証結果
+  ipAddress           String?  // 送信元IPアドレス
+  userAgent           String?  // User-Agent
+
+  // 同期情報
+  userFound           Boolean  // staffIdに対応するUserが存在したか
+  dataChanged         Boolean  // 実際にデータが変更されたか
+  previousValue       Json?    // 変更前の値（profilePhotoUrlなど）
+  newValue            Json?    // 変更後の値
+
+  // リトライ検出
+  isDuplicate         Boolean  @default(false) // requestIdが重複していたか
+  retryCount          Int      @default(0)     // リトライ回数
+
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@index([eventType])
+  @@index([receivedAt])
+  @@index([processingStatus])
+  @@index([staffId])
+  @@index([eventType, receivedAt])
+  @@index([processingStatus, receivedAt])
+  @@index([requestId])
+  @@map("webhook_logs")
+}

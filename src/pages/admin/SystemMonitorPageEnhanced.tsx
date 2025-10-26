@@ -15,7 +15,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Activity, Cpu, HardDrive, Users, TrendingUp, AlertTriangle, CheckCircle,
-  Clock, Database, Shield, BarChart3, Bell, Calendar, Zap, Server
+  Clock, Database, Shield, BarChart3, Bell, Calendar, Zap, Server, Link
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +29,8 @@ import type {
   BusinessMetrics,
   NotificationMetrics,
   SchedulerMetrics,
-  APIMetrics
+  APIMetrics,
+  IntegrationMetrics
 } from '../../services/MonitoringService';
 
 interface SystemMetrics {
@@ -80,6 +81,9 @@ export const SystemMonitorPageEnhanced: React.FC = () => {
   const [notificationMetrics, setNotificationMetrics] = useState<NotificationMetrics | null>(null);
   const [schedulerMetrics, setSchedulerMetrics] = useState<SchedulerMetrics | null>(null);
   const [apiMetrics, setAPIMetrics] = useState<APIMetrics | null>(null);
+
+  // Phase 2拡張メトリクス
+  const [integrationMetrics, setIntegrationMetrics] = useState<IntegrationMetrics | null>(null);
 
   // 権限チェック（レベル99のみアクセス可能）
   useEffect(() => {
@@ -156,14 +160,16 @@ export const SystemMonitorPageEnhanced: React.FC = () => {
         business,
         notifications,
         schedulers,
-        api
+        api,
+        integration
       ] = await Promise.all([
         MonitoringService.getDatabaseMetrics(),
         MonitoringService.getSecurityMetrics(),
         MonitoringService.getBusinessMetrics(),
         MonitoringService.getNotificationMetrics(),
         MonitoringService.getSchedulerMetrics(),
-        MonitoringService.getAPIMetrics()
+        MonitoringService.getAPIMetrics(),
+        MonitoringService.getIntegrationMetrics()
       ]);
 
       setDatabaseMetrics(database);
@@ -172,6 +178,7 @@ export const SystemMonitorPageEnhanced: React.FC = () => {
       setNotificationMetrics(notifications);
       setSchedulerMetrics(schedulers);
       setAPIMetrics(api);
+      setIntegrationMetrics(integration);
     } catch (error) {
       console.error('監視メトリクスの取得に失敗:', error);
     }
@@ -212,7 +219,8 @@ export const SystemMonitorPageEnhanced: React.FC = () => {
     { id: 'business', label: 'ビジネスKPI', icon: BarChart3 },
     { id: 'api', label: 'API', icon: Server },
     { id: 'scheduler', label: 'スケジューラー', icon: Calendar },
-    { id: 'notifications', label: '通知', icon: Bell }
+    { id: 'notifications', label: '通知', icon: Bell },
+    { id: 'integration', label: '医療システム連携', icon: Link }
   ];
 
   return (
@@ -227,7 +235,7 @@ export const SystemMonitorPageEnhanced: React.FC = () => {
                 システム監視ダッシュボード（Phase 1）
               </h1>
               <p className="text-gray-300">
-                Level 99専用 - VoiceDrive全体の詳細監視（50項目）
+                Level 99専用 - VoiceDrive全体の詳細監視（Phase 1: 50項目 | Phase 2: +20項目）
               </p>
             </div>
             <div className="flex items-center gap-4">
@@ -781,6 +789,158 @@ export const SystemMonitorPageEnhanced: React.FC = () => {
                   </div>
                 </div>
               </Card>
+            </div>
+          )}
+
+          {/* Phase 2: 医療システム連携監視タブ */}
+          {activeTab === 'integration' && integrationMetrics && (
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <Link className="w-6 h-6" />
+                医療システム連携監視（Phase 2 - 20項目）
+              </h2>
+
+              {/* 接続性ステータス */}
+              <Card className="bg-gray-800/50 p-6 border border-gray-700/50 mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-white">連携健全性</h3>
+                  {getStatusBadge(integrationMetrics.connectivity.webhookEndpointStatus)}
+                </div>
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">最終Webhook受信</p>
+                    <p className="text-white text-lg">
+                      {integrationMetrics.connectivity.lastWebhookReceived
+                        ? new Date(integrationMetrics.connectivity.lastWebhookReceived).toLocaleString('ja-JP')
+                        : 'データなし'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">経過時間</p>
+                    <p className="text-white text-lg">
+                      {integrationMetrics.connectivity.timeSinceLastWebhook !== null
+                        ? `${Math.floor(integrationMetrics.connectivity.timeSinceLastWebhook)} 分`
+                        : '-'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">エラー率トレンド</p>
+                    <p className={`text-lg font-semibold ${
+                      integrationMetrics.connectivity.errorRateTrend === 'improving' ? 'text-green-400' :
+                      integrationMetrics.connectivity.errorRateTrend === 'degrading' ? 'text-red-400' :
+                      'text-gray-400'
+                    }`}>
+                      {integrationMetrics.connectivity.errorRateTrend === 'improving' ? '↓ 改善中' :
+                       integrationMetrics.connectivity.errorRateTrend === 'degrading' ? '↑ 悪化中' :
+                       '→ 安定'}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Webhook受信統計 */}
+              <Card className="bg-gray-800/50 p-6 border border-gray-700/50 mb-6">
+                <h3 className="text-lg font-bold text-white mb-4">Webhook受信統計（24時間）</h3>
+                <div className="grid md:grid-cols-4 gap-4 mb-4">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">総受信数</p>
+                    <p className="text-3xl font-bold text-white">{integrationMetrics.webhook.received24h}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">署名検証失敗</p>
+                    <p className={`text-3xl font-bold ${integrationMetrics.webhook.signatureFailures > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                      {integrationMetrics.webhook.signatureFailures}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">処理エラー</p>
+                    <p className={`text-3xl font-bold ${integrationMetrics.webhook.processingErrors > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                      {integrationMetrics.webhook.processingErrors}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">重複イベント</p>
+                    <p className="text-3xl font-bold text-yellow-400">{integrationMetrics.webhook.duplicateEvents}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 mt-6">
+                  <h4 className="text-white font-semibold">イベントタイプ別</h4>
+                  {Object.entries(integrationMetrics.webhook.byEventType).map(([eventType, stats]) => (
+                    <div key={eventType} className="p-4 bg-gray-700/30 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-white font-mono text-sm">{eventType}</p>
+                        <span className={`px-2 py-1 rounded text-xs ${
+                          stats.successRate >= 95 ? 'bg-green-500/20 text-green-400' :
+                          stats.successRate >= 80 ? 'bg-yellow-500/20 text-yellow-400' :
+                          'bg-red-500/20 text-red-400'
+                        }`}>
+                          成功率: {stats.successRate.toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-gray-400">受信数</p>
+                          <p className="text-white font-semibold">{stats.count}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400">平均処理時間</p>
+                          <p className="text-white font-semibold">{stats.avgProcessingTime.toFixed(0)}ms</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              {/* データ同期統計 */}
+              <Card className="bg-gray-800/50 p-6 border border-gray-700/50 mb-6">
+                <h3 className="text-lg font-bold text-white mb-4">データ同期統計</h3>
+                <div className="grid md:grid-cols-4 gap-6">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">総職員数</p>
+                    <p className="text-3xl font-bold text-white">{integrationMetrics.dataSync.totalUsers}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">写真保有数</p>
+                    <p className="text-3xl font-bold text-white">{integrationMetrics.dataSync.usersWithPhoto}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">写真同期率</p>
+                    <p className={`text-3xl font-bold ${
+                      integrationMetrics.dataSync.photoSyncRate >= 80 ? 'text-green-400' :
+                      integrationMetrics.dataSync.photoSyncRate >= 50 ? 'text-yellow-400' :
+                      'text-red-400'
+                    }`}>
+                      {integrationMetrics.dataSync.photoSyncRate.toFixed(1)}%
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">24h同期数</p>
+                    <p className="text-3xl font-bold text-white">{integrationMetrics.dataSync.syncedLast24h}</p>
+                  </div>
+                </div>
+              </Card>
+
+              {/* 最近のエラー */}
+              {integrationMetrics.connectivity.recentErrors.length > 0 && (
+                <Card className="bg-gray-800/50 p-6 border border-gray-700/50">
+                  <h3 className="text-lg font-bold text-white mb-4">最近のエラー（最大5件）</h3>
+                  <div className="space-y-2">
+                    {integrationMetrics.connectivity.recentErrors.map((error, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                        <div>
+                          <p className="text-white font-medium">{error.eventType}</p>
+                          <p className="text-sm text-gray-400">{error.errorMessage}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-gray-400">{new Date(error.timestamp).toLocaleString('ja-JP')}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
             </div>
           )}
 

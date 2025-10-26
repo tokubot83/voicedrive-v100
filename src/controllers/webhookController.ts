@@ -95,48 +95,165 @@ export const handleEmployeeWebhook = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  try {
-    const payload = req.body as WebhookPayload<any>;
+  const startTime = Date.now();
+  const payload = req.body as WebhookPayload<any>;
+  const requestId = req.headers['x-request-id'] as string | undefined;
+  const ipAddress = req.ip || req.headers['x-forwarded-for'] as string || 'unknown';
+  const userAgent = req.headers['user-agent'] || 'unknown';
 
+  // 署名検証結果を取得（ミドルウェアで検証済み）
+  const signatureValid = (req as any).webhookSignatureValid !== false;
+
+  let processingStatus: string = 'success';
+  let errorMessage: string | undefined;
+  let errorStack: string | undefined;
+  let userFound = false;
+  let dataChanged = false;
+  let previousValue: any = null;
+  let newValue: any = null;
+
+  try {
     console.log('[Webhook] 受信:', {
       eventType: payload.eventType,
       timestamp: payload.timestamp,
-      staffId: payload.data?.staffId
+      staffId: payload.data?.staffId,
+      requestId
     });
 
+    // 重複チェック
+    let isDuplicate = false;
+    if (requestId) {
+      const existingLog = await prisma.webhookLog.findUnique({
+        where: { requestId }
+      });
+      if (existingLog) {
+        isDuplicate = true;
+        console.warn('[Webhook] 重複イベント検出:', { requestId, eventType: payload.eventType });
+      }
+    }
+
     // イベントタイプに応じた処理
+    let result: {
+      userFound: boolean;
+      dataChanged: boolean;
+      previousValue?: any;
+      newValue?: any;
+    };
+
     switch (payload.eventType) {
       case 'employee.created':
-        await handleEmployeeCreated(payload as WebhookPayload<EmployeeCreatedData>);
+        result = await handleEmployeeCreated(payload as WebhookPayload<EmployeeCreatedData>);
         break;
 
       case 'employee.photo.updated':
-        await handlePhotoUpdated(payload as WebhookPayload<EmployeePhotoUpdatedData>);
+        result = await handlePhotoUpdated(payload as WebhookPayload<EmployeePhotoUpdatedData>);
         break;
 
       case 'employee.photo.deleted':
-        await handlePhotoDeleted(payload as WebhookPayload<EmployeePhotoDeletedData>);
+        result = await handlePhotoDeleted(payload as WebhookPayload<EmployeePhotoDeletedData>);
         break;
 
       default:
         console.error('[Webhook] ERROR: 未知のイベントタイプ:', payload.eventType);
+        processingStatus = 'validation_failed';
+        errorMessage = `イベントタイプ "${payload.eventType}" は未対応です`;
+
+        // ログ記録
+        await logWebhookEvent({
+          eventType: payload.eventType,
+          eventTimestamp: new Date(payload.timestamp),
+          receivedAt: new Date(),
+          requestId,
+          staffId: payload.data?.staffId || 'unknown',
+          payloadSize: JSON.stringify(req.body).length,
+          fullPayload: payload,
+          processingStatus,
+          processingTime: Date.now() - startTime,
+          errorMessage,
+          signatureValid,
+          ipAddress,
+          userAgent,
+          userFound: false,
+          dataChanged: false,
+          isDuplicate,
+          retryCount: 0
+        });
+
         res.status(400).json({
           error: 'Unknown event type',
-          message: `イベントタイプ "${payload.eventType}" は未対応です`
+          message: errorMessage
         });
         return;
     }
+
+    userFound = result.userFound;
+    dataChanged = result.dataChanged;
+    previousValue = result.previousValue;
+    newValue = result.newValue;
+
+    // ログ記録
+    await logWebhookEvent({
+      eventType: payload.eventType,
+      eventTimestamp: new Date(payload.timestamp),
+      receivedAt: new Date(),
+      requestId,
+      staffId: payload.data?.staffId,
+      payloadSize: JSON.stringify(req.body).length,
+      fullPayload: payload,
+      processingStatus,
+      processingTime: Date.now() - startTime,
+      errorMessage,
+      errorStack,
+      signatureValid,
+      ipAddress,
+      userAgent,
+      userFound,
+      dataChanged,
+      previousValue,
+      newValue,
+      isDuplicate,
+      retryCount: 0
+    });
 
     // 成功レスポンス
     res.status(200).json({ success: true });
 
     console.log('[Webhook] 処理成功:', {
       eventType: payload.eventType,
-      staffId: payload.data?.staffId
+      staffId: payload.data?.staffId,
+      processingTime: Date.now() - startTime
     });
 
   } catch (error) {
     console.error('[Webhook] ERROR: 処理中にエラーが発生しました:', error);
+
+    processingStatus = 'failed';
+    errorMessage = error instanceof Error ? error.message : String(error);
+    errorStack = error instanceof Error ? error.stack : undefined;
+
+    // エラーログ記録
+    await logWebhookEvent({
+      eventType: payload.eventType,
+      eventTimestamp: new Date(payload.timestamp),
+      receivedAt: new Date(),
+      requestId,
+      staffId: payload.data?.staffId || 'unknown',
+      payloadSize: JSON.stringify(req.body).length,
+      fullPayload: payload,
+      processingStatus,
+      processingTime: Date.now() - startTime,
+      errorMessage,
+      errorStack,
+      signatureValid,
+      ipAddress,
+      userAgent,
+      userFound,
+      dataChanged,
+      previousValue,
+      newValue,
+      isDuplicate: false,
+      retryCount: 0
+    });
 
     res.status(500).json({
       error: 'Internal server error',
@@ -159,7 +276,12 @@ export const handleEmployeeWebhook = async (
  */
 async function handleEmployeeCreated(
   payload: WebhookPayload<EmployeeCreatedData>
-): Promise<void> {
+): Promise<{
+  userFound: boolean;
+  dataChanged: boolean;
+  previousValue?: any;
+  newValue?: any;
+}> {
   const { data } = payload;
 
   console.log('[Webhook] employee.created 処理開始:', {
@@ -176,11 +298,15 @@ async function handleEmployeeCreated(
 
   if (existingUser) {
     // 既存ユーザーの場合: 写真URLのみ更新
+    const oldPhotoUrl = existingUser.profilePhotoUrl;
+    const dataChanged = oldPhotoUrl !== data.profilePhotoUrl;
+
     console.log('[Webhook] 既存ユーザーの写真URL更新:', {
       userId: existingUser.id,
       staffId: data.staffId,
-      oldPhotoUrl: existingUser.profilePhotoUrl,
-      newPhotoUrl: data.profilePhotoUrl
+      oldPhotoUrl,
+      newPhotoUrl: data.profilePhotoUrl,
+      dataChanged
     });
 
     await prisma.user.update({
@@ -193,6 +319,13 @@ async function handleEmployeeCreated(
     });
 
     console.log('[Webhook] 既存ユーザーの写真URL更新完了');
+
+    return {
+      userFound: true,
+      dataChanged,
+      previousValue: { profilePhotoUrl: oldPhotoUrl },
+      newValue: { profilePhotoUrl: data.profilePhotoUrl }
+    };
   } else {
     // 新規アカウント作成
     console.log('[Webhook] 新規アカウント作成:', {
@@ -221,6 +354,17 @@ async function handleEmployeeCreated(
     });
 
     console.log('[Webhook] 新規アカウント作成完了');
+
+    return {
+      userFound: false,
+      dataChanged: true,
+      previousValue: null,
+      newValue: {
+        employeeId: data.staffId,
+        name: data.fullName,
+        profilePhotoUrl: data.profilePhotoUrl
+      }
+    };
   }
 }
 
@@ -233,7 +377,12 @@ async function handleEmployeeCreated(
  */
 async function handlePhotoUpdated(
   payload: WebhookPayload<EmployeePhotoUpdatedData>
-): Promise<void> {
+): Promise<{
+  userFound: boolean;
+  dataChanged: boolean;
+  previousValue?: any;
+  newValue?: any;
+}> {
   const { data } = payload;
 
   console.log('[Webhook] employee.photo.updated 処理開始:', {
@@ -253,8 +402,14 @@ async function handlePhotoUpdated(
     });
 
     // ユーザーが存在しない場合でもエラーにしない（医療システム側でリトライさせない）
-    return;
+    return {
+      userFound: false,
+      dataChanged: false
+    };
   }
+
+  const oldPhotoUrl = existingUser.profilePhotoUrl;
+  const dataChanged = oldPhotoUrl !== data.profilePhotoUrl;
 
   // 写真URL更新
   await prisma.user.update({
@@ -269,8 +424,16 @@ async function handlePhotoUpdated(
   console.log('[Webhook] employee.photo.updated 処理完了:', {
     userId: existingUser.id,
     staffId: data.staffId,
-    newPhotoUrl: data.profilePhotoUrl
+    newPhotoUrl: data.profilePhotoUrl,
+    dataChanged
   });
+
+  return {
+    userFound: true,
+    dataChanged,
+    previousValue: { profilePhotoUrl: oldPhotoUrl },
+    newValue: { profilePhotoUrl: data.profilePhotoUrl }
+  };
 }
 
 /**
@@ -282,7 +445,12 @@ async function handlePhotoUpdated(
  */
 async function handlePhotoDeleted(
   payload: WebhookPayload<EmployeePhotoDeletedData>
-): Promise<void> {
+): Promise<{
+  userFound: boolean;
+  dataChanged: boolean;
+  previousValue?: any;
+  newValue?: any;
+}> {
   const { data } = payload;
 
   console.log('[Webhook] employee.photo.deleted 処理開始:', {
@@ -301,8 +469,14 @@ async function handlePhotoDeleted(
     });
 
     // ユーザーが存在しない場合でもエラーにしない（医療システム側でリトライさせない）
-    return;
+    return {
+      userFound: false,
+      dataChanged: false
+    };
   }
+
+  const oldPhotoUrl = existingUser.profilePhotoUrl;
+  const dataChanged = oldPhotoUrl !== null;
 
   // 写真URL削除（nullに設定）
   await prisma.user.update({
@@ -316,6 +490,70 @@ async function handlePhotoDeleted(
 
   console.log('[Webhook] employee.photo.deleted 処理完了:', {
     userId: existingUser.id,
-    staffId: data.staffId
+    staffId: data.staffId,
+    dataChanged
   });
+
+  return {
+    userFound: true,
+    dataChanged,
+    previousValue: { profilePhotoUrl: oldPhotoUrl },
+    newValue: { profilePhotoUrl: null }
+  };
+}
+
+/**
+ * WebhookログをWebhookLogテーブルに記録
+ */
+async function logWebhookEvent(params: {
+  eventType: string;
+  eventTimestamp: Date;
+  receivedAt: Date;
+  requestId?: string;
+  staffId: string;
+  payloadSize: number;
+  fullPayload: any;
+  processingStatus: string;
+  processingTime: number;
+  errorMessage?: string;
+  errorStack?: string;
+  signatureValid: boolean;
+  ipAddress: string;
+  userAgent: string;
+  userFound: boolean;
+  dataChanged: boolean;
+  previousValue?: any;
+  newValue?: any;
+  isDuplicate: boolean;
+  retryCount: number;
+}): Promise<void> {
+  try {
+    await prisma.webhookLog.create({
+      data: {
+        eventType: params.eventType,
+        eventTimestamp: params.eventTimestamp,
+        receivedAt: params.receivedAt,
+        requestId: params.requestId,
+        staffId: params.staffId,
+        payloadSize: params.payloadSize,
+        fullPayload: params.fullPayload,
+        processingStatus: params.processingStatus,
+        processingTime: params.processingTime,
+        errorMessage: params.errorMessage,
+        errorStack: params.errorStack,
+        signatureValid: params.signatureValid,
+        ipAddress: params.ipAddress,
+        userAgent: params.userAgent,
+        userFound: params.userFound,
+        dataChanged: params.dataChanged,
+        previousValue: params.previousValue,
+        newValue: params.newValue,
+        isDuplicate: params.isDuplicate,
+        retryCount: params.retryCount
+      }
+    });
+  } catch (error) {
+    console.error('[Webhook] ログ記録エラー:', error);
+    // ログ記録失敗は無視（Webhook処理自体は成功扱い）
+  }
 }

@@ -12,6 +12,7 @@ import consentRoutes from '../api/routes/consent.routes';
 import analyticsRoutes from '../api/routes/analytics.routes';
 import sidebarMenuRoutes from '../api/routes/sidebar-menu.routes';
 import agendaRoutes from './agendaRoutes';
+import projectModeConfigRoutes from './projectModeConfigRoutes';
 import { handleSummaryReceived } from '../api/medicalSystemReceiver';
 import {
   verifyWebhookSignature,
@@ -60,6 +61,15 @@ router.use('/sidebar-menu', sidebarMenuRoutes);
 // Phase 2: Approvals Page - Actionable Notifications API
 console.log('📋 Registering Approvals Notifications API routes at /approvals');
 router.use('/approvals', notificationsApiRouter);
+
+// Phase 2: 医療システム連携監視API
+import integrationRoutes from '../api/routes/integration.routes';
+console.log('🔗 Registering Integration Monitoring API routes at /integration');
+router.use('/integration', authenticateToken, integrationRoutes);
+
+// プロジェクトモード設定API
+console.log('⚙️ Registering Project Mode Config API routes at /project-mode');
+router.use('/project-mode', projectModeConfigRoutes);
 
 // 議題モードAPI（server.tsで直接登録するため、ここではコメントアウト）
 // console.log('📋 Registering Agenda API routes at /api/agenda');
