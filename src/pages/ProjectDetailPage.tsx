@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { ApprovalFlowService } from '../services/ApprovalFlowService';
-import NotificationService from '../services/NotificationService';
+import { ProjectDetailService, ProjectDetail } from '../services/ProjectDetailService';
+import { ProjectTeamService } from '../services/ProjectTeamService';
+import { ProjectApprovalActionService } from '../services/ProjectApprovalActionService';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
@@ -33,46 +34,7 @@ const formatDate = (date: Date, formatStr: string, options?: { locale?: any }): 
   return d.toLocaleDateString('ja-JP');
 };
 
-interface ProjectDetail {
-  id: string;
-  title: string;
-  content: string;
-  category: string;
-  status: 'pending' | 'approved' | 'rejected' | 'in_progress' | 'completed';
-  createdAt: Date;
-  author: {
-    name: string;
-    department: string;
-    avatar?: string;
-  };
-  consensusLevel: number;
-  upvotes: number;
-  downvotes: number;
-  approvalFlow: {
-    currentStep: number;
-    totalSteps: number;
-    steps: Array<{
-      id: string;
-      title: string;
-      approver: string;
-      status: 'pending' | 'approved' | 'rejected';
-      approvedAt?: Date;
-      comments?: string;
-    }>;
-  };
-  selectedMembers: Array<{
-    id: string;
-    name: string;
-    department: string;
-    role: string;
-    status: 'invited' | 'accepted' | 'declined';
-  }>;
-  timeline: {
-    votingDeadline: Date;
-    projectStart?: Date;
-    projectEnd?: Date;
-  };
-}
+// ProjectDetail型はProjectDetailServiceからインポート
 
 export const ProjectDetailPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -92,88 +54,11 @@ export const ProjectDetailPage: React.FC = () => {
   useEffect(() => {
     const loadProjectDetails = async () => {
       if (!projectId) return;
-      
+
       setLoading(true);
       try {
-        // In a real app, this would be an API call
-        // For now, we'll simulate with demo data
-        const demoProject: ProjectDetail = {
-          id: projectId,
-          title: '新しい医療記録管理システムの導入',
-          content: '現在の紙ベースの医療記録管理を完全デジタル化し、業務効率を大幅に改善する提案です。',
-          category: 'システム改善',
-          status: 'pending',
-          createdAt: new Date('2024-01-15'),
-          author: {
-            name: '山田太郎',
-            department: '情報システム部',
-          },
-          consensusLevel: 78,
-          upvotes: 45,
-          downvotes: 12,
-          approvalFlow: {
-            currentStep: 2,
-            totalSteps: 4,
-            steps: [
-              {
-                id: '1',
-                title: '部門長承認',
-                approver: '佐藤部長',
-                status: 'approved',
-                approvedAt: new Date('2024-01-16'),
-                comments: '良い提案です。進めてください。'
-              },
-              {
-                id: '2',
-                title: '施設責任者承認',
-                approver: '田中施設長',
-                status: 'pending'
-              },
-              {
-                id: '3',
-                title: '経営陣承認',
-                approver: '鈴木専務',
-                status: 'pending'
-              },
-              {
-                id: '4',
-                title: '最終承認',
-                approver: '高橋社長',
-                status: 'pending'
-              }
-            ]
-          },
-          selectedMembers: [
-            {
-              id: '1',
-              name: '田中花子',
-              department: '看護部',
-              role: 'プロジェクトリーダー',
-              status: 'accepted'
-            },
-            {
-              id: '2',
-              name: '鈴木一郎',
-              department: 'IT部',
-              role: 'システムエンジニア',
-              status: 'invited'
-            },
-            {
-              id: '3',
-              name: '佐藤美咲',
-              department: '経理部',
-              role: '予算管理',
-              status: 'accepted'
-            }
-          ],
-          timeline: {
-            votingDeadline: new Date('2024-01-25'),
-            projectStart: new Date('2024-02-01'),
-            projectEnd: new Date('2024-06-30')
-          }
-        };
-        
-        setProject(demoProject);
+        const projectDetail = await ProjectDetailService.getProjectDetail(projectId);
+        setProject(projectDetail);
       } catch (error) {
         console.error('Failed to load project details:', error);
       } finally {
@@ -187,21 +72,53 @@ export const ProjectDetailPage: React.FC = () => {
   // Handle approval action
   const handleApprove = async () => {
     if (!project || !user) return;
-    
+
+    const comments = window.prompt('承認コメントを入力してください（任意）:');
+    if (comments === null) return; // User cancelled
+
     setActionLoading(true);
     try {
-      await ApprovalFlowService.approveStep(project.id, user.id);
-      await NotificationService.sendNotification({
-        type: 'approval_update',
-        recipientId: project.author.name,
-        message: `${user.name}があなたのプロジェクトを承認しました`,
-        projectId: project.id
-      });
-      
+      await ProjectApprovalActionService.approveProject(
+        project.id,
+        user.id,
+        comments || undefined
+      );
+
+      alert('プロジェクトを承認しました');
       // Reload project details
       window.location.reload();
     } catch (error) {
       console.error('Failed to approve:', error);
+      alert('承認処理に失敗しました');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Handle rejection action
+  const handleReject = async () => {
+    if (!project || !user) return;
+
+    const reason = window.prompt('却下理由を入力してください:');
+    if (!reason) {
+      alert('却下理由は必須です');
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      await ProjectApprovalActionService.rejectProject(
+        project.id,
+        user.id,
+        reason
+      );
+
+      alert('プロジェクトを却下しました');
+      // Reload project details
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to reject:', error);
+      alert('却下処理に失敗しました');
     } finally {
       setActionLoading(false);
     }
@@ -210,17 +127,11 @@ export const ProjectDetailPage: React.FC = () => {
   // Handle member participation
   const handleJoinProject = async () => {
     if (!project || !user) return;
-    
+
     setActionLoading(true);
     try {
-      // Update member status
-      await NotificationService.sendNotification({
-        type: 'member_joined',
-        recipientId: project.author.name,
-        message: `${user.name}がプロジェクトに参加しました`,
-        projectId: project.id
-      });
-      
+      await ProjectTeamService.joinProject(project.id, user.id);
+
       // Reload project details
       window.location.reload();
     } catch (error) {
@@ -318,13 +229,22 @@ export const ProjectDetailPage: React.FC = () => {
           {/* Action Buttons */}
           <div className="flex gap-3">
             {canApprove() && (
-              <Button
-                onClick={handleApprove}
-                disabled={actionLoading}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                {actionLoading ? '処理中...' : '承認する'}
-              </Button>
+              <>
+                <Button
+                  onClick={handleApprove}
+                  disabled={actionLoading}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  {actionLoading ? '処理中...' : '承認する'}
+                </Button>
+                <Button
+                  onClick={handleReject}
+                  disabled={actionLoading}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {actionLoading ? '処理中...' : '却下する'}
+                </Button>
+              </>
             )}
             {canJoin() && (
               <Button

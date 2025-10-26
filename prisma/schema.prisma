@@ -330,6 +330,7 @@ model Project {
   updatedAt             DateTime  @updatedAt
   startedAt             DateTime?
   completedAt           DateTime?
+  votingDeadline        DateTime? @map("voting_deadline")
   convertedToPostId     String?   @unique @map("converted_to_post_id")
   conversionDate        DateTime? @map("conversion_date")
 
@@ -540,7 +541,8 @@ model WebhookNotification {
 model VoteHistory {
   id           String   @id @default(cuid())
   userId       String
-  postId       String
+  postId       String?
+  projectId    String?
   voteOption   String
   voteWeight   Float    @default(1.0)
   votedAt      DateTime @default(now())
@@ -551,8 +553,10 @@ model VoteHistory {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId])
+  @@unique([userId, projectId])
   @@index([userId])
   @@index([postId])
+  @@index([projectId])
   @@index([votedAt])
 }
 
@@ -584,11 +588,23 @@ model ProjectSummary {
   activeParticipants    Int      @default(0) @map("active_participants")
   ownerCount            Int      @default(0) @map("owner_count")
   memberCount           Int      @default(0) @map("member_count")
+
+  // Phase 2: 投票統計
+  totalVotes            Int      @default(0) @map("total_votes")
+  upvotes               Int      @default(0) @map("upvotes")
+  downvotes             Int      @default(0) @map("downvotes")
+  consensusLevel        Float    @default(0) @map("consensus_level")
+
+  // Phase 2: 承認統計
+  totalApprovalSteps    Int      @default(0) @map("total_approval_steps")
+  currentApprovalStep   Int      @default(0) @map("current_approval_step")
+
   lastCalculatedAt      DateTime @default(now()) @map("last_calculated_at")
   updatedAt             DateTime @updatedAt @map("updated_at")
   project               Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([totalParticipants])
+  @@index([consensusLevel])
   @@index([projectId])
   @@map("project_summaries")
 }
