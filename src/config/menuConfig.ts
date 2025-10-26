@@ -41,14 +41,6 @@ export const MENU_STRUCTURE: MenuStructure = {
       requiredLevel: 4,
       category: 'management'
     },
-    budget: {
-      id: 'budget_management',
-      label: '予算管理',
-      icon: '💰',
-      path: '/budget',
-      requiredLevel: 4,
-      category: 'management'
-    },
     users: {
       id: 'user_management',
       label: 'ユーザー管理',

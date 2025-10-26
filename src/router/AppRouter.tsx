@@ -14,9 +14,7 @@ import EnhancedProjectListPage from '../pages/EnhancedProjectListPage';
 import { ProjectDetailPage } from '../pages/ProjectDetailPage';
 import { PersonalStationPage } from '../pages/PersonalStationPage';
 import { DepartmentStationPage } from '../pages/DepartmentStationPage';
-import BudgetPage from '../pages/BudgetPage';
 import StrategicOverviewPage from '../pages/StrategicOverviewPage';
-import BudgetPlanningPage from '../pages/BudgetPlanningPage';
 import ExecutiveReportsPage from '../pages/ExecutiveReportsPage';
 import StrategicInitiativesPage from '../pages/StrategicInitiativesPage';
 import OrganizationAnalyticsPage from '../pages/OrganizationAnalyticsPage';
@@ -172,13 +170,6 @@ const AppRouter: React.FC = () => {
           } />
         </Route>
         
-        {/* Budget control (Level 4+) */}
-        <Route path="budget" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_4}>
-            <BudgetPage />
-          </ProtectedRoute>
-        } />
-        
         {/* Medical API Test Panel (開発環境のみ) */}
         {import.meta.env.DEV && (
           <>
@@ -271,14 +262,7 @@ const AppRouter: React.FC = () => {
             <StrategicOverviewPage />
           </ProtectedRoute>
         } />
-        
-        {/* Budget Planning (Level 7+) */}
-        <Route path="budget-planning" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
-            <BudgetPlanningPage />
-          </ProtectedRoute>
-        } />
-        
+
         {/* Strategic HR Plan (Level 16+) */}
         <Route path="strategic-hr-plan" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_16}>
