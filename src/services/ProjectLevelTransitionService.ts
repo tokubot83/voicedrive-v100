@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { getProjectLevelFromScore } from './ProjectizationService';
-
-const prisma = new PrismaClient();
 
 /**
  * プロジェクトレベル遷移サービス
@@ -187,7 +185,7 @@ export async function getDaysToReachEachLevel(postId: string): Promise<Record<st
 
   const daysToReach: Record<string, number> = {};
 
-  transitions.forEach(transition => {
+  transitions.forEach((transition: any) => {
     const daysSinceCreation = Math.floor(
       (transition.upgradedAt.getTime() - post.createdAt.getTime()) / (1000 * 60 * 60 * 24)
     );
@@ -270,7 +268,7 @@ export async function getUserLevelUpStats(userId: string) {
     select: { id: true }
   });
 
-  const postIds = posts.map(p => p.id);
+  const postIds = posts.map((p: { id: string }) => p.id);
 
   const transitions = await prisma.projectLevelHistory.findMany({
     where: { postId: { in: postIds } },
@@ -279,7 +277,7 @@ export async function getUserLevelUpStats(userId: string) {
 
   const levelCounts: Record<string, number> = {};
 
-  transitions.forEach(transition => {
+  transitions.forEach((transition: any) => {
     const level = transition.toLevel;
     levelCounts[level] = (levelCounts[level] || 0) + 1;
   });

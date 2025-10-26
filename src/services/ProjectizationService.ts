@@ -1,7 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-import { projectPermissionService } from './ProjectPermissionService';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 /**
  * プロジェクト化サービス
@@ -192,7 +189,7 @@ export async function getUserProjectizedCount(userId: string): Promise<number> {
     select: { id: true }
   });
 
-  const postIds = posts.map(p => p.id);
+  const postIds = posts.map((p: { id: string }) => p.id);
 
   return await prisma.projectizedHistory.count({
     where: {
