@@ -56,8 +56,6 @@ const Layout: React.FC = () => {
     '/board-decision-follow',
     '/organization-analytics',
     '/talent-analytics',
-    '/budget',
-    '/budget-planning',
     '/org-development',
     '/admin',
     // ステーション系ページ

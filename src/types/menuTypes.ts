@@ -27,7 +27,6 @@ export interface StationMenu {
 export interface ManagementMenu {
   authority_basic: MenuItem;  // 権限管理（基本）（レベル2〜）
   section: MenuItem;       // 部署管理（レベル4〜）
-  budget: MenuItem;        // 予算管理（レベル4〜）
   users: MenuItem;         // ユーザー管理（レベル5〜）
   audit_logs: MenuItem;    // 監査ログ（レベル5〜）
   system_settings: MenuItem; // システム設定（レベル6〜）
@@ -45,9 +44,7 @@ export interface StrategicHRMenu {
 export interface FacilityMenu {
   own_facility: MenuItem;  // 所属施設管理（レベル5〜）
   own_strategy: MenuItem;  // 所属施設戦略概要（レベル5〜）
-  own_budget: MenuItem;    // 所属施設予算計画（レベル5〜）
   all_strategy: MenuItem; // 全施設戦略概要（レベル10〜）
-  all_budget: MenuItem;   // 全施設予算計画（レベル10〜）
 }
 
 export interface AnalyticsMenu {
