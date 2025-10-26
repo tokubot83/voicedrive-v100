@@ -32,7 +32,8 @@
     "db:seed": "npx tsx prisma/seed.ts",
     "seed:integration-test": "npx tsx scripts/seed-integration-test-data.ts",
     "generate:icons": "node scripts/generate-icons.js",
-    "generate:jwt": "tsx scripts/generate-test-jwt.ts"
+    "generate:jwt": "tsx scripts/generate-test-jwt.ts",
+    "test:posts-api": "tsx scripts/test-posts-api.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed/index.ts"

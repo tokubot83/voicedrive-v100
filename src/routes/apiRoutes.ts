@@ -89,6 +89,9 @@ router.use('/whistleblowing', whistleblowingRoutes);
 console.log('🔔 Registering Whistleblowing Webhook routes at /webhooks/medical-system/whistleblowing');
 router.use('/webhooks/medical-system/whistleblowing', whistleblowingWebhookRoutes);
 
+// Phase 2.x: 投稿作成API
+import { prisma } from '../lib/prisma';
+
 // 議題モードAPI（server.tsで直接登録するため、ここではコメントアウト）
 // console.log('📋 Registering Agenda API routes at /api/agenda');
 // console.log('   AgendaRoutes type:', typeof agendaRoutes);
@@ -278,6 +281,194 @@ router.get('/compliance/acknowledgements/:reportId',
       success: true,
       data: result.data,
     });
+  }
+);
+
+// ====================
+// 投稿作成API（Phase 2.x）
+// ====================
+
+/**
+ * POST /api/posts - 投稿作成
+ * 3種類の投稿タイプに対応: improvement, community, report
+ */
+router.post('/posts',
+  standardRateLimit,
+  async (req, res) => {
+    try {
+      const {
+        type,
+        content,
+        anonymityLevel,
+        proposalType,
+        priority,
+        freespaceCategory,
+        freespaceScope,
+        expirationDate,
+        pollData,
+        eventData,
+        season,
+        moderationScore
+      } = req.body;
+
+      // バリデーション: 必須フィールド
+      if (!type || !content || !anonymityLevel) {
+        return res.status(400).json({
+          success: false,
+          message: '必須フィールドが不足しています（type, content, anonymityLevel）'
+        });
+      }
+
+      // バリデーション: 投稿タイプ
+      const validTypes = ['improvement', 'community', 'report'];
+      if (!validTypes.includes(type)) {
+        return res.status(400).json({
+          success: false,
+          message: '不正な投稿タイプです'
+        });
+      }
+
+      // バリデーション: コンテンツ長
+      if (content.length < 10) {
+        return res.status(400).json({
+          success: false,
+          message: '投稿内容は10文字以上である必要があります'
+        });
+      }
+
+      if (content.length > 500) {
+        return res.status(400).json({
+          success: false,
+          message: '投稿内容は500文字以内である必要があります'
+        });
+      }
+
+      // TODO: JWT認証からauthorIdを取得（現在はデモユーザー）
+      // デモ用に既存のユーザーIDを使用
+      const authorId = 'cmfs8u4hx0000s5qs2dv42m45';
+
+      // トランザクション開始
+      const result = await prisma.$transaction(async (tx) => {
+        // Post作成
+        const post = await tx.post.create({
+          data: {
+            type,
+            content,
+            authorId,
+            anonymityLevel,
+            proposalType: type === 'improvement' ? proposalType : null,
+            priority: (type === 'improvement' || type === 'report') ? (priority || 'medium') : null,
+            freespaceCategory: type === 'community' ? freespaceCategory : null,
+            freespaceScope: type === 'community' ? freespaceScope : null,
+            expirationDate: expirationDate ? new Date(expirationDate) : null,
+            season: season || null,
+            moderationScore: moderationScore || null,
+            status: 'active',
+            moderationStatus: 'pending'
+          }
+        });
+
+        // Poll作成（community専用）
+        if (pollData && type === 'community') {
+          const poll = await tx.poll.create({
+            data: {
+              postId: post.id,
+              question: pollData.question,
+              description: pollData.description || null,
+              deadline: new Date(pollData.deadline),
+              allowMultiple: pollData.allowMultiple || false,
+              showResults: pollData.showResults || 'after_voting',
+              category: pollData.category || freespaceCategory || 'general',
+              scope: pollData.scope || freespaceScope || 'SAME_DEPARTMENT',
+              createdById: authorId
+            }
+          });
+
+          // PollOption作成
+          if (pollData.options && Array.isArray(pollData.options)) {
+            await Promise.all(
+              pollData.options.map((option: any, index: number) =>
+                tx.pollOption.create({
+                  data: {
+                    pollId: poll.id,
+                    text: option.text,
+                    emoji: option.emoji || null,
+                    sortOrder: index
+                  }
+                })
+              )
+            );
+          }
+        }
+
+        // Event作成（community専用）
+        if (eventData && type === 'community') {
+          const event = await tx.event.create({
+            data: {
+              postId: post.id,
+              title: eventData.title,
+              description: eventData.description,
+              type: eventData.type || 'social',
+              organizerId: authorId,
+              maxParticipants: eventData.maxParticipants || null,
+              venueName: eventData.venueName || null,
+              venueAddress: eventData.venueAddress || null,
+              cost: eventData.cost || null,
+              requirements: eventData.requirements || null,
+              visibility: eventData.visibility || freespaceScope || 'SAME_DEPARTMENT',
+              allowDateVoting: eventData.allowDateVoting !== false,
+              allowComments: eventData.allowComments !== false,
+              sendReminders: eventData.sendReminders !== false,
+              tags: eventData.tags || null
+            }
+          });
+
+          // ProposedDate作成
+          if (eventData.proposedDates && Array.isArray(eventData.proposedDates)) {
+            await Promise.all(
+              eventData.proposedDates.map((pd: any) =>
+                tx.proposedDate.create({
+                  data: {
+                    eventId: event.id,
+                    date: new Date(pd.date),
+                    startTime: pd.startTime,
+                    endTime: pd.endTime
+                  }
+                })
+              )
+            );
+          }
+        }
+
+        return post;
+      });
+
+      console.log('[POST /api/posts] 投稿作成成功:', {
+        id: result.id,
+        type: result.type,
+        authorId: result.authorId
+      });
+
+      res.status(201).json({
+        success: true,
+        data: result,
+        message: '投稿が正常に作成されました'
+      });
+    } catch (error) {
+      console.error('[POST /api/posts] 投稿作成エラー:', error);
+
+      // Prismaエラーの詳細をログ出力
+      if (error && typeof error === 'object' && 'code' in error) {
+        console.error('[POST /api/posts] Prisma Error Code:', (error as any).code);
+        console.error('[POST /api/posts] Prisma Error Meta:', (error as any).meta);
+      }
+
+      res.status(500).json({
+        success: false,
+        message: error instanceof Error ? error.message : '投稿の作成中にエラーが発生しました',
+        debug: process.env.NODE_ENV === 'development' ? error : undefined
+      });
+    }
   }
 );
 
