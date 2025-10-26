@@ -71,6 +71,8 @@ model User {
   alertsAcknowledged            PostReportAlert[]               @relation("AlertAcknowledger")
   projects                      Project[]
   surveys                       Survey[]
+  escalatedProjects             Project[]                       @relation("ProjectEscalator")
+  approvingProjects             Project[]                       @relation("ProjectCurrentApprover")
   parent                        User?                           @relation("UserHierarchy", fields: [parentId], references: [id])
   children                      User[]                          @relation("UserHierarchy")
   activitySummary               UserActivitySummary?
@@ -338,10 +340,28 @@ model Project {
   implementedAt         DateTime? @map("implemented_at")
   roiScore              Float?    @map("roi_score")
 
+  // ProjectListPage Phase 2: 緊急エスカレーション・承認・施設情報
+  isEmergencyEscalated  Boolean   @default(false) @map("is_emergency_escalated")
+  escalatedBy           String?   @map("escalated_by")
+  escalatedDate         DateTime? @map("escalated_date")
+  escalationReason      String?   @map("escalation_reason")
+  projectLevel          String?   @map("project_level")
+  approvalStatus        String    @default("pending") @map("approval_status")
+  currentApprover       String?   @map("current_approver")
+  facilityId            String?   @map("facility_id")
+  facilityName          String?   @map("facility_name")
+
   convertedPost         Post?     @relation("ConvertedFromProject", fields: [convertedToPostId], references: [id])
   proposer              User      @relation(fields: [proposerId], references: [id])
+  escalator             User?     @relation("ProjectEscalator", fields: [escalatedBy], references: [id])
+  approver              User?     @relation("ProjectCurrentApprover", fields: [currentApprover], references: [id])
+  summary               ProjectSummary?
 
   @@index([implementationStatus])
+  @@index([isEmergencyEscalated])
+  @@index([projectLevel])
+  @@index([approvalStatus])
+  @@index([facilityId])
 }
 
 model Feedback {
@@ -557,6 +577,22 @@ model UserActivitySummary {
   @@index([impactScore])
 }
 
+model ProjectSummary {
+  id                    String   @id @default(cuid())
+  projectId             String   @unique @map("project_id")
+  totalParticipants     Int      @default(0) @map("total_participants")
+  activeParticipants    Int      @default(0) @map("active_participants")
+  ownerCount            Int      @default(0) @map("owner_count")
+  memberCount           Int      @default(0) @map("member_count")
+  lastCalculatedAt      DateTime @default(now()) @map("last_calculated_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  project               Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([totalParticipants])
+  @@index([projectId])
+  @@map("project_summaries")
+}
+
 model Post {
   id                           String                      @id @default(cuid())
   type                         String
@@ -631,6 +667,7 @@ model Post {
   approvals                    ProjectApproval[]           @relation("PostApprovals")
   diversityAnalysis            ProjectDiversityAnalysis?
   projectLevelHistory          ProjectLevelHistory[]       @relation("PostProjectLevelHistory")
+  projectizedHistory           ProjectizedHistory[]        @relation("PostProjectizedHistory")
   milestones                   ProjectMilestone[]          @relation("ProjectMilestones")
   recommendationLogs           ProjectRecommendationLog[]
   teamMembers                  ProjectTeamMember[]         @relation("ProjectTeamMembers")
@@ -1762,6 +1799,46 @@ model ProjectLevelHistory {
   @@index([upgradedAt])
   @@index([triggeredBy])
   @@map("project_level_history")
+}
+
+/// プロジェクト化達成履歴テーブル
+/// IdeaVoiceTrackingPage用: 投稿がプロジェクト化閾値（スコア100）に到達した記録
+model ProjectizedHistory {
+  id                String    @id @default(cuid())
+  postId            String    @map("post_id")
+
+  // プロジェクト化情報
+  projectizedAt     DateTime  @default(now()) @map("projectized_at")
+  projectizedScore  Int       @map("projectized_score")
+  // プロジェクト化達成時のスコア（通常100以上）
+
+  projectLevel      String    @map("project_level")
+  // TEAM, DEPARTMENT, FACILITY, ORGANIZATION, STRATEGIC
+
+  // スコア遷移記録
+  previousScore     Int?      @map("previous_score")
+  scoreIncrement    Int?      @map("score_increment")
+
+  // 達成要因分析
+  triggerVoteId     String?   @map("trigger_vote_id")
+  // プロジェクト化を達成させた投票のID
+
+  // 通知管理
+  notifiedAt        DateTime? @map("notified_at")
+  isNotified        Boolean   @default(false) @map("is_notified")
+
+  // メタデータ
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  post              Post      @relation("PostProjectizedHistory", fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([projectizedAt])
+  @@index([projectLevel])
+  @@index([isNotified])
+  @@map("projectized_history")
 }
 
 model ProjectMilestone {
