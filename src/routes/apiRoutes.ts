@@ -13,6 +13,8 @@ import analyticsRoutes from '../api/routes/analytics.routes';
 import sidebarMenuRoutes from '../api/routes/sidebar-menu.routes';
 import agendaRoutes from './agendaRoutes';
 import projectModeConfigRoutes from './projectModeConfigRoutes';
+import notificationSettingsRoutes from './notificationSettingsRoutes';
+import dataConsentRoutes from './dataConsentRoutes';
 import { handleSummaryReceived } from '../api/medicalSystemReceiver';
 import {
   verifyWebhookSignature,
@@ -70,6 +72,22 @@ router.use('/integration', authenticateToken, integrationRoutes);
 // プロジェクトモード設定API
 console.log('⚙️ Registering Project Mode Config API routes at /project-mode');
 router.use('/project-mode', projectModeConfigRoutes);
+
+// Phase 2: 通知設定API
+console.log('🔔 Registering Notification Settings API routes at /users/:userId/notification-settings');
+router.use('/', notificationSettingsRoutes);
+
+// Phase 2: データ分析同意API
+console.log('🛡️ Registering Data Consent API routes at /users/:userId/consent');
+router.use('/', dataConsentRoutes);
+
+// Phase 2: コンプライアンス通報API
+import whistleblowingRoutes from './whistleblowingRoutes';
+import whistleblowingWebhookRoutes from './whistleblowingWebhookRoutes';
+console.log('🚨 Registering Whistleblowing API routes at /whistleblowing');
+router.use('/whistleblowing', whistleblowingRoutes);
+console.log('🔔 Registering Whistleblowing Webhook routes at /webhooks/medical-system/whistleblowing');
+router.use('/webhooks/medical-system/whistleblowing', whistleblowingWebhookRoutes);
 
 // 議題モードAPI（server.tsで直接登録するため、ここではコメントアウト）
 // console.log('📋 Registering Agenda API routes at /api/agenda');

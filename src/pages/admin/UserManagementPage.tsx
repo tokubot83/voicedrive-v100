@@ -199,20 +199,25 @@ export const UserManagementPage: React.FC = () => {
     setSyncMessage(`ユーザー ${userId} を同期中...`);
 
     try {
-      // TODO: 実際の実装では、医療システムAPIを呼び出し
-      // const response = await fetch(`/api/medical-system/employees/${userId}`);
-      // const medicalData = await response.json();
+      const response = await fetch(`http://localhost:3003/api/users/sync/${userId}`);
 
-      // デモ: 同期成功をシミュレート
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!response.ok) {
+        throw new Error('同期APIエラー');
+      }
 
-      setUsers(prev => prev.map(u =>
-        u.id === userId
-          ? { ...u, syncStatus: 'synced', lastSyncedAt: new Date(), syncErrorMessage: undefined }
-          : u
-      ));
+      const data = await response.json();
 
-      setSyncMessage('同期が完了しました');
+      if (data.success) {
+        setUsers(prev => prev.map(u =>
+          u.id === userId
+            ? { ...u, syncStatus: 'synced', lastSyncedAt: new Date(), syncErrorMessage: undefined }
+            : u
+        ));
+        setSyncMessage('同期が完了しました');
+      } else {
+        throw new Error(data.error || '同期失敗');
+      }
+
       setTimeout(() => setSyncMessage(''), 3000);
     } catch (error) {
       setUsers(prev => prev.map(u =>
@@ -233,24 +238,33 @@ export const UserManagementPage: React.FC = () => {
     setSyncMessage('全ユーザーを同期中...');
 
     try {
-      // TODO: 実際の実装では、医療システムAPIを呼び出し
-      // const response = await fetch('/api/medical-system/employees');
-      // const allEmployees = await response.json();
+      const response = await fetch('http://localhost:3003/api/users/sync/all', {
+        method: 'POST'
+      });
 
-      // デモ: 一括同期成功をシミュレート
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      if (!response.ok) {
+        throw new Error('一括同期APIエラー');
+      }
 
-      setUsers(prev => prev.map(u => ({
-        ...u,
-        syncStatus: 'synced',
-        lastSyncedAt: new Date(),
-        syncErrorMessage: undefined
-      })));
+      const data = await response.json();
 
-      setSyncMessage(`${users.length}名のユーザーを同期しました`);
-      setTimeout(() => setSyncMessage(''), 3000);
+      if (data.success) {
+        // 成功したユーザーのみ更新
+        setUsers(prev => prev.map(u => ({
+          ...u,
+          syncStatus: 'synced',
+          lastSyncedAt: new Date(),
+          syncErrorMessage: undefined
+        })));
+
+        setSyncMessage(`${data.succeeded}名のユーザーを同期しました（失敗: ${data.failed}名、スキップ: ${data.skipped}名）`);
+      } else {
+        throw new Error(data.error || '一括同期失敗');
+      }
+
+      setTimeout(() => setSyncMessage(''), 5000);
     } catch (error) {
-      setSyncMessage('一括同期に失敗しました');
+      setSyncMessage('一括同期に失敗しました: ' + (error as Error).message);
       setTimeout(() => setSyncMessage(''), 3000);
     } finally {
       setIsSyncing(false);

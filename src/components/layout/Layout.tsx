@@ -58,7 +58,6 @@ const Layout: React.FC = () => {
     '/talent-analytics',
     '/budget',
     '/budget-planning',
-    '/facility-management',
     '/org-development',
     '/admin',
     // ステーション系ページ

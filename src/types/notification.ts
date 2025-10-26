@@ -46,6 +46,18 @@ export interface UserNotificationSettings {
   // デバイス設定
   deviceTokens?: string[];
 
+  // Phase 2: 通知方法の設定
+  enableEmailNotifications?: boolean;
+  enablePushNotifications?: boolean;
+  enableSmsNotifications?: boolean;
+
+  // Phase 2: リマインダー設定
+  reminderDaysBefore?: number;
+  enableDeadlineReminder?: boolean;
+
+  // Phase 2: その他の設定
+  autoMarkAsRead?: boolean;
+
   updatedAt: Date;
 }
 

@@ -15,7 +15,6 @@ import { ProjectDetailPage } from '../pages/ProjectDetailPage';
 import { PersonalStationPage } from '../pages/PersonalStationPage';
 import { DepartmentStationPage } from '../pages/DepartmentStationPage';
 import BudgetPage from '../pages/BudgetPage';
-import FacilityManagementPage from '../pages/FacilityManagementPage';
 import StrategicOverviewPage from '../pages/StrategicOverviewPage';
 import BudgetPlanningPage from '../pages/BudgetPlanningPage';
 import ExecutiveReportsPage from '../pages/ExecutiveReportsPage';
@@ -266,13 +265,6 @@ const AppRouter: React.FC = () => {
           </ProtectedRoute>
         } />
 
-        {/* Facility Management (Level 7+) */}
-        <Route path="facility-management" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
-            <FacilityManagementPage />
-          </ProtectedRoute>
-        } />
-        
         {/* Strategic Overview (Level 7+) */}
         <Route path="strategic-overview" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>

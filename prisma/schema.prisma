@@ -112,6 +112,7 @@ model User {
   votingGroupsAsPrimaryApprover VotingGroup[]                   @relation("VotingGroupPrimaryApprover")
   settingReverts                VotingSettingChangeLog[]        @relation("SettingRevertUser")
   settingChanges                VotingSettingChangeLog[]        @relation("SettingChangeUser")
+  whistleblowingReports         WhistleblowingReport[]          @relation("WhistleblowingReports")
 
   // Phase 2.6: UserManagementPage同期管理フィールド
   syncStatus                    SyncStatus                      @default(never_synced) @map("sync_status")
@@ -2821,4 +2822,72 @@ model WebhookLog {
   @@index([processingStatus, receivedAt])
   @@index([requestId])
   @@map("webhook_logs")
+}
+
+// Phase 2: MyReportsPage - コンプライアンス通報管理
+model WhistleblowingReport {
+  id                      String   @id @default(cuid())
+  userId                  String?  // 匿名通報の場合null
+  anonymousId             String   // ANON-XXXXXX形式
+  category                String   // harassment, safety, financial, compliance, discrimination, other
+  severity                String   @default("medium") // low, medium, high, critical
+  title                   String
+  content                 String
+  evidenceFiles           Json?    // 証拠ファイルURL配列
+  submittedAt             DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  status                  String   @default("received") // received, triaging, investigating, escalated, resolved, closed
+  assignedInvestigators   Json?    // 調査員役割の配列
+  escalationReason        String?
+  resolutionSummary       String?
+  followUpRequired        Boolean  @default(false)
+  isAnonymous             Boolean  @default(true)
+  priority                Int      @default(5) // 1-10
+
+  // 医療システム連携
+  medicalSystemCaseNumber String?
+  acknowledgementReceived Boolean  @default(false)
+  acknowledgementDate     DateTime?
+  estimatedResponseTime   String?
+
+  // 連絡先情報
+  contactMethod           String?  // email, phone, none
+  contactInfo             String?  // 暗号化保存推奨
+  expectedOutcome         String?
+
+  createdAt               DateTime @default(now())
+
+  // リレーション
+  user                    User?              @relation("WhistleblowingReports", fields: [userId], references: [id])
+  investigationNotes      InvestigationNote[] @relation("ReportInvestigationNotes")
+
+  @@index([userId])
+  @@index([anonymousId])
+  @@index([category])
+  @@index([status])
+  @@index([severity])
+  @@index([medicalSystemCaseNumber])
+  @@index([submittedAt])
+  @@index([createdAt])
+  @@map("whistleblowing_reports")
+}
+
+// Phase 2: MyReportsPage - 調査ノート（機密情報）
+model InvestigationNote {
+  id             String   @id @default(cuid())
+  reportId       String
+  authorRole     String   // hr_specialist, legal_counsel, safety_officer, external_expert, management
+  authorName     String
+  content        String
+  isConfidential Boolean  @default(true)
+  actionItems    Json?    // アクションアイテム配列
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // リレーション
+  report WhistleblowingReport @relation("ReportInvestigationNotes", fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+  @@index([createdAt])
+  @@map("investigation_notes")
 }

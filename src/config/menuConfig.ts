@@ -133,14 +133,6 @@ export const MENU_STRUCTURE: MenuStructure = {
       requiredLevel: 5,
       category: 'facility'
     },
-    all_facility: {
-      id: 'all_facility_management',
-      label: '全施設管理',
-      icon: '🏢',
-      path: '/facility-management',
-      requiredLevel: 10,
-      category: 'facility'
-    },
     all_strategy: {
       id: 'all_facility_strategy',
       label: '全施設戦略概要',
@@ -377,7 +369,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development'],
-    facility: ['all_facility'],
+    facility: [],
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession'],
     executive: []
   },
@@ -386,7 +378,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development'],
-    facility: ['all_facility', 'all_strategy'],
+    facility: ['all_strategy'],
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
     executive: ['overview', 'organization_analytics']
   },
@@ -395,7 +387,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'retirement'],
-    facility: ['all_facility', 'all_strategy', 'all_budget'],
+    facility: ['all_strategy', 'all_budget'],
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
     executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports']
   },
@@ -404,7 +396,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'retirement'],
-    facility: ['all_facility', 'all_strategy', 'all_budget'],
+    facility: ['all_strategy', 'all_budget'],
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
     executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance']
   },
@@ -413,7 +405,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     management: ['authority_basic', 'department', 'section', 'budget', 'users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'retirement'],
-    facility: ['all_facility', 'all_strategy', 'all_budget', 'own_facility', 'own_strategy', 'own_budget'],
+    facility: ['all_strategy', 'all_budget', 'own_facility', 'own_strategy', 'own_budget'],
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report', 'dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
     executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance']
   }

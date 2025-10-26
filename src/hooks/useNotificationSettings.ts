@@ -7,8 +7,6 @@ import {
   NotificationPriority
 } from '../types/notification';
 
-const STORAGE_KEY = 'voicedrive_notification_settings';
-
 // デフォルト設定
 const defaultSettings: UserNotificationSettings = {
   userId: '',
@@ -24,27 +22,35 @@ export const useNotificationSettings = (userId: string) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // ローカルストレージから設定を読み込み
+  // Phase 2: APIから設定を読み込み
   useEffect(() => {
-    const loadSettings = () => {
+    const loadSettings = async () => {
+      if (!userId) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          setSettings({
-            ...parsed,
-            updatedAt: new Date(parsed.updatedAt)
-          });
-        } else {
-          // 初回は推奨設定を適用
-          setSettings({
-            ...defaultSettings,
-            userId,
-            categories: NOTIFICATION_PRESETS.recommended.categories
-          });
+        const response = await fetch(`/api/users/${userId}/notification-settings`);
+
+        if (!response.ok) {
+          throw new Error('設定の取得に失敗しました');
         }
+
+        const data = await response.json();
+        setSettings({
+          ...data,
+          updatedAt: new Date(data.updatedAt),
+          permission: Notification.permission || 'default'
+        });
       } catch (error) {
         console.error('設定の読み込みに失敗:', error);
+        // エラー時はデフォルト設定を使用
+        setSettings({
+          ...defaultSettings,
+          userId,
+          categories: NOTIFICATION_PRESETS.recommended.categories
+        });
       } finally {
         setIsLoading(false);
       }
@@ -63,21 +69,49 @@ export const useNotificationSettings = (userId: string) => {
     }
   }, []);
 
-  // 設定の保存
-  const saveSettings = useCallback(() => {
+  // Phase 2: APIで設定を保存
+  const saveSettings = useCallback(async () => {
+    if (!userId) return false;
+
     try {
-      const toSave = {
-        ...settings,
-        updatedAt: new Date()
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      const response = await fetch(`/api/users/${userId}/notification-settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          globalEnabled: settings.globalEnabled,
+          quickSetting: settings.quickSetting,
+          categories: settings.categories,
+          enableEmailNotifications: settings.enableEmailNotifications,
+          enablePushNotifications: settings.enablePushNotifications,
+          enableSmsNotifications: settings.enableSmsNotifications,
+          reminderDaysBefore: settings.reminderDaysBefore,
+          enableDeadlineReminder: settings.enableDeadlineReminder,
+          autoMarkAsRead: settings.autoMarkAsRead,
+          quietHoursStart: settings.quietHours?.startTime,
+          quietHoursEnd: settings.quietHours?.endTime,
+          enableQuietHours: settings.quietHours?.enabled ?? false
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('設定の保存に失敗しました');
+      }
+
+      const savedData = await response.json();
+      setSettings({
+        ...savedData,
+        updatedAt: new Date(savedData.updatedAt),
+        permission: settings.permission
+      });
       setHasUnsavedChanges(false);
       return true;
     } catch (error) {
       console.error('設定の保存に失敗:', error);
       return false;
     }
-  }, [settings]);
+  }, [settings, userId]);
 
   // グローバル設定の切り替え
   const toggleGlobalEnabled = useCallback(() => {

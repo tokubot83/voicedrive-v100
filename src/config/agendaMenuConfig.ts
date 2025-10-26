@@ -77,19 +77,6 @@ export const AGENDA_MODE_MENU_ITEMS: Record<string, MenuItem> = {
     category: 'agenda'
   },
 
-
-
-  // 施設管理（レベル11+）
-  facility_management: {
-    id: 'facility_management',
-    title: '施設管理',
-    label: '施設管理',
-    icon: '🏥',
-    path: '/facility-management',
-    requiredLevel: 11,
-    category: 'agenda'
-  },
-
   // 決定会議（レベル13：院長専用）
   decision_meeting: {
     id: 'decision_meeting',
@@ -291,7 +278,7 @@ export const AGENDA_MODE_MENU_VISIBILITY: Record<number | string, string[]> = {
   // レベル11：事務長
   11: [
     'post_tracking', 'proposal_management', 'expired_escalation_proposals', 'committee_management', 'management_committee',
-    'facility_governance', 'facility_management'
+    'facility_governance'
   ],
 
   // レベル12：副院長

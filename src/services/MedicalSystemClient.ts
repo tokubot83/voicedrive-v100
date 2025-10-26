@@ -1,9 +1,11 @@
 /**
  * 医療システムAPIクライアント
- * Phase 2.5で使用
+ * Phase 2.5, 2.6で使用
  *
  * 最終更新: 2025-10-26
- * 参照: SystemMonitorPage_VoiceDrive回答書_20251026.md
+ * 参照:
+ *   - SystemMonitorPage_VoiceDrive回答書_20251026.md (Phase 2.5)
+ *   - UserManagementPage_VoiceDrive回答_20251026.md (Phase 2.6)
  */
 
 import axios, { AxiosError } from 'axios';
@@ -13,6 +15,44 @@ import {
   MedicalSystemApiResponse,
   MedicalSystemApiError
 } from '../types/medicalSystem.types';
+
+// Phase 2.6: UserManagementPage用の型定義
+export interface MedicalSystemEmployee {
+  employeeId: string;
+  name: string;
+  email: string;
+  department: string;
+  position?: string;
+  professionCategory?: string;
+  role: string;
+  permissionLevel: number;
+  hireDate: string;
+  isActive: boolean;
+  facilityId: string;
+  avatar?: string;
+  phone?: string;
+  extension?: string;
+  birthDate?: string;
+  yearsOfService: number;
+  updatedAt: string;
+}
+
+export interface MedicalSystemEmployeesResponse {
+  employees: MedicalSystemEmployee[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+    hasNext: boolean;
+  };
+}
+
+export interface MedicalSystemJWTResponse {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
 
 const MEDICAL_SYSTEM_BASE_URL = process.env.MEDICAL_SYSTEM_API_URL || '';
 const API_KEY = process.env.MEDICAL_SYSTEM_API_KEY || '';
@@ -26,6 +66,10 @@ if (!API_KEY) {
 }
 
 export class MedicalSystemClient {
+  // Phase 2.6: JWT認証用のトークンキャッシュ
+  private static accessToken: string | null = null;
+  private static tokenExpiry: number = 0;
+
   private static axiosInstance = axios.create({
     baseURL: MEDICAL_SYSTEM_BASE_URL,
     headers: {
@@ -162,6 +206,129 @@ export class MedicalSystemClient {
     } catch (error) {
       console.error('[MedicalSystemClient.healthCheck] 健全性チェック失敗:', error);
       return false;
+    }
+  }
+
+  // ==========================================
+  // Phase 2.6: UserManagementPage用メソッド
+  // ==========================================
+
+  /**
+   * JWTアクセストークンを取得（キャッシュあり）
+   *
+   * @returns JWTアクセストークン
+   */
+  private static async getAccessToken(): Promise<string> {
+    // トークンが有効期限内なら再利用
+    if (this.accessToken && Date.now() < this.tokenExpiry) {
+      return this.accessToken;
+    }
+
+    // トークン取得
+    const employeeId = process.env.VITE_MEDICAL_ADMIN_EMPLOYEE_ID || '';
+    const password = process.env.VITE_MEDICAL_ADMIN_PASSWORD || '';
+
+    if (!employeeId || !password) {
+      throw new Error('MEDICAL_ADMIN_EMPLOYEE_ID または MEDICAL_ADMIN_PASSWORD が設定されていません');
+    }
+
+    try {
+      const response = await this.axiosInstance.post<MedicalSystemJWTResponse>(
+        '/api/auth/token',
+        {
+          employeeId,
+          password
+        }
+      );
+
+      this.accessToken = response.data.accessToken;
+      // 有効期限の90%でリフレッシュ（例: 1時間なら54分で再取得）
+      this.tokenExpiry = Date.now() + (response.data.expiresIn * 1000 * 0.9);
+
+      console.log('[MedicalSystemClient.getAccessToken] JWTトークン取得成功');
+
+      return this.accessToken;
+    } catch (error) {
+      this.handleError('getAccessToken', error);
+      throw error;
+    }
+  }
+
+  /**
+   * API-1: 全職員取得API
+   * GET /api/v2/employees
+   *
+   * @param params - クエリパラメータ（page, limit, department等）
+   * @returns 職員リストとページネーション情報
+   */
+  static async getAllEmployees(params?: {
+    page?: number;
+    limit?: number;
+    department?: string;
+    isActive?: boolean;
+  }): Promise<MedicalSystemEmployeesResponse> {
+    try {
+      const token = await this.getAccessToken();
+
+      const response = await this.axiosInstance.get<MedicalSystemEmployeesResponse>(
+        '/api/v2/employees',
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          params: {
+            page: params?.page || 1,
+            limit: params?.limit || 100,
+            ...params
+          }
+        }
+      );
+
+      console.log('[MedicalSystemClient.getAllEmployees] 成功:', {
+        取得件数: response.data.employees.length,
+        totalCount: response.data.pagination.totalCount,
+        page: response.data.pagination.page
+      });
+
+      return response.data;
+    } catch (error) {
+      this.handleError('getAllEmployees', error);
+      throw error;
+    }
+  }
+
+  /**
+   * API-2: 個別職員取得API
+   * GET /api/v2/employees/{employeeId}
+   *
+   * @param employeeId - 職員ID（例: "EMP-2025-001"）
+   * @returns 職員詳細情報
+   */
+  static async getEmployee(employeeId: string): Promise<MedicalSystemEmployee> {
+    try {
+      const token = await this.getAccessToken();
+
+      const response = await this.axiosInstance.get<MedicalSystemEmployee>(
+        `/api/v2/employees/${employeeId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('[MedicalSystemClient.getEmployee] 成功:', {
+        employeeId: response.data.employeeId,
+        name: response.data.name,
+        department: response.data.department
+      });
+
+      return response.data;
+    } catch (error) {
+      this.handleError('getEmployee', error);
+      throw error;
     }
   }
 }

@@ -10,6 +10,7 @@ import proposalReviewRoutes from './routes/proposalReviewRoutes';
 import facilityProposalReviewRoutes from './routes/facilityProposalReviewRoutes';
 import systemModeRoutes from './routes/systemModeRoutes';
 import systemOperationsRoutes from './routes/systemOperationsRoutes';
+import userManagementRoutes from './routes/userManagementRoutes';
 import { startExpiredEscalationJob } from './jobs/expiredEscalationCheckJob';
 import { startHealthCheckJob, startHealthCleanupJob } from './jobs/healthCheckJob';
 
@@ -30,6 +31,10 @@ app.use((req, res, next) => {
 // システムモードAPI（最優先で登録）
 app.use('/api/system', systemModeRoutes);
 app.use('/api/system', systemOperationsRoutes);
+
+// ユーザー管理API（Phase 2.6: Level 99専用）
+console.log('👥 Registering User Management API routes at /api/users');
+app.use('/api/users', userManagementRoutes);
 
 // 議題モードAPI（より具体的なパスを先に登録）
 console.log('📋 Registering Agenda API routes at /api/agenda');

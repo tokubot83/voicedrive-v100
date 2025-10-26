@@ -47,7 +47,6 @@ export interface FacilityMenu {
   own_facility: MenuItem;  // 所属施設管理（レベル5〜）
   own_strategy: MenuItem;  // 所属施設戦略概要（レベル5〜）
   own_budget: MenuItem;    // 所属施設予算計画（レベル5〜）
-  all_facility: MenuItem; // 全施設管理（レベル10〜）
   all_strategy: MenuItem; // 全施設戦略概要（レベル10〜）
   all_budget: MenuItem;   // 全施設予算計画（レベル10〜）
 }
