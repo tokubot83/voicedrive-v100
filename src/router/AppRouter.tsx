@@ -14,7 +14,6 @@ import EnhancedProjectListPage from '../pages/EnhancedProjectListPage';
 import { ProjectDetailPage } from '../pages/ProjectDetailPage';
 import { PersonalStationPage } from '../pages/PersonalStationPage';
 import { DepartmentStationPage } from '../pages/DepartmentStationPage';
-import StrategicOverviewPage from '../pages/StrategicOverviewPage';
 import ExecutiveReportsPage from '../pages/ExecutiveReportsPage';
 import StrategicInitiativesPage from '../pages/StrategicInitiativesPage';
 import OrganizationAnalyticsPage from '../pages/OrganizationAnalyticsPage';
@@ -253,13 +252,6 @@ const AppRouter: React.FC = () => {
         <Route path="expired-escalation-proposals" element={
           <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
             <ExpiredEscalationProposalsPage />
-          </ProtectedRoute>
-        } />
-
-        {/* Strategic Overview (Level 7+) */}
-        <Route path="strategic-overview" element={
-          <ProtectedRoute requiredLevel={PermissionLevel.LEVEL_7}>
-            <StrategicOverviewPage />
           </ProtectedRoute>
         } />
 

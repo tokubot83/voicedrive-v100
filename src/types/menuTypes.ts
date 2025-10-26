@@ -43,8 +43,6 @@ export interface StrategicHRMenu {
 
 export interface FacilityMenu {
   own_facility: MenuItem;  // 所属施設管理（レベル5〜）
-  own_strategy: MenuItem;  // 所属施設戦略概要（レベル5〜）
-  all_strategy: MenuItem; // 全施設戦略概要（レベル10〜）
 }
 
 export interface AnalyticsMenu {

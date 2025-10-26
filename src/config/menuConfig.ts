@@ -100,22 +100,6 @@ export const MENU_STRUCTURE: MenuStructure = {
       path: '/own-facility-management',
       requiredLevel: 5,
       category: 'facility'
-    },
-    own_strategy: {
-      id: 'own_facility_strategy',
-      label: '所属施設戦略概要',
-      icon: '📋',
-      path: '/own-facility-strategy',
-      requiredLevel: 5,
-      category: 'facility'
-    },
-    all_strategy: {
-      id: 'all_facility_strategy',
-      label: '全施設戦略概要',
-      icon: '📊',
-      path: '/strategic-overview',
-      requiredLevel: 10,
-      category: 'facility'
     }
   },
 
@@ -292,7 +276,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     management: ['authority_basic', 'department', 'section', 'users'],
     hr: ['policy'],
     strategic_hr: [],
-    facility: ['own_facility', 'own_strategy'],
+    facility: ['own_facility'],
     analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
     executive: []
   },
@@ -301,7 +285,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     management: ['authority_basic', 'department', 'section', 'users', 'audit_logs'],
     hr: ['policy'],
     strategic_hr: [],
-    facility: ['own_facility', 'own_strategy'],
+    facility: ['own_facility'],
     analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
     executive: []
   },
@@ -310,7 +294,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     management: ['authority_basic', 'department', 'section', 'users', 'audit_logs', 'system_settings'],
     hr: ['policy'],
     strategic_hr: [],
-    facility: ['own_facility', 'own_strategy'],
+    facility: ['own_facility'],
     analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
     executive: ['overview']
   },
@@ -319,7 +303,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     management: ['authority_basic', 'department', 'section', 'users', 'audit_logs', 'system_settings'],
     hr: ['policy'],
     strategic_hr: [],
-    facility: ['own_facility', 'own_strategy'],
+    facility: ['own_facility'],
     analytics: ['dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
     executive: ['overview', 'strategic_initiatives']
   },
@@ -346,7 +330,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development'],
-    facility: ['all_strategy'],
+    facility: [],
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
     executive: ['overview', 'organization_analytics']
   },
@@ -355,7 +339,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'retirement'],
-    facility: ['all_strategy'],
+    facility: [],
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
     executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports']
   },
@@ -364,7 +348,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     management: ['users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'retirement'],
-    facility: ['all_strategy'],
+    facility: [],
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report'],
     executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance']
   },
@@ -373,7 +357,7 @@ export const MENU_VISIBILITY: MenuVisibility = {
     management: ['authority_basic', 'department', 'section', 'users', 'audit_logs', 'system_settings'],
     hr: ['interview', 'policy', 'talent', 'dashboard'],
     strategic_hr: ['planning', 'org_development', 'retirement'],
-    facility: ['all_strategy', 'own_facility', 'own_strategy'],
+    facility: ['own_facility'],
     analytics: ['all_user', 'all_generation', 'all_hierarchy', 'all_profession', 'executive_report', 'dept_user', 'dept_generation', 'facility_hierarchy', 'facility_profession'],
     executive: ['overview', 'strategic_initiatives', 'organization_analytics', 'board_reports', 'governance']
   }
