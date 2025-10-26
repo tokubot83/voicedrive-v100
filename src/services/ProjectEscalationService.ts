@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { ProjectLevel } from './ProjectLevelEngine';
-
-const prisma = new PrismaClient();
 
 /**
  * ProjectEscalationService

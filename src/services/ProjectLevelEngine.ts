@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { getDepartmentWithEmployeeCount, getFacilityFromDepartment } from './MedicalSystemService';
-
-const prisma = new PrismaClient();
 
 /**
  * ProjectLevelEngine

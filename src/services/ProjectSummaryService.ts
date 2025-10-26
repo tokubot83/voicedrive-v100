@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { getProjectParticipantCount } from './ProjectRoleService';
-
-const prisma = new PrismaClient();
 
 /**
  * ProjectSummaryService
