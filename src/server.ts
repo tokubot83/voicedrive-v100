@@ -11,6 +11,7 @@ import facilityProposalReviewRoutes from './routes/facilityProposalReviewRoutes'
 import systemModeRoutes from './routes/systemModeRoutes';
 import systemOperationsRoutes from './routes/systemOperationsRoutes';
 import userManagementRoutes from './routes/userManagementRoutes';
+import whistleblowingWebhookRoutes from './routes/whistleblowingWebhookRoutes';
 import { startExpiredEscalationJob } from './jobs/expiredEscalationCheckJob';
 import { startHealthCheckJob, startHealthCleanupJob } from './jobs/healthCheckJob';
 
@@ -35,6 +36,10 @@ app.use('/api/system', systemOperationsRoutes);
 // ユーザー管理API（Phase 2.6: Level 99専用）
 console.log('👥 Registering User Management API routes at /api/users');
 app.use('/api/users', userManagementRoutes);
+
+// Webhook API（Phase 2.9: 医療システム連携）
+console.log('🔔 Registering Whistleblowing Webhook routes at /api/webhooks/medical-system/whistleblowing');
+app.use('/api/webhooks/medical-system/whistleblowing', whistleblowingWebhookRoutes);
 
 // 議題モードAPI（より具体的なパスを先に登録）
 console.log('📋 Registering Agenda API routes at /api/agenda');

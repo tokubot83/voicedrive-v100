@@ -13,7 +13,6 @@ const pathNameMap: Record<string, string> = {
   '/projects': 'プロジェクト一覧',
   '/dashboard/executive': '経営ダッシュボード',
   '/team-management': 'チーム管理',
-  '/department-overview': '部門概要',
   '/budget': '予算管理',
   '/authority': '権限管理',
   '/hr-dashboard': '人事ダッシュボード',

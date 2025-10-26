@@ -228,7 +228,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     description: '副師長、副科長、副課長',
     accessibleFeatures: ['create_post', 'vote', 'view_department_posts', 'approve_team_projects', 'moderate_department'],
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT],
-    menuItems: ['personal_station', 'leader_station', 'department_station', 'team_management', 'authority_basic', 'department_management', 'dept_user_analysis', 'dept_generation_analysis'],
+    menuItems: ['personal_station', 'leader_station', 'department_station', 'team_management', 'authority_basic', 'dept_user_analysis', 'dept_generation_analysis'],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval']
   },
@@ -240,7 +240,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     description: '師長、科長、課長、室長',
     accessibleFeatures: ['create_post', 'vote', 'view_all_department_posts', 'approve_department_projects'],
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT],
-    menuItems: ['personal_station', 'leader_station', 'department_station', 'section_station', 'team_management', 'authority_basic', 'department_management', 'section_management', 'dept_user_analysis', 'dept_generation_analysis'],
+    menuItems: ['personal_station', 'leader_station', 'department_station', 'section_station', 'team_management', 'authority_basic', 'section_management', 'dept_user_analysis', 'dept_generation_analysis'],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval']
   },
@@ -252,7 +252,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     description: '副部長',
     accessibleFeatures: ['create_post', 'vote', 'view_all_department_posts', 'approve_department_projects'],
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT],
-    menuItems: ['personal_station', 'leader_station', 'department_station', 'section_station', 'team_management', 'authority_basic', 'department_management', 'section_management', 'dept_user_analysis', 'dept_generation_analysis'],
+    menuItems: ['personal_station', 'leader_station', 'department_station', 'section_station', 'team_management', 'authority_basic', 'section_management', 'dept_user_analysis', 'dept_generation_analysis'],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval']
   },
@@ -264,7 +264,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     description: '看護部長、医局長、各部門部長',
     accessibleFeatures: ['create_post', 'vote', 'view_all_department_posts', 'approve_department_projects'],
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT],
-    menuItems: ['personal_station', 'leader_station', 'department_station', 'section_station', 'team_management', 'authority_basic', 'department_management', 'section_management', 'dept_user_analysis', 'dept_generation_analysis'],
+    menuItems: ['personal_station', 'leader_station', 'department_station', 'section_station', 'team_management', 'authority_basic', 'section_management', 'dept_user_analysis', 'dept_generation_analysis'],
     analyticsAccess: true,
     workflowStages: ['proposal', 'initial_review', 'department_approval']
   },
@@ -281,7 +281,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: [
       'personal_station', 'leader_station', 'department_station', 'section_station',
-      'team_management', 'authority_basic', 'department_management', 'section_management',
+      'team_management', 'authority_basic', 'section_management',
       'own_facility_management', 'own_facility_strategy',
       'dept_user_analysis', 'dept_generation_analysis', 'facility_hierarchy_analysis', 'facility_profession_analysis'
     ],
@@ -323,7 +323,7 @@ export const PERMISSION_METADATA: Record<PermissionLevel, PermissionMetadata> = 
     projectScopes: [ProjectScope.TEAM, ProjectScope.DEPARTMENT, ProjectScope.FACILITY],
     menuItems: [
       'personal_station', 'leader_station', 'department_station', 'section_station',
-      'team_management', 'authority_basic', 'department_management', 'section_management',
+      'team_management', 'authority_basic', 'section_management',
       'own_facility_management', 'own_facility_strategy',
       'dept_user_analysis', 'dept_generation_analysis', 'facility_hierarchy_analysis', 'facility_profession_analysis'
     ],

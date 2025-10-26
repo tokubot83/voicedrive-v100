@@ -33,14 +33,6 @@ export const MENU_STRUCTURE: MenuStructure = {
       requiredLevel: 2,
       category: 'management'
     },
-    department: {
-      id: 'department_management',
-      label: '部門管理',
-      icon: '🏥',
-      path: '/department-overview',
-      requiredLevel: 3,
-      category: 'management'
-    },
     section: {
       id: 'section_management',
       label: '部署管理',

@@ -26,7 +26,6 @@ export interface StationMenu {
 
 export interface ManagementMenu {
   authority_basic: MenuItem;  // 権限管理（基本）（レベル2〜）
-  department: MenuItem;    // 部門管理（レベル3〜）
   section: MenuItem;       // 部署管理（レベル4〜）
   budget: MenuItem;        // 予算管理（レベル4〜）
   users: MenuItem;         // ユーザー管理（レベル5〜）
