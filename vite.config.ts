@@ -184,7 +184,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': '/src',
-      '.prisma/client/index-browser': '.prisma/client/index-browser.js'
+      '.prisma/client/index-browser': '.prisma/client/index-browser.js',
+      '@prisma/client': new URL('./src/lib/prisma-mock.ts', import.meta.url).pathname
     }
   },
   optimizeDeps: {

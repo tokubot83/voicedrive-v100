@@ -10,9 +10,19 @@ import {
 import { HierarchicalUser } from '../types';
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 import { v4 as uuidv4 } from 'uuid';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+// Conditionally import Prisma only on server-side
+const isBrowser = typeof window !== 'undefined';
+let prisma: any = null;
+
+if (!isBrowser) {
+  // Only import PrismaClient on server-side
+  import('@prisma/client').then(({ PrismaClient }) => {
+    prisma = new PrismaClient();
+  }).catch(err => {
+    console.error('Failed to load PrismaClient:', err);
+  });
+}
 
 // Audit alert structure
 interface AuditAlert {
