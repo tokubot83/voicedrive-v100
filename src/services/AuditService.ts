@@ -10,6 +10,9 @@ import {
 import { HierarchicalUser } from '../types';
 import { PermissionLevel } from '../permissions/types/PermissionTypes';
 import { v4 as uuidv4 } from 'uuid';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 // Audit alert structure
 interface AuditAlert {
@@ -50,24 +53,98 @@ export class AuditService {
     return AuditService.instance;
   }
 
-  // New interface for compatibility
+  // New interface for compatibility with DB persistence
   async logAction(actionData: {
     userId: string;
     action: string;
     targetId: string;
     details: any;
     risk?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    executorLevel?: number;
+    ipAddress?: string;
+    userAgent?: string;
   }): Promise<string> {
-    return this.logAuditEntry(
-      actionData.userId,
-      actionData.action as AuthorityType,
-      'user_action',
-      actionData.targetId,
-      {
+    try {
+      // Get the last log's checksum for blockchain-style linking
+      const lastLog = await prisma.auditLog.findFirst({
+        orderBy: { createdAt: 'desc' },
+        select: { checksum: true }
+      });
+
+      // Calculate severity
+      const severity = AuditService.calculateSeverityFromAction(
+        actionData.action,
+        actionData.action.includes('EMERGENCY'),
+        actionData.executorLevel
+      );
+
+      // Prepare data for checksum generation
+      const logData = {
+        id: uuidv4(),
+        timestamp: new Date(),
+        actorId: actionData.userId,
+        actionType: actionData.action,
+        resourceType: 'user_action',
+        resourceId: actionData.targetId,
+        previousState: undefined,
+        newState: actionData.details,
         reason: actionData.action,
-        newState: actionData.details
-      }
-    );
+        previousChecksum: lastLog?.checksum
+      };
+
+      // Generate checksum
+      const checksum = await this.generateChecksum(logData as AuditLogEntry);
+
+      // Save to database
+      const auditLog = await prisma.auditLog.create({
+        data: {
+          userId: actionData.userId,
+          action: actionData.action,
+          entityType: 'user_action',
+          entityId: actionData.targetId,
+          oldValues: JSON.stringify({}),
+          newValues: JSON.stringify(actionData.details),
+          severity,
+          checksum,
+          previousChecksum: lastLog?.checksum,
+          ipAddress: actionData.ipAddress,
+          userAgent: actionData.userAgent,
+          executorLevel: actionData.executorLevel,
+          isEmergencyAction: actionData.action.includes('EMERGENCY')
+        }
+      });
+
+      // Also store in memory for backward compatibility
+      const entry: AuditLogEntry = {
+        id: auditLog.id,
+        timestamp: auditLog.createdAt,
+        actorId: auditLog.userId,
+        actionType: auditLog.action as AuthorityType,
+        resourceType: auditLog.entityType,
+        resourceId: auditLog.entityId,
+        newState: actionData.details,
+        reason: actionData.action,
+        checksum: auditLog.checksum || undefined,
+        previousChecksum: auditLog.previousChecksum || undefined
+      };
+
+      this.auditLogs.set(auditLog.id, entry);
+
+      return auditLog.id;
+    } catch (error) {
+      console.error('[AuditService] Failed to log action to DB:', error);
+      // Fallback to memory-only logging
+      return this.logAuditEntry(
+        actionData.userId,
+        actionData.action as AuthorityType,
+        'user_action',
+        actionData.targetId,
+        {
+          reason: actionData.action,
+          newState: actionData.details
+        }
+      );
+    }
   }
 
   // Log audit entry
@@ -84,6 +161,10 @@ export class AuditService {
       userAgent?: string;
     }
   ): Promise<string> {
+    // Get the last log entry's checksum for blockchain-style linking
+    const lastLog = Array.from(this.auditLogs.values())
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())[0];
+
     const entry: AuditLogEntry = {
       id: uuidv4(),
       timestamp: new Date(),
@@ -95,12 +176,13 @@ export class AuditService {
       newState: details.newState,
       reason: details.reason,
       ipAddress: details.ipAddress,
-      userAgent: details.userAgent
+      userAgent: details.userAgent,
+      previousChecksum: lastLog?.checksum // Blockchain-style linking
     };
 
-    // Generate checksum for tamper protection
+    // Generate checksum for tamper protection (includes previousChecksum)
     entry.checksum = await this.generateChecksum(entry);
-    
+
     this.auditLogs.set(entry.id, entry);
 
     // Check for suspicious patterns
@@ -116,6 +198,50 @@ export class AuditService {
 
     const expectedChecksum = await this.generateChecksum(entry);
     return entry.checksum === expectedChecksum;
+  }
+
+  // Verify blockchain-style chain integrity for a sequence of logs
+  async verifyLogChain(logIds: string[]): Promise<{
+    isValid: boolean;
+    brokenLinks: { logId: string; reason: string }[];
+  }> {
+    const brokenLinks: { logId: string; reason: string }[] = [];
+
+    for (let i = 0; i < logIds.length; i++) {
+      const log = this.auditLogs.get(logIds[i]);
+      if (!log) {
+        brokenLinks.push({ logId: logIds[i], reason: 'Log not found' });
+        continue;
+      }
+
+      // Verify individual checksum
+      const isValidChecksum = await this.verifyAuditIntegrity(logIds[i]);
+      if (!isValidChecksum) {
+        brokenLinks.push({ logId: logIds[i], reason: 'Invalid checksum (tampered)' });
+        continue;
+      }
+
+      // Verify chain link (except for first log)
+      if (i > 0) {
+        const previousLog = this.auditLogs.get(logIds[i - 1]);
+        if (!previousLog) {
+          brokenLinks.push({ logId: logIds[i], reason: 'Previous log not found' });
+          continue;
+        }
+
+        if (log.previousChecksum !== previousLog.checksum) {
+          brokenLinks.push({
+            logId: logIds[i],
+            reason: 'Chain broken: previousChecksum does not match previous log checksum'
+          });
+        }
+      }
+    }
+
+    return {
+      isValid: brokenLinks.length === 0,
+      brokenLinks
+    };
   }
 
   // Submit anonymous grievance
@@ -455,9 +581,10 @@ export class AuditService {
       resourceId: entry.resourceId,
       previousState: entry.previousState,
       newState: entry.newState,
-      reason: entry.reason
+      reason: entry.reason,
+      previousChecksum: entry.previousChecksum // Include for blockchain-style integrity
     });
-    
+
     // Use Web Crypto API for browser compatibility
     const encoder = new TextEncoder();
     const dataBuffer = encoder.encode(content);
@@ -735,17 +862,72 @@ export class AuditService {
 
   /**
    * ログの重要度を計算
+   * Phase 1: admin/audit-logs要件対応
    */
-  private calculateSeverity(log: AuditLogEntry): 'low' | 'medium' | 'high' | 'critical' {
-    if (log.actionType.includes('EMERGENCY') || log.actionType.includes('SYSTEM_MODE')) {
+  private calculateSeverity(log: AuditLogEntry, executorLevel?: number): 'low' | 'medium' | 'high' | 'critical' {
+    // 緊急操作は必ずcritical
+    if (log.actionType.includes('EMERGENCY')) {
       return 'critical';
     }
-    if (log.actionType.includes('OVERRIDE') || log.actionType.includes('PERMISSION')) {
+
+    // Level 99（permissionLevel >= 20）の操作
+    if (executorLevel !== undefined && executorLevel >= 20) {
+      if (log.actionType.includes('SYSTEM_MODE') || log.actionType.includes('PERMISSION')) {
+        return 'critical';
+      }
       return 'high';
     }
-    if (log.actionType.includes('DELETION') || log.actionType.includes('SUSPENSION')) {
+
+    // アクション内容に基づく判定
+    if (log.actionType.includes('SYSTEM_MODE') || log.actionType.includes('PERMISSION_LEVEL')) {
+      return 'critical';
+    }
+
+    if (log.actionType.includes('OVERRIDE')) {
+      return 'high';
+    }
+
+    if (log.actionType.includes('DELETION') || log.actionType.includes('SUSPENSION') || log.actionType.includes('DELETE') || log.actionType.includes('SUSPEND') || log.actionType.includes('REMOVE')) {
       return 'medium';
     }
+
+    return 'low';
+  }
+
+  /**
+   * 静的メソッド用の重要度計算（アクション文字列から）
+   */
+  static calculateSeverityFromAction(
+    action: string,
+    isEmergencyAction: boolean = false,
+    executorLevel?: number
+  ): 'low' | 'medium' | 'high' | 'critical' {
+    // 緊急操作は必ずcritical
+    if (isEmergencyAction) {
+      return 'critical';
+    }
+
+    // Level 99（permissionLevel >= 20）の操作
+    if (executorLevel !== undefined && executorLevel >= 20) {
+      if (action.includes('SYSTEM_MODE') || action.includes('PERMISSION_LEVEL')) {
+        return 'critical';
+      }
+      return 'high';
+    }
+
+    // アクション内容に基づく判定
+    if (action.includes('SYSTEM_MODE') || action.includes('PERMISSION_LEVEL')) {
+      return 'critical';
+    }
+
+    if (action.includes('EMERGENCY') || action.includes('OVERRIDE')) {
+      return 'high';
+    }
+
+    if (action.includes('DELETE') || action.includes('SUSPEND') || action.includes('REMOVE')) {
+      return 'medium';
+    }
+
     return 'low';
   }
 }

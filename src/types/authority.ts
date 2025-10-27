@@ -165,7 +165,8 @@ export interface AuditLogEntry {
   reason: string;
   ipAddress?: string;
   userAgent?: string;
-  checksum?: string; // For tamper protection
+  checksum?: string; // For tamper protection (SHA-256)
+  previousChecksum?: string; // For blockchain-style linking
 }
 
 // Notification for authority actions

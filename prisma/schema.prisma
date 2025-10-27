@@ -3083,3 +3083,38 @@ model AuditReportSummary {
   @@index([reportDate])
   @@map("audit_report_summaries")
 }
+
+// Audit Log Archive (Phase 3: Logs older than 1 year)
+model AuditLogArchive {
+  id                   String    @id @default(cuid())
+  userId               String
+  action               String
+  entityType           String
+  entityId             String
+  oldValues            String?
+  newValues            String?
+  ipAddress            String?
+  userAgent            String?
+
+  // Phase 1: Severity classification
+  severity             String?   @default("medium")  // low/medium/high/critical
+
+  // Phase 2: Tamper detection
+  checksum             String?
+  previousChecksum     String?   @map("previous_checksum")
+
+  // Additional fields
+  executorLevel        Int?      @map("executor_level")
+  isEmergencyAction    Boolean   @default(false) @map("is_emergency_action")
+
+  // Archive metadata
+  archivedAt           DateTime  @default(now()) @map("archived_at")
+  originalCreatedAt    DateTime  @map("original_created_at")
+
+  @@index([userId])
+  @@index([action])
+  @@index([severity])
+  @@index([archivedAt])
+  @@index([originalCreatedAt])
+  @@map("audit_log_archives")
+}
