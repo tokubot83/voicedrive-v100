@@ -115,6 +115,7 @@ model User {
   settingReverts                VotingSettingChangeLog[]        @relation("SettingRevertUser")
   settingChanges                VotingSettingChangeLog[]        @relation("SettingChangeUser")
   whistleblowingReports         WhistleblowingReport[]          @relation("WhistleblowingReports")
+  whistleblowingAccessLogs      WhistleblowingAccessLog[]       @relation("WhistleblowingAccessUser")
 
   // Phase 2.6: UserManagementPage同期管理フィールド
   syncStatus                    SyncStatus                      @default(never_synced) @map("sync_status")
@@ -2927,6 +2928,7 @@ model WhistleblowingReport {
   title                   String
   content                 String
   evidenceFiles           Json?    // 証拠ファイルURL配列
+  evidenceDescription     String?  // 証拠の説明（テキスト）
   submittedAt             DateTime @default(now())
   updatedAt               DateTime @updatedAt
   status                  String   @default("received") // received, triaging, investigating, escalated, resolved, closed
@@ -2951,8 +2953,9 @@ model WhistleblowingReport {
   createdAt               DateTime @default(now())
 
   // リレーション
-  user                    User?              @relation("WhistleblowingReports", fields: [userId], references: [id])
-  investigationNotes      InvestigationNote[] @relation("ReportInvestigationNotes")
+  user                    User?                        @relation("WhistleblowingReports", fields: [userId], references: [id])
+  investigationNotes      InvestigationNote[]          @relation("ReportInvestigationNotes")
+  accessLogs              WhistleblowingAccessLog[]    @relation("ReportAccessLogs")
 
   @@index([userId])
   @@index([anonymousId])
@@ -2983,4 +2986,25 @@ model InvestigationNote {
   @@index([reportId])
   @@index([createdAt])
   @@map("investigation_notes")
+}
+
+// Phase 2: WhistleblowingPage - アクセス監査ログ（セキュリティ・コンプライアンス対応）
+model WhistleblowingAccessLog {
+  id         String   @id @default(cuid())
+  reportId   String
+  userId     String
+  action     String   // viewed, note_added, status_changed, escalated, resolved
+  details    String?  // アクション詳細（JSON）
+  accessedAt DateTime @default(now())
+  ipAddress  String?
+  userAgent  String?
+
+  // リレーション
+  user   User                 @relation("WhistleblowingAccessUser", fields: [userId], references: [id])
+  report WhistleblowingReport @relation("ReportAccessLogs", fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+  @@index([userId])
+  @@index([accessedAt])
+  @@map("whistleblowing_access_logs")
 }
