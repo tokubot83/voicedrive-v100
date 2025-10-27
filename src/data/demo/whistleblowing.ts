@@ -1,4 +1,6 @@
 // 内部通報のデモデータ
+import type { WhistleblowingPermissions, ReportSeverity } from '../../types/whistleblowing';
+
 export interface WhistleblowingReport {
   id: string;
   title: string;
@@ -70,12 +72,52 @@ export const demoReportStatistics: WhistleblowingStatistics = {
   resolutionTime: 14
 };
 
-export const getWhistleblowingPermissions = (userLevel: number) => {
-  return {
-    canView: userLevel >= 3,
-    canInvestigate: userLevel >= 4,
-    canResolve: userLevel >= 4
-  };
+export const getWhistleblowingPermissions = (userLevel: number): WhistleblowingPermissions => {
+  if (userLevel >= 5) {
+    return {
+      canView: true,
+      canInvestigate: true,
+      canEscalate: true,
+      canResolve: true,
+      canViewStatistics: true,
+      canAccessConfidentialNotes: true,
+      canAssignInvestigators: true,
+      maxSeverityLevel: 'critical' as ReportSeverity
+    };
+  } else if (userLevel >= 4) {
+    return {
+      canView: true,
+      canInvestigate: true,
+      canEscalate: true,
+      canResolve: false,
+      canViewStatistics: true,
+      canAccessConfidentialNotes: false,
+      canAssignInvestigators: false,
+      maxSeverityLevel: 'high' as ReportSeverity
+    };
+  } else if (userLevel >= 3) {
+    return {
+      canView: true,
+      canInvestigate: false,
+      canEscalate: false,
+      canResolve: false,
+      canViewStatistics: true,
+      canAccessConfidentialNotes: false,
+      canAssignInvestigators: false,
+      maxSeverityLevel: 'medium' as ReportSeverity
+    };
+  } else {
+    return {
+      canView: false,
+      canInvestigate: false,
+      canEscalate: false,
+      canResolve: false,
+      canViewStatistics: false,
+      canAccessConfidentialNotes: false,
+      canAssignInvestigators: false,
+      maxSeverityLevel: 'low' as ReportSeverity
+    };
+  }
 };
 
 export default demoWhistleblowingReports;
