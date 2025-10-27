@@ -61,6 +61,7 @@ import ExecutiveDashboard from '../components/analytics/ExecutiveDashboard';
 
 // Whistleblowing
 import WhistleblowingPage from '../pages/WhistleblowingPage';
+import ReportTrackingPage from '../pages/ReportTrackingPage';
 import MyReportsPage from '../pages/MyReportsPage';
 import MyReportDetailPage from '../pages/MyReportDetailPage';
 
@@ -328,6 +329,7 @@ const AppRouter: React.FC = () => {
         
         {/* Whistleblowing System - All users can access (internal permission handling) */}
         <Route path="whistleblowing" element={<WhistleblowingPage />} />
+        <Route path="report-tracking" element={<ReportTrackingPage />} />
 
         {/* Approvals & Notifications - Permission-based access */}
         <Route path="approvals" element={

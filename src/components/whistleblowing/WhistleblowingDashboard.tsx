@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WhistleblowingReport, ReportStatus, ReportSeverity } from '../../types/whistleblowing';
 import { usePermissions } from '../../permissions/hooks/usePermissions';
-import { demoWhistleblowingReports, demoReportStatistics, getWhistleblowingPermissions } from '../../data/demo/whistleblowing';
+import { getWhistleblowingPermissions } from '../../data/demo/whistleblowing';
 
 interface WhistleblowingDashboardProps {
   onNewReport: () => void;
@@ -14,19 +14,68 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
   const permissions = getWhistleblowingPermissions(userLevel);
   const [selectedReport, setSelectedReport] = useState<WhistleblowingReport | null>(null);
   const [filterStatus, setFilterStatus] = useState<ReportStatus | 'all'>('all');
+  const [reports, setReports] = useState<WhistleblowingReport[]>([]);
+  const [statistics, setStatistics] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 通報一覧と統計情報を取得
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // 通報一覧を取得
+        if (permissions.canView) {
+          const reportsResponse = await fetch('/api/whistleblowing/list');
+          if (reportsResponse.ok) {
+            const reportsData = await reportsResponse.json();
+            // APIから取得したデータをWhistleblowingReport型に変換
+            const formattedReports = reportsData.reports.map((report: any) => ({
+              ...report,
+              submittedAt: new Date(report.submittedAt),
+              updatedAt: new Date(report.updatedAt),
+              internalNotes: report.investigationNotes?.map((note: any) => ({
+                ...note,
+                createdAt: new Date(note.createdAt)
+              }))
+            }));
+            setReports(formattedReports);
+          }
+        }
+
+        // 統計情報を取得
+        if (permissions.canViewStatistics) {
+          const statsResponse = await fetch('/api/whistleblowing/statistics');
+          if (statsResponse.ok) {
+            const statsData = await statsResponse.json();
+            setStatistics(statsData);
+          }
+        }
+      } catch (err) {
+        console.error('データ取得エラー:', err);
+        setError('データの取得に失敗しました');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [permissions.canView, permissions.canViewStatistics]);
 
   // 権限に応じて表示可能な通報をフィルタリング
   const getVisibleReports = () => {
-    return demoWhistleblowingReports.filter(report => {
+    return reports.filter((report: WhistleblowingReport) => {
       if (!permissions.canView) return false;
-      
+
       // 重要度による制限
       const severityLevels = { low: 1, medium: 2, high: 3, critical: 4 };
       const maxLevel = severityLevels[permissions.maxSeverityLevel];
       const reportLevel = severityLevels[report.severity];
-      
+
       return reportLevel <= maxLevel;
-    }).filter(report => {
+    }).filter((report: WhistleblowingReport) => {
       if (filterStatus === 'all') return true;
       return report.status === filterStatus;
     });
@@ -121,10 +170,10 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
               新しい相談を開始
             </button>
             <button
-              onClick={() => navigate('/my-reports')}
+              onClick={() => navigate('/report-tracking')}
               className="px-8 py-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors font-medium text-lg border border-gray-600 flex items-center gap-2"
             >
-              📋 通報履歴を確認
+              📋 通報追跡
             </button>
           </div>
           <div className="mt-8 p-4 bg-blue-900/30 border border-blue-500/50 rounded-lg">
@@ -153,10 +202,10 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
           </div>
           <div className="flex gap-3">
             <button
-              onClick={() => navigate('/my-reports')}
+              onClick={() => navigate('/report-tracking')}
               className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors font-medium border border-gray-600 flex items-center gap-2"
             >
-              📋 通報履歴
+              📋 通報追跡
             </button>
             <button
               onClick={onNewReport}
@@ -168,16 +217,31 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
         </div>
       </div>
 
+      {/* ローディング表示 */}
+      {loading && (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+          <p className="text-gray-400 mt-4">データを読み込み中...</p>
+        </div>
+      )}
+
+      {/* エラー表示 */}
+      {error && (
+        <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-6 text-center">
+          <p className="text-red-300">{error}</p>
+        </div>
+      )}
+
       {/* 統計概要（権限がある場合のみ） */}
-      {permissions.canViewStatistics && (
+      {!loading && !error && permissions.canViewStatistics && statistics && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-400">総相談数</span>
               <span className="text-2xl">📊</span>
             </div>
-            <div className="text-3xl font-bold text-white">{demoReportStatistics.totalReports}</div>
-            <div className="text-sm text-blue-400 mt-1">今月: 6件</div>
+            <div className="text-3xl font-bold text-white">{statistics.totalReports}</div>
+            <div className="text-sm text-blue-400 mt-1">今月: {statistics.monthlyTrend?.[statistics.monthlyTrend.length - 1]?.count || 0}件</div>
           </div>
 
           <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
@@ -185,7 +249,7 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
               <span className="text-gray-400">調査中</span>
               <span className="text-2xl">🕵️</span>
             </div>
-            <div className="text-3xl font-bold text-orange-400">{demoReportStatistics.byStatus.investigating}</div>
+            <div className="text-3xl font-bold text-orange-400">{statistics.byStatus.investigating || 0}</div>
             <div className="text-sm text-gray-400 mt-1">要対応</div>
           </div>
 
@@ -194,8 +258,8 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
               <span className="text-gray-400">解決済み</span>
               <span className="text-2xl">✅</span>
             </div>
-            <div className="text-3xl font-bold text-green-400">{demoReportStatistics.byStatus.resolved}</div>
-            <div className="text-sm text-gray-400 mt-1">今月: 2件</div>
+            <div className="text-3xl font-bold text-green-400">{statistics.byStatus.resolved || 0}</div>
+            <div className="text-sm text-gray-400 mt-1">全期間</div>
           </div>
 
           <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
@@ -203,14 +267,14 @@ const WhistleblowingDashboard: React.FC<WhistleblowingDashboardProps> = ({ onNew
               <span className="text-gray-400">平均解決日数</span>
               <span className="text-2xl">⏱️</span>
             </div>
-            <div className="text-3xl font-bold text-white">{demoReportStatistics.averageResolutionDays}</div>
+            <div className="text-3xl font-bold text-white">{statistics.averageResolutionDays || 0}</div>
             <div className="text-sm text-gray-400 mt-1">日</div>
           </div>
         </div>
       )}
 
       {/* 通報一覧（閲覧権限がある場合のみ） */}
-      {permissions.canView && (
+      {!loading && !error && permissions.canView && (
         <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur border border-gray-700/50">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-white">相談一覧</h2>

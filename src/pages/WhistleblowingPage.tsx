@@ -16,15 +16,39 @@ const WhistleblowingPage: React.FC = () => {
     setShowReportForm(true);
   };
 
-  const handleSubmitReport = (report: ReportSubmissionForm) => {
-    // 実際の実装では、ここでAPIにデータを送信
-    console.log('新しい相談:', report);
-    
-    // 匿名IDを生成（実際はサーバーサイドで生成）
-    const anonymousId = `anon-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
-    
-    alert(`相談が正常に提出されました。\n\n追跡ID: ${anonymousId}\n\nこのIDは進捗確認に使用できます。大切に保管してください。`);
-    setShowReportForm(false);
+  const handleSubmitReport = async (report: ReportSubmissionForm) => {
+    try {
+      const response = await fetch('/api/whistleblowing/reports', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(report)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '通報の提出に失敗しました');
+      }
+
+      const data = await response.json();
+
+      alert(
+        `相談が正常に提出されました。\n\n` +
+        `追跡ID: ${data.anonymousId}\n\n` +
+        `このIDは進捗確認に使用できます。大切に保管してください。\n` +
+        `受付番号: ${data.reportId.substring(0, 8)}`
+      );
+
+      setShowReportForm(false);
+    } catch (error) {
+      console.error('通報提出エラー:', error);
+      alert(
+        `通報の提出中にエラーが発生しました。\n\n` +
+        `${error instanceof Error ? error.message : '不明なエラー'}\n\n` +
+        `しばらく時間をおいて再度お試しください。`
+      );
+    }
   };
 
   const handleCancelReport = () => {

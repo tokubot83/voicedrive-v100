@@ -117,6 +117,10 @@ model User {
   whistleblowingReports         WhistleblowingReport[]          @relation("WhistleblowingReports")
   whistleblowingAccessLogs      WhistleblowingAccessLog[]       @relation("WhistleblowingAccessUser")
 
+  // Phase 2.7: admin/audit-logs関連
+  assignedAuditAlerts           AuditAlert[]                    @relation("AlertAssignee")
+  investigatedAlerts            AuditAlert[]                    @relation("AlertInvestigator")
+
   // Phase 2.6: UserManagementPage同期管理フィールド
   syncStatus                    SyncStatus                      @default(never_synced) @map("sync_status")
   lastSyncedAt                  DateTime?                       @map("last_synced_at")
@@ -395,6 +399,14 @@ model AuditLog {
   newValues         Json?
   ipAddress         String?
   userAgent         String?
+
+  // Phase 1: 重要度分類（admin/audit-logs要件）
+  severity          String?  @default("medium")  // low/medium/high/critical
+
+  // Phase 2: 改ざん検知（セキュリティ強化）
+  checksum          String?                     // SHA-256ハッシュ
+  previousChecksum  String?  @map("previous_checksum")  // チェーン検証用
+
   createdAt         DateTime @default(now())
   executorLevel     Float?   @map("executor_level")
   targetUserId      String?  @map("target_user_id")
@@ -405,6 +417,8 @@ model AuditLog {
 
   @@index([action, isEmergencyAction])
   @@index([targetUserId])
+  @@index([severity])       // 重要度検索用
+  @@index([createdAt])      // 日付検索用
 }
 
 model InterviewResult {
@@ -3007,4 +3021,65 @@ model WhistleblowingAccessLog {
   @@index([userId])
   @@index([accessedAt])
   @@map("whistleblowing_access_logs")
+}
+
+// Phase 2.7: admin/audit-logs - セキュリティアラート機能（不審なアクティビティ検知）
+model AuditAlert {
+  id                   String    @id @default(cuid())
+  type                 String    // suspicious_activity, policy_violation, access_anomaly, data_tampering
+  severity             String    // low, medium, high, critical
+  description          String    // アラートの詳細説明
+  relatedLogs          Json      // 関連ログIDの配列: ["log_id_1", "log_id_2"]
+  detectedAt           DateTime  @default(now())
+  investigationStatus  String    @default("pending")  // pending, investigating, resolved, escalated
+  assignedTo           String?
+  investigatedBy       String?
+  investigatedAt       DateTime?
+  resolution           String?   // 調査結果・対応内容
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  // リレーション
+  assignee     User? @relation("AlertAssignee", fields: [assignedTo], references: [id])
+  investigator User? @relation("AlertInvestigator", fields: [investigatedBy], references: [id])
+
+  @@index([type])
+  @@index([severity])
+  @@index([investigationStatus])
+  @@index([detectedAt])
+  @@map("audit_alerts")
+}
+
+// Phase 2.7: admin/audit-logs - 監査レポート日次集計（パフォーマンス最適化）
+model AuditReportSummary {
+  id               String   @id @default(cuid())
+  reportDate       DateTime @unique
+
+  // 集計データ
+  totalActions     Int      @default(0)
+  totalUsers       Int      @default(0)
+  criticalActions  Int      @default(0)
+  highActions      Int      @default(0)
+  mediumActions    Int      @default(0)
+  lowActions       Int      @default(0)
+
+  // アクションタイプ別集計（JSON）
+  actionTypeCounts Json // { "USER_LOGIN": 150, "POST_CREATE": 45, ... }
+
+  // トップアクター（上位10名）
+  topActors        Json // [{ userId: "...", count: 45 }, ...]
+
+  // アラート統計
+  totalAlerts      Int      @default(0)
+  pendingAlerts    Int      @default(0)
+  resolvedAlerts   Int      @default(0)
+
+  // 完全性チェック
+  integrityIssues  Int      @default(0)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([reportDate])
+  @@map("audit_report_summaries")
 }
