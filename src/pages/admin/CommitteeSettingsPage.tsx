@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
-import { Users, FileText, Calendar, Save, RefreshCw, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Users, FileText, Calendar, Save, RefreshCw, AlertTriangle, Loader2 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { Card } from '../../components/ui/Card';
-import { AuditService } from '../../services/AuditService';
 import { MobileFooter } from '../../components/layout/MobileFooter';
 import { DesktopFooter } from '../../components/layout/DesktopFooter';
 
@@ -31,110 +29,125 @@ export const CommitteeSettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('status');
   const [hasChanges, setHasChanges] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [loading, setLoading] = useState(true);
 
   // 議題ステータス設定
-  const [agendaStatuses, setAgendaStatuses] = useState([
-    { id: 'pending', name: '審議待ち', color: '#FFA500', enabled: true },
-    { id: 'in_review', name: '審議中', color: '#2196F3', enabled: true },
-    { id: 'approved', name: '承認', color: '#4CAF50', enabled: true },
-    { id: 'rejected', name: '却下', color: '#F44336', enabled: true },
-    { id: 'on_hold', name: '保留', color: '#9E9E9E', enabled: true }
-  ]);
+  const [agendaStatuses, setAgendaStatuses] = useState<any[]>([]);
 
   // 優先度レベル設定
-  const [priorityLevels, setPriorityLevels] = useState([
-    { id: 'critical', name: '緊急', color: '#F44336', enabled: true },
-    { id: 'high', name: '高', color: '#FF9800', enabled: true },
-    { id: 'normal', name: '通常', color: '#2196F3', enabled: true },
-    { id: 'low', name: '低', color: '#9E9E9E', enabled: true }
-  ]);
+  const [priorityLevels, setPriorityLevels] = useState<any[]>([]);
 
   // 議題タイプ設定
-  const [agendaTypes, setAgendaTypes] = useState([
-    { id: 'committee_proposal', name: '委員会提案', enabled: true },
-    { id: 'facility_policy', name: '施設方針', enabled: true },
-    { id: 'hr', name: '人事', enabled: true },
-    { id: 'budget', name: '予算', enabled: true },
-    { id: 'equipment', name: '設備', enabled: true }
-  ]);
+  const [agendaTypes, setAgendaTypes] = useState<any[]>([]);
 
   // 会議スケジュール設定
-  const [meetingSettings, setMeetingSettings] = useState<Record<string, CommitteeSetting>>({
-    defaultMeetingDay: {
-      key: 'defaultMeetingDay',
-      value: '第2木曜日',
-      type: 'string',
-      description: 'デフォルト会議開催日',
-      category: 'meeting'
-    },
-    defaultMeetingTime: {
-      key: 'defaultMeetingTime',
-      value: '14:00',
-      type: 'string',
-      description: 'デフォルト会議開始時刻',
-      category: 'meeting'
-    },
-    meetingDurationMinutes: {
-      key: 'meetingDurationMinutes',
-      value: 120,
-      type: 'number',
-      description: '会議時間（分）',
-      category: 'meeting'
-    },
-    agendaSubmissionDeadlineDays: {
-      key: 'agendaSubmissionDeadlineDays',
-      value: 7,
-      type: 'number',
-      description: '議題提出期限（会議の何日前）',
-      category: 'meeting'
-    },
-    minutesPublishDeadlineDays: {
-      key: 'minutesPublishDeadlineDays',
-      value: 3,
-      type: 'number',
-      description: '議事録公開期限（会議後何日以内）',
-      category: 'meeting'
-    }
-  });
+  const [meetingSettings, setMeetingSettings] = useState<Record<string, CommitteeSetting>>({});
 
   // 承認フロー設定
-  const [approvalSettings, setApprovalSettings] = useState<Record<string, CommitteeSetting>>({
-    requireApproval: {
-      key: 'requireApproval',
-      value: true,
-      type: 'boolean',
-      description: '議題提出時の承認を必須にする',
-      category: 'approval'
-    },
-    minApproverLevel: {
-      key: 'minApproverLevel',
-      value: 8,
-      type: 'number',
-      description: '承認者の最低権限レベル',
-      category: 'approval'
-    },
-    approvalDeadlineHours: {
-      key: 'approvalDeadlineHours',
-      value: 48,
-      type: 'number',
-      description: '承認期限（時間）',
-      category: 'approval'
-    },
-    autoApproveAfterDeadline: {
-      key: 'autoApproveAfterDeadline',
-      value: false,
-      type: 'boolean',
-      description: '期限超過後の自動承認',
-      category: 'approval'
-    },
-    notifyApproverByEmail: {
-      key: 'notifyApproverByEmail',
-      value: true,
-      type: 'boolean',
-      description: '承認者へのメール通知',
-      category: 'approval'
-    }
-  });
+  const [approvalSettings, setApprovalSettings] = useState<Record<string, CommitteeSetting>>({});
+
+  // 初期データ取得
+  useEffect(() => {
+    const fetchAllSettings = async () => {
+      try {
+        setLoading(true);
+
+        // 並列でデータ取得
+        const [statusesRes, prioritiesRes, typesRes, meetingRes, approvalRes] = await Promise.all([
+          fetch('/api/committee/settings/statuses'),
+          fetch('/api/committee/settings/priorities'),
+          fetch('/api/committee/settings/types'),
+          fetch('/api/committee/settings/meeting'),
+          fetch('/api/committee/settings/approval'),
+        ]);
+
+        const statusesData = await statusesRes.json();
+        const prioritiesData = await prioritiesRes.json();
+        const typesData = await typesRes.json();
+        const meetingData = await meetingRes.json();
+        const approvalData = await approvalRes.json();
+
+        // ステータスを設定（statusId → id にマッピング）
+        setAgendaStatuses(
+          statusesData.statuses.map((s: any) => ({
+            id: s.statusId,
+            name: s.name,
+            color: s.color,
+            enabled: s.enabled,
+          }))
+        );
+
+        // 優先度を設定（priorityId → id にマッピング）
+        setPriorityLevels(
+          prioritiesData.priorities.map((p: any) => ({
+            id: p.priorityId,
+            name: p.name,
+            color: p.color,
+            enabled: p.enabled,
+          }))
+        );
+
+        // タイプを設定（typeId → id にマッピング）
+        setAgendaTypes(
+          typesData.types.map((t: any) => ({
+            id: t.typeId,
+            name: t.name,
+            enabled: t.enabled,
+          }))
+        );
+
+        // 会議設定を変換
+        const meetingSettingsObj: Record<string, CommitteeSetting> = {};
+        const settingDescriptions: Record<string, string> = {
+          defaultMeetingDay: 'デフォルト会議開催日',
+          defaultMeetingTime: 'デフォルト会議開始時刻',
+          meetingDurationMinutes: '会議時間（分）',
+          agendaSubmissionDeadlineDays: '議題提出期限（会議の何日前）',
+          minutesPublishDeadlineDays: '議事録公開期限（会議後何日以内）',
+        };
+
+        Object.entries(meetingData.settings).forEach(([key, value]) => {
+          meetingSettingsObj[key] = {
+            key,
+            value: value as string | number | boolean,
+            type: typeof value === 'number' ? 'number' : typeof value === 'boolean' ? 'boolean' : 'string',
+            description: settingDescriptions[key] || key,
+            category: 'meeting',
+          };
+        });
+        setMeetingSettings(meetingSettingsObj);
+
+        // 承認設定を変換
+        const approvalSettingsObj: Record<string, CommitteeSetting> = {};
+        const approvalDescriptions: Record<string, string> = {
+          requireApproval: '議題提出時の承認を必須にする',
+          minApproverLevel: '承認者の最低権限レベル',
+          approvalDeadlineHours: '承認期限（時間）',
+          autoApproveAfterDeadline: '期限超過後の自動承認',
+          notifyApproverByEmail: '承認者へのメール通知',
+        };
+
+        Object.entries(approvalData.settings).forEach(([key, value]) => {
+          approvalSettingsObj[key] = {
+            key,
+            value: value as string | number | boolean,
+            type: typeof value === 'number' ? 'number' : typeof value === 'boolean' ? 'boolean' : 'string',
+            description: approvalDescriptions[key] || key,
+            category: 'approval',
+          };
+        });
+        setApprovalSettings(approvalSettingsObj);
+
+        setLoading(false);
+      } catch (error) {
+        console.error('設定取得エラー:', error);
+        setSaveStatus('error');
+        setLoading(false);
+      }
+    };
+
+    fetchAllSettings();
+  }, []);
 
   const handleStatusToggle = (id: string) => {
     setHasChanges(true);
@@ -182,31 +195,84 @@ export const CommitteeSettingsPage: React.FC = () => {
   };
 
   const handleSave = async () => {
-    setSaveStatus('saving');
+    try {
+      setSaveStatus('saving');
 
-    setTimeout(() => {
+      // 並列で保存
+      await Promise.all([
+        // ステータス更新
+        fetch('/api/committee/settings/statuses', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            statuses: agendaStatuses.map((s) => ({
+              statusId: s.id,
+              enabled: s.enabled,
+            })),
+            userId: user?.id,
+          }),
+        }),
+
+        // 優先度更新
+        fetch('/api/committee/settings/priorities', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            priorities: priorityLevels.map((p) => ({
+              priorityId: p.id,
+              enabled: p.enabled,
+            })),
+            userId: user?.id,
+          }),
+        }),
+
+        // タイプ更新
+        fetch('/api/committee/settings/types', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            types: agendaTypes.map((t) => ({
+              typeId: t.id,
+              enabled: t.enabled,
+            })),
+            userId: user?.id,
+          }),
+        }),
+
+        // 会議設定更新
+        fetch('/api/committee/settings/meeting', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            settings: Object.fromEntries(
+              Object.entries(meetingSettings).map(([k, v]) => [k, v.value])
+            ),
+            userId: user?.id,
+          }),
+        }),
+
+        // 承認設定更新
+        fetch('/api/committee/settings/approval', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            settings: Object.fromEntries(
+              Object.entries(approvalSettings).map(([k, v]) => [k, v.value])
+            ),
+            userId: user?.id,
+          }),
+        }),
+      ]);
+
       setSaveStatus('saved');
       setHasChanges(false);
 
-      AuditService.log({
-        userId: user?.id || '',
-        action: 'COMMITTEE_SETTINGS_UPDATED',
-        details: {
-          agendaStatuses: agendaStatuses.map(s => ({ id: s.id, enabled: s.enabled })),
-          priorityLevels: priorityLevels.map(p => ({ id: p.id, enabled: p.enabled })),
-          agendaTypes: agendaTypes.map(t => ({ id: t.id, enabled: t.enabled })),
-          meetingSettings: Object.fromEntries(
-            Object.entries(meetingSettings).map(([k, v]) => [k, v.value])
-          ),
-          approvalSettings: Object.fromEntries(
-            Object.entries(approvalSettings).map(([k, v]) => [k, v.value])
-          )
-        },
-        severity: 'high'
-      });
-
       setTimeout(() => setSaveStatus('idle'), 3000);
-    }, 1000);
+    } catch (error) {
+      console.error('保存エラー:', error);
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    }
   };
 
   const handleReset = () => {
@@ -261,6 +327,17 @@ export const CommitteeSettingsPage: React.FC = () => {
     { id: 'meeting', label: '会議スケジュール', icon: Calendar },
     { id: 'approval', label: '承認フロー', icon: Users }
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 w-full flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-4" />
+          <p className="text-gray-400">設定を読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 w-full">

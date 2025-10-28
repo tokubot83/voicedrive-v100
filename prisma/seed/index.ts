@@ -10,6 +10,7 @@ import { seedFacilities } from './01-facilities';
 import { seedOrganizationStructure } from './02-organization-structure';
 import { seedJobCategories } from './03-job-categories';
 import { seedAgendaModeConfigs } from './04-agenda-mode-configs';
+import { seedCommitteeSettings } from './05-committee-settings';
 import { seedSidebarMenuConfigs } from './10-sidebar-menu-configs';
 
 const prisma = new PrismaClient();
@@ -52,15 +53,23 @@ async function main() {
     // ========================================
     // Step 4: 議題モード設定
     // ========================================
-    console.log('📍 Step 4/5: 議題モード設定投入');
+    console.log('📍 Step 4/6: 議題モード設定投入');
     console.log('-'.repeat(60));
     results.agendaModeConfigs = await seedAgendaModeConfigs();
     console.log('');
 
     // ========================================
-    // Step 5: サイドバーメニュー設定
+    // Step 5: 委員会設定マスターデータ
     // ========================================
-    console.log('📍 Step 5/5: サイドバーメニュー設定投入');
+    console.log('📍 Step 5/6: 委員会設定マスターデータ投入');
+    console.log('-'.repeat(60));
+    await seedCommitteeSettings();
+    console.log('');
+
+    // ========================================
+    // Step 6: サイドバーメニュー設定
+    // ========================================
+    console.log('📍 Step 6/6: サイドバーメニュー設定投入');
     console.log('-'.repeat(60));
     await seedSidebarMenuConfigs();
     console.log('');
@@ -108,12 +117,20 @@ async function main() {
     const organizationsCount = await prisma.organizationStructure.count();
     const jobCategoriesCount = await prisma.jobCategory.count();
     const agendaModeConfigsCount = await prisma.agendaModeConfig.count();
+    const committeeStatusCount = await prisma.committeeAgendaStatus.count();
+    const committeePriorityCount = await prisma.committeePriorityLevel.count();
+    const committeeTypeCount = await prisma.committeeAgendaType.count();
+    const committeeSettingCount = await prisma.committeeSystemSetting.count();
     const sidebarMenuConfigsCount = await prisma.sidebarMenuConfig.count();
 
     console.log(`   - 施設データ: ${facilitiesCount}件`);
     console.log(`   - 組織構造データ: ${organizationsCount}件`);
     console.log(`   - 職種データ: ${jobCategoriesCount}件`);
     console.log(`   - 議題モード設定: ${agendaModeConfigsCount}件`);
+    console.log(`   - 委員会ステータス: ${committeeStatusCount}件`);
+    console.log(`   - 委員会優先度: ${committeePriorityCount}件`);
+    console.log(`   - 委員会タイプ: ${committeeTypeCount}件`);
+    console.log(`   - 委員会設定: ${committeeSettingCount}件`);
     console.log(`   - サイドバーメニュー設定: ${sidebarMenuConfigsCount}件`);
     console.log('');
 

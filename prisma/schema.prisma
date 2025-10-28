@@ -3118,3 +3118,73 @@ model AuditLogArchive {
   @@index([originalCreatedAt])
   @@map("audit_log_archives")
 }
+
+// ==========================================
+// CommitteeSettings - 委員会設定システム
+// ==========================================
+
+// 議題ステータスマスター
+model CommitteeAgendaStatus {
+  id           String   @id @default(cuid())
+  statusId     String   @unique @map("status_id")        // 'pending', 'in_review', etc.
+  name         String                                     // '審議待ち', '審議中', etc.
+  color        String                                     // '#FFA500', etc.
+  enabled      Boolean  @default(true)
+  displayOrder Int      @default(0) @map("display_order")
+  description  String?                                    // 説明文
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([enabled])
+  @@index([displayOrder])
+  @@map("committee_agenda_statuses")
+}
+
+// 優先度レベルマスター
+model CommitteePriorityLevel {
+  id           String   @id @default(cuid())
+  priorityId   String   @unique @map("priority_id")      // 'critical', 'high', etc.
+  name         String                                     // '緊急', '高', etc.
+  color        String                                     // '#F44336', etc.
+  enabled      Boolean  @default(true)
+  displayOrder Int      @default(0) @map("display_order")
+  description  String?                                    // 説明文
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([enabled])
+  @@index([displayOrder])
+  @@map("committee_priority_levels")
+}
+
+// 議題タイプマスター
+model CommitteeAgendaType {
+  id           String   @id @default(cuid())
+  typeId       String   @unique @map("type_id")          // 'committee_proposal', etc.
+  name         String                                     // '委員会提案', etc.
+  enabled      Boolean  @default(true)
+  displayOrder Int      @default(0) @map("display_order")
+  description  String?                                    // 説明文
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([enabled])
+  @@index([displayOrder])
+  @@map("committee_agenda_types")
+}
+
+// システム設定Key-Value（会議スケジュール・承認フロー）
+model CommitteeSystemSetting {
+  id           String   @id @default(cuid())
+  category     String                                     // 'meeting' or 'approval'
+  settingKey   String   @map("setting_key")               // 'defaultMeetingDay', etc.
+  settingValue String   @map("setting_value")             // JSON文字列として保存
+  valueType    String   @map("value_type")                // 'string', 'number', 'boolean'
+  description  String                                     // 設定の説明
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([category, settingKey])
+  @@index([category])
+  @@map("committee_system_settings")
+}
