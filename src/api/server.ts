@@ -19,6 +19,8 @@ import boardDecisionsRoutes from './routes/board-decisions.routes';
 import boardDecisionMilestonesRoutes from './routes/board-decision-milestones.routes';
 import boardDecisionFacilityImplementationsRoutes from './routes/board-decision-facility-implementations.routes';
 import proposalDocumentsRoutes from './routes/proposal-documents.routes';
+import notificationCategorySettingsRoutes from './routes/notification-category-settings.routes';
+import interviewSettingsRoutes from './routes/interview-settings.routes';
 
 // 環境変数バリデーション（起動前にチェック）
 validateEnvironment();
@@ -188,6 +190,8 @@ app.use('/api', apiLimiter, boardDecisionMilestonesRoutes); // 理事会決定�
 app.use('/api', apiLimiter, boardDecisionFacilityImplementationsRoutes); // 理事会決定施設実施状況API（2025-10-13）
 app.use('/api/proposal-documents', apiLimiter, proposalDocumentsRoutes); // 議題提案書API（2025-10-22）
 app.use('/api', apiLimiter, proposalDocumentsRoutes); // 委員会提出リクエストAPI（/api/committee-submission-requests）（2025-10-22）
+app.use('/api/admin/notification-category-settings', apiLimiter, notificationCategorySettingsRoutes); // 通知カテゴリ設定API（2025-10-28）
+app.use('/api/interview/settings', apiLimiter, interviewSettingsRoutes); // 面談設定API（2025-10-28）
 
 // 404ハンドラー
 app.use((req: Request, res: Response) => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, Mail, Calendar, Briefcase, Users, GraduationCap, Clock, Save, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Card } from '../../components/ui/Card';
@@ -33,8 +33,9 @@ export const NotificationCategoryPage: React.FC = () => {
   const { user } = useAuth();
   const [hasChanges, setHasChanges] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [isLoading, setIsLoading] = useState(true);
 
-  // 通知カテゴリ設定
+  // 通知カテゴリ設定（デフォルト値）
   const [categories, setCategories] = useState<NotificationCategory[]>([
     {
       id: 'interview',
@@ -138,6 +139,51 @@ export const NotificationCategoryPage: React.FC = () => {
     nightModeSilent: true
   });
 
+  // 初期読み込み
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/admin/notification-category-settings');
+
+        if (!response.ok) {
+          throw new Error('設定の取得に失敗しました');
+        }
+
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const { categories: apiCategories, generalSettings: apiGeneralSettings } = result.data;
+
+          // APIから取得したカテゴリ設定をマージ（アイコンは既存のものを使用）
+          if (apiCategories && Array.isArray(apiCategories)) {
+            setCategories(prev => {
+              return apiCategories.map((apiCat: any) => {
+                const existingCat = prev.find(c => c.id === apiCat.id);
+                return {
+                  ...apiCat,
+                  icon: existingCat?.icon || Bell, // 既存のアイコンを維持
+                };
+              });
+            });
+          }
+
+          // 全般設定を更新
+          if (apiGeneralSettings) {
+            setGeneralSettings(apiGeneralSettings);
+          }
+        }
+      } catch (error) {
+        console.error('設定読み込みエラー:', error);
+        // エラーの場合はデフォルト値を使用
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
   const handleCategoryToggle = (id: string, field: 'enabled' | 'emailEnabled' | 'systemEnabled') => {
     setHasChanges(true);
     setSaveStatus('idle');
@@ -163,28 +209,61 @@ export const NotificationCategoryPage: React.FC = () => {
   const handleSave = async () => {
     setSaveStatus('saving');
 
-    setTimeout(() => {
-      setSaveStatus('saved');
-      setHasChanges(false);
+    try {
+      // カテゴリ設定からアイコンを除外（APIに送信しない）
+      const categoriesData = categories.map(c => ({
+        id: c.id,
+        name: c.name,
+        description: c.description,
+        color: c.color,
+        enabled: c.enabled,
+        emailEnabled: c.emailEnabled,
+        systemEnabled: c.systemEnabled,
+        priority: c.priority
+      }));
 
-      AuditService.log({
-        userId: user?.id || '',
-        action: 'NOTIFICATION_CATEGORY_SETTINGS_UPDATED',
-        details: {
-          categories: categories.map(c => ({
-            id: c.id,
-            enabled: c.enabled,
-            emailEnabled: c.emailEnabled,
-            systemEnabled: c.systemEnabled,
-            priority: c.priority
-          })),
+      const response = await fetch('/api/admin/notification-category-settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          categories: categoriesData,
           generalSettings
-        },
-        severity: 'medium'
+        })
       });
 
+      if (!response.ok) {
+        throw new Error('保存に失敗しました');
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSaveStatus('saved');
+        setHasChanges(false);
+
+        // 監査ログを記録
+        AuditService.log({
+          userId: user?.id || '',
+          action: 'NOTIFICATION_CATEGORY_SETTINGS_UPDATED',
+          details: {
+            categories: categoriesData,
+            generalSettings
+          },
+          severity: 'medium'
+        });
+
+        // 3秒後にステータスをリセット
+        setTimeout(() => setSaveStatus('idle'), 3000);
+      } else {
+        throw new Error(result.message || '保存に失敗しました');
+      }
+    } catch (error) {
+      console.error('保存エラー:', error);
+      setSaveStatus('error');
+
+      // エラー表示を3秒後にリセット
       setTimeout(() => setSaveStatus('idle'), 3000);
-    }, 1000);
+    }
   };
 
   const handleReset = () => {
@@ -204,16 +283,6 @@ export const NotificationCategoryPage: React.FC = () => {
     }
   };
 
-  const getPriorityLabel = (priority: string) => {
-    switch (priority) {
-      case 'critical': return '緊急';
-      case 'high': return '高';
-      case 'normal': return '通常';
-      case 'low': return '低';
-      default: return '通常';
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-900 w-full">
       <div className="w-full p-6">
@@ -228,11 +297,27 @@ export const NotificationCategoryPage: React.FC = () => {
           </p>
         </div>
 
+        {/* ローディング表示 */}
+        {isLoading && (
+          <div className="bg-blue-500/10 border border-blue-500/50 rounded-lg p-4 mb-6 flex items-center gap-3">
+            <RefreshCw className="w-5 h-5 text-blue-400 animate-spin" />
+            <span className="text-blue-200">設定を読み込んでいます...</span>
+          </div>
+        )}
+
         {/* 警告メッセージ */}
         {hasChanges && (
           <div className="bg-yellow-500/10 border border-yellow-500/50 rounded-lg p-4 mb-6 flex items-center gap-3">
             <AlertTriangle className="w-5 h-5 text-yellow-400" />
             <span className="text-yellow-200">未保存の変更があります</span>
+          </div>
+        )}
+
+        {/* エラーメッセージ */}
+        {saveStatus === 'error' && (
+          <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4 mb-6 flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-400" />
+            <span className="text-red-200">保存に失敗しました。もう一度お試しください。</span>
           </div>
         )}
 

@@ -885,6 +885,127 @@ VoiceDrive 医療システム統合
 
     this.send(config);
   }
+
+  // === 通知カテゴリ設定連携（Phase 4: 2025-10-28追加） ===
+
+  /**
+   * カテゴリ設定を取得
+   */
+  private async getCategorySettings(categoryId: string): Promise<any | null> {
+    try {
+      const response = await fetch(`/api/admin/notification-category-settings/category/${categoryId}`);
+
+      if (!response.ok) {
+        console.warn(`カテゴリ設定の取得に失敗: ${categoryId}`);
+        return null;
+      }
+
+      const result = await response.json();
+      return result.success ? result.data : null;
+    } catch (error) {
+      console.error('カテゴリ設定取得エラー:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 夜間モードチェック
+   */
+  private async isNightMode(): Promise<boolean> {
+    try {
+      const response = await fetch('/api/admin/notification-category-settings/is-night-mode');
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const result = await response.json();
+      return result.success ? result.data.isNightMode : false;
+    } catch (error) {
+      console.error('夜間モードチェックエラー:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 通知タイプからカテゴリIDへのマッピング
+   */
+  private getNotificationCategoryId(type: NotificationType | string): string {
+    const categoryMap: Record<string, string> = {
+      'proposal_received': 'interview',
+      'booking_confirmed': 'interview',
+      'revised_proposal': 'interview',
+      'reschedule_approved': 'interview',
+      'reschedule_rejected': 'interview',
+      'cancellation_confirmed': 'interview',
+      'selection_deadline_warning': 'interview',
+      'processing_timeout': 'interview',
+      'expired_escalation_detected': 'agenda',
+      'system_notification': 'system',
+      'connection_status': 'system'
+    };
+
+    return categoryMap[type] || 'system';
+  }
+
+  /**
+   * カテゴリ設定に基づいた通知送信（拡張版）
+   */
+  public async sendNotificationWithCategoryCheck(config: MedicalNotificationConfig): Promise<string | null> {
+    const categoryId = this.getNotificationCategoryId(config.type);
+
+    // カテゴリ設定を取得
+    const categorySettings = await this.getCategorySettings(categoryId);
+
+    // カテゴリが無効化されている場合は送信しない
+    if (categorySettings && !categorySettings.enabled) {
+      console.log(`カテゴリ "${categoryId}" が無効化されているため通知をスキップ: ${config.type}`);
+      return null;
+    }
+
+    // 夜間モードチェック
+    const isNightModeActive = await this.isNightMode();
+    if (isNightModeActive) {
+      console.log('夜間モードのため通知を抑制します');
+      // 緊急通知（critical）の場合は送信する
+      if (config.urgency !== 'urgent') {
+        return null;
+      }
+      console.log('緊急通知のため夜間モードでも送信します');
+    }
+
+    // カテゴリ設定に基づいて配信方法を調整
+    if (categorySettings) {
+      const adjustedChannels: NotificationChannel[] = [];
+
+      if (categorySettings.systemEnabled) {
+        adjustedChannels.push('browser', 'storage');
+      }
+
+      if (categorySettings.emailEnabled && this.preferences.enableEmailNotifications) {
+        adjustedChannels.push('email');
+      }
+
+      // 音声通知はurgencyに応じて追加
+      if (config.urgency === 'urgent' || config.urgency === 'high') {
+        adjustedChannels.push('sound');
+      }
+
+      // 調整後のチャンネルで上書き
+      config.channels = adjustedChannels;
+
+      console.log(`カテゴリ設定適用: ${categoryId}`, {
+        enabled: categorySettings.enabled,
+        emailEnabled: categorySettings.emailEnabled,
+        systemEnabled: categorySettings.systemEnabled,
+        priority: categorySettings.priority,
+        adjustedChannels
+      });
+    }
+
+    // 既存の通知送信処理を実行
+    return await this.sendNotification(config);
+  }
 }
 
 export default NotificationService;

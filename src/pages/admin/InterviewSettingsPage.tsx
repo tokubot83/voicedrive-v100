@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Users, Save, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Card } from '../../components/ui/Card';
@@ -32,20 +32,10 @@ export const InterviewSettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('types');
   const [hasChanges, setHasChanges] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [loading, setLoading] = useState(true);
 
-  // 面談タイプ設定
-  const [interviewTypes, setInterviewTypes] = useState([
-    { id: 'new_employee_monthly', name: '新入職員月次面談', enabled: true, frequency: '月1回' },
-    { id: 'regular_annual', name: '一般職員年次面談', enabled: true, frequency: '年1回' },
-    { id: 'management_biannual', name: '管理職半年面談', enabled: true, frequency: '半年1回' },
-    { id: 'return_to_work', name: '復職面談', enabled: true, frequency: '復職時' },
-    { id: 'incident_followup', name: 'インシデント後面談', enabled: true, frequency: '発生時' },
-    { id: 'exit_interview', name: '退職面談', enabled: true, frequency: '退職前' },
-    { id: 'feedback', name: 'フィードバック面談', enabled: true, frequency: '随時' },
-    { id: 'career_support', name: 'キャリア系面談', enabled: true, frequency: '随時' },
-    { id: 'workplace_support', name: '職場環境系面談', enabled: true, frequency: '随時' },
-    { id: 'individual_consultation', name: '個別相談面談', enabled: true, frequency: '随時' }
-  ]);
+  // 面談タイプ設定（医療マスター + VoiceDrive設定マージ）
+  const [interviewTypes, setInterviewTypes] = useState<any[]>([]);
 
   // スケジュール設定
   const [scheduleSettings, setScheduleSettings] = useState<Record<string, InterviewSetting>>({
@@ -168,11 +158,122 @@ export const InterviewSettingsPage: React.FC = () => {
     }
   };
 
+  // 初期データ読み込み
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        setLoading(true);
+
+        // 面談タイプ設定を取得（医療マスター + VoiceDrive設定）
+        const typesResponse = await fetch('/api/interview/settings/types');
+        const typesData = await typesResponse.json();
+        if (typesData.success) {
+          setInterviewTypes(typesData.data);
+        }
+
+        // スケジュール設定を取得
+        const scheduleResponse = await fetch('/api/interview/settings/schedule');
+        const scheduleData = await scheduleResponse.json();
+        if (scheduleData.success) {
+          const scheduleMap: Record<string, InterviewSetting> = {};
+          scheduleData.data.forEach((item: any) => {
+            scheduleMap[item.key] = {
+              key: item.key,
+              value: item.type === 'boolean' ? item.value === 'true' : item.type === 'number' ? parseInt(item.value) : item.value,
+              type: item.type as any,
+              description: item.description,
+              category: 'schedule'
+            };
+          });
+          setScheduleSettings(scheduleMap);
+        }
+
+        // 予約制限設定を取得
+        const restrictionsResponse = await fetch('/api/interview/settings/restrictions');
+        const restrictionsData = await restrictionsResponse.json();
+        if (restrictionsData.success) {
+          const restrictionsMap: Record<string, InterviewSetting> = {};
+          restrictionsData.data.forEach((item: any) => {
+            restrictionsMap[item.key] = {
+              key: item.key,
+              value: item.type === 'boolean' ? item.value === 'true' : item.type === 'number' ? parseInt(item.value) : item.value,
+              type: item.type as any,
+              description: item.description,
+              category: 'restriction'
+            };
+          });
+          setRestrictionSettings(restrictionsMap);
+        }
+      } catch (error) {
+        console.error('設定読み込みエラー:', error);
+        setSaveStatus('error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
   const handleSave = async () => {
     setSaveStatus('saving');
 
-    // 保存処理のシミュレーション
-    setTimeout(() => {
+    try {
+      // 面談タイプ設定を保存
+      const typesPayload = {
+        types: interviewTypes.map((t) => ({
+          interviewTypeId: t.id,
+          enabled: t.enabled,
+          displayOrder: t.displayOrder,
+          customName: t.customName,
+          notes: t.notes
+        }))
+      };
+
+      const typesResponse = await fetch('/api/interview/settings/types', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(typesPayload)
+      });
+
+      if (!typesResponse.ok) throw new Error('面談タイプ設定の保存に失敗しました');
+
+      // スケジュール設定を保存
+      const schedulePayload = {
+        settings: Object.values(scheduleSettings).map((s) => ({
+          key: s.key,
+          value: String(s.value),
+          type: s.type,
+          description: s.description
+        }))
+      };
+
+      const scheduleResponse = await fetch('/api/interview/settings/schedule', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(schedulePayload)
+      });
+
+      if (!scheduleResponse.ok) throw new Error('スケジュール設定の保存に失敗しました');
+
+      // 予約制限設定を保存
+      const restrictionsPayload = {
+        settings: Object.values(restrictionSettings).map((s) => ({
+          key: s.key,
+          value: String(s.value),
+          type: s.type,
+          description: s.description
+        }))
+      };
+
+      const restrictionsResponse = await fetch('/api/interview/settings/restrictions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(restrictionsPayload)
+      });
+
+      if (!restrictionsResponse.ok) throw new Error('予約制限設定の保存に失敗しました');
+
       setSaveStatus('saved');
       setHasChanges(false);
 
@@ -181,7 +282,7 @@ export const InterviewSettingsPage: React.FC = () => {
         userId: user?.id || '',
         action: 'INTERVIEW_SETTINGS_UPDATED',
         details: {
-          interviewTypes: interviewTypes.map(t => ({ id: t.id, enabled: t.enabled })),
+          interviewTypes: interviewTypes.map((t) => ({ id: t.id, enabled: t.enabled })),
           scheduleSettings: Object.fromEntries(
             Object.entries(scheduleSettings).map(([k, v]) => [k, v.value])
           ),
@@ -193,7 +294,11 @@ export const InterviewSettingsPage: React.FC = () => {
       });
 
       setTimeout(() => setSaveStatus('idle'), 3000);
-    }, 1000);
+    } catch (error) {
+      console.error('保存エラー:', error);
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    }
   };
 
   const handleReset = () => {

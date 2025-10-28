@@ -3188,3 +3188,80 @@ model CommitteeSystemSetting {
   @@index([category])
   @@map("committee_system_settings")
 }
+
+// 通知カテゴリ設定（Level 99管理者用）
+// NotificationCategoryPage で使用
+model NotificationCategorySettings {
+  id                        String   @id @default(cuid())
+
+  // カテゴリ設定（JSON形式で8カテゴリを管理）
+  categories                Json     @map("categories")
+  // [
+  //   {
+  //     id: 'interview',
+  //     name: '面談・予約通知',
+  //     description: '面談予約、リマインダー、キャンセル通知',
+  //     enabled: true,
+  //     emailEnabled: true,
+  //     systemEnabled: true,
+  //     priority: 'high'
+  //   },
+  //   ... (8カテゴリ)
+  // ]
+
+  // 全般設定
+  retentionDays             Int      @default(30) @map("retention_days")
+  criticalPriorityImmediate Boolean  @default(true) @map("critical_priority_immediate")
+  highPriorityImmediate     Boolean  @default(true) @map("high_priority_immediate")
+  normalPriorityBatch       Boolean  @default(false) @map("normal_priority_batch")
+  lowPriorityBatch          Boolean  @default(true) @map("low_priority_batch")
+
+  // 夜間モード設定
+  nightModeStart            String?  @map("night_mode_start")      // '22:00'
+  nightModeEnd              String?  @map("night_mode_end")        // '07:00'
+  nightModeSilent           Boolean  @default(true) @map("night_mode_silent")
+
+  // メタデータ
+  updatedBy                 String?  @map("updated_by")
+  createdAt                 DateTime @default(now()) @map("created_at")
+  updatedAt                 DateTime @updatedAt @map("updated_at")
+
+  @@index([updatedAt])
+  @@map("notification_category_settings")
+}
+
+// ==========================================
+// InterviewSettings - 面談設定システム
+// ==========================================
+
+// 面談タイプ有効化設定（医療システムのマスターを参照）
+model InterviewTypeConfig {
+  id              String   @id @default(cuid())
+  interviewTypeId String   @unique @map("interview_type_id")  // 医療システムのinterviewTypeIdを参照
+  enabled         Boolean  @default(true)                      // 有効/無効フラグ
+  displayOrder    Int?     @default(0) @map("display_order")  // 表示順序
+  customName      String?  @map("custom_name")                // 独自呼称（オプション）
+  notes           String?                                      // メモ
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([enabled])
+  @@index([displayOrder])
+  @@map("interview_type_configs")
+}
+
+// 面談システム設定Key-Value（スケジュール・予約制限）
+model InterviewSystemSetting {
+  id           String   @id @default(cuid())
+  category     String                                     // 'schedule' or 'restriction'
+  settingKey   String   @map("setting_key")               // 'startTime', 'endTime', etc.
+  settingValue String   @map("setting_value")             // 設定値（文字列形式）
+  valueType    String   @map("value_type")                // 'string', 'number', 'boolean', 'time'
+  description  String                                     // 設定の説明
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([category, settingKey])
+  @@index([category])
+  @@map("interview_system_settings")
+}
